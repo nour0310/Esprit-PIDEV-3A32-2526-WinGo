@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<AnchorPane xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="Controlles.AuthController"
+            prefWidth="860" prefHeight="520"
+            style="-fx-background-color: linear-gradient(to bottom right, #390099, #9E0059);">
+
+    <children>
+        <VBox layoutX="150" layoutY="55" prefWidth="560" spacing="14"
+              style="-fx-background-color: rgba(255,255,255,0.95); -fx-background-radius: 18; -fx-padding: 24;
+                     -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.25), 18, 0.2, 0, 6);">
+
+            <!-- Header -->
+            <HBox spacing="12" alignment="CENTER_LEFT">
+                <Label text="Wingo"
+                       style="-fx-font-size: 24px; -fx-font-weight: 900; -fx-text-fill: #390099;"/>
+                <Label text="Auth"
+                       style="-fx-font-size: 14px; -fx-text-fill: rgba(57,0,153,0.7); -fx-font-weight: 700;"/>
+                <Region HBox.hgrow="ALWAYS"/>
+                <ToggleGroup fx:id="modeGroup"/>
+                <RadioButton fx:id="loginMode" text="Login" toggleGroup="$modeGroup" selected="true"
+                             onAction="#switchMode"
+                             style="-fx-font-weight: 800; -fx-text-fill: #9E0059;"/>
+                <RadioButton fx:id="signupMode" text="Sign up" toggleGroup="$modeGroup"
+                             onAction="#switchMode"
+                             style="-fx-font-weight: 800; -fx-text-fill: #9E0059;"/>
+            </HBox>
+
+            <Separator/>
+
+            <!-- SIGNUP FIELDS (shown only in signup) -->
+            <HBox fx:id="nameRow" spacing="10" managed="false" visible="false">
+                <TextField fx:id="nomField" promptText="Nom" HBox.hgrow="ALWAYS"
+                           style="-fx-background-radius: 10; -fx-border-radius: 10; -fx-padding: 10;"/>
+                <TextField fx:id="prenomField" promptText="Prénom" HBox.hgrow="ALWAYS"
+                           style="-fx-background-radius: 10; -fx-border-radius: 10; -fx-padding: 10;"/>
+            </HBox>
+
+            <!-- Common fields -->
+            <TextField fx:id="emailField" promptText="Email"
+                       style="-fx-background-radius: 10; -fx-border-radius: 10; -fx-padding: 10;"/>
+
+            <PasswordField fx:id="passwordField" promptText="Mot de passe"
+                           style="-fx-background-radius: 10; -fx-border-radius: 10; -fx-padding: 10;"/>
+
+            <!-- Confirm password (signup only) -->
+            <PasswordField fx:id="confirmField" promptText="Confirmer le mot de passe"
+                           managed="false" visible="false"
+                           style="-fx-background-radius: 10; -fx-border-radius: 10; -fx-padding: 10;"/>
+
+            <Label fx:id="statusLabel" text=""
+                   style="-fx-text-fill: #FF5400; -fx-font-weight: 800;"/>
+
+            <HBox spacing="10" alignment="CENTER_RIGHT">
+                <Button fx:id="actionBtn" text="Login" onAction="#handleAction"
+                        style="-fx-background-color: #FF0054; -fx-text-fill: white; -fx-background-radius: 12;
+                               -fx-padding: 10 16; -fx-font-weight: 900;"/>
+            </HBox>
+
+            <Label text="Tip: Choisis Login / Sign up en haut."
+                   style="-fx-text-fill: rgba(0,0,0,0.45); -fx-font-weight: 700;"/>
+        </VBox>
+    </children>
+</AnchorPane>
