@@ -21,7 +21,7 @@
 
             <!-- Logo + name -->
             <HBox spacing="10" alignment="CENTER_LEFT" style="-fx-padding: 6 0 10 0;">
-               <ImageView fitHeight="36" fitWidth="36" preserveRatio="true">
+               <ImageView fitHeight="120" fitWidth="120" preserveRatio="true">
                   <image>
                      <Image url="@assets/logo.png"/>
                   </image>
