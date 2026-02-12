@@ -1,142 +1,116 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.geometry.Insets?>
-<?import javafx.scene.control.*?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.control.TextField?>
 <?import javafx.scene.image.Image?>
 <?import javafx.scene.image.ImageView?>
-<?import javafx.scene.layout.*?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.layout.VBox?>
 
-<AnchorPane prefHeight="560.0" prefWidth="980.0"
-            xmlns="http://javafx.com/javafx/21"
-            xmlns:fx="http://javafx.com/fxml/1"
-            fx:controller="Controlles.AjouterProduit"
-            style="-fx-background-color: linear-gradient(to bottom right, #390099, #9E0059);">
+<AnchorPane prefHeight="560.0" prefWidth="980.0" style="-fx-background-color: linear-gradient(to bottom right, #390099, #9E0059);" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Controlles.AjouterProduit">
 
    <children>
-      <HBox layoutX="18" layoutY="18" prefWidth="944" prefHeight="524" spacing="16">
+      <HBox layoutX="18" layoutY="18" prefHeight="524" prefWidth="944" spacing="16">
 
          <!-- SIDEBAR -->
-         <VBox prefWidth="210" spacing="12"
-               style="-fx-background-color: rgba(255,255,255,0.12); -fx-background-radius: 18; -fx-padding: 14;">
+         <VBox prefWidth="210" spacing="12" style="-fx-background-color: rgba(255,255,255,0.12); -fx-background-radius: 18; -fx-padding: 14;">
 
             <!-- Logo + name -->
-            <HBox spacing="10" alignment="CENTER_LEFT" style="-fx-padding: 6 0 10 0;">
-               <ImageView fitHeight="120" fitWidth="120" preserveRatio="true">
+            <HBox alignment="CENTER_LEFT" spacing="10" style="-fx-padding: 6 0 10 0;">
+               <ImageView fitHeight="72.0" fitWidth="85.0" preserveRatio="true">
                   <image>
-                     <Image url="@assets/logo.png"/>
+                     <Image url="@assets/logo.png" />
                   </image>
                </ImageView>
                <VBox>
-                  <Label text="Wingo" style="-fx-text-fill: white; -fx-font-size: 16px; -fx-font-weight: 900;"/>
-                  <Label text="Backoffice" style="-fx-text-fill: rgba(255,255,255,0.75); -fx-font-size: 11px;"/>
+                  <Label style="-fx-text-fill: white; -fx-font-size: 16px; -fx-font-weight: 900;" text="Wingo" />
                </VBox>
             </HBox>
 
-            <Separator opacity="0.25"/>
+            <Separator opacity="0.25" />
 
             <!-- nav buttons -->
-            <Button text="➕  Ajouter Produit" onAction="#goAjouter"
-                    style="-fx-background-color: rgba(255,255,255,0.18); -fx-text-fill: white; -fx-font-weight: 900; -fx-background-radius: 12; -fx-padding: 10 12; -fx-cursor: hand;"/>
+            <Button onAction="#goAjouter" style="-fx-background-color: rgba(255,255,255,0.18); -fx-text-fill: white; -fx-font-weight: 900; -fx-background-radius: 12; -fx-padding: 10 12; -fx-cursor: hand;" text="➕  Ajouter Produit" />
 
-            <Button text="📋  Liste Produits" onAction="#goListe"
-                    style="-fx-background-color: transparent; -fx-text-fill: rgba(255,255,255,0.92); -fx-border-color: rgba(255,255,255,0.35); -fx-border-radius: 12; -fx-background-radius: 12; -fx-padding: 10 12; -fx-font-weight: 800; -fx-cursor: hand;"/>
+            <Button onAction="#goListe" style="-fx-background-color: transparent; -fx-text-fill: rgba(255,255,255,0.92); -fx-border-color: rgba(255,255,255,0.35); -fx-border-radius: 12; -fx-background-radius: 12; -fx-padding: 10 12; -fx-font-weight: 800; -fx-cursor: hand;" text="📋  Liste Produits" />
 
-            <Button text="📊  Dashboard" onAction="#goDashboard"
-                    style="-fx-background-color: transparent; -fx-text-fill: rgba(255,255,255,0.92); -fx-border-color: rgba(255,255,255,0.35); -fx-border-radius: 12; -fx-background-radius: 12; -fx-padding: 10 12; -fx-font-weight: 800; -fx-cursor: hand;"/>
+            <Button onAction="#goDashboard" style="-fx-background-color: transparent; -fx-text-fill: rgba(255,255,255,0.92); -fx-border-color: rgba(255,255,255,0.35); -fx-border-radius: 12; -fx-background-radius: 12; -fx-padding: 10 12; -fx-font-weight: 800; -fx-cursor: hand;" text="📊  Dashboard" />
 
-            <Region VBox.vgrow="ALWAYS"/>
+            <Region VBox.vgrow="ALWAYS" />
 
-            <Label text="© 2026 Wingo" style="-fx-text-fill: rgba(255,255,255,0.65); -fx-font-size: 11px;"/>
+            <Label style="-fx-text-fill: rgba(255,255,255,0.65); -fx-font-size: 11px;" text="© 2026 Wingo" />
          </VBox>
 
          <!-- MAIN -->
          <VBox prefWidth="718" spacing="14">
 
             <!-- Header -->
-            <HBox spacing="12.0" alignment="CENTER_LEFT"
-                  style="-fx-background-color: rgba(255,255,255,0.12); -fx-background-radius: 18; -fx-padding: 14;">
-               <Label text="Ajouter Produit"
-                      style="-fx-font-size: 22px; -fx-font-weight: 900; -fx-text-fill: white;"/>
-               <Label text="(Produits Dashboard)"
-                      style="-fx-font-size: 13px; -fx-text-fill: rgba(255,255,255,0.75);"/>
-               <Region HBox.hgrow="ALWAYS"/>
-               <Label text="✨" style="-fx-font-size: 18px;"/>
+            <HBox alignment="CENTER_LEFT" spacing="12.0" style="-fx-background-color: rgba(255,255,255,0.12); -fx-background-radius: 18; -fx-padding: 14;">
+               <Label style="-fx-font-size: 22px; -fx-font-weight: 900; -fx-text-fill: white;" text="Ajouter Produit" />
+               <Region HBox.hgrow="ALWAYS" />
+               <Label style="-fx-font-size: 18px;" text="✨" />
             </HBox>
 
             <!-- Card Form -->
-            <VBox spacing="14"
-                  style="-fx-background-color: rgba(255,255,255,0.95); -fx-background-radius: 18; -fx-padding: 18; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.25), 18, 0.2, 0, 6);">
+            <VBox spacing="14" style="-fx-background-color: rgba(255,255,255,0.95); -fx-background-radius: 18; -fx-padding: 18; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.25), 18, 0.2, 0, 6);">
 
                <GridPane hgap="12" vgap="12">
                   <columnConstraints>
-                     <ColumnConstraints prefWidth="140"/>
-                     <ColumnConstraints prefWidth="240"/>
-                     <ColumnConstraints prefWidth="140"/>
-                     <ColumnConstraints prefWidth="240"/>
+                     <ColumnConstraints prefWidth="140" />
+                     <ColumnConstraints prefWidth="240" />
+                     <ColumnConstraints prefWidth="140" />
+                     <ColumnConstraints prefWidth="240" />
                   </columnConstraints>
 
-                  <Label text="🧑‍💼  ID Commerçant" GridPane.rowIndex="0" GridPane.columnIndex="0"
-                         style="-fx-font-weight: 900; -fx-text-fill: #390099;"/>
-                  <TextField fx:id="idCommercantField" promptText="ex: 12"
-                             GridPane.rowIndex="0" GridPane.columnIndex="1"
-                             style="-fx-background-radius: 10; -fx-border-radius: 10; -fx-border-color: rgba(57,0,153,0.25); -fx-padding: 10;"/>
+                  <Label style="-fx-font-weight: 900; -fx-text-fill: #390099;" text="🧑‍💼  ID Commerçant" GridPane.columnIndex="0" GridPane.rowIndex="0" />
+                  <TextField fx:id="idCommercantField" promptText="ex: 12" style="-fx-background-radius: 10; -fx-border-radius: 10; -fx-border-color: rgba(57,0,153,0.25); -fx-padding: 10;" GridPane.columnIndex="1" GridPane.rowIndex="0" />
 
-                  <Label text="🏷️  Nom" GridPane.rowIndex="0" GridPane.columnIndex="2"
-                         style="-fx-font-weight: 900; -fx-text-fill: #390099;"/>
+                  <Label style="-fx-font-weight: 900; -fx-text-fill: #390099;" text="🏷️  Nom" GridPane.columnIndex="2" GridPane.rowIndex="0" />
                   <!-- IMPORTANT: fx:id matches your controller -->
-                  <TextField fx:id="nomTextField" promptText="ex: Mug Wingo"
-                             GridPane.rowIndex="0" GridPane.columnIndex="3"
-                             style="-fx-background-radius: 10; -fx-border-radius: 10; -fx-border-color: rgba(57,0,153,0.25); -fx-padding: 10;"/>
+                  <TextField fx:id="nomTextField" promptText="ex: Mug Wingo" style="-fx-background-radius: 10; -fx-border-radius: 10; -fx-border-color: rgba(57,0,153,0.25); -fx-padding: 10;" GridPane.columnIndex="3" GridPane.rowIndex="0" />
 
-                  <Label text="📝  Description" GridPane.rowIndex="1" GridPane.columnIndex="0"
-                         style="-fx-font-weight: 900; -fx-text-fill: #390099;"/>
-                  <TextArea fx:id="descriptionArea" promptText="Texte (optionnel)"
-                            prefRowCount="3"
-                            GridPane.rowIndex="1" GridPane.columnIndex="1" GridPane.columnSpan="3"
-                            style="-fx-background-radius: 10; -fx-border-radius: 10; -fx-border-color: rgba(57,0,153,0.25); -fx-padding: 10;"/>
+                  <Label style="-fx-font-weight: 900; -fx-text-fill: #390099;" text="📝  Description" GridPane.columnIndex="0" GridPane.rowIndex="1" />
+                  <TextArea fx:id="descriptionArea" prefRowCount="3" promptText="Texte (optionnel)" style="-fx-background-radius: 10; -fx-border-radius: 10; -fx-border-color: rgba(57,0,153,0.25); -fx-padding: 10;" GridPane.columnIndex="1" GridPane.columnSpan="3" GridPane.rowIndex="1" />
 
-                  <Label text="💰  Prix (TND)" GridPane.rowIndex="2" GridPane.columnIndex="0"
-                         style="-fx-font-weight: 900; -fx-text-fill: #390099;"/>
+                  <Label style="-fx-font-weight: 900; -fx-text-fill: #390099;" text="💰  Prix (TND)" GridPane.columnIndex="0" GridPane.rowIndex="2" />
                   <!-- IMPORTANT: fx:id matches your controller -->
-                  <TextField fx:id="prixTextField" promptText="ex: 15.50"
-                             GridPane.rowIndex="2" GridPane.columnIndex="1"
-                             style="-fx-background-radius: 10; -fx-border-radius: 10; -fx-border-color: rgba(57,0,153,0.25); -fx-padding: 10;"/>
+                  <TextField fx:id="prixTextField" promptText="ex: 15.50" style="-fx-background-radius: 10; -fx-border-radius: 10; -fx-border-color: rgba(57,0,153,0.25); -fx-padding: 10;" GridPane.columnIndex="1" GridPane.rowIndex="2" />
 
-                  <Label text="📦  Stock" GridPane.rowIndex="2" GridPane.columnIndex="2"
-                         style="-fx-font-weight: 900; -fx-text-fill: #390099;"/>
-                  <TextField fx:id="stockField" promptText="ex: 10"
-                             GridPane.rowIndex="2" GridPane.columnIndex="3"
-                             style="-fx-background-radius: 10; -fx-border-radius: 10; -fx-border-color: rgba(57,0,153,0.25); -fx-padding: 10;"/>
+                  <Label style="-fx-font-weight: 900; -fx-text-fill: #390099;" text="📦  Stock" GridPane.columnIndex="2" GridPane.rowIndex="2" />
+                  <TextField fx:id="stockField" promptText="ex: 10" style="-fx-background-radius: 10; -fx-border-radius: 10; -fx-border-color: rgba(57,0,153,0.25); -fx-padding: 10;" GridPane.columnIndex="3" GridPane.rowIndex="2" />
 
-                  <Label text="📍  Région" GridPane.rowIndex="3" GridPane.columnIndex="0"
-                         style="-fx-font-weight: 900; -fx-text-fill: #390099;"/>
-                  <TextField fx:id="regionField" promptText="ex: Tunis"
-                             GridPane.rowIndex="3" GridPane.columnIndex="1"
-                             style="-fx-background-radius: 10; -fx-border-radius: 10; -fx-border-color: rgba(57,0,153,0.25); -fx-padding: 10;"/>
+                  <Label style="-fx-font-weight: 900; -fx-text-fill: #390099;" text="📍  Région" GridPane.columnIndex="0" GridPane.rowIndex="3" />
+                  <TextField fx:id="regionField" promptText="ex: Tunis" style="-fx-background-radius: 10; -fx-border-radius: 10; -fx-border-color: rgba(57,0,153,0.25); -fx-padding: 10;" GridPane.columnIndex="1" GridPane.rowIndex="3" />
 
-                  <Label text="🧩  Catégorie" GridPane.rowIndex="3" GridPane.columnIndex="2"
-                         style="-fx-font-weight: 900; -fx-text-fill: #390099;"/>
-                  <TextField fx:id="categorieField" promptText="ex: Accessoires"
-                             GridPane.rowIndex="3" GridPane.columnIndex="3"
-                             style="-fx-background-radius: 10; -fx-border-radius: 10; -fx-border-color: rgba(57,0,153,0.25); -fx-padding: 10;"/>
+                  <Label style="-fx-font-weight: 900; -fx-text-fill: #390099;" text="🧩  Catégorie" GridPane.columnIndex="2" GridPane.rowIndex="3" />
+                  <TextField fx:id="categorieField" promptText="ex: Accessoires" style="-fx-background-radius: 10; -fx-border-radius: 10; -fx-border-color: rgba(57,0,153,0.25); -fx-padding: 10;" GridPane.columnIndex="3" GridPane.rowIndex="3" />
 
-                  <Label text="🖼️  Image" GridPane.rowIndex="4" GridPane.columnIndex="0"
-                         style="-fx-font-weight: 900; -fx-text-fill: #390099;"/>
-                  <TextField fx:id="imageField" promptText="ex: mug.jpg"
-                             GridPane.rowIndex="4" GridPane.columnIndex="1" GridPane.columnSpan="3"
-                             style="-fx-background-radius: 10; -fx-border-radius: 10; -fx-border-color: rgba(57,0,153,0.25); -fx-padding: 10;"/>
+                  <Label style="-fx-font-weight: 900; -fx-text-fill: #390099;" text="🖼️  Image" GridPane.columnIndex="0" GridPane.rowIndex="4" />
+                  <TextField fx:id="imageField" promptText="ex: mug.jpg" style="-fx-background-radius: 10; -fx-border-radius: 10; -fx-border-color: rgba(57,0,153,0.25); -fx-padding: 10;" GridPane.columnIndex="1" GridPane.columnSpan="3" GridPane.rowIndex="4" />
+                  <rowConstraints>
+                     <RowConstraints />
+                     <RowConstraints />
+                     <RowConstraints />
+                     <RowConstraints />
+                     <RowConstraints />
+                  </rowConstraints>
                </GridPane>
 
                <!-- Buttons -->
-               <HBox spacing="12" alignment="CENTER_RIGHT" style="-fx-padding: 8 0 0 0;">
-                  <Button text="🧹  Vider" onAction="#clearForm"
-                          style="-fx-background-color: transparent; -fx-border-color: #9E0059; -fx-text-fill: #9E0059; -fx-border-radius: 12; -fx-background-radius: 12; -fx-padding: 10 16; -fx-font-weight: 900; -fx-cursor: hand;"/>
-                  <Button text="✅  Ajouter Produit" onAction="#ajouterProduit"
-                          style="-fx-background-color: #FF0054; -fx-text-fill: white; -fx-background-radius: 12; -fx-padding: 10 16; -fx-font-weight: 900; -fx-cursor: hand;"/>
+               <HBox alignment="CENTER_RIGHT" spacing="12" style="-fx-padding: 8 0 0 0;">
+                  <Button onAction="#clearForm" style="-fx-background-color: transparent; -fx-border-color: #9E0059; -fx-text-fill: #9E0059; -fx-border-radius: 12; -fx-background-radius: 12; -fx-padding: 10 16; -fx-font-weight: 900; -fx-cursor: hand;" text="🧹  Vider" />
+                  <Button onAction="#ajouterProduit" style="-fx-background-color: #FF0054; -fx-text-fill: white; -fx-background-radius: 12; -fx-padding: 10 16; -fx-font-weight: 900; -fx-cursor: hand;" text="✅  Ajouter Produit" />
                </HBox>
 
-               <Label fx:id="statusLabel" text=""
-                      style="-fx-text-fill: #FF5400; -fx-font-weight: 800;"/>
+               <Label fx:id="statusLabel" style="-fx-text-fill: #FF5400; -fx-font-weight: 800;" text="" />
             </VBox>
          </VBox>
       </HBox>
