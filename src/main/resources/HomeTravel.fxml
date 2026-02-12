@@ -1,396 +1,358 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.geometry.Insets?>
-<?import javafx.scene.control.Button?>
-<?import javafx.scene.control.Label?>
-<?import javafx.scene.control.ScrollPane?>
-<?import javafx.scene.control.TextField?>
-<?import javafx.scene.layout.BorderPane?>
-<?import javafx.scene.layout.ColumnConstraints?>
-<?import javafx.scene.layout.GridPane?>
-<?import javafx.scene.layout.HBox?>
-<?import javafx.scene.layout.Region?>
-<?import javafx.scene.layout.VBox?>
-<?import javafx.scene.text.Text?>
-<?import javafx.scene.shape.Rectangle?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.effect.DropShadow?>
+<?import javafx.scene.layout.*?>
 
-<BorderPane fx:id="rootPane" styleClass="root" stylesheets="@wow.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Controlles.HomeTravelController">
+<StackPane xmlns="http://javafx.com/javafx"
+           xmlns:fx="http://javafx.com/fxml"
+           prefWidth="1200" prefHeight="720">
 
-    <!-- ========== TOP BAR ULTRA WIDE ========== -->
-    <top>
-        <VBox>
-            <HBox styleClass="top-bar-ultra" alignment="CENTER_LEFT" spacing="40">
-                <padding>
-                    <Insets top="25" right="50" bottom="25" left="50"/>
-                </padding>
+    <!-- Background gradient -->
+    <Pane style="-fx-background-color: linear-gradient(to bottom right, #390099, #9E0059);"/>
 
-                <!-- LOGO + TAGLINE -->
-                <HBox spacing="20" alignment="CENTER_LEFT">
-                    <Label styleClass="logo-ultra" text="🌙"/>
-                    <Label styleClass="brand-ultra" text="WinGo Travel"/>
-                    <Label styleClass="badge-ultra" text="TUNISIA"/>
+    <!-- Decorative blobs -->
+    <Pane mouseTransparent="true">
+        <children>
+            <Region prefWidth="520" prefHeight="520" translateX="-330" translateY="-160"
+                    style="-fx-background-radius: 999; -fx-background-color: rgba(255,189,0,0.35);">
+                <effect><DropShadow radius="40" offsetY="12" color="#00000055"/></effect>
+            </Region>
+
+            <Region prefWidth="420" prefHeight="420" translateX="360" translateY="-60"
+                    style="-fx-background-radius: 999; -fx-background-color: rgba(255,0,84,0.32);">
+                <effect><DropShadow radius="40" offsetY="12" color="#00000055"/></effect>
+            </Region>
+
+            <Region prefWidth="520" prefHeight="520" translateX="260" translateY="260"
+                    style="-fx-background-radius: 999; -fx-background-color: rgba(255,84,0,0.30);">
+                <effect><DropShadow radius="40" offsetY="12" color="#00000055"/></effect>
+            </Region>
+        </children>
+    </Pane>
+
+    <!-- Main glass shell -->
+    <BorderPane maxWidth="1100" maxHeight="650"
+                style="-fx-background-color: rgba(255,255,255,0.18);
+       -fx-background-radius: 26;
+       -fx-border-color: rgba(255,255,255,0.45);
+       -fx-border-radius: 26;
+       -fx-border-width: 1.4;">
+        <effect><DropShadow radius="28" offsetY="14" color="#00000066"/></effect>
+
+        <padding><Insets top="12" right="12" bottom="12" left="12"/></padding>
+
+        <!-- TOP BAR -->
+        <top>
+            <HBox alignment="CENTER_LEFT" spacing="12"
+                  style="-fx-background-color: rgba(255,255,255,0.22);
+                         -fx-background-radius: 26 26 18 18;
+                         -fx-border-color: rgba(255,255,255,0.22);
+                         -fx-border-width: 0 0 1 0;">
+                <padding><Insets top="18" right="18" bottom="18" left="18"/></padding>
+
+                <Label text="WinGo Travel"
+                       style="-fx-text-fill: white; -fx-font-size: 18px; -fx-font-weight: 900;"/>
+
+                <Region HBox.hgrow="ALWAYS"/>
+
+                <!-- Search pill -->
+                <HBox alignment="CENTER_LEFT" spacing="10"
+                      style="-fx-background-color: rgba(255,255,255,0.22);
+                             -fx-background-radius: 999;
+                             -fx-padding: 8 10;
+                             -fx-border-color: rgba(255,255,255,0.24);
+                             -fx-border-radius: 999;">
+                    <Label text="🔍" style="-fx-text-fill: white; -fx-opacity: 0.95;"/>
+                    <TextField promptText="Search destination (Djerba, Sousse…)"
+                               style="-fx-background-color: transparent;
+                                      -fx-border-color: transparent;
+                                      -fx-text-fill: white;
+                                      -fx-prompt-text-fill: rgba(255,255,255,0.70);
+                                      -fx-pref-width: 340;"/>
+                    <Button text="⚙"
+                            style="-fx-background-color: #FFBD00;
+                                   -fx-text-fill: #390099;
+                                   -fx-background-radius: 999;
+                                   -fx-font-weight: 900;"/>
                 </HBox>
 
                 <Region HBox.hgrow="ALWAYS"/>
 
-                <!-- MENU PRINCIPAL ESPACÉ -->
-                <HBox styleClass="menu-ultra" spacing="35">
-                    <Button styleClass="menu-item-active" text="Explore"/>
-                    <Button styleClass="menu-item" text="Deals"/>
-                    <Button styleClass="menu-item" text="Destinations"/>
-                    <Button styleClass="menu-item" text="Contact"/>
-                    <Button styleClass="menu-item" text="Blog"/>
-                </HBox>
-
-                <Region HBox.hgrow="ALWAYS"/>
-
-                <!-- USER ZONE -->
-                <HBox spacing="25" alignment="CENTER_RIGHT">
-                    <Button styleClass="icon-btn-ultra" text="🔔"/>
-                    <Button styleClass="icon-btn-ultra" text="👤"/>
-                    <Button styleClass="login-btn-ultra" text="Se connecter"/>
-                    <Button styleClass="signup-btn-ultra" text="S'inscrire"/>
-                </HBox>
+                <Button text="🔔"
+                        style="-fx-background-color: rgba(255,255,255,0.22);
+                               -fx-text-fill: white;
+                               -fx-background-radius: 14;
+                               -fx-padding: 8 12;"/>
+                <Button text="👤"
+                        style="-fx-background-color: rgba(255,255,255,0.22);
+                               -fx-text-fill: white;
+                               -fx-background-radius: 14;
+                               -fx-padding: 8 12;"/>
             </HBox>
+        </top>
 
-            <!-- SEARCH BAR PLEINE LARGEUR -->
-            <HBox styleClass="search-bar-ultra" alignment="CENTER" spacing="20">
-                <padding>
-                    <Insets top="25" right="50" bottom="25" left="50"/>
-                </padding>
-                <Label styleClass="search-label-ultra" text="📍 Où voulez-vous aller ?"/>
-                <TextField styleClass="search-field-ultra" promptText="Djerba, Sousse, Tunis, Tozeur, Hammamet, Carthage..."/>
-                <Button styleClass="search-btn-ultra" text="🔍 Rechercher" fx:id="searchBtn"/>
-                <Button styleClass="filter-btn-ultra" text="⚙ Filtres avancés"/>
-                <Button styleClass="map-btn-ultra" text="🗺 Voir carte"/>
-            </HBox>
-        </VBox>
-    </top>
+        <!-- LEFT MINI NAV -->
+        <left>
+            <VBox spacing="14" prefWidth="86"
+                  style="-fx-background-color: rgba(255,255,255,0.22);
+                         -fx-background-radius: 18;
+                         -fx-border-color: rgba(255,255,255,0.22);
+                         -fx-border-radius: 18;">
+                <padding><Insets top="18" right="12" bottom="18" left="12"/></padding>
 
-    <!-- ========== CENTER - PLEINE LARGEUR ========== -->
-    <center>
-        <ScrollPane fitToWidth="true" styleClass="main-scroll-ultra" hbarPolicy="NEVER" vbarPolicy="AS_NEEDED">
-            <content>
-                <VBox spacing="50">
-                    <padding>
-                        <Insets top="40" right="50" bottom="60" left="50"/>
-                    </padding>
+                <Button text="🏠"
+                        style="-fx-background-color: rgba(255,189,0,0.28);
+                               -fx-text-fill: #FFBD00;
+                               -fx-font-size: 18px;
+                               -fx-font-weight: 900;
+                               -fx-background-radius: 14;
+                               -fx-padding: 12 12;"/>
 
-                    <!-- HERO SECTION MASSIVE -->
-                    <HBox styleClass="hero-ultra" spacing="50">
-                        <padding>
-                            <Insets top="50" right="60" bottom="50" left="60"/>
-                        </padding>
+                <Button text="🧭"
+                        style="-fx-background-color: transparent;
+                               -fx-text-fill: rgba(255,255,255,0.92);
+                               -fx-font-size: 18px;
+                               -fx-background-radius: 14;
+                               -fx-padding: 12 12;"/>
 
-                        <VBox spacing="25" HBox.hgrow="ALWAYS">
-                            <Text styleClass="hero-title-ultra" text="Explorez la Tunisie autrement"/>
-                            <Label styleClass="hero-sub-ultra" text="Des expériences uniques, des prix jawista, des souvenirs pour la vie"/>
+                <Button text="🔥"
+                        style="-fx-background-color: transparent;
+                               -fx-text-fill: rgba(255,255,255,0.92);
+                               -fx-font-size: 18px;
+                               -fx-background-radius: 14;
+                               -fx-padding: 12 12;"/>
 
-                            <HBox spacing="40" styleClass="hero-stats-ultra">
-                                <HBox spacing="15" alignment="CENTER_LEFT">
-                                    <Label styleClass="stat-number-ultra" text="150+"/>
-                                    <Label styleClass="stat-label-ultra" text="Destinations"/>
-                                </HBox>
-                                <HBox spacing="15" alignment="CENTER_LEFT">
-                                    <Label styleClass="stat-number-ultra" text="12k+"/>
-                                    <Label styleClass="stat-label-ultra" text="Voyageurs"/>
-                                </HBox>
-                                <HBox spacing="15" alignment="CENTER_LEFT">
-                                    <Label styleClass="stat-number-ultra" text="4.8★"/>
-                                    <Label styleClass="stat-label-ultra" text="Avis clients"/>
-                                </HBox>
-                                <HBox spacing="15" alignment="CENTER_LEFT">
-                                    <Label styleClass="stat-number-ultra" text="24/7"/>
-                                    <Label styleClass="stat-label-ultra" text="Support"/>
-                                </HBox>
+                <Button text="❤️"
+                        style="-fx-background-color: transparent;
+                               -fx-text-fill: rgba(255,255,255,0.92);
+                               -fx-font-size: 18px;
+                               -fx-background-radius: 14;
+                               -fx-padding: 12 12;"/>
+
+                <Button text="⚙"
+                        style="-fx-background-color: transparent;
+                               -fx-text-fill: rgba(255,255,255,0.92);
+                               -fx-font-size: 18px;
+                               -fx-background-radius: 14;
+                               -fx-padding: 12 12;"/>
+
+                <Region VBox.vgrow="ALWAYS"/>
+                <Label text="© 2026"
+                       style="-fx-text-fill: rgba(255,255,255,0.62); -fx-font-size: 10px;"/>
+            </VBox>
+        </left>
+
+        <!-- CENTER CONTENT (moins transparent = plus lisible) -->
+        <center>
+            <StackPane style="-fx-background-color: rgba(0,0,0,0.22);
+                              -fx-background-radius: 20;
+                              -fx-border-color: rgba(255,255,255,0.22);
+                              -fx-border-radius: 20;">
+                <padding><Insets top="10" right="10" bottom="10" left="10"/></padding>
+                <effect><DropShadow radius="18" offsetY="10" color="#00000055"/></effect>
+
+                <ScrollPane fitToWidth="true"
+                            style="-fx-background-color: transparent;
+                                   -fx-background: transparent;
+                                   -fx-border-color: transparent;">
+                    <content>
+                        <VBox spacing="18">
+                            <padding><Insets top="18" right="18" bottom="18" left="18"/></padding>
+
+                            <!-- HERO -->
+                            <HBox spacing="16">
+                                <VBox spacing="10" HBox.hgrow="ALWAYS"
+                                      style="-fx-background-color: rgba(0,0,0,0.32);
+                                             -fx-background-radius: 22;
+                                             -fx-border-color: rgba(255,255,255,0.18);
+                                             -fx-border-radius: 22;">
+                                    <padding><Insets top="18" right="18" bottom="18" left="18"/></padding>
+
+                                    <Label text="Explore Tunisia ✨"
+                                           style="-fx-text-fill: white; -fx-font-size: 26px; -fx-font-weight: 900;"/>
+                                    <Label text="Deals, trips, jawista vibes."
+                                           style="-fx-text-fill: rgba(255,255,255,0.78); -fx-font-size: 13px; -fx-font-weight: 700;"/>
+
+                                    <HBox spacing="10">
+                                        <Button text="🎟 Deals"
+                                                style="-fx-background-color: #FFBD00;
+                                                       -fx-text-fill: #390099;
+                                                       -fx-background-radius: 999;
+                                                       -fx-padding: 10 16;
+                                                       -fx-font-weight: 900;"/>
+                                        <Button text="📍 Map"
+                                                style="-fx-background-color: #FF0054;
+                                                       -fx-text-fill: white;
+                                                       -fx-background-radius: 999;
+                                                       -fx-padding: 10 16;
+                                                       -fx-font-weight: 900;"/>
+                                        <Button text="🧳 Trips"
+                                                style="-fx-background-color: #FF5400;
+                                                       -fx-text-fill: white;
+                                                       -fx-background-radius: 999;
+                                                       -fx-padding: 10 16;
+                                                       -fx-font-weight: 900;"/>
+                                    </HBox>
+                                </VBox>
+
+                                <!-- STAT CARD -->
+                                <VBox spacing="10" prefWidth="260"
+                                      style="-fx-background-color: rgba(0,0,0,0.30);
+                                             -fx-background-radius: 22;
+                                             -fx-border-color: rgba(255,255,255,0.18);
+                                             -fx-border-radius: 22;">
+                                    <padding><Insets top="18" right="18" bottom="18" left="18"/></padding>
+
+                                    <Label text="Today"
+                                           style="-fx-text-fill: rgba(255,255,255,0.80); -fx-font-weight: 800;"/>
+                                    <Label text="12"
+                                           style="-fx-text-fill: #FFBD00; -fx-font-size: 40px; -fx-font-weight: 900;"/>
+                                    <Label text="Hot offers"
+                                           style="-fx-text-fill: rgba(255,255,255,0.74); -fx-font-weight: 700;"/>
+
+                                    <Separator opacity="0.28"/>
+
+                                    <Label text="Top"
+                                           style="-fx-text-fill: rgba(255,255,255,0.80); -fx-font-weight: 800;"/>
+                                    <Label text="Djerba"
+                                           style="-fx-text-fill: #FF0054; -fx-font-size: 22px; -fx-font-weight: 900;"/>
+                                    <Label text="Most booked"
+                                           style="-fx-text-fill: rgba(255,255,255,0.74); -fx-font-weight: 700;"/>
+                                </VBox>
                             </HBox>
 
-                            <HBox spacing="25" styleClass="hero-cta-ultra">
-                                <Button styleClass="cta-primary-ultra" text="🚀 Commencer l'aventure" fx:id="exploreBtn"/>
-                                <Button styleClass="cta-secondary-ultra" text="📅 Voir les offres" fx:id="dealsBtn"/>
-                                <Button styleClass="cta-tertiary-ultra" text="🎥 Vidéo" fx:id="videoBtn"/>
+                            <!-- DEAL STRIP -->
+                            <HBox spacing="12" alignment="CENTER_LEFT"
+                                  style="-fx-background-color: rgba(0,0,0,0.28);
+                                         -fx-background-radius: 18;
+                                         -fx-border-color: rgba(255,255,255,0.18);
+                                         -fx-border-radius: 18;">
+                                <padding><Insets top="14" right="16" bottom="14" left="16"/></padding>
+
+                                <Label text="🔥 Deal du jour"
+                                       style="-fx-text-fill: white; -fx-font-weight: 900;"/>
+                                <Label text="Djerba • 3j/2n • -30%"
+                                       style="-fx-text-fill: rgba(255,255,255,0.78); -fx-font-weight: 800;"/>
+                                <Region HBox.hgrow="ALWAYS"/>
+                                <Label text="189 TND"
+                                       style="-fx-text-fill: #FFBD00; -fx-font-size: 18px; -fx-font-weight: 900;"/>
+                                <Button text="Réserver"
+                                        style="-fx-background-color: #FF0054;
+                                               -fx-text-fill: white;
+                                               -fx-background-radius: 999;
+                                               -fx-padding: 10 16;
+                                               -fx-font-weight: 900;"/>
                             </HBox>
+
+                            <!-- DESTINATIONS GRID -->
+                            <GridPane hgap="14" vgap="14">
+
+                                <!-- Card 1 -->
+                                <StackPane GridPane.rowIndex="0" GridPane.columnIndex="0"
+                                           style="-fx-background-color: rgba(0,0,0,0.30);
+                                                  -fx-background-radius: 20;
+                                                  -fx-border-color: rgba(255,255,255,0.18);
+                                                  -fx-border-radius: 20;
+                                                  -fx-padding: 16;">
+                                    <effect><DropShadow radius="16" offsetY="8" color="#00000055"/></effect>
+                                    <VBox spacing="6">
+                                        <Label text="Sousse" style="-fx-text-fill: white; -fx-font-size: 16px; -fx-font-weight: 900;"/>
+                                        <Label text="⭐ 4.6 • Plage" style="-fx-text-fill: rgba(255,255,255,0.74); -fx-font-weight: 800; -fx-font-size: 12px;"/>
+                                        <HBox spacing="8" alignment="CENTER_LEFT">
+                                            <Label text="From" style="-fx-text-fill: rgba(255,255,255,0.70); -fx-font-weight: 700;"/>
+                                            <Label text="120 TND" style="-fx-text-fill: #FFBD00; -fx-font-weight: 900;"/>
+                                            <Region HBox.hgrow="ALWAYS"/>
+                                            <Button text="♡" style="-fx-background-color: transparent; -fx-text-fill: #FF0054; -fx-font-size: 16px;"/>
+                                        </HBox>
+                                    </VBox>
+                                </StackPane>
+
+                                <!-- Card 2 -->
+                                <StackPane GridPane.rowIndex="0" GridPane.columnIndex="1"
+                                           style="-fx-background-color: rgba(0,0,0,0.30);
+                                                  -fx-background-radius: 20;
+                                                  -fx-border-color: rgba(255,255,255,0.18);
+                                                  -fx-border-radius: 20;
+                                                  -fx-padding: 16;">
+                                    <effect><DropShadow radius="16" offsetY="8" color="#00000055"/></effect>
+                                    <VBox spacing="6">
+                                        <Label text="Tunis" style="-fx-text-fill: white; -fx-font-size: 16px; -fx-font-weight: 900;"/>
+                                        <Label text="⭐ 4.4 • Culture" style="-fx-text-fill: rgba(255,255,255,0.74); -fx-font-weight: 800; -fx-font-size: 12px;"/>
+                                        <HBox spacing="8" alignment="CENTER_LEFT">
+                                            <Label text="From" style="-fx-text-fill: rgba(255,255,255,0.70); -fx-font-weight: 700;"/>
+                                            <Label text="90 TND" style="-fx-text-fill: #FFBD00; -fx-font-weight: 900;"/>
+                                            <Region HBox.hgrow="ALWAYS"/>
+                                            <Button text="♡" style="-fx-background-color: transparent; -fx-text-fill: #FF0054; -fx-font-size: 16px;"/>
+                                        </HBox>
+                                    </VBox>
+                                </StackPane>
+
+                                <!-- Card 3 -->
+                                <StackPane GridPane.rowIndex="1" GridPane.columnIndex="0"
+                                           style="-fx-background-color: rgba(0,0,0,0.30);
+                                                  -fx-background-radius: 20;
+                                                  -fx-border-color: rgba(255,255,255,0.22);
+                                                  -fx-border-radius: 20;
+                                                  -fx-padding: 16;">
+                                    <effect><DropShadow radius="16" offsetY="8" color="#00000055"/></effect>
+                                    <VBox spacing="6">
+                                        <Label text="Tozeur" style="-fx-text-fill: white; -fx-font-size: 16px; -fx-font-weight: 900;"/>
+                                        <Label text="⭐ 4.7 • Aventure" style="-fx-text-fill: rgba(255,255,255,0.74); -fx-font-weight: 800; -fx-font-size: 12px;"/>
+                                        <HBox spacing="8" alignment="CENTER_LEFT">
+                                            <Label text="From" style="-fx-text-fill: rgba(255,255,255,0.70); -fx-font-weight: 700;"/>
+                                            <Label text="150 TND" style="-fx-text-fill: #FFBD00; -fx-font-weight: 900;"/>
+                                            <Region HBox.hgrow="ALWAYS"/>
+                                            <Button text="♡" style="-fx-background-color: transparent; -fx-text-fill: #FF0054; -fx-font-size: 16px;"/>
+                                        </HBox>
+                                    </VBox>
+                                </StackPane>
+
+                                <!-- Card 4 -->
+                                <StackPane GridPane.rowIndex="1" GridPane.columnIndex="1"
+                                           style="-fx-background-color: rgba(0,0,0,0.30);
+                                                  -fx-background-radius: 20;
+                                                  -fx-border-color: rgba(255,255,255,0.18);
+                                                  -fx-border-radius: 20;
+                                                  -fx-padding: 16;">
+                                    <effect><DropShadow radius="16" offsetY="8" color="#00000055"/></effect>
+                                    <VBox spacing="6">
+                                        <Label text="Hammamet" style="-fx-text-fill: white; -fx-font-size: 16px; -fx-font-weight: 900;"/>
+                                        <Label text="⭐ 4.5 • Chill" style="-fx-text-fill: rgba(255,255,255,0.74); -fx-font-weight: 800; -fx-font-size: 12px;"/>
+                                        <HBox spacing="8" alignment="CENTER_LEFT">
+                                            <Label text="From" style="-fx-text-fill: rgba(255,255,255,0.70); -fx-font-weight: 700;"/>
+                                            <Label text="110 TND" style="-fx-text-fill: #FFBD00; -fx-font-weight: 900;"/>
+                                            <Region HBox.hgrow="ALWAYS"/>
+                                            <Button text="♡" style="-fx-background-color: transparent; -fx-text-fill: #FF0054; -fx-font-size: 16px;"/>
+                                        </HBox>
+                                    </VBox>
+                                </StackPane>
+
+                            </GridPane>
+
                         </VBox>
+                    </content>
+                </ScrollPane>
+            </StackPane>
+        </center>
 
-                        <!-- BADGE OFFRE SPECIALE ENORME -->
-                        <VBox styleClass="hero-badge-ultra" alignment="CENTER" spacing="15">
-                            <Label styleClass="badge-title-ultra" text="🔥 DEAL EXCLUSIF"/>
-                            <Label styleClass="badge-destination-ultra" text="DJERBA"/>
-                            <Label styleClass="badge-price-ultra" text="-30%"/>
-                            <Label styleClass="badge-oldprice-ultra" text="270 DT"/>
-                            <Label styleClass="badge-newprice-ultra" text="189 DT"/>
-                            <Label styleClass="badge-include" text="Vol + Hôtel 5* + Transferts"/>
-                            <Button styleClass="badge-btn-ultra" text="Réserver maintenant →"/>
-                        </VBox>
-                    </HBox>
+        <!-- BOTTOM NAV -->
+        <bottom>
+            <HBox alignment="CENTER" spacing="10"
+                  style="-fx-background-color: rgba(255,255,255,0.22);
+                         -fx-background-radius: 18;
+                         -fx-border-color: rgba(255,255,255,0.22);
+                         -fx-border-radius: 18;">
+                <padding><Insets top="12" right="12" bottom="12" left="12"/></padding>
 
-                    <!-- SECTION TITLE PLUS LARGE -->
-                    <HBox alignment="CENTER_LEFT" spacing="20">
-                        <Label styleClass="section-title-ultra" text="🌍 DESTINATIONS POPULAIRES"/>
-                        <Region HBox.hgrow="ALWAYS"/>
-                        <Button styleClass="view-all-btn-ultra" text="Voir toutes les destinations (34) →"/>
-                    </HBox>
-
-                    <!-- GRID 2x2 CARTES XL -->
-                    <GridPane hgap="30" vgap="30" styleClass="dest-grid-ultra">
-                        <columnConstraints>
-                            <ColumnConstraints percentWidth="50"/>
-                            <ColumnConstraints percentWidth="50"/>
-                        </columnConstraints>
-
-                        <!-- Djerba - Carte XXL -->
-                        <HBox styleClass="dest-card-xl" spacing="25" GridPane.columnIndex="0" GridPane.rowIndex="0">
-                            <padding>
-                                <Insets top="30" right="30" bottom="30" left="30"/>
-                            </padding>
-                            <VBox spacing="15" HBox.hgrow="ALWAYS">
-                                <HBox alignment="CENTER_LEFT" spacing="20">
-                                    <Label styleClass="dest-emoji-xl" text="🏝️"/>
-                                    <Label styleClass="dest-name-xl" text="Djerba"/>
-                                    <Label styleClass="dest-rating-xl" text="⭐ 4.8 (2.4k avis)"/>
-                                </HBox>
-                                <Label styleClass="dest-desc-xl" text="Île aux rêves • Plages de sable fin • Médina authentique • Houmt Souk"/>
-                                <HBox alignment="CENTER_LEFT" spacing="20">
-                                    <Label styleClass="dest-price-xl" text="À partir de 120 DT"/>
-                                    <Label styleClass="dest-tag-xl" text="Vol + Hôtel 5*"/>
-                                    <Label styleClass="dest-tag-xl" text="Petit-déjeuner"/>
-                                </HBox>
-                                <HBox alignment="CENTER_RIGHT" spacing="20">
-                                    <Button styleClass="dest-fav-xl" text="🤍 Ajouter aux favoris"/>
-                                    <Button styleClass="dest-book-xl" text="Réserver maintenant →"/>
-                                </HBox>
-                            </VBox>
-                            <Rectangle styleClass="dest-image-xl" width="160" height="160" arcWidth="25" arcHeight="25"/>
-                        </HBox>
-
-                        <!-- Sousse -->
-                        <HBox styleClass="dest-card-xl" spacing="25" GridPane.columnIndex="1" GridPane.rowIndex="0">
-                            <padding>
-                                <Insets top="30" right="30" bottom="30" left="30"/>
-                            </padding>
-                            <VBox spacing="15" HBox.hgrow="ALWAYS">
-                                <HBox alignment="CENTER_LEFT" spacing="20">
-                                    <Label styleClass="dest-emoji-xl" text="🕌"/>
-                                    <Label styleClass="dest-name-xl" text="Sousse"/>
-                                    <Label styleClass="dest-rating-xl" text="⭐ 4.6 (1.8k avis)"/>
-                                </HBox>
-                                <Label styleClass="dest-desc-xl" text="Perle du Sahel • Médina classée UNESCO • Plages animées • Ribat"/>
-                                <HBox alignment="CENTER_LEFT" spacing="20">
-                                    <Label styleClass="dest-price-xl" text="À partir de 90 DT"/>
-                                    <Label styleClass="dest-tag-xl" text="Vol + Hôtel"/>
-                                    <Label styleClass="dest-tag-xl" text="Demi-pension"/>
-                                </HBox>
-                                <HBox alignment="CENTER_RIGHT" spacing="20">
-                                    <Button styleClass="dest-fav-xl" text="🤍 Ajouter aux favoris"/>
-                                    <Button styleClass="dest-book-xl" text="Réserver maintenant →"/>
-                                </HBox>
-                            </VBox>
-                            <Rectangle styleClass="dest-image-xl" width="160" height="160" arcWidth="25" arcHeight="25"/>
-                        </HBox>
-
-                        <!-- Tozeur -->
-                        <HBox styleClass="dest-card-xl" spacing="25" GridPane.columnIndex="0" GridPane.rowIndex="1">
-                            <padding>
-                                <Insets top="30" right="30" bottom="30" left="30"/>
-                            </padding>
-                            <VBox spacing="15" HBox.hgrow="ALWAYS">
-                                <HBox alignment="CENTER_LEFT" spacing="20">
-                                    <Label styleClass="dest-emoji-xl" text="🏜️"/>
-                                    <Label styleClass="dest-name-xl" text="Tozeur"/>
-                                    <Label styleClass="dest-rating-xl" text="⭐ 4.7 (1.2k avis)"/>
-                                </HBox>
-                                <Label styleClass="dest-desc-xl" text="Porte du désert • Oasis • Couchers de soleil • Ong Jemel • Star Wars"/>
-                                <HBox alignment="CENTER_LEFT" spacing="20">
-                                    <Label styleClass="dest-price-xl" text="À partir de 150 DT"/>
-                                    <Label styleClass="dest-tag-xl" text="Vol + Hôtel"/>
-                                    <Label styleClass="dest-tag-xl" text="Excursions"/>
-                                </HBox>
-                                <HBox alignment="CENTER_RIGHT" spacing="20">
-                                    <Button styleClass="dest-fav-xl" text="🤍 Ajouter aux favoris"/>
-                                    <Button styleClass="dest-book-xl" text="Réserver maintenant →"/>
-                                </HBox>
-                            </VBox>
-                            <Rectangle styleClass="dest-image-xl" width="160" height="160" arcWidth="25" arcHeight="25"/>
-                        </HBox>
-
-                        <!-- Hammamet -->
-                        <HBox styleClass="dest-card-xl" spacing="25" GridPane.columnIndex="1" GridPane.rowIndex="1">
-                            <padding>
-                                <Insets top="30" right="30" bottom="30" left="30"/>
-                            </padding>
-                            <VBox spacing="15" HBox.hgrow="ALWAYS">
-                                <HBox alignment="CENTER_LEFT" spacing="20">
-                                    <Label styleClass="dest-emoji-xl" text="🏖️"/>
-                                    <Label styleClass="dest-name-xl" text="Hammamet"/>
-                                    <Label styleClass="dest-rating-xl" text="⭐ 4.5 (2.1k avis)"/>
-                                </HBox>
-                                <Label styleClass="dest-desc-xl" text="Station balnéaire • Yasmine • Carthage Land • Golf • Médina"/>
-                                <HBox alignment="CENTER_LEFT" spacing="20">
-                                    <Label styleClass="dest-price-xl" text="À partir de 110 DT"/>
-                                    <Label styleClass="dest-tag-xl" text="Vol + Hôtel"/>
-                                    <Label styleClass="dest-tag-xl" text="All inclusive"/>
-                                </HBox>
-                                <HBox alignment="CENTER_RIGHT" spacing="20">
-                                    <Button styleClass="dest-fav-xl" text="🤍 Ajouter aux favoris"/>
-                                    <Button styleClass="dest-book-xl" text="Réserver maintenant →"/>
-                                </HBox>
-                            </VBox>
-                            <Rectangle styleClass="dest-image-xl" width="160" height="160" arcWidth="25" arcHeight="25"/>
-                        </HBox>
-                    </GridPane>
-
-                    <!-- BANNER OFFRE SPÉCIALE PLEINE LARGEUR -->
-                    <HBox styleClass="special-banner-ultra" alignment="CENTER_LEFT" spacing="40">
-                        <padding>
-                            <Insets top="35" right="50" bottom="35" left="50"/>
-                        </padding>
-                        <Label styleClass="banner-icon-ultra" text="⚡"/>
-                        <VBox spacing="12">
-                            <Label styleClass="banner-title-ultra" text="OFFRE FLASH -30% SUR LES SÉJOURS DJERBA"/>
-                            <Label styleClass="banner-desc-ultra" text="Séjour 5* • 4 jours / 3 nuits • Pension complète • Transferts inclus • Annulation gratuite"/>
-                            <Label styleClass="banner-price-ultra" text="189 DT au lieu de 270 DT"/>
-                        </VBox>
-                        <Region HBox.hgrow="ALWAYS"/>
-                        <HBox spacing="20">
-                            <Button styleClass="banner-cta-ultra" text="JE PROFITE DE L'OFFRE →" fx:id="specialOfferBtn"/>
-                            <Button styleClass="banner-details-ultra" text="Détails"/>
-                        </HBox>
-                    </HBox>
-
-                    <!-- POURQUOI NOUS - 4 COLONNES XL -->
-                    <VBox spacing="30">
-                        <Label styleClass="section-title-ultra" text="💎 POURQUOI VOYAGER AVEC WINGO ?"/>
-
-                        <GridPane hgap="30" vgap="30">
-                            <columnConstraints>
-                                <ColumnConstraints percentWidth="25"/>
-                                <ColumnConstraints percentWidth="25"/>
-                                <ColumnConstraints percentWidth="25"/>
-                                <ColumnConstraints percentWidth="25"/>
-                            </columnConstraints>
-
-                            <VBox styleClass="feature-card-ultra" alignment="CENTER" spacing="20" GridPane.columnIndex="0">
-                                <Label styleClass="feature-emoji-ultra" text="💰"/>
-                                <Label styleClass="feature-title-ultra" text="Prix jawista"/>
-                                <Label styleClass="feature-desc-ultra" text="Les meilleurs prix garantis sur tout le territoire tunisien"/>
-                            </VBox>
-
-                            <VBox styleClass="feature-card-ultra" alignment="CENTER" spacing="20" GridPane.columnIndex="1">
-                                <Label styleClass="feature-emoji-ultra" text="🛡️"/>
-                                <Label styleClass="feature-title-ultra" text="Support 24/7"/>
-                                <Label styleClass="feature-desc-ultra" text="Assistance en français 7j/7, même le week-end"/>
-                            </VBox>
-
-                            <VBox styleClass="feature-card-ultra" alignment="CENTER" spacing="20" GridPane.columnIndex="2">
-                                <Label styleClass="feature-emoji-ultra" text="✨"/>
-                                <Label styleClass="feature-title-ultra" text="Expériences uniques"/>
-                                <Label styleClass="feature-desc-ultra" text="Hors des sentiers battus, authentique et local"/>
-                            </VBox>
-
-                            <VBox styleClass="feature-card-ultra" alignment="CENTER" spacing="20" GridPane.columnIndex="3">
-                                <Label styleClass="feature-emoji-ultra" text="🔒"/>
-                                <Label styleClass="feature-title-ultra" text="Paiement sécurisé"/>
-                                <Label styleClass="feature-desc-ultra" text="100% sécurisé • Plusieurs modes de paiement"/>
-                            </VBox>
-                        </GridPane>
-                    </VBox>
-
-                    <!-- NEWSLETTER PLEINE LARGEUR -->
-                    <HBox styleClass="newsletter-ultra" alignment="CENTER" spacing="30">
-                        <padding>
-                            <Insets top="40" right="50" bottom="40" left="50"/>
-                        </padding>
-                        <VBox spacing="10">
-                            <Label styleClass="newsletter-title-ultra" text="📬 NE RATEZ AUCUNE OFFRE"/>
-                            <Label styleClass="newsletter-desc-ultra" text="Recevez les meilleurs deals directement dans votre boîte mail"/>
-                        </VBox>
-                        <Region HBox.hgrow="ALWAYS"/>
-                        <HBox spacing="15">
-                            <TextField styleClass="newsletter-field-ultra" promptText="Votre adresse email"/>
-                            <Button styleClass="newsletter-btn-ultra" text="S'abonner →"/>
-                        </HBox>
-                    </HBox>
-
-                    <Region prefHeight="40"/>
-                </VBox>
-            </content>
-        </ScrollPane>
-    </center>
-
-    <!-- ========== FOOTER ULTRA WIDE ========== -->
-    <bottom>
-        <VBox styleClass="footer-ultra">
-            <HBox styleClass="footer-top-ultra" alignment="CENTER_LEFT" spacing="80">
-                <padding>
-                    <Insets top="50" right="50" bottom="40" left="50"/>
-                </padding>
-
-                <VBox spacing="20">
-                    <Label styleClass="footer-logo-ultra" text="🌙 WinGo Travel"/>
-                    <Label styleClass="footer-slogan-ultra" text="Voyagez jawista, vivez tunisien"/>
-                    <HBox spacing="20" styleClass="social-icons-ultra">
-                        <Button styleClass="social-btn-ultra" text="📘"/>
-                        <Button styleClass="social-btn-ultra" text="📷"/>
-                        <Button styleClass="social-btn-ultra" text="🐦"/>
-                        <Button styleClass="social-btn-ultra" text="📱"/>
-                        <Button styleClass="social-btn-ultra" text="▶️"/>
-                    </HBox>
-                </VBox>
-
-                <Region HBox.hgrow="ALWAYS"/>
-
-                <HBox spacing="80">
-                    <VBox spacing="15">
-                        <Label styleClass="footer-title-ultra" text="Destinations"/>
-                        <Button styleClass="footer-link-ultra" text="Djerba"/>
-                        <Button styleClass="footer-link-ultra" text="Sousse"/>
-                        <Button styleClass="footer-link-ultra" text="Tunis"/>
-                        <Button styleClass="footer-link-ultra" text="Tozeur"/>
-                        <Button styleClass="footer-link-ultra" text="Hammamet"/>
-                        <Button styleClass="footer-link-ultra" text="Carthage"/>
-                    </VBox>
-
-                    <VBox spacing="15">
-                        <Label styleClass="footer-title-ultra" text="Compagnie"/>
-                        <Button styleClass="footer-link-ultra" text="À propos"/>
-                        <Button styleClass="footer-link-ultra" text="Blog"/>
-                        <Button styleClass="footer-link-ultra" text="Carrières"/>
-                        <Button styleClass="footer-link-ultra" text="Contact"/>
-                        <Button styleClass="footer-link-ultra" text="Presse"/>
-                    </VBox>
-
-                    <VBox spacing="15">
-                        <Label styleClass="footer-title-ultra" text="Support"/>
-                        <Button styleClass="footer-link-ultra" text="FAQ"/>
-                        <Button styleClass="footer-link-ultra" text="Mentions légales"/>
-                        <Button styleClass="footer-link-ultra" text="CGV"/>
-                        <Button styleClass="footer-link-ultra" text="Politique cookies"/>
-                        <Button styleClass="footer-link-ultra" text="Accessibilité"/>
-                    </VBox>
-
-                    <VBox spacing="15">
-                        <Label styleClass="footer-title-ultra" text="Applications"/>
-                        <Button styleClass="footer-link-ultra" text="iOS"/>
-                        <Button styleClass="footer-link-ultra" text="Android"/>
-                        <Button styleClass="footer-link-ultra" text="Windows"/>
-                        <Button styleClass="footer-link-ultra" text="MacOS"/>
-                    </VBox>
-                </HBox>
+                <Button text="🏠" style="-fx-background-color: rgba(255,189,0,0.28); -fx-text-fill: #FFBD00; -fx-background-radius: 14; -fx-padding: 8 18; -fx-font-size: 16px;"/>
+                <Button text="🧭" style="-fx-background-color: transparent; -fx-text-fill: rgba(255,255,255,0.92); -fx-background-radius: 14; -fx-padding: 8 18; -fx-font-size: 16px;"/>
+                <Button text="📅" style="-fx-background-color: transparent; -fx-text-fill: rgba(255,255,255,0.92); -fx-background-radius: 14; -fx-padding: 8 18; -fx-font-size: 16px;"/>
+                <Button text="❤️" style="-fx-background-color: transparent; -fx-text-fill: rgba(255,255,255,0.92); -fx-background-radius: 14; -fx-padding: 8 18; -fx-font-size: 16px;"/>
+                <Button text="👤" style="-fx-background-color: transparent; -fx-text-fill: rgba(255,255,255,0.92); -fx-background-radius: 14; -fx-padding: 8 18; -fx-font-size: 16px;"/>
             </HBox>
+        </bottom>
 
-            <HBox styleClass="footer-bottom-ultra" alignment="CENTER">
-                <padding>
-                    <Insets top="25" right="50" bottom="25" left="50"/>
-                </padding>
-                <Label styleClass="copyright-ultra" text="© 2026 WinGo Travel - Tous droits réservés - Tunisie"/>
-                <Region HBox.hgrow="ALWAYS"/>
-                <HBox spacing="30">
-                    <Button styleClass="footer-bottom-link" text="Plan du site"/>
-                    <Button styleClass="footer-bottom-link" text="Paramètres cookies"/>
-                    <Button styleClass="footer-bottom-link" text="🇹🇳 Français"/>
-                </HBox>
-            </HBox>
-        </VBox>
-    </bottom>
-
-</BorderPane>
+    </BorderPane>
+</StackPane>
