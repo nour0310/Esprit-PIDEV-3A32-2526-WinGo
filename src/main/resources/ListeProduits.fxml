@@ -1,13 +1,33 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<?import javafx.scene.control.Label?>
-<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
 
-<AnchorPane prefHeight="560.0" prefWidth="980.0"
-            xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
+<AnchorPane xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
             fx:controller="Controlles.ListeProduitsController"
-            style="-fx-background-color: linear-gradient(to bottom right, #390099, #9E0059);">
+            style="-fx-background-color: linear-gradient(to bottom right, #390099, #9E0059);"
+            prefWidth="980" prefHeight="560">
+
     <children>
-        <Label layoutX="30" layoutY="30" text="📋 Liste Produits"
-               style="-fx-text-fill: white; -fx-font-size: 28px; -fx-font-weight: 900;"/>
+        <VBox layoutX="18" layoutY="18" prefWidth="944" prefHeight="524" spacing="12">
+            <Label text="📋 Liste Produits"
+                   style="-fx-text-fill: white; -fx-font-size: 26px; -fx-font-weight: 900;"/>
+
+            <TableView fx:id="table" prefHeight="420"
+                       style="-fx-background-radius: 14; -fx-background-color: rgba(255,255,255,0.95);">
+                <columns>
+                    <TableColumn fx:id="idCol" text="ID" prefWidth="60"/>
+                    <TableColumn fx:id="nomCol" text="Nom" prefWidth="220"/>
+                    <TableColumn fx:id="prixCol" text="Prix" prefWidth="100"/>
+                    <TableColumn fx:id="stockCol" text="Stock" prefWidth="100"/>
+                    <TableColumn fx:id="catCol" text="Catégorie" prefWidth="160"/>
+                    <TableColumn fx:id="regionCol" text="Région" prefWidth="140"/>
+                </columns>
+            </TableView>
+
+            <HBox spacing="10" alignment="CENTER_RIGHT">
+                <Button text="🔄 Refresh" onAction="#refresh"/>
+                <Button text="➕ Ajouter" onAction="#goAjouter"/>
+            </HBox>
+        </VBox>
     </children>
 </AnchorPane>
