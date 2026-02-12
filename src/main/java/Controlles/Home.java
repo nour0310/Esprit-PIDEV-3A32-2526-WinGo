@@ -22,6 +22,8 @@ public class Home extends Application {
             Scene scene=new Scene(root);
             primaryStage.setScene(scene);
             primaryStage.show();
+            Navigator.setStage(primaryStage);
+            Navigator.goTo("AjouterProduit.fxml", "Ajouter Produit");
         }catch (IOException e){
             throw new RuntimeException(e);
         }

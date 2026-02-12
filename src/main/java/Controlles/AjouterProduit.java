@@ -30,5 +30,15 @@ public class AjouterProduit {
     @FXML
     void initialize() {
     }
+    @FXML private void goAjouter() {
+        Navigator.goTo("AjouterProduit.fxml", "Ajouter Produit");
+    }
 
+    @FXML private void goListe() {
+        Navigator.goTo("ListeProduits.fxml", "Liste Produits");
+    }
+
+    @FXML private void goDashboard() {
+        Navigator.goTo("Dashboard.fxml", "Dashboard");
+    }
 }
