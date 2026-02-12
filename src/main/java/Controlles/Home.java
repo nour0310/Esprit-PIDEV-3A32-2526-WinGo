@@ -16,7 +16,7 @@ public class Home extends Application {
 
     @Override
     public void start(Stage primaryStage){
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("/AjouterProduit.fxml"));
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("/HomeTravel.fxml"));
         try{
             Parent root =loader.load();
             Scene scene=new Scene(root);
