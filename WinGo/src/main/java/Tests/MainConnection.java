@@ -1,6 +1,7 @@
 package Tests;
 
 import Entites.Blog;
+import Entites.Commentaire;  // ← important !
 import Utils.MyBD;
 
 import java.sql.SQLException;
@@ -17,10 +18,11 @@ public class MainConnection {
         Blog b2 = new Blog("Carthage Story", "Découverte historique de Carthage", "carthage.jpg", "Admin", "Nord", "Histoire");
 
         // Création des objets Commentaire
-        Commentaire c1 = new Commentaire("Super article !", new Date(), 5, "Alice");
-        Commentaire c2 = new Commentaire("Jadore cet endroit !", new Date(), 6, "Bob");
+        Commentaire c1 = new Commentaire("Super article !", new Date(), b1.getId_article(), 1); // 1 = id utilisateur fictif
+        Commentaire c2 = new Commentaire("J'adore cet endroit !", new Date(), b2.getId_article(), 2); // 2 = id utilisateur fictif
 
-
-
+        // Exemple d'affichage
+        System.out.println(b1.getTitre());
+        System.out.println(c1.getContenu());
     }
 }

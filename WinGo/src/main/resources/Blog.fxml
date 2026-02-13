@@ -1,437 +1,71 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<?import javafx.scene.layout.*?>
+
 <?import javafx.scene.control.*?>
-<?import javafx.scene.image.*?>
-<?import javafx.scene.text.*?>
-<?import javafx.geometry.*?>
-<?import javafx.scene.shape.*?>
-<?import javafx.scene.effect.*?>
-<?import javafx.scene.paint.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
 
-<BorderPane xmlns="http://javafx.com/javafx/17"
-            xmlns:fx="http://javafx.com/fxml/1"
-            stylesheets="@blog-style.css"
-            styleClass="root">
+<BorderPane xmlns="http://javafx.com/javafx/17.0.1"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="Controlles.BlogController">
 
-    <!-- Background Tunisien -->
-    <opaqueInsets>
-        <Insets top="0.0" right="0.0" bottom="0.0" left="0.0"/>
-    </opaqueInsets>
-
-    <!-- Header Design Tunisien -->
+    <!-- Top: titre -->
     <top>
-        <VBox>
-            <!-- Bandeau supérieur avec motifs traditionnels -->
-            <HBox styleClass="header-top" alignment="CENTER_LEFT" spacing="10.0" prefHeight="80.0">
-                <padding>
-                    <Insets left="30.0" right="30.0"/>
-                </padding>
-                <children>
-                    <!-- Logo avec éléments tunisiens -->
-                    <HBox spacing="15.0" alignment="CENTER_LEFT">
-                        <StackPane styleClass="logo-container">
-                            <Circle radius="30.0" styleClass="logo-circle"/>
-                            <Label text="🇹🇳" styleClass="logo-emoji"/>
-                        </StackPane>
-                        <VBox>
-                            <Label text="WinGo" styleClass="brand-title"/>
-                            <Label text="Blogs & Récits de voyage" styleClass="brand-subtitle"/>
-                        </VBox>
-                    </HBox>
-
-                    <Region HBox.hgrow="ALWAYS"/>
-
-                    <!-- Search Bar Design -->
-                    <HBox styleClass="search-container" spacing="10.0">
-                        <TextField fx:id="tfSearch" promptText="🔍 Rechercher un blog, une région..." styleClass="search-field"/>
-                        <Button fx:id="btnSearch" styleClass="search-btn">
-                            <graphic>
-                                <Label text="🔍" styleClass="search-icon"/>
-                            </graphic>
-                        </Button>
-                    </HBox>
-
-                    <!-- Profile avec Chéchia Design -->
-                    <HBox styleClass="profile-container" spacing="15.0" alignment="CENTER">
-                        <StackPane styleClass="profile-badge">
-                            <Circle radius="20.0" styleClass="profile-circle"/>
-                            <Label text="👤" styleClass="profile-icon"/>
-                        </StackPane>
-                        <VBox>
-                            <Label text="Voyageur" styleClass="profile-name"/>
-                            <Label text="Explorateur" styleClass="profile-role"/>
-                        </VBox>
-                    </HBox>
-                </children>
-            </HBox>
-
-            <!-- Navigation avec motifs de zellige -->
-            <HBox styleClass="nav-bar" alignment="CENTER_LEFT" spacing="30.0" prefHeight="50.0">
-                <padding>
-                    <Insets left="30.0" right="30.0"/>
-                </padding>
-                <children>
-                    <Button fx:id="btnDashboard" text="🏠 Tableau de bord" styleClass="nav-btn"/>
-                    <Button fx:id="btnBlogs" text="📝 Blogs" styleClass="nav-btn active"/>
-                    <Button fx:id="btnComments" text="💬 Commentaires" styleClass="nav-btn"/>
-                    <Button fx:id="btnStats" text="📊 Statistiques" styleClass="nav-btn"/>
-                    <Button fx:id="btnBoutique" text="🛍️ Boutique" styleClass="nav-btn"/>
-                    <Region HBox.hgrow="ALWAYS"/>
-                    <Label text="✨ Découvrir la Tunisie autrement" styleClass="nav-quote"/>
-                </children>
-            </HBox>
-        </VBox>
+        <Label text="Gestion des Blogs" style="-fx-font-size: 24px; -fx-padding: 10;" BorderPane.alignment="CENTER"/>
     </top>
 
-    <!-- Sidebar Régions Tunisiennes -->
-    <left>
-        <VBox styleClass="sidebar" spacing="20.0" prefWidth="280.0">
-            <padding>
-                <Insets top="30.0" right="20.0" bottom="30.0" left="20.0"/>
-            </padding>
-            <children>
-                <!-- Profil du blogueur -->
-                <VBox styleClass="blogger-profile" spacing="15.0" alignment="CENTER">
-                    <StackPane>
-                        <Ellipse radiusX="60.0" radiusY="50.0" styleClass="blogger-bg"/>
-                        <Circle radius="45.0" styleClass="blogger-circle"/>
-                        <Label text="📸" styleClass="blogger-avatar"/>
-                    </StackPane>
-                    <Label text="Votre Espace" styleClass="blogger-name"/>
-                    <Label text="Partagez vos aventures" styleClass="blogger-bio"/>
-                </VBox>
-
-                <!-- Statistiques Rapides -->
-                <VBox styleClass="quick-stats" spacing="15.0">
-                    <Label text="📊 Aperçu" styleClass="stats-title"/>
-                    <GridPane hgap="10.0" vgap="10.0">
-                        <children>
-                            <VBox styleClass="stat-mini" GridPane.columnIndex="0" GridPane.rowIndex="0">
-                                <Label text="📝" styleClass="stat-mini-icon"/>
-                                <Label fx:id="lblTotalBlogs" text="24" styleClass="stat-mini-number"/>
-                                <Label text="Blogs" styleClass="stat-mini-label"/>
-                            </VBox>
-                            <VBox styleClass="stat-mini" GridPane.columnIndex="1" GridPane.rowIndex="0">
-                                <Label text="💬" styleClass="stat-mini-icon"/>
-                                <Label fx:id="lblTotalComments" text="156" styleClass="stat-mini-number"/>
-                                <Label text="Comments" styleClass="stat-mini-label"/>
-                            </VBox>
-                            <VBox styleClass="stat-mini" GridPane.columnIndex="0" GridPane.rowIndex="1">
-                                <Label text="❤️" styleClass="stat-mini-icon"/>
-                                <Label fx:id="lblTotalLikes" text="892" styleClass="stat-mini-number"/>
-                                <Label text="Likes" styleClass="stat-mini-label"/>
-                            </VBox>
-                            <VBox styleClass="stat-mini" GridPane.columnIndex="1" GridPane.rowIndex="1">
-                                <Label text="👁️" styleClass="stat-mini-icon"/>
-                                <Label fx:id="lblTotalViews" text="2.4k" styleClass="stat-mini-number"/>
-                                <Label text="Vues" styleClass="stat-mini-label"/>
-                            </VBox>
-                        </children>
-                    </GridPane>
-                </VBox>
-
-                <!-- Régions avec icônes -->
-                <VBox styleClass="regions-section" spacing="15.0">
-                    <Label text="🌍 Explorer par région" styleClass="region-title"/>
-                    <VBox spacing="8.0">
-                        <Button fx:id="btnTunis" styleClass="region-item">
-                            <graphic>
-                                <HBox spacing="10.0" alignment="CENTER_LEFT">
-                                    <Label text="🏛️" styleClass="region-icon"/>
-                                    <Label text="Tunis" styleClass="region-text"/>
-                                    <Label text="(12)" styleClass="region-count"/>
-                                </HBox>
-                            </graphic>
-                        </Button>
-                        <Button fx:id="btnSousse" styleClass="region-item">
-                            <graphic>
-                                <HBox spacing="10.0" alignment="CENTER_LEFT">
-                                    <Label text="🏖️" styleClass="region-icon"/>
-                                    <Label text="Sousse" styleClass="region-text"/>
-                                    <Label text="(8)" styleClass="region-count"/>
-                                </HBox>
-                            </graphic>
-                        </Button>
-                        <Button fx:id="btnSfax" styleClass="region-item">
-                            <graphic>
-                                <HBox spacing="10.0" alignment="CENTER_LEFT">
-                                    <Label text="⚓" styleClass="region-icon"/>
-                                    <Label text="Sfax" styleClass="region-text"/>
-                                    <Label text="(6)" styleClass="region-count"/>
-                                </HBox>
-                            </graphic>
-                        </Button>
-                        <Button fx:id="btnKairouan" styleClass="region-item">
-                            <graphic>
-                                <HBox spacing="10.0" alignment="CENTER_LEFT">
-                                    <Label text="🕌" styleClass="region-icon"/>
-                                    <Label text="Kairouan" styleClass="region-text"/>
-                                    <Label text="(5)" styleClass="region-count"/>
-                                </HBox>
-                            </graphic>
-                        </Button>
-                        <Button fx:id="btnGabes" styleClass="region-item">
-                            <graphic>
-                                <HBox spacing="10.0" alignment="CENTER_LEFT">
-                                    <Label text="🌴" styleClass="region-icon"/>
-                                    <Label text="Gabès" styleClass="region-text"/>
-                                    <Label text="(4)" styleClass="region-count"/>
-                                </HBox>
-                            </graphic>
-                        </Button>
-                    </VBox>
-                </VBox>
-
-                <!-- Catégories d'expériences -->
-                <VBox styleClass="categories-section" spacing="15.0">
-                    <Label text="🎯 Types d'expériences" styleClass="category-title"/>
-                    <FlowPane hgap="8.0" vgap="8.0">
-                        <children>
-                            <Button text="🏖️ Plage" styleClass="category-chip"/>
-                            <Button text="🏜️ Désert" styleClass="category-chip"/>
-                            <Button text="⛰️ Montagne" styleClass="category-chip"/>
-                            <Button text="🏛️ Culture" styleClass="category-chip"/>
-                            <Button text="🧘 Bien-être" styleClass="category-chip"/>
-                            <Button text="🎉 Événements" styleClass="category-chip"/>
-                        </children>
-                    </FlowPane>
-                </VBox>
-
-                <Region VBox.vgrow="ALWAYS"/>
-
-                <!-- Bouton Paramètres -->
-                <Button fx:id="btnSettings" styleClass="settings-btn">
-                    <graphic>
-                        <HBox spacing="10.0" alignment="CENTER">
-                            <Label text="⚙️" styleClass="settings-icon"/>
-                            <Label text="Paramètres" styleClass="settings-text"/>
-                        </HBox>
-                    </graphic>
-                </Button>
-            </children>
-        </VBox>
-    </left>
-
-    <!-- Main Content Area -->
+    <!-- Center: TableView pour afficher blogs -->
     <center>
-        <ScrollPane styleClass="main-scroll" fitToWidth="true" fitToHeight="true">
-            <VBox spacing="25.0">
-                <padding>
-                    <Insets top="25.0" right="25.0" bottom="25.0" left="25.0"/>
-                </padding>
-                <children>
-                    <!-- Hero Section avec carte interactive -->
-                    <HBox styleClass="hero-section" spacing="20.0">
-                        <children>
-                            <VBox spacing="15.0" HBox.hgrow="ALWAYS">
-                                <Label text="📝 Créez votre histoire tunisienne" styleClass="hero-title"/>
-                                <Label text="Partagez vos expériences de voyage et inspirez d'autres aventuriers" styleClass="hero-subtitle"/>
-                                <HBox spacing="15.0">
-                                    <Button fx:id="btnNewBlog" styleClass="create-btn">
-                                        <graphic>
-                                            <HBox spacing="10.0" alignment="CENTER">
-                                                <Label text="✨" styleClass="btn-icon"/>
-                                                <Label text="Nouveau Blog" styleClass="btn-text"/>
-                                            </HBox>
-                                        </graphic>
-                                    </Button>
-                                    <Button fx:id="btnDrafts" styleClass="draft-btn">
-                                        <graphic>
-                                            <HBox spacing="10.0" alignment="CENTER">
-                                                <Label text="📄" styleClass="btn-icon"/>
-                                                <Label text="Brouillons (3)" styleClass="btn-text"/>
-                                            </HBox>
-                                        </graphic>
-                                    </Button>
-                                </HBox>
-                            </VBox>
-                            <StackPane styleClass="hero-map">
-                                <Circle radius="80.0" styleClass="map-circle"/>
-                                <Label text="🇹🇳" styleClass="map-emoji"/>
-                                <Label text="Tunisie" styleClass="map-text"/>
-                            </StackPane>
-                        </children>
-                    </HBox>
+        <VBox spacing="10" padding="10">
+            <TableView fx:id="blogTable">
+                <columns>
+                    <TableColumn text="ID" fx:id="colId"/>
+                    <TableColumn text="Titre" fx:id="colTitre"/>
+                    <TableColumn text="Contenu" fx:id="colContenu"/>
+                    <TableColumn text="Auteur" fx:id="colAuteur"/>
+                    <TableColumn text="Region" fx:id="colRegion"/>
+                    <TableColumn text="Categorie" fx:id="colCategorie"/>
+                </columns>
+            </TableView>
 
-                    <!-- Filter Bar avec design moderne -->
-                    <HBox styleClass="filter-bar" spacing="20.0" alignment="CENTER_LEFT">
-                        <children>
-                            <Label text="Filtrer par :" styleClass="filter-label"/>
-                            <ComboBox fx:id="cbFilterRegion" promptText="🌍 Région" styleClass="filter-combo"/>
-                            <ComboBox fx:id="cbFilterCategory" promptText="🎯 Catégorie" styleClass="filter-combo"/>
-                            <ComboBox fx:id="cbSortBy" promptText="📅 Trier par" styleClass="filter-combo"/>
-                            <Region HBox.hgrow="ALWAYS"/>
-                            <ToggleButton fx:id="toggleView" styleClass="view-toggle">
-                                <graphic>
-                                    <HBox spacing="8.0" alignment="CENTER">
-                                        <Label text="📋" styleClass="toggle-icon"/>
-                                        <Label text="Vue Grille" styleClass="toggle-text"/>
-                                    </HBox>
-                                </graphic>
-                            </ToggleButton>
-                        </children>
-                    </HBox>
-
-                    <!-- Section Blogs en vedette -->
-                    <VBox spacing="15.0">
-                        <HBox alignment="CENTER_LEFT" spacing="10.0">
-                            <Label text="🔥 Blogs populaires" styleClass="section-title"/>
-                            <Label text="Cette semaine" styleClass="section-badge"/>
-                        </HBox>
-
-                        <!-- Grille de blogs -->
-                        <FlowPane fx:id="blogsGrid" styleClass="blogs-grid" hgap="20.0" vgap="20.0">
-                            <!-- Exemple de carte blog (sera générée dynamiquement) -->
-                            <VBox styleClass="blog-card" prefWidth="320.0">
-                                <StackPane styleClass="blog-card-header">
-                                    <Rectangle width="320.0" height="180.0" styleClass="blog-card-image"/>
-                                    <Label text="🏖️" styleClass="blog-category-icon"/>
-                                </StackPane>
-                                <VBox styleClass="blog-card-content" spacing="10.0">
-                                    <HBox alignment="CENTER_LEFT" spacing="8.0">
-                                        <Circle radius="15.0" styleClass="blog-author-avatar"/>
-                                        <Label text="Sahar Ben Ali" styleClass="blog-author"/>
-                                    </HBox>
-                                    <Label text="Les meilleures plages de Djerba" styleClass="blog-card-title"/>
-                                    <Label text="Découvrez les criques secrètes et les eaux turquoise..." styleClass="blog-card-excerpt"/>
-                                    <HBox alignment="CENTER_LEFT" spacing="15.0">
-                                        <HBox spacing="5.0">
-                                            <Label text="❤️" styleClass="blog-meta-icon"/>
-                                            <Label text="45" styleClass="blog-meta-text"/>
-                                        </HBox>
-                                        <HBox spacing="5.0">
-                                            <Label text="💬" styleClass="blog-meta-icon"/>
-                                            <Label text="12" styleClass="blog-meta-text"/>
-                                        </HBox>
-                                        <HBox spacing="5.0">
-                                            <Label text="👁️" styleClass="blog-meta-icon"/>
-                                            <Label text="234" styleClass="blog-meta-text"/>
-                                        </HBox>
-                                        <Region HBox.hgrow="ALWAYS"/>
-                                        <Button text="Lire plus →" styleClass="blog-read-btn"/>
-                                    </HBox>
-                                </VBox>
-                            </VBox>
-
-                            <!-- Deuxième carte -->
-                            <VBox styleClass="blog-card" prefWidth="320.0">
-                                <StackPane styleClass="blog-card-header">
-                                    <Rectangle width="320.0" height="180.0" styleClass="blog-card-image"/>
-                                    <Label text="🏜️" styleClass="blog-category-icon"/>
-                                </StackPane>
-                                <VBox styleClass="blog-card-content" spacing="10.0">
-                                    <HBox alignment="CENTER_LEFT" spacing="8.0">
-                                        <Circle radius="15.0" styleClass="blog-author-avatar"/>
-                                        <Label text="Mehdi Trabelsi" styleClass="blog-author"/>
-                                    </HBox>
-                                    <Label text="Nuit sous les étoiles dans le désert" styleClass="blog-card-title"/>
-                                    <Label text="Une expérience inoubliable au cœur du Sahara..." styleClass="blog-card-excerpt"/>
-                                    <HBox alignment="CENTER_LEFT" spacing="15.0">
-                                        <HBox spacing="5.0">
-                                            <Label text="❤️" styleClass="blog-meta-icon"/>
-                                            <Label text="89" styleClass="blog-meta-text"/>
-                                        </HBox>
-                                        <HBox spacing="5.0">
-                                            <Label text="💬" styleClass="blog-meta-icon"/>
-                                            <Label text="23" styleClass="blog-meta-text"/>
-                                        </HBox>
-                                        <HBox spacing="5.0">
-                                            <Label text="👁️" styleClass="blog-meta-icon"/>
-                                            <Label text="567" styleClass="blog-meta-text"/>
-                                        </HBox>
-                                        <Region HBox.hgrow="ALWAYS"/>
-                                        <Button text="Lire plus →" styleClass="blog-read-btn"/>
-                                    </HBox>
-                                </VBox>
-                            </VBox>
-
-                            <!-- Troisième carte -->
-                            <VBox styleClass="blog-card" prefWidth="320.0">
-                                <StackPane styleClass="blog-card-header">
-                                    <Rectangle width="320.0" height="180.0" styleClass="blog-card-image"/>
-                                    <Label text="🏛️" styleClass="blog-category-icon"/>
-                                </StackPane>
-                                <VBox styleClass="blog-card-content" spacing="10.0">
-                                    <HBox alignment="CENTER_LEFT" spacing="8.0">
-                                        <Circle radius="15.0" styleClass="blog-author-avatar"/>
-                                        <Label text="Leila M'rad" styleClass="blog-author"/>
-                                    </HBox>
-                                    <Label text="À la découverte de Carthage" styleClass="blog-card-title"/>
-                                    <Label text="Histoire et légendes de l'ancienne cité punique..." styleClass="blog-card-excerpt"/>
-                                    <HBox alignment="CENTER_LEFT" spacing="15.0">
-                                        <HBox spacing="5.0">
-                                            <Label text="❤️" styleClass="blog-meta-icon"/>
-                                            <Label text="67" styleClass="blog-meta-text"/>
-                                        </HBox>
-                                        <HBox spacing="5.0">
-                                            <Label text="💬" styleClass="blog-meta-icon"/>
-                                            <Label text="18" styleClass="blog-meta-text"/>
-                                        </HBox>
-                                        <HBox spacing="5.0">
-                                            <Label text="👁️" styleClass="blog-meta-icon"/>
-                                            <Label text="412" styleClass="blog-meta-text"/>
-                                        </HBox>
-                                        <Region HBox.hgrow="ALWAYS"/>
-                                        <Button text="Lire plus →" styleClass="blog-read-btn"/>
-                                    </HBox>
-                                </VBox>
-                            </VBox>
-                        </FlowPane>
-                    </VBox>
-
-                    <!-- Section Inspiration -->
-                    <HBox styleClass="inspiration-section" spacing="20.0" alignment="CENTER">
-                        <children>
-                            <VBox spacing="10.0" HBox.hgrow="ALWAYS">
-                                <Label text="💡 Idée du jour" styleClass="inspiration-title"/>
-                                <Label text="Racontez votre plus beau souvenir de médina" styleClass="inspiration-text"/>
-                                <Label text="Partagez les secrets des souks et des ruelles anciennes" styleClass="inspiration-subtext"/>
-                            </VBox>
-                            <Button text="S'inspirer →" styleClass="inspire-btn"/>
-                        </children>
-                    </HBox>
-                </children>
-            </VBox>
-        </ScrollPane>
+            <!-- Liste des commentaires -->
+            <Label text="Commentaires:"/>
+            <ListView fx:id="commentaireList" prefHeight="150"/>
+        </VBox>
     </center>
 
-    <!-- Footer avec éléments traditionnels -->
+    <!-- Bottom: Formulaire et boutons -->
     <bottom>
-        <VBox>
-            <Separator styleClass="footer-separator"/>
-            <HBox styleClass="footer" alignment="CENTER" spacing="30.0" prefHeight="60.0">
-                <padding>
-                    <Insets left="30.0" right="30.0"/>
-                </padding>
-                <children>
-                    <Label text="© 2026 WinGo - Découvrir la Tunisie autrement" styleClass="footer-copyright"/>
-                    <Region HBox.hgrow="ALWAYS"/>
-                    <HBox spacing="15.0">
-                        <Button text="🇹🇳 À propos" styleClass="footer-link"/>
-                        <Button text="📧 Contact" styleClass="footer-link"/>
-                        <Button text="🔒 Confidentialité" styleClass="footer-link"/>
-                    </HBox>
-                </children>
+        <VBox spacing="10" padding="10">
+            <GridPane hgap="10" vgap="10">
+                <columnConstraints>
+                    <ColumnConstraints percentWidth="20"/>
+                    <ColumnConstraints percentWidth="80"/>
+                </columnConstraints>
+
+                <Label text="Titre:" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
+                <TextField fx:id="titreField" GridPane.rowIndex="0" GridPane.columnIndex="1"/>
+
+                <Label text="Contenu:" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
+                <TextArea fx:id="contenuField" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
+
+                <Label text="Image:" GridPane.rowIndex="2" GridPane.columnIndex="0"/>
+                <TextField fx:id="imageField" GridPane.rowIndex="2" GridPane.columnIndex="1"/>
+
+                <Label text="Auteur:" GridPane.rowIndex="3" GridPane.columnIndex="0"/>
+                <TextField fx:id="auteurField" GridPane.rowIndex="3" GridPane.columnIndex="1"/>
+
+                <Label text="Region:" GridPane.rowIndex="4" GridPane.columnIndex="0"/>
+                <TextField fx:id="regionField" GridPane.rowIndex="4" GridPane.columnIndex="1"/>
+
+                <Label text="Categorie:" GridPane.rowIndex="5" GridPane.columnIndex="0"/>
+                <TextField fx:id="categorieField" GridPane.rowIndex="5" GridPane.columnIndex="1"/>
+            </GridPane>
+
+            <HBox spacing="10">
+                <Button text="Ajouter" fx:id="btnAjouter" onAction="#ajouterBlog"/>
+                <Button text="Modifier" fx:id="btnModifier" onAction="#modifierBlog"/>
+                <Button text="Supprimer" fx:id="btnSupprimer" onAction="#supprimerBlog"/>
             </HBox>
         </VBox>
     </bottom>
-
-    <!-- Floating Action Button pour créer rapidement -->
-    <right>
-        <StackPane alignment="BOTTOM_RIGHT">
-            <padding>
-                <Insets bottom="20.0" right="20.0"/>
-            </padding>
-            <children>
-                <Button fx:id="fabNewBlog" styleClass="fab">
-                    <graphic>
-                        <VBox alignment="CENTER">
-                            <Label text="✏️" styleClass="fab-icon"/>
-                            <Label text="Écrire" styleClass="fab-text"/>
-                        </VBox>
-                    </graphic>
-                </Button>
-            </children>
-        </StackPane>
-    </right>
 </BorderPane>

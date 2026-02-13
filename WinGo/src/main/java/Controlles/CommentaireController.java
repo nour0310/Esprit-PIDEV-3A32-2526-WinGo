@@ -1,33 +1,28 @@
 package Controlles;
 
+import Entites.Commentaire;
 import Services.CommentaireCRUD;
 import javafx.fxml.FXML;
-import javafx.scene.control.TextArea;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
+import javafx.scene.layout.FlowPane;
 
 import java.sql.SQLException;
-import java.util.Date;
+import java.util.List;
 
 public class CommentaireController {
 
-    @FXML private TextArea contenuField;
-    @FXML private TextField utilisateurField;
-    @FXML private TextField articleField;
+    @FXML private FlowPane commentairesFlowPane;
+    private CommentaireCRUD commentaireCRUD = new CommentaireCRUD();
 
-    private CommentaireCRUD crud = new CommentaireCRUD();
-
-    @FXML
-    private void handleAdd() {
+    public void loadComments(int blogId) {
+        commentairesFlowPane.getChildren().clear();
         try {
-            Commentaire c = new Commentaire(
-                    contenuField.getText(),
-                    new Date(),
-                    Integer.parseInt(articleField.getText()),
-                    Integer.parseInt(utilisateurField.getText())
-            );
-
-            crud.ajouter(c);
-            System.out.println("Commentaire ajouté !");
+            List<Commentaire> comments = commentaireCRUD.getCommentsByBlogId(blogId);
+            for (Commentaire c : comments) {
+                Label lbl = new Label(c.getUtilisateur() + ": " + c.getContenu());
+                lbl.setStyle("-fx-background-color:#f0f0f0;-fx-padding:5;");
+                commentairesFlowPane.getChildren().add(lbl);
+            }
         } catch (SQLException e) {
             e.printStackTrace();
         }
