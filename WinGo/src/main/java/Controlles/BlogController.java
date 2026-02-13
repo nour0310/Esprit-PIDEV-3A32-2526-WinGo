@@ -9,22 +9,16 @@ import Services.UtilisateurCRUD;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 import javafx.stage.FileChooser;
-import javafx.stage.Modality;
-import javafx.stage.Stage;
 
 import java.io.File;
-import java.io.IOException;
 import java.net.URL;
 import java.sql.SQLException;
 import java.time.format.DateTimeFormatter;
@@ -43,11 +37,12 @@ public class BlogController implements Initializable {
     private ObservableList<Blog> blogList = FXCollections.observableArrayList();
     private ObservableList<Commentaire> commentaireList = FXCollections.observableArrayList();
     private Blog selectedBlog = null;
+    private Blog displayedDetailBlog = null; // blog actuellement affiché dans la vue détail
 
     // Utilisateur connecté
     private Utilisateur currentUser;
 
-    // Composants FXML
+    // Composants FXML de la vue liste
     @FXML private TextField searchField;
     @FXML private Button searchBtn;
     @FXML private Label totalBlogsLabel;
@@ -72,6 +67,22 @@ public class BlogController implements Initializable {
     @FXML private Button addCommentBtn;
     @FXML private Label statusLabel;
 
+    // Composants FXML de la vue détail
+    @FXML private StackPane centerStackPane;
+    @FXML private VBox listView;
+    @FXML private VBox detailView;
+    @FXML private Button backToListBtn;
+    @FXML private ImageView detailImageView;
+    @FXML private Label detailAuteurLabel;
+    @FXML private Label detailDateLabel;
+    @FXML private Label detailRegionLabel;
+    @FXML private Label detailCategorieLabel;
+    @FXML private Label detailContenuLabel;
+    @FXML private FlowPane detailCommentairesPane;
+    @FXML private TextField detailNewCommentField;
+    @FXML private Button detailAddCommentBtn;
+    @FXML private Label detailStatusLabel;
+
     private final DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
     private final DateTimeFormatter dateShortFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
@@ -81,6 +92,8 @@ public class BlogController implements Initializable {
         loadUtilisateurs();
         attachListeners();
         loadInitialData();
+        // Initialement, vue liste visible
+        showListView();
     }
 
     private void initComboBoxes() {
@@ -119,6 +132,8 @@ public class BlogController implements Initializable {
         searchField.setOnAction(e -> filterArticles());
         clearBtn.setOnAction(e -> clearForm());
         choisirImageBtn.setOnAction(e -> choisirImage());
+        backToListBtn.setOnAction(e -> showListView());
+        detailAddCommentBtn.setOnAction(e -> ajouterCommentaireDetail());
     }
 
     private void choisirImage() {
@@ -253,11 +268,14 @@ public class BlogController implements Initializable {
 
         Button voirBtn = new Button("Voir");
         voirBtn.setStyle("-fx-background-color: #3498db; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 5; -fx-padding: 8 15; -fx-cursor: hand;");
-        voirBtn.setOnAction(e -> showBlogDetail(blog));
+        voirBtn.setOnAction(e -> showDetailView(blog));
 
         Button modifierBtn = new Button("Modifier");
         modifierBtn.setStyle("-fx-background-color: #f39c12; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 5; -fx-padding: 8 15; -fx-cursor: hand;");
-        modifierBtn.setOnAction(e -> selectBlog(blog)); // remplit le formulaire
+        modifierBtn.setOnAction(e -> {
+            selectBlog(blog);
+            showListView(); // on reste sur la liste mais le formulaire est rempli
+        });
 
         Button supprimerBtn = new Button("Supprimer");
         supprimerBtn.setStyle("-fx-background-color: #e74c3c; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 5; -fx-padding: 8 15; -fx-cursor: hand;");
@@ -268,42 +286,155 @@ public class BlogController implements Initializable {
         content.getChildren().addAll(meta, contenuLabel, actions);
         card.getChildren().addAll(imageContainer, content);
 
-        // Clic sur la carte pour voir (en plus du bouton)
-        card.setOnMouseClicked(e -> {
-            if (e.getClickCount() == 1) {
-                showBlogDetail(blog);
-            }
-        });
-
         return card;
     }
 
-    /**
-     * Ouvre une nouvelle fenêtre affichant les détails complets de l'article.
-     */
-    private void showBlogDetail(Blog blog) {
+    private void showDetailView(Blog blog) {
+        displayedDetailBlog = blog;
+        // Remplir les détails
+        detailAuteurLabel.setText("👤 " + (blog.getAuteurNom() != null ? blog.getAuteurNom() : "Inconnu"));
+        detailDateLabel.setText("📅 " + (blog.getDatePublication() != null ? blog.getDatePublication().format(dateShortFormatter) : ""));
+        detailRegionLabel.setText("📍 " + (blog.getRegion() != null ? blog.getRegion() : ""));
+        detailCategorieLabel.setText("🏷️ " + (blog.getCategorie() != null ? blog.getCategorie() : ""));
+        detailContenuLabel.setText(blog.getContenu());
+
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/BlogDetail.fxml"));
-            Parent root = loader.load();
-
-            BlogDetailController detailController = loader.getController();
-            detailController.setBlog(blog, commentaireList, currentUser);
-
-            Stage stage = new Stage();
-            stage.setTitle(blog.getTitre());
-            stage.setScene(new Scene(root));
-            stage.initModality(Modality.WINDOW_MODAL);
-            stage.initOwner(articlesFlowPane.getScene().getWindow());
-            stage.showAndWait();
-
-            // Rafraîchir après fermeture (avec gestion d'exception)
-            try {
-                refreshData();
-            } catch (SQLException ex) {
-                showError("Erreur de rafraîchissement", ex.getMessage());
+            if (blog.getImage() != null && !blog.getImage().isEmpty()) {
+                Image img = new Image("file:" + blog.getImage(), true);
+                detailImageView.setImage(img);
+            } else {
+                Image defaultImg = new Image(getClass().getResourceAsStream("/default.jpg"));
+                detailImageView.setImage(defaultImg);
             }
-        } catch (IOException e) {
-            showError("Erreur", "Impossible d'ouvrir la vue détail : " + e.getMessage());
+        } catch (Exception e) {
+            try {
+                Image defaultImg = new Image(getClass().getResourceAsStream("/default.jpg"));
+                detailImageView.setImage(defaultImg);
+            } catch (Exception ex) { }
+        }
+
+        // Afficher les commentaires de cet article
+        afficherCommentairesDetail();
+
+        // Basculer la visibilité
+        listView.setVisible(false);
+        listView.setManaged(false);
+        detailView.setVisible(true);
+        detailView.setManaged(true);
+    }
+
+    private void showListView() {
+        listView.setVisible(true);
+        listView.setManaged(true);
+        detailView.setVisible(false);
+        detailView.setManaged(false);
+        displayedDetailBlog = null;
+    }
+
+    private void afficherCommentairesDetail() {
+        if (displayedDetailBlog == null) return;
+        detailCommentairesPane.getChildren().clear();
+        List<Commentaire> comments = commentaireList.stream()
+                .filter(c -> c.getArticleId() == displayedDetailBlog.getId())
+                .toList();
+        for (Commentaire c : comments) {
+            VBox card = new VBox(5);
+            card.setPadding(new Insets(8));
+            card.setStyle("-fx-background-color: #f9f9f9; -fx-background-radius: 5; -fx-border-color: #ddd; -fx-border-radius: 5;");
+            card.setPrefWidth(200);
+
+            Label contenu = new Label(c.getContenu());
+            contenu.setWrapText(true);
+            contenu.setStyle("-fx-font-size: 12px; -fx-text-fill: #2c3e50;");
+
+            Label auteur = new Label("👤 " + (c.getUtilisateurNom() != null ? c.getUtilisateurNom() : "Utilisateur " + c.getUtilisateur()));
+            auteur.setStyle("-fx-text-fill: #b7472a; -fx-font-size: 11px;");
+
+            Label date = new Label("📅 " + (c.getDateCommentaire() != null ? c.getDateCommentaire().format(dateFormatter) : ""));
+            date.setStyle("-fx-text-fill: #7f8c8d; -fx-font-size: 11px;");
+
+            // Boutons pour l'utilisateur connecté
+            if (currentUser != null && c.getUtilisateur() == currentUser.getId()) {
+                HBox actions = new HBox(5);
+                actions.setAlignment(Pos.CENTER_RIGHT);
+                Button editBtn = new Button("✏️");
+                editBtn.setStyle("-fx-background-color: #f39c12; -fx-text-fill: white; -fx-background-radius: 3;");
+                editBtn.setOnAction(e -> modifierCommentaireDetail(c));
+                Button deleteBtn = new Button("🗑️");
+                deleteBtn.setStyle("-fx-background-color: #e74c3c; -fx-text-fill: white; -fx-background-radius: 3;");
+                deleteBtn.setOnAction(e -> supprimerCommentaireDetail(c));
+                actions.getChildren().addAll(editBtn, deleteBtn);
+                card.getChildren().addAll(contenu, auteur, date, actions);
+            } else {
+                card.getChildren().addAll(contenu, auteur, date);
+            }
+
+            detailCommentairesPane.getChildren().add(card);
+        }
+    }
+
+    private void modifierCommentaireDetail(Commentaire commentaire) {
+        TextInputDialog dialog = new TextInputDialog(commentaire.getContenu());
+        dialog.setTitle("Modifier le commentaire");
+        dialog.setHeaderText("Modification du commentaire");
+        dialog.setContentText("Nouveau contenu :");
+
+        Optional<String> result = dialog.showAndWait();
+        result.ifPresent(nouveauContenu -> {
+            if (!nouveauContenu.trim().isEmpty()) {
+                commentaire.setContenu(nouveauContenu.trim());
+                try {
+                    commentaireCRUD.modifier(commentaire);
+                    // Recharger les commentaires de l'article
+                    commentaireList.setAll(commentaireCRUD.afficher());
+                    afficherCommentairesDetail();
+                    detailStatusLabel.setText("✅ Commentaire modifié.");
+                } catch (SQLException e) {
+                    detailStatusLabel.setText("❌ Erreur : " + e.getMessage());
+                }
+            }
+        });
+    }
+
+    private void supprimerCommentaireDetail(Commentaire commentaire) {
+        Alert confirm = new Alert(Alert.AlertType.CONFIRMATION, "Supprimer ce commentaire ?", ButtonType.YES, ButtonType.NO);
+        confirm.showAndWait().ifPresent(r -> {
+            if (r == ButtonType.YES) {
+                try {
+                    commentaireCRUD.supprimer(commentaire.getId());
+                    commentaireList.setAll(commentaireCRUD.afficher());
+                    afficherCommentairesDetail();
+                    detailStatusLabel.setText("✅ Commentaire supprimé.");
+                } catch (SQLException e) {
+                    detailStatusLabel.setText("❌ Erreur : " + e.getMessage());
+                }
+            }
+        });
+    }
+
+    private void ajouterCommentaireDetail() {
+        if (displayedDetailBlog == null) return;
+        if (currentUser == null) {
+            detailStatusLabel.setText("❌ Vous devez être connecté.");
+            return;
+        }
+        String contenu = detailNewCommentField.getText();
+        if (contenu == null || contenu.trim().isEmpty()) {
+            detailStatusLabel.setText("❌ Le commentaire ne peut pas être vide.");
+            return;
+        }
+        Commentaire c = new Commentaire();
+        c.setContenu(contenu.trim());
+        c.setUtilisateur(currentUser.getId());
+        c.setArticleId(displayedDetailBlog.getId());
+        try {
+            commentaireCRUD.ajouter(c);
+            detailNewCommentField.clear();
+            commentaireList.setAll(commentaireCRUD.afficher());
+            afficherCommentairesDetail();
+            detailStatusLabel.setText("✅ Commentaire ajouté.");
+        } catch (SQLException e) {
+            detailStatusLabel.setText("❌ Erreur : " + e.getMessage());
         }
     }
 
@@ -319,6 +450,9 @@ public class BlogController implements Initializable {
                     refreshData();
                     if (selectedBlog != null && selectedBlog.getId() == blog.getId()) {
                         clearForm();
+                    }
+                    if (displayedDetailBlog != null && displayedDetailBlog.getId() == blog.getId()) {
+                        showListView(); // retour à la liste après suppression
                     }
                     showInfo("Article supprimé.");
                 } catch (SQLException e) {
@@ -560,6 +694,11 @@ public class BlogController implements Initializable {
                     .filter(b -> b.getId() == selectedBlog.getId())
                     .findFirst()
                     .ifPresentOrElse(this::selectBlog, this::clearForm);
+        }
+        // Si on est en vue détail, mettre à jour les commentaires
+        if (displayedDetailBlog != null) {
+            commentaireList.setAll(commentaireCRUD.afficher());
+            afficherCommentairesDetail();
         }
     }
 
