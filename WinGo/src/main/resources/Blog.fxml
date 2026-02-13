@@ -35,7 +35,7 @@
                         </StackPane>
                         <VBox>
                             <Label text="WinGo" styleClass="brand-title"/>
-                            <Label text="Blogs  Récits de voyage" styleClass="brand-subtitle"/>
+                            <Label text="Blogs & Récits de voyage" styleClass="brand-subtitle"/>
                         </VBox>
                     </HBox>
 
