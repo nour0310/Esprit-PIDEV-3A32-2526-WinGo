@@ -49,9 +49,9 @@ public class BlogController implements Initializable {
     @FXML private Label articleIdLabel;
     @FXML private TextField titreField;
     @FXML private TextArea contenuField;
-    @FXML private Label auteurLabel;              // ← remplace la ComboBox
+    @FXML private Label auteurLabel;
     @FXML private TextField newCommentField;
-    @FXML private Label connectedUserLabel;        // pour le commentaire
+    @FXML private Label connectedUserLabel;
     @FXML private Button ajouterBtn;
     @FXML private Button modifierBtn;
     @FXML private Button supprimerBtn;
@@ -82,9 +82,7 @@ public class BlogController implements Initializable {
                     .orElse(null);
 
             if (currentUser != null) {
-                // Pour le formulaire d'article (nouvel article)
                 auteurLabel.setText(currentUser.getPrenom() + " " + currentUser.getNom());
-                // Pour le commentaire
                 connectedUserLabel.setText(currentUser.getPrenom() + " " + currentUser.getNom());
             } else {
                 auteurLabel.setText("Utilisateur inconnu");
@@ -161,7 +159,6 @@ public class BlogController implements Initializable {
         articleIdLabel.setText(String.valueOf(blog.getId()));
         titreField.setText(blog.getTitre());
         contenuField.setText(blog.getContenu());
-        // Afficher l'auteur de l'article sélectionné
         auteurLabel.setText(blog.getAuteurNom() != null ? blog.getAuteurNom() : "Inconnu");
         selectedArticleLabel.setText("Article sélectionné : " + blog.getTitre());
 
@@ -173,27 +170,37 @@ public class BlogController implements Initializable {
         }
     }
 
+    // ==================== STYLE CORRIGÉ DES COMMENTAIRES ====================
     private void displayCommentaires(List<Commentaire> comments) {
         commentairesFlowPane.getChildren().clear();
         for (Commentaire c : comments) {
             VBox card = new VBox(5);
             card.setPadding(new Insets(8));
-            card.setStyle("-fx-background-color: #f0f0f0; -fx-border-color: #ccc; -fx-border-radius: 3;");
+            // Fond sombre semi-transparent, bordure ocre
+            card.setStyle("-fx-background-color: rgba(0,0,0,0.6); " +
+                    "-fx-background-radius: 8; " +
+                    "-fx-border-color: #c49a6c; " +
+                    "-fx-border-radius: 8;");
             card.setPrefWidth(220);
 
             Label contenu = new Label(c.getContenu());
             contenu.setWrapText(true);
+            contenu.setStyle("-fx-text-fill: white; -fx-font-size: 13px;");
+
             String auteurText = c.getUtilisateurNom() != null ? c.getUtilisateurNom() : "Utilisateur " + c.getUtilisateur();
             Label auteur = new Label("👤 " + auteurText);
+            auteur.setStyle("-fx-text-fill: #FFBD00; -fx-font-size: 12px;"); // doré
+
             String dateText = c.getDateCommentaire() != null ? c.getDateCommentaire().format(dateFormatter) : "";
             Label date = new Label(dateText);
+            date.setStyle("-fx-text-fill: rgba(255,255,255,0.7); -fx-font-size: 11px;");
 
             Button btnModifier = new Button("✏️");
-            btnModifier.setStyle("-fx-background-color: #ffc107; -fx-cursor: hand;");
+            btnModifier.setStyle("-fx-background-color: #ffc107; -fx-text-fill: black; -fx-background-radius: 5; -fx-cursor: hand;");
             btnModifier.setOnAction(e -> modifierCommentaire(c));
 
             Button btnSupprimer = new Button("🗑️");
-            btnSupprimer.setStyle("-fx-background-color: #dc3545; -fx-text-fill: white; -fx-cursor: hand;");
+            btnSupprimer.setStyle("-fx-background-color: #dc3545; -fx-text-fill: white; -fx-background-radius: 5; -fx-cursor: hand;");
             btnSupprimer.setOnAction(e -> supprimerCommentaire(c));
 
             HBox actions = new HBox(5, btnModifier, btnSupprimer);
@@ -262,7 +269,7 @@ public class BlogController implements Initializable {
             Blog b = new Blog(
                     titreField.getText().trim(),
                     contenuField.getText().trim(),
-                    currentUser.getId()  // auteur = utilisateur connecté
+                    currentUser.getId()
             );
             blogCRUD.ajouter(b);
             refreshData();
@@ -283,7 +290,6 @@ public class BlogController implements Initializable {
         try {
             selectedBlog.setTitre(titreField.getText().trim());
             selectedBlog.setContenu(contenuField.getText().trim());
-            // L'auteur ne change pas
             blogCRUD.modifier(selectedBlog);
             refreshData();
             clearForm();
@@ -335,16 +341,15 @@ public class BlogController implements Initializable {
 
         Commentaire c = new Commentaire();
         c.setContenu(contenu.trim());
-        c.setUtilisateur(currentUser.getId());  // ID de l'utilisateur connecté
+        c.setUtilisateur(currentUser.getId());
         c.setArticleId(selectedBlog.getId());
 
         try {
             commentaireCRUD.ajouter(c);
             newCommentField.clear();
-            // Recharger les commentaires de l'article
             List<Commentaire> comments = commentaireCRUD.getCommentsByArticle(selectedBlog.getId());
             displayCommentaires(comments);
-            loadAllComments(); // mettre à jour le compteur global
+            loadAllComments();
             showInfo("Commentaire ajouté.");
         } catch (SQLException e) {
             showError("Erreur ajout commentaire", e.getMessage());
@@ -357,7 +362,6 @@ public class BlogController implements Initializable {
         articleIdLabel.setText("Nouveau");
         titreField.clear();
         contenuField.clear();
-        // Remettre le nom de l'utilisateur connecté pour un nouvel article
         if (currentUser != null) {
             auteurLabel.setText(currentUser.getPrenom() + " " + currentUser.getNom());
         } else {
