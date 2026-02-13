@@ -289,8 +289,47 @@
                                                              -fx-control-inner-background: rgba(0,0,0,0.5);" />
                                         </VBox>
 
+                                        <!-- Image avec bouton parcourir -->
+                                        <VBox spacing="6" GridPane.columnIndex="0" GridPane.rowIndex="2" GridPane.columnSpan="1">
+                                            <Label text="Image" style="-fx-text-fill: rgba(255,255,255,0.80); -fx-font-weight: 800;" />
+                                            <TextField fx:id="imageField" promptText="URL ou chemin"
+                                                       style="-fx-background-color: rgba(0,0,0,0.5);
+                                                              -fx-background-radius: 12;
+                                                              -fx-border-color: rgba(255,255,255,0.3);
+                                                              -fx-border-radius: 12;
+                                                              -fx-text-fill: white;
+                                                              -fx-prompt-text-fill: rgba(255,255,255,0.7);
+                                                              -fx-padding: 10 12;" />
+                                        </VBox>
+                                        <VBox spacing="6" GridPane.columnIndex="1" GridPane.rowIndex="2" alignment="BOTTOM_LEFT">
+                                            <Button fx:id="choisirImageBtn" text="📁 Choisir"
+                                                    style="-fx-background-color: #FFBD00; -fx-text-fill: #390099; -fx-background-radius: 12; -fx-padding: 10 12; -fx-font-weight: bold; -fx-cursor: hand;" />
+                                        </VBox>
+
+                                        <!-- Région -->
+                                        <VBox spacing="6" GridPane.columnIndex="0" GridPane.rowIndex="3">
+                                            <Label text="Région" style="-fx-text-fill: rgba(255,255,255,0.80); -fx-font-weight: 800;" />
+                                            <ComboBox fx:id="regionCombo" promptText="Sélectionner une région"
+                                                      style="-fx-background-color: rgba(0,0,0,0.5);
+                                                             -fx-background-radius: 12;
+                                                             -fx-border-color: rgba(255,255,255,0.3);
+                                                             -fx-border-radius: 12;
+                                                             -fx-text-fill: white;" />
+                                        </VBox>
+
+                                        <!-- Catégorie -->
+                                        <VBox spacing="6" GridPane.columnIndex="1" GridPane.rowIndex="3">
+                                            <Label text="Catégorie" style="-fx-text-fill: rgba(255,255,255,0.80); -fx-font-weight: 800;" />
+                                            <ComboBox fx:id="categorieCombo" promptText="Sélectionner une catégorie"
+                                                      style="-fx-background-color: rgba(0,0,0,0.5);
+                                                             -fx-background-radius: 12;
+                                                             -fx-border-color: rgba(255,255,255,0.3);
+                                                             -fx-border-radius: 12;
+                                                             -fx-text-fill: white;" />
+                                        </VBox>
+
                                         <!-- Auteur (affiché) -->
-                                        <VBox spacing="6" GridPane.columnIndex="0" GridPane.rowIndex="2" GridPane.columnSpan="2">
+                                        <VBox spacing="6" GridPane.columnIndex="0" GridPane.rowIndex="4" GridPane.columnSpan="2">
                                             <Label text="Auteur" style="-fx-text-fill: rgba(255,255,255,0.80); -fx-font-weight: 800;" />
                                             <Label fx:id="auteurLabel" text="(connexion...)"
                                                    style="-fx-background-color: rgba(0,0,0,0.5);

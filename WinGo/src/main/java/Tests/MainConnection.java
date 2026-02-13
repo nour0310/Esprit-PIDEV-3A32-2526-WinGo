@@ -5,8 +5,6 @@ import Entites.Commentaire;
 import Utils.MyBD;
 
 import java.sql.SQLException;
-import java.time.LocalDateTime;
-import java.util.Date;
 
 public class MainConnection {
 
@@ -14,10 +12,9 @@ public class MainConnection {
 
         MyBD myBD = MyBD.getInstance();
 
-        // Création des objets Blog avec le constructeur (titre, contenu, auteur)
-        // auteur = 1 (ID utilisateur existant)
-        Blog b1 = new Blog("Sahara Adventure", "Voyage inoubliable à Douz", 1);
-        Blog b2 = new Blog("Carthage Story", "Découverte historique de Carthage", 1);
+        // Création des objets Blog avec le constructeur complet (titre, contenu, auteur, image, region, categorie)
+        Blog b1 = new Blog("Sahara Adventure", "Voyage inoubliable à Douz", 1, "sahara.jpg", "Sud", "Aventure");
+        Blog b2 = new Blog("Carthage Story", "Découverte historique de Carthage", 1, "carthage.jpg", "Nord", "Histoire");
 
         // Création des objets Commentaire avec le constructeur (contenu, utilisateur, articleId)
         // Les IDs des articles sont 0 car ils ne sont pas encore persistés, mais pour le test c'est acceptable

@@ -7,26 +7,35 @@ public class Blog {
     private String titre;
     private String contenu;
     private LocalDateTime datePublication;
-    private int auteur;          // FK vers utilisateur.id
-    private String auteurNom;     // non persisté, pour affichage
+    private int auteur;
+    private String auteurNom; // non persisté
+    private String image;
+    private String region;
+    private String categorie;
 
     public Blog() {}
 
-    public Blog(String titre, String contenu, int auteur) {
+    public Blog(String titre, String contenu, int auteur, String image, String region, String categorie) {
         this.titre = titre;
         this.contenu = contenu;
         this.auteur = auteur;
+        this.image = image;
+        this.region = region;
+        this.categorie = categorie;
     }
 
-    public Blog(int id, String titre, String contenu, LocalDateTime datePublication, int auteur) {
+    public Blog(int id, String titre, String contenu, LocalDateTime datePublication, int auteur, String image, String region, String categorie) {
         this.id = id;
         this.titre = titre;
         this.contenu = contenu;
         this.datePublication = datePublication;
         this.auteur = auteur;
+        this.image = image;
+        this.region = region;
+        this.categorie = categorie;
     }
 
-    // Getters / Setters
+    // Getters et Setters
     public int getId() { return id; }
     public void setId(int id) { this.id = id; }
 
@@ -44,6 +53,15 @@ public class Blog {
 
     public String getAuteurNom() { return auteurNom; }
     public void setAuteurNom(String auteurNom) { this.auteurNom = auteurNom; }
+
+    public String getImage() { return image; }
+    public void setImage(String image) { this.image = image; }
+
+    public String getRegion() { return region; }
+    public void setRegion(String region) { this.region = region; }
+
+    public String getCategorie() { return categorie; }
+    public void setCategorie(String categorie) { this.categorie = categorie; }
 
     @Override
     public String toString() {

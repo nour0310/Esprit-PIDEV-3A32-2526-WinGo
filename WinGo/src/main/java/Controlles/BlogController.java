@@ -15,7 +15,9 @@ import javafx.scene.control.*;
 import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import javafx.stage.FileChooser;
 
+import java.io.File;
 import java.net.URL;
 import java.sql.SQLException;
 import java.time.format.DateTimeFormatter;
@@ -35,7 +37,7 @@ public class BlogController implements Initializable {
     private ObservableList<Commentaire> commentaireList = FXCollections.observableArrayList();
     private Blog selectedBlog = null;
 
-    // Utilisateur connecté (à adapter selon ton système d'authentification)
+    // Utilisateur connecté
     private Utilisateur currentUser;
 
     // Composants FXML
@@ -49,6 +51,10 @@ public class BlogController implements Initializable {
     @FXML private Label articleIdLabel;
     @FXML private TextField titreField;
     @FXML private TextArea contenuField;
+    @FXML private TextField imageField;
+    @FXML private Button choisirImageBtn;
+    @FXML private ComboBox<String> regionCombo;
+    @FXML private ComboBox<String> categorieCombo;
     @FXML private Label auteurLabel;
     @FXML private TextField newCommentField;
     @FXML private Label connectedUserLabel;
@@ -63,24 +69,28 @@ public class BlogController implements Initializable {
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
+        initComboBoxes();
         loadUtilisateurs();
         attachListeners();
         loadInitialData();
     }
 
-    /**
-     * Charge la liste des utilisateurs et définit l'utilisateur connecté.
-     */
+    private void initComboBoxes() {
+        ObservableList<String> regions = FXCollections.observableArrayList(
+                "Tunis", "Sousse", "Sfax", "Nabeul", "Hammamet", "Djerba",
+                "Tozeur", "Douz", "Kairouan", "Monastir", "Mahdia", "Gabès", "Tataouine"
+        );
+        ObservableList<String> categories = FXCollections.observableArrayList(
+                "Plage", "Désert", "Montagne", "Culture", "Bien-être", "Événements", "Gastronomie"
+        );
+        regionCombo.setItems(regions);
+        categorieCombo.setItems(categories);
+    }
+
     private void loadUtilisateurs() {
         try {
             ObservableList<Utilisateur> users = FXCollections.observableArrayList(utilisateurCRUD.afficher());
-
-            // Définir l'utilisateur connecté (par exemple, celui avec l'ID 1)
-            currentUser = users.stream()
-                    .filter(u -> u.getId() == 1)
-                    .findFirst()
-                    .orElse(null);
-
+            currentUser = users.stream().filter(u -> u.getId() == 1).findFirst().orElse(null);
             if (currentUser != null) {
                 auteurLabel.setText(currentUser.getPrenom() + " " + currentUser.getNom());
                 connectedUserLabel.setText(currentUser.getPrenom() + " " + currentUser.getNom());
@@ -88,7 +98,6 @@ public class BlogController implements Initializable {
                 auteurLabel.setText("Utilisateur inconnu");
                 connectedUserLabel.setText("Utilisateur inconnu");
             }
-
         } catch (SQLException e) {
             showError("Erreur chargement utilisateurs", e.getMessage());
         }
@@ -98,6 +107,19 @@ public class BlogController implements Initializable {
         searchBtn.setOnAction(e -> filterArticles());
         searchField.setOnAction(e -> filterArticles());
         clearBtn.setOnAction(e -> clearForm());
+        choisirImageBtn.setOnAction(e -> choisirImage());
+    }
+
+    private void choisirImage() {
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Choisir une image");
+        fileChooser.getExtensionFilters().addAll(
+                new FileChooser.ExtensionFilter("Images", "*.png", "*.jpg", "*.jpeg", "*.gif")
+        );
+        File file = fileChooser.showOpenDialog(null);
+        if (file != null) {
+            imageField.setText(file.getAbsolutePath());
+        }
     }
 
     private void loadInitialData() {
@@ -134,24 +156,82 @@ public class BlogController implements Initializable {
     private VBox createBlogCard(Blog blog) {
         VBox card = new VBox(5);
         card.setPadding(new Insets(10));
-        card.setStyle("-fx-background-color: white; -fx-border-color: #ddd; -fx-border-radius: 5; -fx-background-radius: 5; -fx-cursor: hand;");
+        // Fond dégradé chaud
+        card.setStyle("-fx-background-color: linear-gradient(to bottom, #f9e5d2, #f0d9c0); " +
+                "-fx-background-radius: 10; " +
+                "-fx-border-color: #c49a6c; " +
+                "-fx-border-width: 2; " +
+                "-fx-border-radius: 10; " +
+                "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 5, 0, 0, 2); " +
+                "-fx-cursor: hand;");
         card.setPrefWidth(250);
         card.setOnMouseClicked(e -> selectBlog(blog));
 
+        // Titre
         Label titre = new Label(blog.getTitre());
-        titre.setStyle("-fx-font-weight: bold; -fx-font-size: 14px;");
+        titre.setStyle("-fx-font-weight: bold; -fx-font-size: 16px; -fx-text-fill: #5a3e2b;");
         titre.setWrapText(true);
 
+        // Auteur
         String auteurText = blog.getAuteurNom() != null ? blog.getAuteurNom() : "Inconnu";
         Label auteur = new Label("👤 " + auteurText);
+        auteur.setStyle("-fx-text-fill: #8b5a2b; -fx-font-size: 13px;");
 
+        // Région et Catégorie avec icônes
+        String regionIcon = getRegionIcon(blog.getRegion());
+        String catIcon = getCategoryIcon(blog.getCategorie());
+        Label region = new Label(regionIcon + " " + (blog.getRegion() != null ? blog.getRegion() : "Non spécifiée"));
+        region.setStyle("-fx-text-fill: #a0522d; -fx-font-size: 12px;");
+        Label categorie = new Label(catIcon + " " + (blog.getCategorie() != null ? blog.getCategorie() : "Non spécifiée"));
+        categorie.setStyle("-fx-text-fill: #a0522d; -fx-font-size: 12px;");
+
+        // Image (icône)
+        Label imageLabel = new Label("🖼️ " + (blog.getImage() != null ? "Image" : "Pas d'image"));
+        imageLabel.setStyle("-fx-text-fill: #8b5a2b; -fx-font-size: 11px;");
+
+        // Nombre de commentaires
         long nbComments = commentaireList.stream()
                 .filter(c -> c.getArticleId() == blog.getId())
                 .count();
         Label comments = new Label("💬 " + nbComments);
+        comments.setStyle("-fx-text-fill: #b7472a; -fx-font-weight: bold; -fx-font-size: 12px;");
 
-        card.getChildren().addAll(titre, auteur, comments);
+        // Date
+        String dateText = blog.getDatePublication() != null
+                ? blog.getDatePublication().format(DateTimeFormatter.ofPattern("dd/MM/yyyy"))
+                : "";
+        Label date = new Label("📅 " + dateText);
+        date.setStyle("-fx-text-fill: #a0522d; -fx-font-size: 11px;");
+
+        card.getChildren().addAll(titre, auteur, region, categorie, imageLabel, comments, date);
         return card;
+    }
+
+    private String getRegionIcon(String region) {
+        if (region == null) return "🌍";
+        switch (region) {
+            case "Tunis": return "🏛️";
+            case "Sousse": return "🏖️";
+            case "Sfax": return "⚓";
+            case "Djerba": return "🌴";
+            case "Tozeur": return "🏜️";
+            case "Kairouan": return "🕌";
+            default: return "📍";
+        }
+    }
+
+    private String getCategoryIcon(String categorie) {
+        if (categorie == null) return "📌";
+        switch (categorie) {
+            case "Plage": return "🏖️";
+            case "Désert": return "🏜️";
+            case "Montagne": return "⛰️";
+            case "Culture": return "🏛️";
+            case "Bien-être": return "🧘";
+            case "Événements": return "🎉";
+            case "Gastronomie": return "🍽️";
+            default: return "📝";
+        }
     }
 
     private void selectBlog(Blog blog) {
@@ -159,6 +239,9 @@ public class BlogController implements Initializable {
         articleIdLabel.setText(String.valueOf(blog.getId()));
         titreField.setText(blog.getTitre());
         contenuField.setText(blog.getContenu());
+        imageField.setText(blog.getImage());
+        regionCombo.setValue(blog.getRegion());
+        categorieCombo.setValue(blog.getCategorie());
         auteurLabel.setText(blog.getAuteurNom() != null ? blog.getAuteurNom() : "Inconnu");
         selectedArticleLabel.setText("Article sélectionné : " + blog.getTitre());
 
@@ -170,13 +253,11 @@ public class BlogController implements Initializable {
         }
     }
 
-    // ==================== STYLE CORRIGÉ DES COMMENTAIRES ====================
     private void displayCommentaires(List<Commentaire> comments) {
         commentairesFlowPane.getChildren().clear();
         for (Commentaire c : comments) {
             VBox card = new VBox(5);
             card.setPadding(new Insets(8));
-            // Fond sombre semi-transparent, bordure ocre
             card.setStyle("-fx-background-color: rgba(0,0,0,0.6); " +
                     "-fx-background-radius: 8; " +
                     "-fx-border-color: #c49a6c; " +
@@ -189,7 +270,7 @@ public class BlogController implements Initializable {
 
             String auteurText = c.getUtilisateurNom() != null ? c.getUtilisateurNom() : "Utilisateur " + c.getUtilisateur();
             Label auteur = new Label("👤 " + auteurText);
-            auteur.setStyle("-fx-text-fill: #FFBD00; -fx-font-size: 12px;"); // doré
+            auteur.setStyle("-fx-text-fill: #FFBD00; -fx-font-size: 12px;");
 
             String dateText = c.getDateCommentaire() != null ? c.getDateCommentaire().format(dateFormatter) : "";
             Label date = new Label(dateText);
@@ -216,7 +297,6 @@ public class BlogController implements Initializable {
         dialog.setTitle("Modifier le commentaire");
         dialog.setHeaderText("Modification du commentaire");
         dialog.setContentText("Nouveau contenu :");
-
         Optional<String> result = dialog.showAndWait();
         result.ifPresent(nouveauContenu -> {
             if (!nouveauContenu.trim().isEmpty()) {
@@ -269,7 +349,10 @@ public class BlogController implements Initializable {
             Blog b = new Blog(
                     titreField.getText().trim(),
                     contenuField.getText().trim(),
-                    currentUser.getId()
+                    currentUser.getId(),
+                    imageField.getText().trim(),
+                    regionCombo.getValue(),
+                    categorieCombo.getValue()
             );
             blogCRUD.ajouter(b);
             refreshData();
@@ -290,6 +373,10 @@ public class BlogController implements Initializable {
         try {
             selectedBlog.setTitre(titreField.getText().trim());
             selectedBlog.setContenu(contenuField.getText().trim());
+            selectedBlog.setImage(imageField.getText().trim());
+            selectedBlog.setRegion(regionCombo.getValue());
+            selectedBlog.setCategorie(categorieCombo.getValue());
+            // L'auteur ne change pas
             blogCRUD.modifier(selectedBlog);
             refreshData();
             clearForm();
@@ -362,6 +449,9 @@ public class BlogController implements Initializable {
         articleIdLabel.setText("Nouveau");
         titreField.clear();
         contenuField.clear();
+        imageField.clear();
+        regionCombo.setValue(null);
+        categorieCombo.setValue(null);
         if (currentUser != null) {
             auteurLabel.setText(currentUser.getPrenom() + " " + currentUser.getNom());
         } else {
@@ -406,6 +496,14 @@ public class BlogController implements Initializable {
         }
         if (contenuField.getText().trim().isEmpty()) {
             showWarning("Contenu requis.");
+            return false;
+        }
+        if (regionCombo.getValue() == null) {
+            showWarning("Veuillez sélectionner une région.");
+            return false;
+        }
+        if (categorieCombo.getValue() == null) {
+            showWarning("Veuillez sélectionner une catégorie.");
             return false;
         }
         return true;
