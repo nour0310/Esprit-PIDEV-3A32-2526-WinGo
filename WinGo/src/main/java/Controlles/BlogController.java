@@ -6,6 +6,7 @@ import Services.BlogCRUD;
 import Services.CommentaireCRUD;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.layout.FlowPane;
@@ -15,11 +16,11 @@ import java.util.List;
 
 public class BlogController {
 
-    @FXML private TextField titreField, auteurField, imageField, searchField;
+    @FXML private TextField titreField, auteurField, imageField, searchField, regionField, categorieField;
     @FXML private TextArea contenuField;
-    @FXML private ComboBox<String> regionCombo, categorieCombo;
     @FXML private FlowPane articlesFlowPane, commentairesFlowPane;
     @FXML private Label selectedDestinationLabel, selectedDestinationMeta, statsLabel;
+    @FXML private TextField newCommentField;
 
     private BlogCRUD blogCRUD = new BlogCRUD();
     private CommentaireCRUD commentaireCRUD = new CommentaireCRUD();
@@ -28,10 +29,9 @@ public class BlogController {
 
     @FXML
     public void initialize() {
-        regionCombo.getItems().addAll("Nord", "Sud", "Centre", "Djerba", "Hammamet", "Tozeur", "Douz", "Sousse", "Tunis", "Carthage", "Tabarka", "Bizerte");
-        categorieCombo.getItems().addAll("Voyage", "Histoire", "Gastronomie", "Culture", "Aventure", "Plage", "Désert", "Montagne", "Famille");
-        regionCombo.setValue("Djerba");
-        categorieCombo.setValue("Voyage");
+        // Initialisation des combos si nécessaire
+        regionField.setText("Djerba");
+        categorieField.setText("Voyage");
 
         searchField.textProperty().addListener((obs, oldVal, newVal) -> filterBlogs(newVal));
 
@@ -62,6 +62,13 @@ public class BlogController {
         selectedBlog = b;
         selectedDestinationLabel.setText(b.getTitre());
         selectedDestinationMeta.setText(b.getRegion() + " · " + b.getAuteur());
+        titreField.setText(b.getTitre());
+        contenuField.setText(b.getContenu());
+        imageField.setText(b.getImage());
+        auteurField.setText(b.getAuteur());
+        regionField.setText(b.getRegion());
+        categorieField.setText(b.getCategorie());
+
         loadComments(b);
     }
 
@@ -92,10 +99,16 @@ public class BlogController {
     }
 
     @FXML
-    private void handleCreateBlog() {
+    private void ajouterBlog(ActionEvent event) {
         try {
-            Blog b = new Blog(titreField.getText(), contenuField.getText(), imageField.getText(), auteurField.getText(),
-                    regionCombo.getValue(), categorieCombo.getValue());
+            Blog b = new Blog(
+                    titreField.getText(),
+                    contenuField.getText(),
+                    imageField.getText(),
+                    auteurField.getText(),
+                    regionField.getText(),
+                    categorieField.getText()
+            );
             blogCRUD.ajouter(b);
             loadBlogs();
         } catch (SQLException e) {
@@ -104,15 +117,15 @@ public class BlogController {
     }
 
     @FXML
-    private void handleUpdateBlog() {
+    private void modifierBlog(ActionEvent event) {
         if (selectedBlog == null) return;
         try {
             selectedBlog.setTitre(titreField.getText());
             selectedBlog.setContenu(contenuField.getText());
             selectedBlog.setImage(imageField.getText());
             selectedBlog.setAuteur(auteurField.getText());
-            selectedBlog.setRegion(regionCombo.getValue());
-            selectedBlog.setCategorie(categorieCombo.getValue());
+            selectedBlog.setRegion(regionField.getText());
+            selectedBlog.setCategorie(categorieField.getText());
             blogCRUD.modifier(selectedBlog);
             loadBlogs();
         } catch (SQLException e) {
@@ -121,7 +134,7 @@ public class BlogController {
     }
 
     @FXML
-    private void handleDeleteBlog() {
+    private void supprimerBlog(ActionEvent event) {
         if (selectedBlog == null) return;
         try {
             blogCRUD.supprimer(selectedBlog.getId_article());
@@ -133,11 +146,15 @@ public class BlogController {
     }
 
     @FXML
-    private void handleAddComment() {
+    private void ajouterCommentaire(ActionEvent event) {
         if (selectedBlog == null) return;
         try {
-            Commentaire c = new Commentaire(newCommentField.getText(), new java.util.Date(),
-                    selectedBlog.getId_article(), 1); // 1 = utilisateur fictif pour test
+            Commentaire c = new Commentaire(
+                    newCommentField.getText(),
+                    new java.util.Date(),
+                    selectedBlog.getId_article(),
+                    1 // utilisateur fictif
+            );
             commentaireCRUD.ajouter(c);
             loadComments(selectedBlog);
             newCommentField.clear();
@@ -149,6 +166,4 @@ public class BlogController {
     private void updateStats() {
         statsLabel.setText(blogList.size() + " récits");
     }
-
-    @FXML private TextField newCommentField;
 }

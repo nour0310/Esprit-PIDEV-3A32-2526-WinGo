@@ -13,9 +13,12 @@
         <Label text="Gestion des Blogs" style="-fx-font-size: 24px; -fx-padding: 10;" BorderPane.alignment="CENTER"/>
     </top>
 
-    <!-- Center: TableView pour afficher blogs -->
     <center>
-        <VBox spacing="10" padding="10">
+        <VBox spacing="10">
+            <padding>
+                <Insets top="10" right="10" bottom="10" left="10"/>
+            </padding>
+
             <TableView fx:id="blogTable">
                 <columns>
                     <TableColumn text="ID" fx:id="colId"/>
@@ -27,15 +30,17 @@
                 </columns>
             </TableView>
 
-            <!-- Liste des commentaires -->
             <Label text="Commentaires:"/>
             <ListView fx:id="commentaireList" prefHeight="150"/>
         </VBox>
     </center>
 
-    <!-- Bottom: Formulaire et boutons -->
     <bottom>
-        <VBox spacing="10" padding="10">
+        <VBox spacing="10">
+            <padding>
+                <Insets top="10" right="10" bottom="10" left="10"/>
+            </padding>
+
             <GridPane hgap="10" vgap="10">
                 <columnConstraints>
                     <ColumnConstraints percentWidth="20"/>
@@ -68,4 +73,3 @@
             </HBox>
         </VBox>
     </bottom>
-</BorderPane>
