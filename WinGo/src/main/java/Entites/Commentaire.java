@@ -28,9 +28,4 @@ public class Commentaire {
     public void setBlogId(int blogId) { this.blogId = blogId; }
     public String getUtilisateur() { return utilisateur; }
     public void setUtilisateur(String utilisateur) { this.utilisateur = utilisateur; }
-
-    @Override
-    public String toString() {
-        return "Commentaire [id=" + id + ", contenu=" + contenu + ", blogId=" + blogId + ", utilisateur=" + utilisateur + "]";
-    }
 }

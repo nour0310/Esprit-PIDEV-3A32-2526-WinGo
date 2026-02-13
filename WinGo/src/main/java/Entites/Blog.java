@@ -1,7 +1,5 @@
 package Entites;
 
-import java.util.Date;
-
 public class Blog {
     private int id;
     private String titre;
@@ -13,7 +11,8 @@ public class Blog {
 
     public Blog() {}
 
-    public Blog(String titre, String contenu, String image, String auteur, String region, String categorie) {
+    public Blog(String titre, String contenu, String image,
+                String auteur, String region, String categorie) {
         this.titre = titre;
         this.contenu = contenu;
         this.image = image;
@@ -36,9 +35,4 @@ public class Blog {
     public void setRegion(String region) { this.region = region; }
     public String getCategorie() { return categorie; }
     public void setCategorie(String categorie) { this.categorie = categorie; }
-
-    @Override
-    public String toString() {
-        return "Blog [id=" + id + ", titre=" + titre + ", auteur=" + auteur + ", region=" + region + ", categorie=" + categorie + "]";
-    }
 }
