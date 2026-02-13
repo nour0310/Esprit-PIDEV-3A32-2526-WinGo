@@ -1,0 +1,284 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.text.Font?>
+<?import javafx.scene.shape.*?>
+<?import javafx.scene.effect.*?>
+<?import javafx.scene.paint.Color?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+
+<!-- ================================================ -->
+<!-- WINGO - MODULE BLOG - FRONT OFFICE CLIENT       -->
+<!-- PALETTE : #390099 · #9E0059 · #FF0054 · #FF5400 -->
+<!-- FLOWPANE - CARTES - INTERFACE CLIENT SIMPLE     -->
+<!-- SANS STATISTIQUES - SANS GRAPHIQUES            -->
+<!-- ================================================ -->
+
+<BorderPane fx:id="rootPane"
+            style="-fx-background-color: #FFF5F8; -fx-font-family: 'Segoe UI', 'System', sans-serif;"
+            xmlns="http://javafx.com/javafx/17"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="Controlles.BlogController"
+            prefWidth="1000" prefHeight="650">
+
+    <!-- ========== HEADER SIMPLE ========== -->
+    <top>
+        <VBox>
+            <!-- Bande principale -->
+            <HBox style="-fx-background-color: #390099; -fx-padding: 12 25;"
+                  alignment="CENTER_LEFT" spacing="15">
+
+                <!-- LOGO -->
+                <HBox alignment="CENTER" spacing="10">
+                    <StackPane>
+                        <Circle radius="22" fill="white" />
+                        <ImageView fitHeight="32" fitWidth="32">
+                            <Image url="@images/logo.png" />
+                        </ImageView>
+                    </StackPane>
+                    <Label text="WinGo" textFill="white" style="-fx-font-weight: 900; -fx-font-size: 22px;" />
+                    <Label text="Blog" textFill="#FFDB00" style="-fx-font-weight: 700; -fx-font-size: 16px; -fx-padding: 0 0 0 5;" />
+                </HBox>
+
+                <Region HBox.hgrow="ALWAYS" />
+
+                <!-- Navigation simple - FRONT OFFICE -->
+                <HBox spacing="25" alignment="CENTER">
+                    <Label text="Accueil" textFill="white" style="-fx-font-weight: 500; -fx-font-size: 14px; -fx-cursor: hand;" />
+                    <Label text="Destinations" textFill="white" style="-fx-font-weight: 500; -fx-font-size: 14px; -fx-cursor: hand;" />
+                    <Label text="Blog" textFill="#FFDB00" style="-fx-font-weight: 700; -fx-font-size: 14px; -fx-cursor: hand;" />
+                    <Label text="Contact" textFill="white" style="-fx-font-weight: 500; -fx-font-size: 14px; -fx-cursor: hand;" />
+                </HBox>
+            </HBox>
+
+            <!-- Barre de recherche client -->
+            <HBox style="-fx-background-color: white; -fx-padding: 12 25; -fx-border-color: #FF005420; -fx-border-width: 0 0 1 0;"
+                  alignment="CENTER_LEFT" spacing="15">
+
+                <HBox style="-fx-background-color: #FFF0F5; -fx-background-radius: 25; -fx-padding: 8 20;"
+                      spacing="10" alignment="CENTER" HBox.hgrow="ALWAYS">
+                    <Label text="🔍" style="-fx-font-size: 16px; -fx-text-fill: #FF5400;" />
+                    <TextField fx:id="searchField" promptText="Rechercher une destination, un récit de voyage..."
+                               style="-fx-background-color: transparent; -fx-prompt-text-fill: #9E0059; -fx-text-fill: #390099; -fx-font-size: 14px; -fx-pref-width: 400px;" />
+                </HBox>
+
+                <Region HBox.hgrow="ALWAYS" />
+
+                <Label text="Bienvenue, Explorateur" textFill="#390099" style="-fx-font-weight: 600; -fx-font-size: 14px;" />
+                <Circle radius="18" fill="linear-gradient(to bottom, #FF5400, #FF0054)" />
+            </HBox>
+        </VBox>
+    </top>
+
+    <!-- ========== CONTENU PRINCIPAL - FRONT OFFICE ========== -->
+    <center>
+        <HBox spacing="20" style="-fx-padding: 20;">
+
+            <!-- ===== PARTIE GAUCHE : LISTE DES RÉCITS (CARTES) ===== -->
+            <VBox spacing="15" style="-fx-pref-width: 620;">
+
+                <!-- En-tête section -->
+                <HBox alignment="CENTER_LEFT" spacing="10">
+                    <Label text="📝" style="-fx-font-size: 28px;" />
+                    <VBox>
+                        <Label text="Carnet de voyage" style="-fx-font-weight: 900; -fx-font-size: 22px; -fx-text-fill: #390099;" />
+                        <Label fx:id="statsLabel" text="Découvrez les expériences des voyageurs" textFill="#9E0059" style="-fx-font-size: 12px;" />
+                    </VBox>
+                    <Region HBox.hgrow="ALWAYS" />
+                    <Button onAction="#handleCreateBlog"
+                            style="-fx-background-color: #FF5400; -fx-text-fill: white; -fx-background-radius: 25; -fx-padding: 10 25; -fx-font-weight: 700; -fx-cursor: hand;">
+                        <graphic>
+                            <HBox spacing="8" alignment="CENTER">
+                                <Label text="✈️" style="-fx-font-size: 14px; -fx-text-fill: white;" />
+                                <Label text="PARTAGER MON VOYAGE" textFill="white" style="-fx-font-weight: 700; -fx-font-size: 13px;" />
+                            </HBox>
+                        </graphic>
+                    </Button>
+                </HBox>
+
+                <!-- ScrollPane avec FlowPane - CARTES DES RÉCITS -->
+                <ScrollPane fitToWidth="true"
+                            style="-fx-background: transparent; -fx-background-color: transparent; -fx-border-color: transparent;"
+                            prefHeight="450">
+                    <FlowPane fx:id="articlesFlowPane" hgap="20" vgap="20"
+                              style="-fx-background-color: transparent; -fx-padding: 5;"
+                              prefWrapLength="600">
+                        <!-- Les cartes seront générées dynamiquement -->
+                    </FlowPane>
+                </ScrollPane>
+            </VBox>
+
+            <!-- ===== PARTIE DROITE : FORMULAIRE & COMMENTAIRES ===== -->
+            <VBox spacing="0" style="-fx-background-color: white; -fx-background-radius: 20; -fx-padding: 20; -fx-pref-width: 320; -fx-effect: dropshadow(three-pass-box, #9E005920, 10, 0, 0, 5);">
+
+                <TabPane tabClosingPolicy="UNAVAILABLE"
+                         style="-fx-tab-min-height: 45; -fx-background-color: transparent; -fx-tab-min-width: 140;">
+
+                    <!-- TAB 1 : PUBLIER UN RÉCIT -->
+                    <Tab>
+                        <graphic>
+                            <HBox spacing="8" alignment="CENTER">
+                                <Label text="✏️" style="-fx-font-size: 16px; -fx-text-fill: #390099;" />
+                                <Label text="PUBLIER UN RÉCIT" style="-fx-font-weight: 700; -fx-text-fill: #390099; -fx-font-size: 13px;" />
+                            </HBox>
+                        </graphic>
+
+                        <VBox spacing="15" style="-fx-padding: 20 10 10 10;">
+
+                            <!-- Message d'accueil -->
+                            <Label text="Partagez votre expérience avec la communauté !"
+                                   style="-fx-text-fill: #9E0059; -fx-font-size: 12px; -fx-wrap-text: true;" />
+
+                            <GridPane hgap="10" vgap="12" style="-fx-padding: 5 0 0 0;">
+                                <Label text="Destination *" GridPane.rowIndex="0" GridPane.columnIndex="0"
+                                       style="-fx-font-weight: 600; -fx-text-fill: #390099; -fx-font-size: 12px;" />
+                                <TextField fx:id="titreField" promptText="Ex: Djerba, Carthage, Tozeur..."
+                                           GridPane.rowIndex="0" GridPane.columnIndex="1"
+                                           style="-fx-background-radius: 12; -fx-background-color: #FFF0F5; -fx-border-color: #FF005440; -fx-border-radius: 12; -fx-border-width: 1; -fx-padding: 10; -fx-font-size: 13px;"
+                                           prefWidth="200" />
+
+                                <Label text="Récit *" GridPane.rowIndex="1" GridPane.columnIndex="0"
+                                       style="-fx-font-weight: 600; -fx-text-fill: #390099; -fx-font-size: 12px;" />
+                                <TextArea fx:id="contenuField" promptText="Racontez votre voyage..."
+                                          GridPane.rowIndex="1" GridPane.columnIndex="1"
+                                          prefRowCount="4" wrapText="true"
+                                          style="-fx-background-radius: 12; -fx-background-color: #FFF0F5; -fx-border-color: #FF005440; -fx-border-radius: 12; -fx-border-width: 1; -fx-padding: 10; -fx-font-size: 13px;"
+                                          prefWidth="200" />
+
+                                <Label text="Votre nom *" GridPane.rowIndex="2" GridPane.columnIndex="0"
+                                       style="-fx-font-weight: 600; -fx-text-fill: #390099; -fx-font-size: 12px;" />
+                                <TextField fx:id="auteurField" promptText="Votre nom d'explorateur"
+                                           GridPane.rowIndex="2" GridPane.columnIndex="1"
+                                           style="-fx-background-radius: 12; -fx-background-color: #FFF0F5; -fx-border-color: #FF005440; -fx-border-radius: 12; -fx-border-width: 1; -fx-padding: 10; -fx-font-size: 13px;" />
+
+                                <Label text="Région" GridPane.rowIndex="3" GridPane.columnIndex="0"
+                                       style="-fx-font-weight: 600; -fx-text-fill: #390099; -fx-font-size: 12px;" />
+                                <ComboBox fx:id="regionCombo" promptText="Sélectionner"
+                                          GridPane.rowIndex="3" GridPane.columnIndex="1"
+                                          style="-fx-background-radius: 12; -fx-background-color: #FFF0F5; -fx-border-color: #FF005440; -fx-border-radius: 12; -fx-border-width: 1; -fx-padding: 8; -fx-font-size: 13px;"
+                                          prefWidth="200" />
+
+                                <Label text="Catégorie" GridPane.rowIndex="4" GridPane.columnIndex="0"
+                                       style="-fx-font-weight: 600; -fx-text-fill: #390099; -fx-font-size: 12px;" />
+                                <ComboBox fx:id="categorieCombo" promptText="Sélectionner"
+                                          GridPane.rowIndex="4" GridPane.columnIndex="1"
+                                          style="-fx-background-radius: 12; -fx-background-color: #FFF0F5; -fx-border-color: #FF005440; -fx-border-radius: 12; -fx-border-width: 1; -fx-padding: 8; -fx-font-size: 13px;"
+                                          prefWidth="200" />
+
+                                <TextField fx:id="imageField" visible="false" managed="false" />
+                            </GridPane>
+
+                            <HBox spacing="10" alignment="CENTER" style="-fx-padding: 15 0 5 0;">
+                                <Button fx:id="btnAjouter" onAction="#handleCreateBlog"
+                                        style="-fx-background-color: #FF5400; -fx-text-fill: white; -fx-background-radius: 25; -fx-padding: 12 30; -fx-font-weight: 700; -fx-font-size: 14px; -fx-cursor: hand;">
+                                    <graphic><HBox spacing="8"><Label text="✈️" style="-fx-text-fill: white;" /><Label text="PUBLIER" textFill="white" /></HBox></graphic>
+                                </Button>
+                                <Button fx:id="btnModifier" onAction="#handleUpdateBlog"
+                                        style="-fx-background-color: #9E0059; -fx-text-fill: white; -fx-background-radius: 25; -fx-padding: 12 30; -fx-font-weight: 700; -fx-font-size: 14px; -fx-cursor: hand;">
+                                    <graphic><HBox spacing="8"><Label text="✏️" style="-fx-text-fill: white;" /><Label text="MODIFIER" textFill="white" /></HBox></graphic>
+                                </Button>
+                            </HBox>
+                            <HBox alignment="CENTER">
+                                <Button fx:id="btnSupprimer" onAction="#handleDeleteBlog"
+                                        style="-fx-background-color: #390099; -fx-text-fill: white; -fx-background-radius: 25; -fx-padding: 12 30; -fx-font-weight: 700; -fx-font-size: 14px; -fx-cursor: hand;">
+                                    <graphic><HBox spacing="8"><Label text="🗑️" style="-fx-text-fill: white;" /><Label text="SUPPRIMER" textFill="white" /></HBox></graphic>
+                                </Button>
+                            </HBox>
+                        </VBox>
+                    </Tab>
+
+                    <!-- TAB 2 : COMMENTAIRES -->
+                    <Tab>
+                        <graphic>
+                            <HBox spacing="8" alignment="CENTER">
+                                <Label text="💬" style="-fx-font-size: 16px; -fx-text-fill: #9E0059;" />
+                                <Label text="COMMENTAIRES" style="-fx-font-weight: 700; -fx-text-fill: #390099; -fx-font-size: 13px;" />
+                            </HBox>
+                        </graphic>
+
+                        <VBox spacing="15" style="-fx-padding: 20 10;">
+
+                            <!-- Destination sélectionnée -->
+                            <HBox spacing="12" alignment="CENTER_LEFT"
+                                  style="-fx-background-color: #FFF0F5; -fx-background-radius: 15; -fx-padding: 15; -fx-border-color: #FF005440; -fx-border-radius: 15; -fx-border-width: 1;">
+                                <StackPane>
+                                    <Circle radius="18" fill="linear-gradient(to bottom, #FF5400, #FF0054)" />
+                                    <Label text="📍" style="-fx-font-size: 18px; -fx-text-fill: white;" />
+                                </StackPane>
+                                <VBox>
+                                    <Label fx:id="selectedDestinationLabel" text="Aucune destination"
+                                           style="-fx-font-weight: 700; -fx-text-fill: #390099; -fx-font-size: 15px;" />
+                                    <Label fx:id="selectedDestinationMeta" text="Cliquez sur une carte pour voir les avis"
+                                           style="-fx-text-fill: #9E0059; -fx-font-size: 11px;" />
+                                </VBox>
+                            </HBox>
+
+                            <!-- Liste des commentaires -->
+                            <Label text="🗣️ Avis des voyageurs"
+                                   style="-fx-font-weight: 700; -fx-text-fill: #390099; -fx-font-size: 14px; -fx-padding: 5 0 0 0;" />
+
+                            <ScrollPane fitToWidth="true"
+                                        style="-fx-background: transparent; -fx-background-color: transparent; -fx-border-color: transparent;"
+                                        prefHeight="200">
+                                <FlowPane fx:id="commentairesFlowPane" hgap="10" vgap="10"
+                                          style="-fx-background-color: transparent; -fx-padding: 5;"
+                                          prefWrapLength="300" />
+                            </ScrollPane>
+
+                            <!-- Ajouter un avis -->
+                            <VBox spacing="12" style="-fx-padding: 10 0 0 0;">
+                                <Label text="✍️ Laissez votre avis"
+                                       style="-fx-font-weight: 700; -fx-text-fill: #FF5400; -fx-font-size: 14px;" />
+
+                                <GridPane hgap="10" vgap="10">
+                                    <Label text="Nom :" GridPane.rowIndex="0" GridPane.columnIndex="0"
+                                           style="-fx-font-weight: 600; -fx-text-fill: #390099; -fx-font-size: 12px;" />
+                                    <TextField fx:id="commentUtilisateurField" promptText="Votre nom"
+                                               GridPane.rowIndex="0" GridPane.columnIndex="1"
+                                               style="-fx-background-radius: 12; -fx-background-color: #FFF0F5; -fx-border-color: #FF005440; -fx-border-radius: 12; -fx-border-width: 1; -fx-padding: 8 12; -fx-font-size: 12px;"
+                                               prefWidth="180" />
+
+                                    <Label text="Avis :" GridPane.rowIndex="1" GridPane.columnIndex="0"
+                                           style="-fx-font-weight: 600; -fx-text-fill: #390099; -fx-font-size: 12px;" />
+                                    <TextField fx:id="newCommentField" promptText="Votre commentaire..."
+                                               GridPane.rowIndex="1" GridPane.columnIndex="1"
+                                               style="-fx-background-radius: 12; -fx-background-color: #FFF0F5; -fx-border-color: #FF005440; -fx-border-radius: 12; -fx-border-width: 1; -fx-padding: 8 12; -fx-font-size: 12px;"
+                                               prefWidth="180" />
+
+                                    <Button onAction="#handleAddComment"
+                                            GridPane.rowIndex="2" GridPane.columnIndex="1"
+                                            style="-fx-background-color: #FF5400; -fx-text-fill: white; -fx-background-radius: 25; -fx-padding: 10 25; -fx-cursor: hand; -fx-font-weight: 700;"
+                                            alignment="CENTER_RIGHT">
+                                        <graphic>
+                                            <HBox spacing="8" alignment="CENTER">
+                                                <Label text="📨" style="-fx-font-size: 14px; -fx-text-fill: white;" />
+                                                <Label text="PUBLIER" textFill="white" style="-fx-font-weight: 700; -fx-font-size: 12px;" />
+                                            </HBox>
+                                        </graphic>
+                                    </Button>
+                                </GridPane>
+                            </VBox>
+                        </VBox>
+                    </Tab>
+                </TabPane>
+            </VBox>
+        </HBox>
+    </center>
+
+    <!-- ========== FOOTER SIMPLE - FRONT OFFICE ========== -->
+    <bottom>
+        <HBox style="-fx-background-color: #390099; -fx-padding: 12 25;" alignment="CENTER">
+            <Label text="© 2026 WinGo - Carnet de voyage communautaire" textFill="#FFDB00" style="-fx-font-size: 12px;" />
+            <Region HBox.hgrow="ALWAYS" />
+            <HBox spacing="25">
+                <Label text="À propos" textFill="white" style="-fx-font-size: 12px; -fx-cursor: hand;" />
+                <Label text="Confidentialité" textFill="white" style="-fx-font-size: 12px; -fx-cursor: hand;" />
+                <Label text="Aide" textFill="white" style="-fx-font-size: 12px; -fx-cursor: hand;" onMouseClicked="#handleHelp" />
+            </HBox>
+        </HBox>
+    </bottom>
+
+</BorderPane>
