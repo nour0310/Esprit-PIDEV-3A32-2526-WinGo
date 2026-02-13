@@ -19,6 +19,8 @@ public class MainFX extends Application {
         stage.setScene(scene);
         stage.setMinWidth(1400);
         stage.setMinHeight(900);
+        stage.setWidth(1400);
+        stage.setHeight(900);
         stage.show();
     }
 

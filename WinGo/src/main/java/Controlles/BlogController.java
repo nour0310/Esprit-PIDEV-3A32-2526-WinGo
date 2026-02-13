@@ -54,9 +54,9 @@ public class BlogController implements Initializable {
     @FXML private TextField titreField;
     @FXML private TextArea contenuField;
     @FXML private TextField imageField;
-    @FXML private ComboBox<String> regionCombo;
-    @FXML private ComboBox<String> categorieCombo;
-    @FXML private Label auteurLabel;  // pour afficher l'auteur (connecté ou sélectionné)
+    @FXML private ComboBox<String> regionField;      // correspond à fx:id="regionField"
+    @FXML private ComboBox<String> categorieField;    // correspond à fx:id="categorieField"
+    @FXML private Label auteurLabel;                  // pour afficher l'auteur
     @FXML private TextField newCommentField;
     @FXML private TextField commentUserField;
     @FXML private Button choisirImageBtn;
@@ -82,6 +82,10 @@ public class BlogController implements Initializable {
     @FXML private Button detailAddCommentBtn;
     @FXML private Label detailStatusLabel;
 
+    // Filtres
+    @FXML private ComboBox<String> regionFilterCombo;
+    @FXML private ComboBox<String> categorieFilterCombo;
+
     private final DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
     private final DateTimeFormatter dateShortFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
@@ -105,8 +109,18 @@ public class BlogController implements Initializable {
                 "Plage", "Désert", "Montagne", "Culture", "Bien-être",
                 "Événements", "Gastronomie", "Aventure", "Nature", "Histoire"
         );
-        regionCombo.setItems(regions);
-        categorieCombo.setItems(categories);
+        // Initialisation des ComboBox du formulaire
+        regionField.setItems(regions);
+        categorieField.setItems(categories);
+        // Initialisation des filtres
+        regionFilterCombo.setItems(FXCollections.observableArrayList("Toutes", "Ariana", "Béja", "Ben Arous", "Bizerte", "Gabès", "Gafsa",
+                "Jendouba", "Kairouan", "Kasserine", "Kébili", "Le Kef", "Mahdia",
+                "La Manouba", "Médenine", "Monastir", "Nabeul", "Sfax", "Sidi Bouzid",
+                "Siliana", "Sousse", "Tataouine", "Tozeur", "Tunis", "Zaghouan"));
+        regionFilterCombo.setValue("Toutes");
+        categorieFilterCombo.setItems(FXCollections.observableArrayList("Toutes", "Plage", "Désert", "Montagne", "Culture", "Bien-être",
+                "Événements", "Gastronomie", "Aventure", "Nature", "Histoire"));
+        categorieFilterCombo.setValue("Toutes");
     }
 
     private void loadUtilisateurs() {
@@ -448,8 +462,8 @@ public class BlogController implements Initializable {
         titreField.setText(blog.getTitre());
         contenuField.setText(blog.getContenu());
         imageField.setText(blog.getImage());
-        regionCombo.setValue(blog.getRegion());
-        categorieCombo.setValue(blog.getCategorie());
+        regionField.setValue(blog.getRegion());
+        categorieField.setValue(blog.getCategorie());
         auteurLabel.setText(blog.getAuteurNom() != null ? blog.getAuteurNom() : "Inconnu");
         selectedArticleLabel.setText("Article sélectionné : " + blog.getTitre());
 
@@ -549,8 +563,8 @@ public class BlogController implements Initializable {
                     contenuField.getText().trim(),
                     currentUser.getId(),
                     imageField.getText().trim(),
-                    regionCombo.getValue(),
-                    categorieCombo.getValue()
+                    regionField.getValue(),
+                    categorieField.getValue()
             );
             blogCRUD.ajouter(b);
             refreshData();
@@ -572,8 +586,8 @@ public class BlogController implements Initializable {
             selectedBlog.setTitre(titreField.getText().trim());
             selectedBlog.setContenu(contenuField.getText().trim());
             selectedBlog.setImage(imageField.getText().trim());
-            selectedBlog.setRegion(regionCombo.getValue());
-            selectedBlog.setCategorie(categorieCombo.getValue());
+            selectedBlog.setRegion(regionField.getValue());
+            selectedBlog.setCategorie(categorieField.getValue());
             // L'auteur ne change pas
             blogCRUD.modifier(selectedBlog);
             refreshData();
@@ -615,7 +629,6 @@ public class BlogController implements Initializable {
             showWarning("L'ID utilisateur doit être un nombre.");
             return;
         }
-        // Note : on utilise l'ID saisi, mais on pourrait forcer currentUser.getId()
         Commentaire c = new Commentaire();
         c.setContenu(contenu.trim());
         c.setUtilisateur(userId);
@@ -640,8 +653,8 @@ public class BlogController implements Initializable {
         titreField.clear();
         contenuField.clear();
         imageField.clear();
-        regionCombo.setValue(null);
-        categorieCombo.setValue(null);
+        regionField.setValue(null);
+        categorieField.setValue(null);
         if (currentUser != null) {
             auteurLabel.setText(currentUser.getPrenom() + " " + currentUser.getNom());
         } else {
@@ -653,11 +666,16 @@ public class BlogController implements Initializable {
 
     private void filterArticles() {
         String search = searchField.getText().toLowerCase();
+        String region = regionFilterCombo.getValue();
+        String cat = categorieFilterCombo.getValue();
+
         List<Blog> filtered = blogList.stream()
-                .filter(b -> search.isEmpty() ||
+                .filter(b -> (search.isEmpty() ||
                         b.getTitre().toLowerCase().contains(search) ||
                         b.getContenu().toLowerCase().contains(search) ||
-                        (b.getAuteurNom() != null && b.getAuteurNom().toLowerCase().contains(search)))
+                        (b.getAuteurNom() != null && b.getAuteurNom().toLowerCase().contains(search))))
+                .filter(b -> "Toutes".equals(region) || (b.getRegion() != null && b.getRegion().equals(region)))
+                .filter(b -> "Toutes".equals(cat) || (b.getCategorie() != null && b.getCategorie().equals(cat)))
                 .toList();
         displayBlogs(filtered);
     }
