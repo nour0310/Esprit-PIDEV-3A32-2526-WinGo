@@ -35,6 +35,9 @@ public class BlogController implements Initializable {
     private ObservableList<Commentaire> commentaireList = FXCollections.observableArrayList();
     private Blog selectedBlog = null;
 
+    // Utilisateur connecté (à adapter selon ton système d'authentification)
+    private Utilisateur currentUser;
+
     // Composants FXML
     @FXML private TextField searchField;
     @FXML private Button searchBtn;
@@ -46,9 +49,9 @@ public class BlogController implements Initializable {
     @FXML private Label articleIdLabel;
     @FXML private TextField titreField;
     @FXML private TextArea contenuField;
-    @FXML private ComboBox<Utilisateur> auteurCombo;   // ← ComboBox pour les auteurs
+    @FXML private ComboBox<Utilisateur> auteurCombo;
     @FXML private TextField newCommentField;
-    @FXML private TextField commentUserField;
+    @FXML private Label connectedUserLabel;   // ← nouveau label pour l'utilisateur connecté
     @FXML private Button ajouterBtn;
     @FXML private Button modifierBtn;
     @FXML private Button supprimerBtn;
@@ -66,7 +69,7 @@ public class BlogController implements Initializable {
     }
 
     /**
-     * Charge la liste des utilisateurs dans la ComboBox.
+     * Charge la liste des utilisateurs et définit l'utilisateur connecté.
      */
     private void loadUtilisateurs() {
         try {
@@ -89,6 +92,20 @@ public class BlogController implements Initializable {
                     else setText(item.getPrenom() + " " + item.getNom());
                 }
             });
+
+            // Définir l'utilisateur connecté (par exemple, celui avec l'ID 1)
+            // Dans une vraie application, tu récupéreras l'utilisateur depuis la session
+            currentUser = users.stream()
+                    .filter(u -> u.getId() == 1)
+                    .findFirst()
+                    .orElse(null);
+
+            if (currentUser != null) {
+                connectedUserLabel.setText(currentUser.getPrenom() + " " + currentUser.getNom() + " (Connecté)");
+            } else {
+                connectedUserLabel.setText("Utilisateur inconnu");
+            }
+
         } catch (SQLException e) {
             showError("Erreur chargement utilisateurs", e.getMessage());
         }
@@ -325,32 +342,28 @@ public class BlogController implements Initializable {
             showWarning("Sélectionnez un article pour commenter.");
             return;
         }
+        if (currentUser == null) {
+            showWarning("Aucun utilisateur connecté.");
+            return;
+        }
         String contenu = newCommentField.getText();
         if (contenu == null || contenu.trim().isEmpty()) {
             showWarning("Le commentaire ne peut pas être vide.");
             return;
         }
-        int userId;
-        try {
-            userId = Integer.parseInt(commentUserField.getText().trim());
-        } catch (NumberFormatException e) {
-            showWarning("L'ID utilisateur doit être un nombre.");
-            return;
-        }
 
         Commentaire c = new Commentaire();
         c.setContenu(contenu.trim());
-        c.setUtilisateur(userId);
+        c.setUtilisateur(currentUser.getId());  // ID de l'utilisateur connecté
         c.setArticleId(selectedBlog.getId());
 
         try {
             commentaireCRUD.ajouter(c);
             newCommentField.clear();
-            commentUserField.clear();
-
+            // Recharger les commentaires de l'article
             List<Commentaire> comments = commentaireCRUD.getCommentsByArticle(selectedBlog.getId());
             displayCommentaires(comments);
-            loadAllComments();
+            loadAllComments(); // mettre à jour le compteur global
             showInfo("Commentaire ajouté.");
         } catch (SQLException e) {
             showError("Erreur ajout commentaire", e.getMessage());
