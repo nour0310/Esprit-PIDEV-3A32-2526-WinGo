@@ -3,11 +3,12 @@ package Entites;
 import java.util.Date;
 
 public class Commentaire {
+
     private int id_commentaire;
     private String contenu;
     private Date dateCommentaire;
-    private int id_article;   // FK vers article
-    private int utilisateur;  // FK vers utilisateur.id
+    private int id_article;
+    private int utilisateur;
 
     public Commentaire() {}
 
@@ -18,7 +19,14 @@ public class Commentaire {
         this.utilisateur = utilisateur;
     }
 
-    // GETTERS & SETTERS
+    public Commentaire(int id_commentaire, String contenu, Date dateCommentaire, int id_article, int utilisateur) {
+        this.id_commentaire = id_commentaire;
+        this.contenu = contenu;
+        this.dateCommentaire = dateCommentaire;
+        this.id_article = id_article;
+        this.utilisateur = utilisateur;
+    }
+
     public int getId_commentaire() { return id_commentaire; }
     public void setId_commentaire(int id_commentaire) { this.id_commentaire = id_commentaire; }
 
@@ -33,4 +41,15 @@ public class Commentaire {
 
     public int getUtilisateur() { return utilisateur; }
     public void setUtilisateur(int utilisateur) { this.utilisateur = utilisateur; }
+
+    @Override
+    public String toString() {
+        return "Commentaire{" +
+                "id_commentaire=" + id_commentaire +
+                ", contenu='" + contenu + '\'' +
+                ", dateCommentaire=" + dateCommentaire +
+                ", id_article=" + id_article +
+                ", utilisateur=" + utilisateur +
+                '}';
+    }
 }
