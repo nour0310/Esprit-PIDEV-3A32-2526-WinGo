@@ -1,7 +1,7 @@
 package Controlles;
 
 import Entites.Commentaire;
-import Services.CommentaireCRUD;  // Correction ici
+import Services.CommentaireCRUD;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -16,222 +16,198 @@ import java.util.ResourceBundle;
 
 public class CommentaireController implements Initializable {
 
-    private final CommentaireCRUD commentaireService = new CommentaireCRUD();
+    private final CommentaireCRUD commentaireCRUD = new CommentaireCRUD();
     private ObservableList<Commentaire> commentaireList = FXCollections.observableArrayList();
     private Commentaire selectedCommentaire = null;
 
     @FXML private TableView<Commentaire> commentairesTable;
     @FXML private TableColumn<Commentaire, Integer> colId;
     @FXML private TableColumn<Commentaire, String> colContenu;
-    @FXML private TableColumn<Commentaire, String> colAuteur;
-    @FXML private TableColumn<Commentaire, Integer> colBlogId;
+    @FXML private TableColumn<Commentaire, String> colAuteur;   // nom de l'utilisateur
+    @FXML private TableColumn<Commentaire, Integer> colArticle;
     @FXML private TableColumn<Commentaire, String> colDate;
 
     @FXML private TextField searchField;
-    @FXML private ComboBox<Integer> blogFilterCombo;
-    @FXML private Label totalCommentsLabel;
-
+    @FXML private ComboBox<Integer> articleFilterCombo;
+    @FXML private Label commentIdLabel;
     @FXML private TextField contenuField;
-    @FXML private TextField auteurField;
-    @FXML private ComboBox<Integer> blogIdField;
-    @FXML private Label commentaireIdLabel;
-
-    @FXML private Button ajouterBtn;
-    @FXML private Button modifierBtn;
-    @FXML private Button supprimerBtn;
-    @FXML private Button clearBtn;
-    @FXML private Button refreshBtn;
-
+    @FXML private TextField utilisateurIdField;
+    @FXML private TextField articleIdField;
     @FXML private Label statusLabel;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        try {
-            setupTable();
-            setupComboBoxes();
-            loadData();
-            setupListeners();
-            statusLabel.setText("✅ Prêt - " + commentaireList.size() + " commentaires chargés");
-        } catch (SQLException e) {
-            showError("Erreur de chargement", e.getMessage());
-        }
+        setupTable();
+        loadData();
+        setupListeners();
     }
 
     private void setupTable() {
         colId.setCellValueFactory(new PropertyValueFactory<>("id"));
         colContenu.setCellValueFactory(new PropertyValueFactory<>("contenu"));
-        colAuteur.setCellValueFactory(new PropertyValueFactory<>("auteur"));
-        colBlogId.setCellValueFactory(new PropertyValueFactory<>("blogId"));
-        colDate.setCellValueFactory(new PropertyValueFactory<>("dateCreation"));
+        colAuteur.setCellValueFactory(new PropertyValueFactory<>("utilisateurNom"));
+        colArticle.setCellValueFactory(new PropertyValueFactory<>("articleId"));
+        colDate.setCellValueFactory(new PropertyValueFactory<>("dateCommentaire"));
 
         commentairesTable.getSelectionModel().selectedItemProperty().addListener(
-                (obs, oldSelection, newSelection) -> {
-                    if (newSelection != null) selectCommentaire(newSelection);
-                });
-    }
-
-    private void setupComboBoxes() {
-        // À remplir avec les IDs des blogs disponibles
-        ObservableList<Integer> blogIds = FXCollections.observableArrayList();
-        // Exemple : blogIds.addAll(1,2,3); À récupérer depuis BlogCRUD
-        blogFilterCombo.setItems(blogIds);
-        blogIdField.setItems(blogIds);
+                (obs, old, newSel) -> {
+                    if (newSel != null) selectCommentaire(newSel);
+                }
+        );
     }
 
     private void setupListeners() {
-        searchField.textProperty().addListener((obs, old, newVal) -> filterCommentaires());
-        blogFilterCombo.setOnAction(e -> filterCommentaires());
-        refreshBtn.setOnAction(e -> refreshData());
-        clearBtn.setOnAction(e -> clearForm());
+        searchField.textProperty().addListener((obs, old, n) -> filterCommentaires());
+        articleFilterCombo.setOnAction(e -> filterCommentaires());
     }
 
-    private void loadData() throws SQLException {
-        commentaireList.clear();
-        commentaireList.addAll(commentaireService.readAll());
-        commentairesTable.setItems(commentaireList);
-        totalCommentsLabel.setText(String.valueOf(commentaireList.size()));
+    private void loadData() {
+        try {
+            commentaireList.clear();
+            commentaireList.addAll(commentaireCRUD.afficher());
+            commentairesTable.setItems(commentaireList);
+
+            // Remplir le filtre combo avec les IDs d'articles uniques
+            List<Integer> articles = commentaireList.stream()
+                    .map(Commentaire::getArticleId)
+                    .distinct()
+                    .toList();
+            articleFilterCombo.setItems(FXCollections.observableArrayList(articles));
+            articleFilterCombo.getItems().add(0, null); // option "tous"
+            articleFilterCombo.setValue(null);
+
+            statusLabel.setText("Prêt - " + commentaireList.size() + " commentaires.");
+        } catch (SQLException e) {
+            showError("Erreur chargement", e.getMessage());
+        }
     }
 
     private void filterCommentaires() {
-        String searchText = searchField.getText().toLowerCase();
-        Integer selectedBlogId = blogFilterCombo.getValue();
+        String search = searchField.getText().toLowerCase();
+        Integer articleId = articleFilterCombo.getValue();
+
         List<Commentaire> filtered = commentaireList.stream()
-                .filter(c -> {
-                    boolean matchesSearch = searchText.isEmpty() ||
-                            c.getContenu().toLowerCase().contains(searchText) ||
-                            c.getAuteur().toLowerCase().contains(searchText);
-                    boolean matchesBlog = selectedBlogId == null || c.getBlogId() == selectedBlogId;
-                    return matchesSearch && matchesBlog;
-                })
+                .filter(c -> search.isEmpty() || c.getContenu().toLowerCase().contains(search))
+                .filter(c -> articleId == null || c.getArticleId() == articleId)
                 .toList();
+
         commentairesTable.setItems(FXCollections.observableArrayList(filtered));
     }
 
-    private void selectCommentaire(Commentaire commentaire) {
-        this.selectedCommentaire = commentaire;
-        commentaireIdLabel.setText(String.valueOf(commentaire.getId()));
-        contenuField.setText(commentaire.getContenu());
-        auteurField.setText(commentaire.getAuteur());
-        blogIdField.setValue(commentaire.getBlogId());
+    private void selectCommentaire(Commentaire c) {
+        selectedCommentaire = c;
+        commentIdLabel.setText(String.valueOf(c.getId()));
+        contenuField.setText(c.getContenu());
+        utilisateurIdField.setText(String.valueOf(c.getUtilisateur()));
+        articleIdField.setText(String.valueOf(c.getArticleId()));
     }
 
     @FXML
     private void ajouterCommentaire() {
+        if (!validateForm()) return;
         try {
-            if (!validateForm()) return;
-            Commentaire comment = new Commentaire();
-            comment.setContenu(contenuField.getText());
-            comment.setAuteur(auteurField.getText());
-            comment.setBlogId(blogIdField.getValue());
-            commentaireService.create(comment);
+            Commentaire c = new Commentaire();
+            c.setContenu(contenuField.getText());
+            c.setUtilisateur(Integer.parseInt(utilisateurIdField.getText()));
+            c.setArticleId(Integer.parseInt(articleIdField.getText()));
+
+            commentaireCRUD.ajouter(c);
             refreshData();
             clearForm();
-            showSuccess("Commentaire ajouté!");
-        } catch (SQLException e) {
-            showError("Erreur d'ajout", e.getMessage());
+            showInfo("Commentaire ajouté.");
+        } catch (SQLException | NumberFormatException e) {
+            showError("Erreur ajout", e.getMessage());
         }
     }
 
     @FXML
     private void modifierCommentaire() {
         if (selectedCommentaire == null) {
-            showWarning("Sélection requise", "Veuillez sélectionner un commentaire.");
+            showWarning("Sélectionnez un commentaire.");
             return;
         }
+        if (!validateForm()) return;
         try {
-            if (!validateForm()) return;
             selectedCommentaire.setContenu(contenuField.getText());
-            selectedCommentaire.setAuteur(auteurField.getText());
-            selectedCommentaire.setBlogId(blogIdField.getValue());
-            commentaireService.update(selectedCommentaire);
+            selectedCommentaire.setUtilisateur(Integer.parseInt(utilisateurIdField.getText()));
+            selectedCommentaire.setArticleId(Integer.parseInt(articleIdField.getText()));
+
+            commentaireCRUD.modifier(selectedCommentaire);
             refreshData();
             clearForm();
-            showSuccess("Commentaire modifié!");
-        } catch (SQLException e) {
-            showError("Erreur de modification", e.getMessage());
+            showInfo("Commentaire modifié.");
+        } catch (SQLException | NumberFormatException e) {
+            showError("Erreur modification", e.getMessage());
         }
     }
 
     @FXML
     private void supprimerCommentaire() {
         if (selectedCommentaire == null) {
-            showWarning("Sélection requise", "Veuillez sélectionner un commentaire.");
+            showWarning("Sélectionnez un commentaire.");
             return;
         }
-        Alert confirm = new Alert(Alert.AlertType.CONFIRMATION);
-        confirm.setTitle("Confirmation");
-        confirm.setHeaderText("Supprimer le commentaire");
-        confirm.setContentText("Êtes-vous sûr ?");
-        confirm.showAndWait().ifPresent(response -> {
-            if (response == ButtonType.OK) {
+        Alert confirm = new Alert(Alert.AlertType.CONFIRMATION, "Supprimer ?", ButtonType.YES, ButtonType.NO);
+        confirm.showAndWait().ifPresent(r -> {
+            if (r == ButtonType.YES) {
                 try {
-                    commentaireService.delete(selectedCommentaire.getId());
+                    commentaireCRUD.supprimer(selectedCommentaire.getId());
                     refreshData();
                     clearForm();
-                    showSuccess("Commentaire supprimé!");
+                    showInfo("Commentaire supprimé.");
                 } catch (SQLException e) {
-                    showError("Erreur de suppression", e.getMessage());
+                    showError("Erreur suppression", e.getMessage());
                 }
             }
         });
     }
 
-    private void refreshData() {
-        try {
-            loadData();
-            filterCommentaires();
-            statusLabel.setText("✅ Données actualisées");
-        } catch (SQLException e) {
-            showError("Erreur d'actualisation", e.getMessage());
-        }
-    }
-
+    @FXML
     private void clearForm() {
         selectedCommentaire = null;
-        commentaireIdLabel.setText("Nouveau");
+        commentIdLabel.setText("Nouveau");
         contenuField.clear();
-        auteurField.clear();
-        blogIdField.setValue(null);
+        utilisateurIdField.clear();
+        articleIdField.clear();
         commentairesTable.getSelectionModel().clearSelection();
     }
 
+    private void refreshData() {
+        loadData();
+    }
+
     private boolean validateForm() {
-        if (contenuField.getText() == null || contenuField.getText().trim().isEmpty()) {
-            showWarning("Champ vide", "Le contenu est requis");
+        if (contenuField.getText().trim().isEmpty()) {
+            showWarning("Contenu requis.");
             return false;
         }
-        if (auteurField.getText() == null || auteurField.getText().trim().isEmpty()) {
-            showWarning("Champ vide", "L'auteur est requis");
+        try {
+            Integer.parseInt(utilisateurIdField.getText());
+        } catch (NumberFormatException e) {
+            showWarning("ID utilisateur doit être un nombre.");
             return false;
         }
-        if (blogIdField.getValue() == null) {
-            showWarning("Sélection requise", "Veuillez sélectionner un blog");
+        try {
+            Integer.parseInt(articleIdField.getText());
+        } catch (NumberFormatException e) {
+            showWarning("ID article doit être un nombre.");
             return false;
         }
         return true;
     }
 
-    private void showSuccess(String message) {
-        Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setTitle("Succès");
-        alert.setHeaderText(null);
-        alert.setContentText(message);
-        alert.showAndWait();
+    private void showInfo(String msg) {
+        statusLabel.setText("✅ " + msg);
     }
 
-    private void showWarning(String title, String message) {
-        Alert alert = new Alert(Alert.AlertType.WARNING);
-        alert.setTitle("Attention");
-        alert.setHeaderText(title);
-        alert.setContentText(message);
-        alert.showAndWait();
+    private void showWarning(String msg) {
+        Alert a = new Alert(Alert.AlertType.WARNING, msg);
+        a.show();
     }
 
-    private void showError(String title, String message) {
-        Alert alert = new Alert(Alert.AlertType.ERROR);
-        alert.setTitle("Erreur");
-        alert.setHeaderText(title);
-        alert.setContentText(message);
-        alert.showAndWait();
+    private void showError(String title, String msg) {
+        Alert a = new Alert(Alert.AlertType.ERROR, msg);
+        a.setTitle(title);
+        a.show();
     }
 }
