@@ -2,10 +2,8 @@ package Controlles;
 
 import Entites.Blog;
 import Entites.Commentaire;
-import Entites.Utilisateur;
 import Services.BlogCRUD;
 import Services.CommentaireCRUD;
-import Services.UtilisateurCRUD;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -14,26 +12,25 @@ import javafx.geometry.Insets;
 import javafx.scene.control.*;
 import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 
 import java.net.URL;
 import java.sql.SQLException;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
-import java.util.Optional;
 import java.util.ResourceBundle;
 
 public class BlogController implements Initializable {
 
     private final BlogCRUD blogCRUD = new BlogCRUD();
     private final CommentaireCRUD commentaireCRUD = new CommentaireCRUD();
-    private final UtilisateurCRUD utilisateurCRUD = new UtilisateurCRUD();
 
     private ObservableList<Blog> blogList = FXCollections.observableArrayList();
     private ObservableList<Commentaire> commentaireList = FXCollections.observableArrayList();
     private Blog selectedBlog = null;
 
-    // Composants FXML
+    // ========== COMPOSANTS FXML ==========
     @FXML private TextField searchField;
     @FXML private Button searchBtn;
     @FXML private ComboBox<String> regionFilterCombo;
@@ -47,11 +44,11 @@ public class BlogController implements Initializable {
     @FXML private TextField titreField;
     @FXML private TextArea contenuField;
     @FXML private TextField imageField;
-    @FXML private ComboBox<Utilisateur> auteurCombo;
+    @FXML private TextField auteurIdField;        // ID de l'utilisateur
     @FXML private ComboBox<String> regionField;
     @FXML private ComboBox<String> categorieField;
     @FXML private TextField newCommentField;
-    @FXML private TextField commentUserField;
+    @FXML private TextField commentUserField;      // ID de l'utilisateur pour le commentaire
     @FXML private Button ajouterBtn;
     @FXML private Button modifierBtn;
     @FXML private Button supprimerBtn;
@@ -59,12 +56,12 @@ public class BlogController implements Initializable {
     @FXML private Button addCommentBtn;
     @FXML private Label statusLabel;
 
+    // Formatteur de date pour affichage
     private final DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         initComboBoxes();
-        loadUtilisateurs();
         attachListeners();
         loadInitialData();
     }
@@ -83,33 +80,9 @@ public class BlogController implements Initializable {
         categorieFilterCombo.setItems(categories);
         categorieFilterCombo.setValue("Toutes");
 
+        // Pour les formulaires d'édition, on enlève "Toutes"
         regionField.setItems(FXCollections.observableArrayList(regions.subList(1, regions.size())));
         categorieField.setItems(FXCollections.observableArrayList(categories.subList(1, categories.size())));
-    }
-
-    private void loadUtilisateurs() {
-        try {
-            ObservableList<Utilisateur> users = FXCollections.observableArrayList(utilisateurCRUD.afficher());
-            auteurCombo.setItems(users);
-            auteurCombo.setCellFactory(param -> new ListCell<Utilisateur>() {
-                @Override
-                protected void updateItem(Utilisateur item, boolean empty) {
-                    super.updateItem(item, empty);
-                    if (empty || item == null) setText(null);
-                    else setText(item.getPrenom() + " " + item.getNom() + " (ID: " + item.getId() + ")");
-                }
-            });
-            auteurCombo.setButtonCell(new ListCell<Utilisateur>() {
-                @Override
-                protected void updateItem(Utilisateur item, boolean empty) {
-                    super.updateItem(item, empty);
-                    if (empty || item == null) setText(null);
-                    else setText(item.getPrenom() + " " + item.getNom());
-                }
-            });
-        } catch (SQLException e) {
-            showError("Erreur chargement utilisateurs", e.getMessage());
-        }
     }
 
     private void attachListeners() {
@@ -182,12 +155,7 @@ public class BlogController implements Initializable {
         titreField.setText(blog.getTitre());
         contenuField.setText(blog.getContenu());
         imageField.setText(blog.getImage());
-        for (Utilisateur u : auteurCombo.getItems()) {
-            if (u.getId() == blog.getAuteur()) {
-                auteurCombo.setValue(u);
-                break;
-            }
-        }
+        auteurIdField.setText(String.valueOf(blog.getAuteur()));
         regionField.setValue(blog.getRegion());
         categorieField.setValue(blog.getCategorie());
 
@@ -201,16 +169,13 @@ public class BlogController implements Initializable {
         }
     }
 
-    /**
-     * Affiche les commentaires sous forme de cartes avec boutons Modifier/Supprimer.
-     */
     private void displayCommentaires(List<Commentaire> comments) {
         commentairesFlowPane.getChildren().clear();
         for (Commentaire c : comments) {
-            VBox card = new VBox(5);
+            VBox card = new VBox(3);
             card.setPadding(new Insets(8));
             card.setStyle("-fx-background-color: #f0f0f0; -fx-border-color: #ccc; -fx-border-radius: 3;");
-            card.setPrefWidth(220);
+            card.setPrefWidth(200);
 
             Label contenu = new Label(c.getContenu());
             contenu.setWrapText(true);
@@ -219,83 +184,16 @@ public class BlogController implements Initializable {
             String dateText = c.getDateCommentaire() != null ? c.getDateCommentaire().format(dateFormatter) : "";
             Label date = new Label(dateText);
 
-            // Boutons d'action
-            Button btnModifier = new Button("✏️");
-            btnModifier.setStyle("-fx-background-color: #ffc107; -fx-cursor: hand;");
-            btnModifier.setOnAction(e -> modifierCommentaire(c));
-
-            Button btnSupprimer = new Button("🗑️");
-            btnSupprimer.setStyle("-fx-background-color: #dc3545; -fx-text-fill: white; -fx-cursor: hand;");
-            btnSupprimer.setOnAction(e -> supprimerCommentaire(c));
-
-            HBox actions = new HBox(5, btnModifier, btnSupprimer);
-            actions.setStyle("-fx-alignment: center-right;");
-
-            card.getChildren().addAll(contenu, auteur, date, actions);
+            card.getChildren().addAll(contenu, auteur, date);
             commentairesFlowPane.getChildren().add(card);
         }
-    }
-
-    /**
-     * Modifier le contenu d'un commentaire via une boîte de dialogue.
-     */
-    private void modifierCommentaire(Commentaire commentaire) {
-        TextInputDialog dialog = new TextInputDialog(commentaire.getContenu());
-        dialog.setTitle("Modifier le commentaire");
-        dialog.setHeaderText("Modification du commentaire");
-        dialog.setContentText("Nouveau contenu :");
-
-        Optional<String> result = dialog.showAndWait();
-        result.ifPresent(nouveauContenu -> {
-            if (!nouveauContenu.trim().isEmpty()) {
-                commentaire.setContenu(nouveauContenu.trim());
-                try {
-                    commentaireCRUD.modifier(commentaire);
-                    // Recharger les commentaires de l'article sélectionné
-                    if (selectedBlog != null) {
-                        List<Commentaire> comments = commentaireCRUD.getCommentsByArticle(selectedBlog.getId());
-                        displayCommentaires(comments);
-                    }
-                    loadAllComments(); // Mettre à jour le compteur global
-                    showInfo("Commentaire modifié.");
-                } catch (SQLException e) {
-                    showError("Erreur modification", e.getMessage());
-                }
-            } else {
-                showWarning("Le contenu ne peut pas être vide.");
-            }
-        });
-    }
-
-    /**
-     * Supprimer un commentaire après confirmation.
-     */
-    private void supprimerCommentaire(Commentaire commentaire) {
-        Alert confirm = new Alert(Alert.AlertType.CONFIRMATION,
-                "Supprimer ce commentaire ?", ButtonType.YES, ButtonType.NO);
-        confirm.showAndWait().ifPresent(r -> {
-            if (r == ButtonType.YES) {
-                try {
-                    commentaireCRUD.supprimer(commentaire.getId());
-                    // Recharger les commentaires de l'article
-                    if (selectedBlog != null) {
-                        List<Commentaire> comments = commentaireCRUD.getCommentsByArticle(selectedBlog.getId());
-                        displayCommentaires(comments);
-                    }
-                    loadAllComments();
-                    showInfo("Commentaire supprimé.");
-                } catch (SQLException e) {
-                    showError("Erreur suppression", e.getMessage());
-                }
-            }
-        });
     }
 
     @FXML
     private void ajouterBlog() {
         if (!validateBlogForm()) return;
         try {
-            int auteurId = auteurCombo.getValue().getId();
+            int auteurId = Integer.parseInt(auteurIdField.getText().trim());
             Blog b = new Blog(
                     titreField.getText().trim(),
                     contenuField.getText().trim(),
@@ -308,7 +206,7 @@ public class BlogController implements Initializable {
             refreshData();
             clearForm();
             showInfo("Article ajouté avec succès.");
-        } catch (SQLException e) {
+        } catch (SQLException | NumberFormatException e) {
             showError("Erreur ajout", e.getMessage());
         }
     }
@@ -326,13 +224,13 @@ public class BlogController implements Initializable {
             selectedBlog.setImage(imageField.getText().trim());
             selectedBlog.setRegion(regionField.getValue());
             selectedBlog.setCategorie(categorieField.getValue());
-            selectedBlog.setAuteur(auteurCombo.getValue().getId());
+            selectedBlog.setAuteur(Integer.parseInt(auteurIdField.getText().trim()));
 
             blogCRUD.modifier(selectedBlog);
             refreshData();
             clearForm();
             showInfo("Article modifié.");
-        } catch (SQLException e) {
+        } catch (SQLException | NumberFormatException e) {
             showError("Erreur modification", e.getMessage());
         }
     }
@@ -349,7 +247,9 @@ public class BlogController implements Initializable {
         confirm.showAndWait().ifPresent(r -> {
             if (r == ButtonType.YES) {
                 try {
+                    // Supprimer d'abord les commentaires liés
                     commentaireCRUD.supprimerParArticle(selectedBlog.getId());
+                    // Puis l'article
                     blogCRUD.supprimer(selectedBlog.getId());
                     refreshData();
                     clearForm();
@@ -390,8 +290,10 @@ public class BlogController implements Initializable {
             newCommentField.clear();
             commentUserField.clear();
 
+            // Recharger les commentaires de l'article sélectionné
             List<Commentaire> comments = commentaireCRUD.getCommentsByArticle(selectedBlog.getId());
             displayCommentaires(comments);
+            // Mettre à jour le compteur global
             loadAllComments();
             showInfo("Commentaire ajouté.");
         } catch (SQLException e) {
@@ -406,7 +308,7 @@ public class BlogController implements Initializable {
         titreField.clear();
         contenuField.clear();
         imageField.clear();
-        auteurCombo.setValue(null);
+        auteurIdField.clear();
         regionField.setValue(null);
         categorieField.setValue(null);
         selectedArticleLabel.setText("(aucun article sélectionné)");
@@ -435,10 +337,12 @@ public class BlogController implements Initializable {
         loadAllComments();
         filterArticles();
         if (selectedBlog != null) {
+            // Essayer de retrouver l'article sélectionné dans la nouvelle liste
             blogList.stream()
                     .filter(b -> b.getId() == selectedBlog.getId())
                     .findFirst()
-                    .ifPresentOrElse(this::selectBlog, this::clearForm);
+                    .ifPresentOrElse(this::selectBlog,
+                            () -> clearForm()); // si l'article n'existe plus (supprimé), on vide le formulaire
         }
     }
 
@@ -456,8 +360,8 @@ public class BlogController implements Initializable {
             showWarning("Contenu requis.");
             return false;
         }
-        if (auteurCombo.getValue() == null) {
-            showWarning("Veuillez sélectionner un auteur.");
+        if (auteurIdField.getText().trim().isEmpty()) {
+            showWarning("ID auteur requis.");
             return false;
         }
         if (regionField.getValue() == null) {
@@ -466,6 +370,12 @@ public class BlogController implements Initializable {
         }
         if (categorieField.getValue() == null) {
             showWarning("Catégorie requise.");
+            return false;
+        }
+        try {
+            Integer.parseInt(auteurIdField.getText().trim());
+        } catch (NumberFormatException e) {
+            showWarning("L'ID auteur doit être un nombre entier.");
             return false;
         }
         return true;
