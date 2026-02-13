@@ -206,7 +206,7 @@
                                                  -fx-text-fill: white;" />
                             </HBox>
 
-                            <!-- LISTE DES ARTICLES -->
+                            <!-- LISTE DES ARTICLES (agrandie) -->
                             <VBox spacing="10"
                                   style="-fx-background-color: rgba(0,0,0,0.28);
                                          -fx-background-radius: 22;
@@ -215,7 +215,7 @@
                                          -fx-padding: 15;">
                                 <Label text="📰 Articles récents"
                                        style="-fx-text-fill: #FFBD00; -fx-font-size: 18px; -fx-font-weight: 900;"/>
-                                <ScrollPane fitToWidth="true" prefHeight="200"
+                                <ScrollPane fitToWidth="true" prefHeight="350"
                                             style="-fx-background: transparent; -fx-background-color: transparent;">
                                     <FlowPane fx:id="articlesFlowPane" hgap="15" vgap="15"
                                               style="-fx-background-color: transparent;"/>
