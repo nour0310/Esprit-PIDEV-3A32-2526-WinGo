@@ -2,73 +2,315 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 <?import javafx.geometry.Insets?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.shape.Circle?>
+<?import javafx.scene.text.Text?>
 
 <BorderPane xmlns="http://javafx.com/javafx/17"
             xmlns:fx="http://javafx.com/fxml/1"
-            fx:controller="Controlles.BlogController">
+            fx:controller="Controlles.BlogController"
+            prefWidth="1000.0"
+            prefHeight="700.0"
+            styleClass="root">
 
+    <!-- Styles intégrés -->
+    <stylesheets>
+        <URL value="@blog-style.css" />
+    </stylesheets>
+
+    <!-- Header avec navigation -->
     <top>
-        <Label text="Gestion des Blogs" style="-fx-font-size: 24px; -fx-padding: 10 0 10 0;" BorderPane.alignment="CENTER"/>
+        <VBox>
+            <!-- Barre supérieure -->
+            <HBox styleClass="header-top" alignment="CENTER_LEFT" spacing="20.0" prefHeight="80.0">
+                <padding>
+                    <Insets left="25.0" right="25.0"/>
+                </padding>
+                <children>
+                    <!-- Logo et titre -->
+                    <HBox spacing="15.0" alignment="CENTER_LEFT">
+                        <StackPane styleClass="logo-container">
+                            <Circle radius="25.0" styleClass="logo-circle"/>
+                            <Label text="🇹🇳" styleClass="logo-emoji"/>
+                        </StackPane>
+                        <VBox>
+                            <Label text="WinGo" styleClass="brand-title"/>
+                            <Label text="Blogs & Récits de voyage" styleClass="brand-subtitle"/>
+                        </VBox>
+                    </HBox>
+
+                    <Region HBox.hgrow="ALWAYS"/>
+
+                    <!-- Barre de recherche -->
+                    <HBox styleClass="search-container" spacing="5.0">
+                        <TextField fx:id="searchField" promptText="Rechercher un article..." styleClass="search-field" prefWidth="250.0"/>
+                        <Button fx:id="searchBtn" text="🔍" styleClass="search-btn"/>
+                    </HBox>
+
+                    <!-- Profil utilisateur -->
+                    <HBox styleClass="profile-container" spacing="10.0" alignment="CENTER">
+                        <Circle radius="18.0" styleClass="profile-circle"/>
+                        <Label text="Admin" styleClass="profile-name"/>
+                    </HBox>
+                </children>
+            </HBox>
+
+            <!-- Barre de navigation -->
+            <HBox styleClass="nav-bar" alignment="CENTER_LEFT" spacing="25.0" prefHeight="45.0">
+                <padding>
+                    <Insets left="25.0" right="25.0"/>
+                </padding>
+                <children>
+                    <Button text="🏠 Dashboard" styleClass="nav-btn"/>
+                    <Button text="📝 Blogs" styleClass="nav-btn active"/>
+                    <Button text="💬 Commentaires" styleClass="nav-btn"/>
+                    <Button text="📊 Statistiques" styleClass="nav-btn"/>
+                    <Region HBox.hgrow="ALWAYS"/>
+                    <Label text="✨ Découvrir la Tunisie autrement" styleClass="nav-quote"/>
+                </children>
+            </HBox>
+        </VBox>
     </top>
 
-    <center>
-        <VBox spacing="10.0">
+    <!-- Sidebar gauche -->
+    <left>
+        <VBox styleClass="sidebar" spacing="20.0" prefWidth="260.0">
             <padding>
-                <Insets top="10.0" right="10.0" bottom="10.0" left="10.0"/>
+                <Insets top="25.0" right="15.0" bottom="25.0" left="15.0"/>
             </padding>
             <children>
-                <FlowPane fx:id="articlesFlowPane" hgap="10.0" vgap="10.0"/>
-                <Label text="Commentaires:"/>
-                <FlowPane fx:id="commentairesFlowPane" hgap="5.0" vgap="5.0" prefHeight="150.0"/>
+                <!-- Profil du blogueur -->
+                <VBox styleClass="blogger-profile" spacing="10.0" alignment="CENTER">
+                    <StackPane>
+                        <Circle radius="45.0" styleClass="blogger-circle"/>
+                        <Label text="👤" styleClass="blogger-avatar"/>
+                    </StackPane>
+                    <Label text="Espace Blogueur" styleClass="blogger-name"/>
+                    <Label text="Partagez vos aventures" styleClass="blogger-bio"/>
+                </VBox>
+
+                <!-- Statistiques rapides -->
+                <VBox styleClass="stats-section" spacing="10.0">
+                    <Label text="📊 Aperçu" styleClass="section-label"/>
+                    <GridPane hgap="10.0" vgap="10.0">
+                        <children>
+                            <VBox styleClass="stat-card-mini" GridPane.columnIndex="0" GridPane.rowIndex="0">
+                                <Label text="📝" styleClass="stat-icon-mini"/>
+                                <Label fx:id="totalBlogsLabel" text="0" styleClass="stat-number-mini"/>
+                                <Label text="Articles" styleClass="stat-label-mini"/>
+                            </VBox>
+                            <VBox styleClass="stat-card-mini" GridPane.columnIndex="1" GridPane.rowIndex="0">
+                                <Label text="💬" styleClass="stat-icon-mini"/>
+                                <Label fx:id="totalCommentsLabel" text="0" styleClass="stat-number-mini"/>
+                                <Label text="Commentaires" styleClass="stat-label-mini"/>
+                            </VBox>
+                            <VBox styleClass="stat-card-mini" GridPane.columnIndex="0" GridPane.rowIndex="1">
+                                <Label text="👁️" styleClass="stat-icon-mini"/>
+                                <Label fx:id="totalViewsLabel" text="0" styleClass="stat-number-mini"/>
+                                <Label text="Vues" styleClass="stat-label-mini"/>
+                            </VBox>
+                            <VBox styleClass="stat-card-mini" GridPane.columnIndex="1" GridPane.rowIndex="1">
+                                <Label text="❤️" styleClass="stat-icon-mini"/>
+                                <Label fx:id="totalLikesLabel" text="0" styleClass="stat-number-mini"/>
+                                <Label text="Likes" styleClass="stat-label-mini"/>
+                            </VBox>
+                        </children>
+                    </GridPane>
+                </VBox>
+
+                <!-- Filtres par région -->
+                <VBox styleClass="filter-section" spacing="10.0">
+                    <Label text="🌍 Filtrer par région" styleClass="section-label"/>
+                    <ComboBox fx:id="regionFilterCombo" promptText="Toutes les régions" styleClass="filter-combo" prefWidth="220.0"/>
+                </VBox>
+
+                <!-- Filtres par catégorie -->
+                <VBox styleClass="filter-section" spacing="10.0">
+                    <Label text="🎯 Filtrer par catégorie" styleClass="section-label"/>
+                    <FlowPane hgap="5.0" vgap="5.0">
+                        <children>
+                            <Button text="🏖️ Plage" styleClass="category-chip"/>
+                            <Button text="🏜️ Désert" styleClass="category-chip"/>
+                            <Button text="⛰️ Montagne" styleClass="category-chip"/>
+                            <Button text="🏛️ Culture" styleClass="category-chip"/>
+                            <Button text="🧘 Bien-être" styleClass="category-chip"/>
+                            <Button text="🎉 Événements" styleClass="category-chip"/>
+                        </children>
+                    </FlowPane>
+                </VBox>
+
+                <Region VBox.vgrow="ALWAYS"/>
+
+                <!-- Bouton paramètres -->
+                <Button fx:id="settingsBtn" styleClass="settings-btn">
+                    <graphic>
+                        <HBox spacing="10.0" alignment="CENTER">
+                            <Label text="⚙️" styleClass="settings-icon"/>
+                            <Label text="Paramètres" styleClass="settings-text"/>
+                        </HBox>
+                    </graphic>
+                </Button>
             </children>
         </VBox>
+    </left>
+
+    <!-- Contenu central -->
+    <center>
+        <ScrollPane styleClass="main-scroll" fitToWidth="true" fitToHeight="true">
+            <VBox spacing="20.0">
+                <padding>
+                    <Insets top="20.0" right="20.0" bottom="20.0" left="20.0"/>
+                </padding>
+                <children>
+                    <!-- Hero Section -->
+                    <HBox styleClass="hero-section" spacing="20.0" alignment="CENTER_LEFT">
+                        <children>
+                            <VBox spacing="10.0" HBox.hgrow="ALWAYS">
+                                <Label text="📝 Gestion des Articles" styleClass="hero-title"/>
+                                <Label text="Créez, modifiez et gérez vos récits de voyage" styleClass="hero-subtitle"/>
+                                <HBox spacing="15.0" alignment="CENTER_LEFT">
+                                    <Button fx:id="newArticleBtn" text="✨ Nouvel article" styleClass="primary-btn"/>
+                                    <Button fx:id="refreshBtn" text="🔄 Actualiser" styleClass="secondary-btn"/>
+                                </HBox>
+                            </VBox>
+                            <StackPane styleClass="hero-icon">
+                                <Circle radius="50.0" styleClass="hero-circle"/>
+                                <Label text="📚" styleClass="hero-emoji"/>
+                            </StackPane>
+                        </children>
+                    </HBox>
+
+                    <!-- Liste des articles -->
+                    <VBox spacing="15.0">
+                        <HBox alignment="CENTER_LEFT" spacing="10.0">
+                            <Label text="📰 Tous les articles" styleClass="section-title"/>
+                            <Label fx:id="articlesCountLabel" text="(0)" styleClass="section-count"/>
+                            <Region HBox.hgrow="ALWAYS"/>
+                            <Button fx:id="gridViewBtn" text="📋 Grille" styleClass="view-toggle"/>
+                            <Button fx:id="listViewBtn" text="📄 Liste" styleClass="view-toggle"/>
+                        </HBox>
+
+                        <!-- FlowPane pour les articles -->
+                        <ScrollPane fitToWidth="true" prefHeight="350.0" styleClass="articles-scroll">
+                            <FlowPane fx:id="articlesFlowPane"
+                                      hgap="15.0"
+                                      vgap="15.0"
+                                      styleClass="articles-grid"/>
+                        </ScrollPane>
+                    </VBox>
+
+                    <!-- Section commentaires -->
+                    <VBox spacing="15.0">
+                        <HBox alignment="CENTER_LEFT" spacing="10.0">
+                            <Label text="💬 Commentaires récents" styleClass="section-title"/>
+                            <Label fx:id="commentsCountLabel" text="(0)" styleClass="section-count"/>
+                        </HBox>
+
+                        <!-- FlowPane pour les commentaires -->
+                        <ScrollPane fitToWidth="true" prefHeight="200.0" styleClass="comments-scroll">
+                            <FlowPane fx:id="commentairesFlowPane"
+                                      hgap="10.0"
+                                      vgap="10.0"
+                                      styleClass="comments-grid"/>
+                        </ScrollPane>
+                    </VBox>
+
+                    <!-- Formulaire d'édition -->
+                    <VBox spacing="15.0" styleClass="form-section">
+                        <Label text="✏️ Formulaire d'édition" styleClass="form-title"/>
+
+                        <GridPane hgap="15.0" vgap="12.0">
+                            <columnConstraints>
+                                <ColumnConstraints percentWidth="15"/>
+                                <ColumnConstraints percentWidth="85"/>
+                            </columnConstraints>
+
+                            <children>
+                                <!-- ID caché -->
+                                <Label text="ID:" GridPane.rowIndex="0" GridPane.columnIndex="0" styleClass="form-label"/>
+                                <Label fx:id="articleIdLabel" text="Nouveau" GridPane.rowIndex="0" GridPane.columnIndex="1" styleClass="form-id"/>
+
+                                <!-- Titre -->
+                                <Label text="Titre:" GridPane.rowIndex="1" GridPane.columnIndex="0" styleClass="form-label"/>
+                                <TextField fx:id="titreField" GridPane.rowIndex="1" GridPane.columnIndex="1" promptText="Titre de l'article" styleClass="form-field"/>
+
+                                <!-- Contenu -->
+                                <Label text="Contenu:" GridPane.rowIndex="2" GridPane.columnIndex="0" styleClass="form-label"/>
+                                <TextArea fx:id="contenuField" GridPane.rowIndex="2" GridPane.columnIndex="1" promptText="Contenu de l'article..." prefRowCount="4" styleClass="form-textarea"/>
+
+                                <!-- Image URL -->
+                                <Label text="Image URL:" GridPane.rowIndex="3" GridPane.columnIndex="0" styleClass="form-label"/>
+                                <HBox spacing="10.0" GridPane.rowIndex="3" GridPane.columnIndex="1">
+                                    <TextField fx:id="imageField" promptText="URL de l'image" styleClass="form-field" HBox.hgrow="ALWAYS"/>
+                                    <Button fx:id="uploadImageBtn" text="📁" styleClass="upload-btn"/>
+                                </HBox>
+
+                                <!-- Auteur -->
+                                <Label text="Auteur:" GridPane.rowIndex="4" GridPane.columnIndex="0" styleClass="form-label"/>
+                                <TextField fx:id="auteurField" promptText="Nom de l'auteur" styleClass="form-field" GridPane.rowIndex="4" GridPane.columnIndex="1"/>
+
+                                <!-- Région -->
+                                <Label text="Région:" GridPane.rowIndex="5" GridPane.columnIndex="0" styleClass="form-label"/>
+                                <ComboBox fx:id="regionField" promptText="Sélectionner une région" styleClass="form-combo" GridPane.rowIndex="5" GridPane.columnIndex="1"/>
+
+                                <!-- Catégorie -->
+                                <Label text="Catégorie:" GridPane.rowIndex="6" GridPane.columnIndex="0" styleClass="form-label"/>
+                                <ComboBox fx:id="categorieField" promptText="Sélectionner une catégorie" styleClass="form-combo" GridPane.rowIndex="6" GridPane.columnIndex="1"/>
+
+                                <!-- Nouveau commentaire -->
+                                <Label text="Commentaire:" GridPane.rowIndex="7" GridPane.columnIndex="0" styleClass="form-label"/>
+                                <HBox spacing="10.0" GridPane.rowIndex="7" GridPane.columnIndex="1">
+                                    <TextField fx:id="newCommentField" promptText="Ajouter un commentaire..." styleClass="form-field" HBox.hgrow="ALWAYS"/>
+                                    <Button fx:id="addCommentBtn" text="➕" styleClass="action-btn-small"/>
+                                </HBox>
+                            </children>
+                        </GridPane>
+
+                        <!-- Boutons d'action -->
+                        <HBox spacing="15.0" alignment="CENTER">
+                            <children>
+                                <Button fx:id="ajouterBtn" text="➕ Ajouter" onAction="#ajouterBlog" styleClass="action-btn-primary"/>
+                                <Button fx:id="modifierBtn" text="✏️ Modifier" onAction="#modifierBlog" styleClass="action-btn-warning"/>
+                                <Button fx:id="supprimerBtn" text="🗑️ Supprimer" onAction="#supprimerBlog" styleClass="action-btn-danger"/>
+                                <Button fx:id="clearBtn" text="🔄 Nouveau" styleClass="action-btn-secondary"/>
+                            </children>
+                        </HBox>
+
+                        <!-- Message de statut -->
+                        <Label fx:id="statusLabel" styleClass="status-label" text="Prêt"/>
+                    </VBox>
+                </children>
+            </VBox>
+        </ScrollPane>
     </center>
 
+    <!-- Footer -->
     <bottom>
-        <VBox spacing="10.0">
-            <padding>
-                <Insets top="10.0" right="10.0" bottom="10.0" left="10.0"/>
-            </padding>
-            <children>
-                <GridPane hgap="10.0" vgap="10.0">
-                    <columnConstraints>
-                        <ColumnConstraints percentWidth="20"/>
-                        <ColumnConstraints percentWidth="80"/>
-                    </columnConstraints>
-
-                    <children>
-                        <Label text="Titre:" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
-                        <TextField fx:id="titreField" GridPane.rowIndex="0" GridPane.columnIndex="1"/>
-
-                        <Label text="Contenu:" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
-                        <TextArea fx:id="contenuField" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
-
-                        <Label text="Image:" GridPane.rowIndex="2" GridPane.columnIndex="0"/>
-                        <TextField fx:id="imageField" GridPane.rowIndex="2" GridPane.columnIndex="1"/>
-
-                        <Label text="Auteur:" GridPane.rowIndex="3" GridPane.columnIndex="0"/>
-                        <TextField fx:id="auteurField" GridPane.rowIndex="3" GridPane.columnIndex="1"/>
-
-                        <Label text="Region:" GridPane.rowIndex="4" GridPane.columnIndex="0"/>
-                        <TextField fx:id="regionField" GridPane.rowIndex="4" GridPane.columnIndex="1"/>
-
-                        <Label text="Categorie:" GridPane.rowIndex="5" GridPane.columnIndex="0"/>
-                        <TextField fx:id="categorieField" GridPane.rowIndex="5" GridPane.columnIndex="1"/>
-
-                        <Label text="Nouveau commentaire:" GridPane.rowIndex="6" GridPane.columnIndex="0"/>
-                        <TextField fx:id="newCommentField" GridPane.rowIndex="6" GridPane.columnIndex="1"/>
-                    </children>
-                </GridPane>
-
-                <HBox spacing="10.0">
-                    <children>
-                        <Button text="Ajouter" onAction="#ajouterBlog"/>
-                        <Button text="Modifier" onAction="#modifierBlog"/>
-                        <Button text="Supprimer" onAction="#supprimerBlog"/>
-                        <Button text="Ajouter commentaire" onAction="#ajouterCommentaire"/>
-                    </children>
-                </HBox>
-            </children>
+        <VBox>
+            <Separator styleClass="footer-separator"/>
+            <HBox styleClass="footer" alignment="CENTER" spacing="20.0" prefHeight="40.0">
+                <padding>
+                    <Insets left="20.0" right="20.0"/>
+                </padding>
+                <children>
+                    <Label text="© 2026 WinGo - Tous droits réservés" styleClass="footer-text"/>
+                    <Region HBox.hgrow="ALWAYS"/>
+                    <Label text="🇹🇳 Découvrir la Tunisie autrement" styleClass="footer-quote"/>
+                </children>
+            </HBox>
         </VBox>
     </bottom>
+
+    <!-- Bouton flottant pour ajout rapide -->
+    <right>
+        <StackPane alignment="BOTTOM_RIGHT">
+            <padding>
+                <Insets bottom="20.0" right="20.0"/>
+            </padding>
+            <children>
+                <Button fx:id="fabButton" styleClass="fab" text="✏️"/>
+            </children>
+        </StackPane>
+    </right>
 </BorderPane>
