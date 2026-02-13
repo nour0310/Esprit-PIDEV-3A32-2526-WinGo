@@ -49,9 +49,9 @@ public class BlogController implements Initializable {
     @FXML private Label articleIdLabel;
     @FXML private TextField titreField;
     @FXML private TextArea contenuField;
-    @FXML private ComboBox<Utilisateur> auteurCombo;
+    @FXML private Label auteurLabel;              // ← remplace la ComboBox
     @FXML private TextField newCommentField;
-    @FXML private Label connectedUserLabel;   // ← nouveau label pour l'utilisateur connecté
+    @FXML private Label connectedUserLabel;        // pour le commentaire
     @FXML private Button ajouterBtn;
     @FXML private Button modifierBtn;
     @FXML private Button supprimerBtn;
@@ -74,35 +74,20 @@ public class BlogController implements Initializable {
     private void loadUtilisateurs() {
         try {
             ObservableList<Utilisateur> users = FXCollections.observableArrayList(utilisateurCRUD.afficher());
-            auteurCombo.setItems(users);
-            // Personnaliser l'affichage
-            auteurCombo.setCellFactory(param -> new ListCell<Utilisateur>() {
-                @Override
-                protected void updateItem(Utilisateur item, boolean empty) {
-                    super.updateItem(item, empty);
-                    if (empty || item == null) setText(null);
-                    else setText(item.getPrenom() + " " + item.getNom() + " (ID: " + item.getId() + ")");
-                }
-            });
-            auteurCombo.setButtonCell(new ListCell<Utilisateur>() {
-                @Override
-                protected void updateItem(Utilisateur item, boolean empty) {
-                    super.updateItem(item, empty);
-                    if (empty || item == null) setText(null);
-                    else setText(item.getPrenom() + " " + item.getNom());
-                }
-            });
 
             // Définir l'utilisateur connecté (par exemple, celui avec l'ID 1)
-            // Dans une vraie application, tu récupéreras l'utilisateur depuis la session
             currentUser = users.stream()
                     .filter(u -> u.getId() == 1)
                     .findFirst()
                     .orElse(null);
 
             if (currentUser != null) {
-                connectedUserLabel.setText(currentUser.getPrenom() + " " + currentUser.getNom() + " (Connecté)");
+                // Pour le formulaire d'article (nouvel article)
+                auteurLabel.setText(currentUser.getPrenom() + " " + currentUser.getNom());
+                // Pour le commentaire
+                connectedUserLabel.setText(currentUser.getPrenom() + " " + currentUser.getNom());
             } else {
+                auteurLabel.setText("Utilisateur inconnu");
                 connectedUserLabel.setText("Utilisateur inconnu");
             }
 
@@ -176,13 +161,8 @@ public class BlogController implements Initializable {
         articleIdLabel.setText(String.valueOf(blog.getId()));
         titreField.setText(blog.getTitre());
         contenuField.setText(blog.getContenu());
-        // Sélectionner l'utilisateur correspondant dans la combo
-        for (Utilisateur u : auteurCombo.getItems()) {
-            if (u.getId() == blog.getAuteur()) {
-                auteurCombo.setValue(u);
-                break;
-            }
-        }
+        // Afficher l'auteur de l'article sélectionné
+        auteurLabel.setText(blog.getAuteurNom() != null ? blog.getAuteurNom() : "Inconnu");
         selectedArticleLabel.setText("Article sélectionné : " + blog.getTitre());
 
         try {
@@ -274,12 +254,15 @@ public class BlogController implements Initializable {
     @FXML
     private void ajouterBlog() {
         if (!validateBlogForm()) return;
+        if (currentUser == null) {
+            showWarning("Aucun utilisateur connecté.");
+            return;
+        }
         try {
-            int auteurId = auteurCombo.getValue().getId();
             Blog b = new Blog(
                     titreField.getText().trim(),
                     contenuField.getText().trim(),
-                    auteurId
+                    currentUser.getId()  // auteur = utilisateur connecté
             );
             blogCRUD.ajouter(b);
             refreshData();
@@ -298,11 +281,9 @@ public class BlogController implements Initializable {
         }
         if (!validateBlogForm()) return;
         try {
-            int auteurId = auteurCombo.getValue().getId();
             selectedBlog.setTitre(titreField.getText().trim());
             selectedBlog.setContenu(contenuField.getText().trim());
-            selectedBlog.setAuteur(auteurId);
-
+            // L'auteur ne change pas
             blogCRUD.modifier(selectedBlog);
             refreshData();
             clearForm();
@@ -376,7 +357,12 @@ public class BlogController implements Initializable {
         articleIdLabel.setText("Nouveau");
         titreField.clear();
         contenuField.clear();
-        auteurCombo.setValue(null);
+        // Remettre le nom de l'utilisateur connecté pour un nouvel article
+        if (currentUser != null) {
+            auteurLabel.setText(currentUser.getPrenom() + " " + currentUser.getNom());
+        } else {
+            auteurLabel.setText("Utilisateur inconnu");
+        }
         selectedArticleLabel.setText("(aucun article sélectionné)");
         commentairesFlowPane.getChildren().clear();
     }
@@ -416,10 +402,6 @@ public class BlogController implements Initializable {
         }
         if (contenuField.getText().trim().isEmpty()) {
             showWarning("Contenu requis.");
-            return false;
-        }
-        if (auteurCombo.getValue() == null) {
-            showWarning("Veuillez sélectionner un auteur.");
             return false;
         }
         return true;

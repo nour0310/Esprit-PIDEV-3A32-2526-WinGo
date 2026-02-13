@@ -30,7 +30,7 @@
         <effect><DropShadow color="#00000066" offsetY="14" radius="28" /></effect>
         <padding><Insets bottom="12" left="12" right="12" top="12" /></padding>
 
-        <!-- TOP BAR (inchangé) -->
+        <!-- TOP BAR -->
         <top>
             <HBox alignment="CENTER_LEFT" spacing="12"
                   style="-fx-background-color: rgba(0,0,0,0.22);
@@ -158,7 +158,7 @@
                                     <HBox spacing="10">
                                         <Label text="🇹🇳" style="-fx-font-size: 18px;" />
                                         <Label text="Récits de voyageurs"
-                                               style="-fx-text-fill: #FFBD00; -fx-font-weight: 800;" /> <!-- doré -->
+                                               style="-fx-text-fill: #FFBD00; -fx-font-weight: 800;" />
                                     </HBox>
                                 </VBox>
 
@@ -175,7 +175,7 @@
                                     <Label text="📰 Expériences : "
                                            style="-fx-text-fill: #FFBD00; -fx-font-size: 22px; -fx-font-weight: 900;"/>
                                     <Label fx:id="totalBlogsLabel" text="0"
-                                           style="-fx-text-fill: white; -fx-font-weight: 700;"/> <!-- plus lisible -->
+                                           style="-fx-text-fill: white; -fx-font-weight: 700;"/>
                                     <Separator opacity="0.28" />
                                     <Label text="💬 Commentaires : "
                                            style="-fx-text-fill: rgba(255,255,255,0.80); -fx-font-weight: 800;"/>
@@ -188,7 +188,7 @@
                             <VBox spacing="10"
                                   style="-fx-background-color: rgba(0,0,0,0.28);
                                          -fx-background-radius: 22;
-                                         -fx-border-color: #c49a6c; /* bordure ocre */
+                                         -fx-border-color: #c49a6c;
                                          -fx-border-radius: 22;
                                          -fx-padding: 15;">
                                 <Label text="📰 Expériences récentes"
@@ -288,7 +288,7 @@
                                         </VBox>
                                     </GridPane>
 
-                                    <!-- Boutons (légèrement retouchés) -->
+                                    <!-- Boutons -->
                                     <HBox spacing="10" alignment="CENTER">
                                         <Button fx:id="ajouterBtn" text="➕ Partager" onAction="#ajouterBlog"
                                                 style="-fx-background-color: #28a745;
@@ -322,7 +322,7 @@
                                 </VBox>
                             </StackPane>
 
-                            <!-- FORMULAIRE D'AJOUT DE COMMENTAIRE -->
+                            <!-- FORMULAIRE D'AJOUT DE COMMENTAIRE (MODIFIÉ) -->
                             <StackPane style="-fx-background-color: rgba(0,0,0,0.28);
                                               -fx-background-radius: 22;
                                               -fx-border-color: #c49a6c;
@@ -341,15 +341,12 @@
                                                           -fx-text-fill: white;
                                                           -fx-prompt-text-fill: rgba(255,255,255,0.55);
                                                           -fx-padding: 10 12;" />
-                                        <TextField fx:id="commentUserField" promptText="ID utilisateur"
-                                                   prefWidth="120"
-                                                   style="-fx-background-color: rgba(255,255,255,0.10);
-                                                          -fx-background-radius: 12;
-                                                          -fx-border-color: rgba(255,255,255,0.18);
-                                                          -fx-border-radius: 12;
-                                                          -fx-text-fill: white;
-                                                          -fx-prompt-text-fill: rgba(255,255,255,0.55);
-                                                          -fx-padding: 10 12;" />
+                                        <Label fx:id="connectedUserLabel" text="(connexion...)" prefWidth="140"
+                                               style="-fx-background-color: rgba(255,255,255,0.10);
+                                                      -fx-background-radius: 12;
+                                                      -fx-padding: 10 12;
+                                                      -fx-text-fill: white;
+                                                      -fx-alignment: center;" />
                                         <Button fx:id="addCommentBtn" text="Envoyer" onAction="#ajouterCommentaire"
                                                 style="-fx-background-color: #17a2b8;
                                                        -fx-text-fill: white;
