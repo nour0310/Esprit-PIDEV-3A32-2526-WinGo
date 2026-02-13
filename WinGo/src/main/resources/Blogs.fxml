@@ -6,7 +6,7 @@
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.*?>
 
-<StackPane prefHeight="700" prefWidth="1100"
+<StackPane prefHeight="500" prefWidth="1400"
            xmlns="http://javafx.com/javafx/17"
            xmlns:fx="http://javafx.com/fxml/1"
            fx:controller="Controlles.BlogController">
@@ -22,7 +22,7 @@
     <Pane mouseTransparent="true" style="-fx-background-color: rgba(0,0,0,0.18);" />
 
     <!-- Main glass shell -->
-    <BorderPane maxHeight="600" maxWidth="1000"
+    <BorderPane maxHeight="400" maxWidth="1300"
                 style="-fx-background-color: rgba(0,0,0,0.22);
                        -fx-background-radius: 26;
                        -fx-border-color: rgba(255,255,255,0.16);

@@ -17,10 +17,10 @@ public class MainFX extends Application {
 
         stage.setTitle("WinGo by HexaVibe - Plateforme Touristique Intelligente");
         stage.setScene(scene);
-        stage.setMinWidth(1400);
-        stage.setMinHeight(900);
-        stage.setWidth(1400);
-        stage.setHeight(900);
+        stage.setMinWidth(1100);
+        stage.setMinHeight(700);
+        stage.setWidth(1100);
+        stage.setHeight(700);
         stage.show();
     }
 
