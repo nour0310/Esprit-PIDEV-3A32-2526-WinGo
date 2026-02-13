@@ -6,9 +6,9 @@ public class Commentaire {
     private int id;
     private String contenu;
     private LocalDateTime dateCommentaire;
-    private int utilisateur;          // FK vers utilisateur.id
-    private int articleId;            // FK vers article.id
-    private String utilisateurNom;     // non persisté
+    private int utilisateur;       // FK vers utilisateur.id
+    private int articleId;         // FK vers article.id
+    private String utilisateurNom;  // non persisté, pour affichage
 
     public Commentaire() {}
 
@@ -18,8 +18,7 @@ public class Commentaire {
         this.articleId = articleId;
     }
 
-    public Commentaire(int id, String contenu, LocalDateTime dateCommentaire,
-                       int utilisateur, int articleId) {
+    public Commentaire(int id, String contenu, LocalDateTime dateCommentaire, int utilisateur, int articleId) {
         this.id = id;
         this.contenu = contenu;
         this.dateCommentaire = dateCommentaire;
@@ -48,9 +47,6 @@ public class Commentaire {
 
     @Override
     public String toString() {
-        return "Commentaire{" +
-                "id=" + id +
-                ", articleId=" + articleId +
-                '}';
+        return "Commentaire{" + "id=" + id + ", articleId=" + articleId + '}';
     }
 }
