@@ -68,7 +68,6 @@ public class BlogController implements Initializable {
     @FXML private Label statusLabel;
 
     // Composants FXML de la vue détail
-    @FXML private StackPane centerStackPane;
     @FXML private VBox listView;
     @FXML private VBox detailView;
     @FXML private Button backToListBtn;
@@ -179,9 +178,6 @@ public class BlogController implements Initializable {
         }
     }
 
-    /**
-     * Crée une carte de blog moderne avec image pleine largeur, overlay, et trois boutons.
-     */
     private VBox createBlogCard(Blog blog) {
         VBox card = new VBox(0);
         card.setStyle("-fx-background-color: white; " +
@@ -200,7 +196,6 @@ public class BlogController implements Initializable {
         imageView.setFitWidth(340);
         imageView.setFitHeight(200);
         imageView.setPreserveRatio(true);
-        // Effet de zoom léger au survol
         imageView.setOnMouseEntered(e -> imageView.setScaleX(1.05));
         imageView.setOnMouseExited(e -> imageView.setScaleX(1.0));
 
@@ -220,7 +215,7 @@ public class BlogController implements Initializable {
         }
         imageContainer.getChildren().add(imageView);
 
-        // Overlay avec titre (fond semi-transparent)
+        // Overlay avec titre
         Label titleOverlay = new Label(blog.getTitre());
         titleOverlay.setStyle("-fx-text-fill: white; -fx-font-size: 20px; -fx-font-weight: bold; -fx-background-color: rgba(0,0,0,0.5); -fx-padding: 10; -fx-background-radius: 0 0 10 10;");
         titleOverlay.setMaxWidth(340);
@@ -229,7 +224,7 @@ public class BlogController implements Initializable {
         StackPane.setMargin(titleOverlay, new Insets(0, 0, 10, 10));
         imageContainer.getChildren().add(titleOverlay);
 
-        // Badge région en haut à droite (si présente)
+        // Badge région
         if (blog.getRegion() != null && !blog.getRegion().isEmpty()) {
             Label regionBadge = new Label("📍 " + blog.getRegion());
             regionBadge.setStyle("-fx-text-fill: white; -fx-font-size: 14px; -fx-font-weight: bold; -fx-background-color: rgba(0,0,0,0.6); -fx-padding: 5 10; -fx-background-radius: 20;");
@@ -238,11 +233,9 @@ public class BlogController implements Initializable {
             imageContainer.getChildren().add(regionBadge);
         }
 
-        // Contenu texte sous l'image
         VBox content = new VBox(10);
         content.setPadding(new Insets(15, 15, 15, 15));
 
-        // Auteur et date avec nombre de commentaires
         HBox meta = new HBox(10);
         meta.setAlignment(Pos.CENTER_LEFT);
         Label auteur = new Label("👤 " + (blog.getAuteurNom() != null ? blog.getAuteurNom() : "Inconnu"));
@@ -256,13 +249,12 @@ public class BlogController implements Initializable {
         comments.setStyle("-fx-text-fill: #3498db; -fx-font-size: 13px;");
         meta.getChildren().addAll(auteur, date, spacer, comments);
 
-        // Extrait du contenu
         String extrait = blog.getContenu().length() > 100 ? blog.getContenu().substring(0, 100) + "..." : blog.getContenu();
         Label contenuLabel = new Label(extrait);
         contenuLabel.setStyle("-fx-text-fill: #7f8c8d; -fx-font-size: 14px;");
         contenuLabel.setWrapText(true);
 
-        // Boutons d'action : Voir, Modifier, Supprimer
+        // Boutons Voir, Modifier, Supprimer
         HBox actions = new HBox(10);
         actions.setAlignment(Pos.CENTER);
 
@@ -272,10 +264,7 @@ public class BlogController implements Initializable {
 
         Button modifierBtn = new Button("Modifier");
         modifierBtn.setStyle("-fx-background-color: #f39c12; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 5; -fx-padding: 8 15; -fx-cursor: hand;");
-        modifierBtn.setOnAction(e -> {
-            selectBlog(blog);
-            showListView(); // on reste sur la liste mais le formulaire est rempli
-        });
+        modifierBtn.setOnAction(e -> selectBlog(blog));
 
         Button supprimerBtn = new Button("Supprimer");
         supprimerBtn.setStyle("-fx-background-color: #e74c3c; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 5; -fx-padding: 8 15; -fx-cursor: hand;");
@@ -285,7 +274,6 @@ public class BlogController implements Initializable {
 
         content.getChildren().addAll(meta, contenuLabel, actions);
         card.getChildren().addAll(imageContainer, content);
-
         return card;
     }
 
@@ -313,10 +301,7 @@ public class BlogController implements Initializable {
             } catch (Exception ex) { }
         }
 
-        // Afficher les commentaires de cet article
         afficherCommentairesDetail();
-
-        // Basculer la visibilité
         listView.setVisible(false);
         listView.setManaged(false);
         detailView.setVisible(true);
@@ -353,7 +338,6 @@ public class BlogController implements Initializable {
             Label date = new Label("📅 " + (c.getDateCommentaire() != null ? c.getDateCommentaire().format(dateFormatter) : ""));
             date.setStyle("-fx-text-fill: #7f8c8d; -fx-font-size: 11px;");
 
-            // Boutons pour l'utilisateur connecté
             if (currentUser != null && c.getUtilisateur() == currentUser.getId()) {
                 HBox actions = new HBox(5);
                 actions.setAlignment(Pos.CENTER_RIGHT);
@@ -368,7 +352,6 @@ public class BlogController implements Initializable {
             } else {
                 card.getChildren().addAll(contenu, auteur, date);
             }
-
             detailCommentairesPane.getChildren().add(card);
         }
     }
@@ -378,14 +361,12 @@ public class BlogController implements Initializable {
         dialog.setTitle("Modifier le commentaire");
         dialog.setHeaderText("Modification du commentaire");
         dialog.setContentText("Nouveau contenu :");
-
         Optional<String> result = dialog.showAndWait();
         result.ifPresent(nouveauContenu -> {
             if (!nouveauContenu.trim().isEmpty()) {
                 commentaire.setContenu(nouveauContenu.trim());
                 try {
                     commentaireCRUD.modifier(commentaire);
-                    // Recharger les commentaires de l'article
                     commentaireList.setAll(commentaireCRUD.afficher());
                     afficherCommentairesDetail();
                     detailStatusLabel.setText("✅ Commentaire modifié.");
@@ -452,7 +433,7 @@ public class BlogController implements Initializable {
                         clearForm();
                     }
                     if (displayedDetailBlog != null && displayedDetailBlog.getId() == blog.getId()) {
-                        showListView(); // retour à la liste après suppression
+                        showListView();
                     }
                     showInfo("Article supprimé.");
                 } catch (SQLException e) {
@@ -486,35 +467,25 @@ public class BlogController implements Initializable {
         for (Commentaire c : comments) {
             VBox card = new VBox(5);
             card.setPadding(new Insets(8));
-            card.setStyle("-fx-background-color: rgba(0,0,0,0.6); " +
-                    "-fx-background-radius: 8; " +
-                    "-fx-border-color: #c49a6c; " +
-                    "-fx-border-radius: 8;");
+            card.setStyle("-fx-background-color: rgba(0,0,0,0.6); -fx-background-radius: 8; -fx-border-color: #c49a6c; -fx-border-radius: 8;");
             card.setPrefWidth(220);
-
             Label contenu = new Label(c.getContenu());
             contenu.setWrapText(true);
             contenu.setStyle("-fx-text-fill: white; -fx-font-size: 13px;");
-
             String auteurText = c.getUtilisateurNom() != null ? c.getUtilisateurNom() : "Utilisateur " + c.getUtilisateur();
             Label auteur = new Label("👤 " + auteurText);
             auteur.setStyle("-fx-text-fill: #FFBD00; -fx-font-size: 12px;");
-
             String dateText = c.getDateCommentaire() != null ? c.getDateCommentaire().format(dateFormatter) : "";
             Label date = new Label(dateText);
             date.setStyle("-fx-text-fill: rgba(255,255,255,0.7); -fx-font-size: 11px;");
-
             Button btnModifier = new Button("✏️");
             btnModifier.setStyle("-fx-background-color: #ffc107; -fx-text-fill: black; -fx-background-radius: 5; -fx-cursor: hand;");
             btnModifier.setOnAction(e -> modifierCommentaire(c));
-
             Button btnSupprimer = new Button("🗑️");
             btnSupprimer.setStyle("-fx-background-color: #dc3545; -fx-text-fill: white; -fx-background-radius: 5; -fx-cursor: hand;");
             btnSupprimer.setOnAction(e -> supprimerCommentaire(c));
-
             HBox actions = new HBox(5, btnModifier, btnSupprimer);
             actions.setStyle("-fx-alignment: center-right;");
-
             card.getChildren().addAll(contenu, auteur, date, actions);
             commentairesFlowPane.getChildren().add(card);
         }
@@ -525,7 +496,6 @@ public class BlogController implements Initializable {
         dialog.setTitle("Modifier le commentaire");
         dialog.setHeaderText("Modification du commentaire");
         dialog.setContentText("Nouveau contenu :");
-
         Optional<String> result = dialog.showAndWait();
         result.ifPresent(nouveauContenu -> {
             if (!nouveauContenu.trim().isEmpty()) {
@@ -638,12 +608,10 @@ public class BlogController implements Initializable {
             showWarning("Le commentaire ne peut pas être vide.");
             return;
         }
-
         Commentaire c = new Commentaire();
         c.setContenu(contenu.trim());
         c.setUtilisateur(currentUser.getId());
         c.setArticleId(selectedBlog.getId());
-
         try {
             commentaireCRUD.ajouter(c);
             newCommentField.clear();
@@ -695,7 +663,6 @@ public class BlogController implements Initializable {
                     .findFirst()
                     .ifPresentOrElse(this::selectBlog, this::clearForm);
         }
-        // Si on est en vue détail, mettre à jour les commentaires
         if (displayedDetailBlog != null) {
             commentaireList.setAll(commentaireCRUD.afficher());
             afficherCommentairesDetail();
@@ -719,24 +686,10 @@ public class BlogController implements Initializable {
         return true;
     }
 
-    private void showInfo(String msg) {
-        statusLabel.setText("✅ " + msg);
-    }
+    private void showInfo(String msg) { statusLabel.setText("✅ " + msg); }
+    private void showWarning(String msg) { new Alert(Alert.AlertType.WARNING, msg).show(); }
+    private void showError(String title, String msg) { Alert a = new Alert(Alert.AlertType.ERROR, msg); a.setTitle(title); a.show(); }
 
-    private void showWarning(String msg) {
-        Alert a = new Alert(Alert.AlertType.WARNING, msg);
-        a.setHeaderText(null);
-        a.show();
-    }
-
-    private void showError(String title, String msg) {
-        Alert a = new Alert(Alert.AlertType.ERROR, msg);
-        a.setTitle(title);
-        a.setHeaderText(null);
-        a.show();
-    }
-
-    // Méthodes de navigation pour les boutons du menu
     @FXML private void goDashboard() { System.out.println("Dashboard"); }
     @FXML private void goAjouter() { System.out.println("Ajouter"); }
     @FXML private void goListe() { System.out.println("Liste"); }
