@@ -4,43 +4,46 @@ import Entites.Commentaire;
 import Utils.MyBD;
 
 import java.sql.*;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
 public class CommentaireCRUD implements IntrefaceCRUD<Commentaire> {
 
-    Connection conn;
+    private Connection conn;
 
     public CommentaireCRUD() {
         conn = MyBD.getInstance().getConn();
     }
 
     @Override
-    public void ajouter(Commentaire c) throws SQLException {
-        String req = "INSERT INTO commentaire (contenu, date_commentaire, id_article, utilisateur) " +
-                "VALUES ('" + c.getContenu() + "', '" + new java.sql.Date(c.getDateCommentaire().getTime()) + "', " +
-                c.getId_article() + ", " + c.getUtilisateur() + ")";
-        Statement st = conn.createStatement();
-        st.executeUpdate(req);
+    public void ajouter(Commentaire commentaire) throws SQLException {
+        String req = "INSERT INTO commentaire (contenu, date_commentaire, utilisateur, article_id) " +
+                "VALUES (?, ?, ?, ?)";
+        PreparedStatement pst = conn.prepareStatement(req);
+        pst.setString(1, commentaire.getContenu());
+        pst.setTimestamp(2, Timestamp.valueOf(LocalDateTime.now()));
+        pst.setInt(3, commentaire.getUtilisateur());
+        pst.setInt(4, commentaire.getArticleId());
+        pst.executeUpdate();
         System.out.println("Commentaire ajouté !");
     }
 
     @Override
-    public void modifier(Commentaire c) throws SQLException {
-        String req = "UPDATE commentaire SET contenu=?, date_commentaire=?, id_article=?, utilisateur=? WHERE id_commentaire=?";
+    public void modifier(Commentaire commentaire) throws SQLException {
+        String req = "UPDATE commentaire SET contenu=?, utilisateur=?, article_id=? WHERE id=?";
         PreparedStatement pst = conn.prepareStatement(req);
-        pst.setString(1, c.getContenu());
-        pst.setDate(2, new java.sql.Date(c.getDateCommentaire().getTime()));
-        pst.setInt(3, c.getId_article());
-        pst.setInt(4, c.getUtilisateur());
-        pst.setInt(5, c.getId_commentaire());
+        pst.setString(1, commentaire.getContenu());
+        pst.setInt(2, commentaire.getUtilisateur());
+        pst.setInt(3, commentaire.getArticleId());
+        pst.setInt(4, commentaire.getId());
         pst.executeUpdate();
         System.out.println("Commentaire modifié !");
     }
 
     @Override
     public void supprimer(int id) throws SQLException {
-        String req = "DELETE FROM commentaire WHERE id_commentaire=?";
+        String req = "DELETE FROM commentaire WHERE id=?";
         PreparedStatement pst = conn.prepareStatement(req);
         pst.setInt(1, id);
         pst.executeUpdate();
@@ -49,43 +52,51 @@ public class CommentaireCRUD implements IntrefaceCRUD<Commentaire> {
 
     @Override
     public List<Commentaire> afficher() throws SQLException {
-        String req = "SELECT * FROM commentaire ORDER BY date_commentaire DESC";
+        String req = "SELECT c.*, u.nom, u.prenom FROM commentaire c " +
+                "LEFT JOIN utilisateur u ON c.utilisateur = u.id ORDER BY c.date_commentaire DESC";
         Statement st = conn.createStatement();
         ResultSet rs = st.executeQuery(req);
-        List<Commentaire> listeCommentaires = new ArrayList<>();
+        List<Commentaire> liste = new ArrayList<>();
 
         while (rs.next()) {
             Commentaire c = new Commentaire();
-            c.setId_commentaire(rs.getInt("id_commentaire"));
+            c.setId(rs.getInt("id"));
             c.setContenu(rs.getString("contenu"));
-            c.setDateCommentaire(rs.getDate("date_commentaire"));
-            c.setId_article(rs.getInt("id_article"));
+            c.setDateCommentaire(rs.getTimestamp("date_commentaire").toLocalDateTime());
             c.setUtilisateur(rs.getInt("utilisateur"));
-
-            listeCommentaires.add(c);
+            c.setArticleId(rs.getInt("article_id"));
+            c.setUtilisateurNom(rs.getString("nom") + " " + rs.getString("prenom"));
+            liste.add(c);
         }
-
-        return listeCommentaires;
+        return liste;
     }
 
-    // Méthode pour récupérer tous les commentaires d’un article
-    public List<Commentaire> getCommentsByBlogId(int id_article) throws SQLException {
-        String req = "SELECT * FROM commentaire WHERE id_article=" + id_article + " ORDER BY date_commentaire DESC";
-        Statement st = conn.createStatement();
-        ResultSet rs = st.executeQuery(req);
-        List<Commentaire> listeCommentaires = new ArrayList<>();
+    public List<Commentaire> getCommentsByArticle(int articleId) throws SQLException {
+        String req = "SELECT c.*, u.nom, u.prenom FROM commentaire c " +
+                "LEFT JOIN utilisateur u ON c.utilisateur = u.id WHERE c.article_id=? ORDER BY c.date_commentaire DESC";
+        PreparedStatement pst = conn.prepareStatement(req);
+        pst.setInt(1, articleId);
+        ResultSet rs = pst.executeQuery();
+        List<Commentaire> liste = new ArrayList<>();
 
         while (rs.next()) {
             Commentaire c = new Commentaire();
-            c.setId_commentaire(rs.getInt("id_commentaire"));
+            c.setId(rs.getInt("id"));
             c.setContenu(rs.getString("contenu"));
-            c.setDateCommentaire(rs.getDate("date_commentaire"));
-            c.setId_article(rs.getInt("id_article"));
+            c.setDateCommentaire(rs.getTimestamp("date_commentaire").toLocalDateTime());
             c.setUtilisateur(rs.getInt("utilisateur"));
-
-            listeCommentaires.add(c);
+            c.setArticleId(rs.getInt("article_id"));
+            c.setUtilisateurNom(rs.getString("nom") + " " + rs.getString("prenom"));
+            liste.add(c);
         }
+        return liste;
+    }
 
-        return listeCommentaires;
+    // Supprimer tous les commentaires d'un article
+    public void supprimerParArticle(int articleId) throws SQLException {
+        String req = "DELETE FROM commentaire WHERE article_id=?";
+        PreparedStatement pst = conn.prepareStatement(req);
+        pst.setInt(1, articleId);
+        pst.executeUpdate();
     }
 }
