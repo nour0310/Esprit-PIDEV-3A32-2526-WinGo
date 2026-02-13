@@ -1,7 +1,6 @@
 package Controlles;
 
 import Entites.Blog;
-import Entites.Commentaire;
 import Services.BlogCRUD;
 import Services.CommentaireCRUD;
 import javafx.collections.FXCollections;
@@ -9,16 +8,11 @@ import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
-import javafx.geometry.Pos;
-import javafx.scene.paint.Color;
-import javafx.scene.shape.Circle;
-import javafx.scene.Cursor;
 
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 public class BlogController {

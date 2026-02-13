@@ -1,6 +1,5 @@
 package Controlles;
 
-import Entites.Commentaire;
 import Services.CommentaireCRUD;
 import javafx.fxml.FXML;
 import javafx.scene.control.TextArea;

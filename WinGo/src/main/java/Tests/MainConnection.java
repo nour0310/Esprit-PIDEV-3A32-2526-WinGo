@@ -1,7 +1,6 @@
 package Tests;
 
 import Entites.Blog;
-import Entites.Commentaire;
 import Utils.MyBD;
 
 import java.sql.SQLException;
