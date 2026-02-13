@@ -11,19 +11,21 @@ import javafx.scene.control.cell.PropertyValueFactory;
 
 import java.net.URL;
 import java.sql.SQLException;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.ResourceBundle;
 
 public class CommentaireController implements Initializable {
 
     private final CommentaireCRUD commentaireCRUD = new CommentaireCRUD();
+
     private ObservableList<Commentaire> commentaireList = FXCollections.observableArrayList();
     private Commentaire selectedCommentaire = null;
 
     @FXML private TableView<Commentaire> commentairesTable;
     @FXML private TableColumn<Commentaire, Integer> colId;
     @FXML private TableColumn<Commentaire, String> colContenu;
-    @FXML private TableColumn<Commentaire, String> colAuteur;   // nom de l'utilisateur
+    @FXML private TableColumn<Commentaire, String> colAuteurNom;  // nom affiché
     @FXML private TableColumn<Commentaire, Integer> colArticle;
     @FXML private TableColumn<Commentaire, String> colDate;
 
@@ -31,9 +33,17 @@ public class CommentaireController implements Initializable {
     @FXML private ComboBox<Integer> articleFilterCombo;
     @FXML private Label commentIdLabel;
     @FXML private TextField contenuField;
-    @FXML private TextField utilisateurIdField;
+    @FXML private TextField utilisateurIdField;       // champ texte pour ID utilisateur
     @FXML private TextField articleIdField;
     @FXML private Label statusLabel;
+
+    @FXML private Button ajouterBtn;
+    @FXML private Button modifierBtn;
+    @FXML private Button supprimerBtn;
+    @FXML private Button clearBtn;
+    @FXML private Button refreshBtn;
+
+    private final DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -45,20 +55,26 @@ public class CommentaireController implements Initializable {
     private void setupTable() {
         colId.setCellValueFactory(new PropertyValueFactory<>("id"));
         colContenu.setCellValueFactory(new PropertyValueFactory<>("contenu"));
-        colAuteur.setCellValueFactory(new PropertyValueFactory<>("utilisateurNom"));
+        colAuteurNom.setCellValueFactory(new PropertyValueFactory<>("utilisateurNom"));
         colArticle.setCellValueFactory(new PropertyValueFactory<>("articleId"));
-        colDate.setCellValueFactory(new PropertyValueFactory<>("dateCommentaire"));
+        colDate.setCellValueFactory(cellData -> {
+            if (cellData.getValue().getDateCommentaire() != null)
+                return new javafx.beans.property.SimpleStringProperty(
+                        cellData.getValue().getDateCommentaire().format(dateFormatter));
+            else return new javafx.beans.property.SimpleStringProperty("");
+        });
 
         commentairesTable.getSelectionModel().selectedItemProperty().addListener(
                 (obs, old, newSel) -> {
                     if (newSel != null) selectCommentaire(newSel);
-                }
-        );
+                });
     }
 
     private void setupListeners() {
         searchField.textProperty().addListener((obs, old, n) -> filterCommentaires());
         articleFilterCombo.setOnAction(e -> filterCommentaires());
+        refreshBtn.setOnAction(e -> refreshData());
+        clearBtn.setOnAction(e -> clearForm());
     }
 
     private void loadData() {
@@ -73,7 +89,7 @@ public class CommentaireController implements Initializable {
                     .distinct()
                     .toList();
             articleFilterCombo.setItems(FXCollections.observableArrayList(articles));
-            articleFilterCombo.getItems().add(0, null); // option "tous"
+            articleFilterCombo.getItems().add(0, null);
             articleFilterCombo.setValue(null);
 
             statusLabel.setText("Prêt - " + commentaireList.size() + " commentaires.");
@@ -87,7 +103,9 @@ public class CommentaireController implements Initializable {
         Integer articleId = articleFilterCombo.getValue();
 
         List<Commentaire> filtered = commentaireList.stream()
-                .filter(c -> search.isEmpty() || c.getContenu().toLowerCase().contains(search))
+                .filter(c -> search.isEmpty() ||
+                        c.getContenu().toLowerCase().contains(search) ||
+                        (c.getUtilisateurNom() != null && c.getUtilisateurNom().toLowerCase().contains(search)))
                 .filter(c -> articleId == null || c.getArticleId() == articleId)
                 .toList();
 
@@ -107,9 +125,9 @@ public class CommentaireController implements Initializable {
         if (!validateForm()) return;
         try {
             Commentaire c = new Commentaire();
-            c.setContenu(contenuField.getText());
-            c.setUtilisateur(Integer.parseInt(utilisateurIdField.getText()));
-            c.setArticleId(Integer.parseInt(articleIdField.getText()));
+            c.setContenu(contenuField.getText().trim());
+            c.setUtilisateur(Integer.parseInt(utilisateurIdField.getText().trim()));
+            c.setArticleId(Integer.parseInt(articleIdField.getText().trim()));
 
             commentaireCRUD.ajouter(c);
             refreshData();
@@ -128,9 +146,9 @@ public class CommentaireController implements Initializable {
         }
         if (!validateForm()) return;
         try {
-            selectedCommentaire.setContenu(contenuField.getText());
-            selectedCommentaire.setUtilisateur(Integer.parseInt(utilisateurIdField.getText()));
-            selectedCommentaire.setArticleId(Integer.parseInt(articleIdField.getText()));
+            selectedCommentaire.setContenu(contenuField.getText().trim());
+            selectedCommentaire.setUtilisateur(Integer.parseInt(utilisateurIdField.getText().trim()));
+            selectedCommentaire.setArticleId(Integer.parseInt(articleIdField.getText().trim()));
 
             commentaireCRUD.modifier(selectedCommentaire);
             refreshData();
@@ -147,7 +165,7 @@ public class CommentaireController implements Initializable {
             showWarning("Sélectionnez un commentaire.");
             return;
         }
-        Alert confirm = new Alert(Alert.AlertType.CONFIRMATION, "Supprimer ?", ButtonType.YES, ButtonType.NO);
+        Alert confirm = new Alert(Alert.AlertType.CONFIRMATION, "Supprimer ce commentaire ?", ButtonType.YES, ButtonType.NO);
         confirm.showAndWait().ifPresent(r -> {
             if (r == ButtonType.YES) {
                 try {
@@ -181,30 +199,31 @@ public class CommentaireController implements Initializable {
             showWarning("Contenu requis.");
             return false;
         }
-        try {
-            Integer.parseInt(utilisateurIdField.getText());
-        } catch (NumberFormatException e) {
-            showWarning("ID utilisateur doit être un nombre.");
+        if (utilisateurIdField.getText().trim().isEmpty()) {
+            showWarning("ID utilisateur requis.");
+            return false;
+        }
+        if (articleIdField.getText().trim().isEmpty()) {
+            showWarning("ID article requis.");
             return false;
         }
         try {
-            Integer.parseInt(articleIdField.getText());
+            Integer.parseInt(utilisateurIdField.getText().trim());
         } catch (NumberFormatException e) {
-            showWarning("ID article doit être un nombre.");
+            showWarning("L'ID utilisateur doit être un nombre.");
+            return false;
+        }
+        try {
+            Integer.parseInt(articleIdField.getText().trim());
+        } catch (NumberFormatException e) {
+            showWarning("L'ID article doit être un nombre.");
             return false;
         }
         return true;
     }
 
-    private void showInfo(String msg) {
-        statusLabel.setText("✅ " + msg);
-    }
-
-    private void showWarning(String msg) {
-        Alert a = new Alert(Alert.AlertType.WARNING, msg);
-        a.show();
-    }
-
+    private void showInfo(String msg) { statusLabel.setText("✅ " + msg); }
+    private void showWarning(String msg) { new Alert(Alert.AlertType.WARNING, msg).show(); }
     private void showError(String title, String msg) {
         Alert a = new Alert(Alert.AlertType.ERROR, msg);
         a.setTitle(title);
