@@ -5,6 +5,8 @@ import Entites.Commentaire;
 import Utils.MyBD;
 
 import java.sql.SQLException;
+import java.time.LocalDateTime;
+import java.util.Date;
 
 public class MainConnection {
 
@@ -12,16 +14,18 @@ public class MainConnection {
 
         MyBD myBD = MyBD.getInstance();
 
-        // Création des objets Blog (auteur = ID utilisateur existant, par exemple 1)
-        Blog b1 = new Blog("Sahara Adventure", "Voyage inoubliable à Douz", "douz.jpg", "Sud", "Voyage", 1);
-        Blog b2 = new Blog("Carthage Story", "Découverte historique de Carthage", "carthage.jpg", "Nord", "Histoire", 1);
+        // Création des objets Blog avec le constructeur (titre, contenu, auteur)
+        // auteur = 1 (ID utilisateur existant)
+        Blog b1 = new Blog("Sahara Adventure", "Voyage inoubliable à Douz", 1);
+        Blog b2 = new Blog("Carthage Story", "Découverte historique de Carthage", 1);
 
-        // Création des objets Commentaire (sans date, elle sera générée automatiquement par la base)
-        Commentaire c1 = new Commentaire("Super article !", 1, b1.getId());
-        Commentaire c2 = new Commentaire("J'adore cet endroit !", 2, b2.getId());
+        // Création des objets Commentaire avec le constructeur (contenu, utilisateur, articleId)
+        // Les IDs des articles sont 0 car ils ne sont pas encore persistés, mais pour le test c'est acceptable
+        Commentaire c1 = new Commentaire("Super article !", 1, 0);
+        Commentaire c2 = new Commentaire("J'adore cet endroit !", 2, 0);
 
         // Affichage
-        System.out.println("Titre du blog : " + b1.getTitre());
-        System.out.println("Commentaire : " + c1.getContenu());
+        System.out.println(b1.getTitre());
+        System.out.println(c1.getContenu());
     }
 }
