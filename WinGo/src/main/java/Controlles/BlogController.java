@@ -9,16 +9,22 @@ import Services.UtilisateurCRUD;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 import javafx.stage.FileChooser;
+import javafx.stage.Modality;
+import javafx.stage.Stage;
 
 import java.io.File;
+import java.io.IOException;
 import java.net.URL;
 import java.sql.SQLException;
 import java.time.format.DateTimeFormatter;
@@ -159,8 +165,7 @@ public class BlogController implements Initializable {
     }
 
     /**
-     * Crée une carte de blog moderne et créative avec image en pleine largeur,
-     * badges région, et trois boutons d'action.
+     * Crée une carte de blog moderne avec image pleine largeur, overlay, et trois boutons.
      */
     private VBox createBlogCard(Blog blog) {
         VBox card = new VBox(0);
@@ -171,7 +176,7 @@ public class BlogController implements Initializable {
         card.setPrefWidth(340);
         card.setMaxWidth(340);
 
-        // Conteneur image (pleine largeur)
+        // Conteneur de l'image avec effet de zoom au survol
         StackPane imageContainer = new StackPane();
         imageContainer.setStyle("-fx-background-radius: 15 15 0 0; -fx-clip: true;");
         imageContainer.setPrefHeight(200);
@@ -180,12 +185,15 @@ public class BlogController implements Initializable {
         imageView.setFitWidth(340);
         imageView.setFitHeight(200);
         imageView.setPreserveRatio(true);
+        // Effet de zoom léger au survol
+        imageView.setOnMouseEntered(e -> imageView.setScaleX(1.05));
+        imageView.setOnMouseExited(e -> imageView.setScaleX(1.0));
+
         try {
             if (blog.getImage() != null && !blog.getImage().isEmpty()) {
                 Image img = new Image("file:" + blog.getImage(), true);
                 imageView.setImage(img);
             } else {
-                // Image par défaut (à placer dans resources)
                 Image defaultImg = new Image(getClass().getResourceAsStream("/default.jpg"));
                 imageView.setImage(defaultImg);
             }
@@ -197,7 +205,16 @@ public class BlogController implements Initializable {
         }
         imageContainer.getChildren().add(imageView);
 
-        // Badge région en haut à droite
+        // Overlay avec titre (fond semi-transparent)
+        Label titleOverlay = new Label(blog.getTitre());
+        titleOverlay.setStyle("-fx-text-fill: white; -fx-font-size: 20px; -fx-font-weight: bold; -fx-background-color: rgba(0,0,0,0.5); -fx-padding: 10; -fx-background-radius: 0 0 10 10;");
+        titleOverlay.setMaxWidth(340);
+        titleOverlay.setWrapText(true);
+        StackPane.setAlignment(titleOverlay, Pos.BOTTOM_LEFT);
+        StackPane.setMargin(titleOverlay, new Insets(0, 0, 10, 10));
+        imageContainer.getChildren().add(titleOverlay);
+
+        // Badge région en haut à droite (si présente)
         if (blog.getRegion() != null && !blog.getRegion().isEmpty()) {
             Label regionBadge = new Label("📍 " + blog.getRegion());
             regionBadge.setStyle("-fx-text-fill: white; -fx-font-size: 14px; -fx-font-weight: bold; -fx-background-color: rgba(0,0,0,0.6); -fx-padding: 5 10; -fx-background-radius: 20;");
@@ -206,71 +223,88 @@ public class BlogController implements Initializable {
             imageContainer.getChildren().add(regionBadge);
         }
 
-        // Contenu texte
+        // Contenu texte sous l'image
         VBox content = new VBox(10);
         content.setPadding(new Insets(15, 15, 15, 15));
 
-        Label titre = new Label(blog.getTitre());
-        titre.setStyle("-fx-font-weight: bold; -fx-font-size: 20px; -fx-text-fill: #5a3e2b;");
-        titre.setWrapText(true);
-
-        String extrait = blog.getContenu().length() > 100 ? blog.getContenu().substring(0, 100) + "..." : blog.getContenu();
-        Label contenuLabel = new Label(extrait);
-        contenuLabel.setStyle("-fx-text-fill: #7f8c8d; -fx-font-size: 14px;");
-        contenuLabel.setWrapText(true);
-
-        // Auteur et date
+        // Auteur et date avec nombre de commentaires
         HBox meta = new HBox(10);
         meta.setAlignment(Pos.CENTER_LEFT);
         Label auteur = new Label("👤 " + (blog.getAuteurNom() != null ? blog.getAuteurNom() : "Inconnu"));
         auteur.setStyle("-fx-text-fill: #b7472a; -fx-font-size: 13px;");
         Label date = new Label("📅 " + (blog.getDatePublication() != null ? blog.getDatePublication().format(dateShortFormatter) : ""));
         date.setStyle("-fx-text-fill: #95a5a6; -fx-font-size: 13px;");
-        meta.getChildren().addAll(auteur, date);
-
-        // Nombre de commentaires
+        Region spacer = new Region();
+        HBox.setHgrow(spacer, Priority.ALWAYS);
         long nbComments = commentaireList.stream().filter(c -> c.getArticleId() == blog.getId()).count();
-        Label comments = new Label("💬 " + nbComments + " commentaire(s)");
+        Label comments = new Label("💬 " + nbComments);
         comments.setStyle("-fx-text-fill: #3498db; -fx-font-size: 13px;");
+        meta.getChildren().addAll(auteur, date, spacer, comments);
 
-        // Boutons d'action (Voir, Modifier, Supprimer)
+        // Extrait du contenu
+        String extrait = blog.getContenu().length() > 100 ? blog.getContenu().substring(0, 100) + "..." : blog.getContenu();
+        Label contenuLabel = new Label(extrait);
+        contenuLabel.setStyle("-fx-text-fill: #7f8c8d; -fx-font-size: 14px;");
+        contenuLabel.setWrapText(true);
+
+        // Boutons d'action : Voir, Modifier, Supprimer
         HBox actions = new HBox(10);
-        actions.setAlignment(Pos.CENTER_RIGHT);
+        actions.setAlignment(Pos.CENTER);
 
-        Button viewBtn = new Button("👁️ Voir");
-        viewBtn.setStyle("-fx-background-color: #3498db; -fx-text-fill: white; -fx-background-radius: 20; -fx-cursor: hand; -fx-padding: 5 15;");
-        viewBtn.setFont(new javafx.scene.text.Font(12));
-        Tooltip.install(viewBtn, new Tooltip("Voir les détails"));
-        viewBtn.setOnAction(e -> {
-            // On peut soit sélectionner, soit ouvrir une nouvelle fenêtre
-            selectBlog(blog);
-        });
+        Button voirBtn = new Button("Voir");
+        voirBtn.setStyle("-fx-background-color: #3498db; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 5; -fx-padding: 8 15; -fx-cursor: hand;");
+        voirBtn.setOnAction(e -> showBlogDetail(blog));
 
-        Button editBtn = new Button("✏️ Modifier");
-        editBtn.setStyle("-fx-background-color: #f39c12; -fx-text-fill: white; -fx-background-radius: 20; -fx-cursor: hand; -fx-padding: 5 15;");
-        editBtn.setFont(new javafx.scene.text.Font(12));
-        Tooltip.install(editBtn, new Tooltip("Modifier cet article"));
-        editBtn.setOnAction(e -> selectBlog(blog));
+        Button modifierBtn = new Button("Modifier");
+        modifierBtn.setStyle("-fx-background-color: #f39c12; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 5; -fx-padding: 8 15; -fx-cursor: hand;");
+        modifierBtn.setOnAction(e -> selectBlog(blog)); // remplit le formulaire
 
-        Button deleteBtn = new Button("🗑️ Supprimer");
-        deleteBtn.setStyle("-fx-background-color: #e74c3c; -fx-text-fill: white; -fx-background-radius: 20; -fx-cursor: hand; -fx-padding: 5 15;");
-        deleteBtn.setFont(new javafx.scene.text.Font(12));
-        Tooltip.install(deleteBtn, new Tooltip("Supprimer cet article"));
-        deleteBtn.setOnAction(e -> supprimerBlog(blog));
+        Button supprimerBtn = new Button("Supprimer");
+        supprimerBtn.setStyle("-fx-background-color: #e74c3c; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 5; -fx-padding: 8 15; -fx-cursor: hand;");
+        supprimerBtn.setOnAction(e -> supprimerBlog(blog));
 
-        actions.getChildren().addAll(viewBtn, editBtn, deleteBtn);
+        actions.getChildren().addAll(voirBtn, modifierBtn, supprimerBtn);
 
-        content.getChildren().addAll(titre, contenuLabel, meta, comments, actions);
+        content.getChildren().addAll(meta, contenuLabel, actions);
         card.getChildren().addAll(imageContainer, content);
 
-        // Clic sur la carte pour sélectionner (en plus des boutons)
+        // Clic sur la carte pour voir (en plus du bouton)
         card.setOnMouseClicked(e -> {
             if (e.getClickCount() == 1) {
-                selectBlog(blog);
+                showBlogDetail(blog);
             }
         });
 
         return card;
+    }
+
+    /**
+     * Ouvre une nouvelle fenêtre affichant les détails complets de l'article.
+     */
+    private void showBlogDetail(Blog blog) {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/BlogDetail.fxml"));
+            Parent root = loader.load();
+
+            BlogDetailController detailController = loader.getController();
+            detailController.setBlog(blog, commentaireList, currentUser);
+
+            Stage stage = new Stage();
+            stage.setTitle(blog.getTitre());
+            stage.setScene(new Scene(root));
+            stage.initModality(Modality.WINDOW_MODAL);
+            stage.initOwner(articlesFlowPane.getScene().getWindow());
+            stage.showAndWait();
+
+            // Rafraîchir après fermeture (avec gestion d'exception)
+            try {
+                refreshData();
+            } catch (SQLException ex) {
+                showError("Erreur de rafraîchissement", ex.getMessage());
+            }
+        } catch (IOException e) {
+            showError("Erreur", "Impossible d'ouvrir la vue détail : " + e.getMessage());
+        }
     }
 
     private void supprimerBlog(Blog blog) {
