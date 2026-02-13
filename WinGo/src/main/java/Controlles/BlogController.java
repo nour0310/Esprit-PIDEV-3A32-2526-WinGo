@@ -37,7 +37,7 @@ public class BlogController implements Initializable {
     private ObservableList<Blog> blogList = FXCollections.observableArrayList();
     private ObservableList<Commentaire> commentaireList = FXCollections.observableArrayList();
     private Blog selectedBlog = null;
-    private Blog displayedDetailBlog = null; // blog actuellement affiché dans la vue détail
+    private Blog displayedDetailBlog = null;
 
     // Utilisateur connecté
     private Utilisateur currentUser;
@@ -56,9 +56,9 @@ public class BlogController implements Initializable {
     @FXML private TextField imageField;
     @FXML private ComboBox<String> regionCombo;
     @FXML private ComboBox<String> categorieCombo;
-    @FXML private Label auteurLabel;
+    @FXML private Label auteurLabel;  // pour afficher l'auteur (connecté ou sélectionné)
     @FXML private TextField newCommentField;
-    @FXML private Label connectedUserLabel;
+    @FXML private TextField commentUserField;
     @FXML private Button choisirImageBtn;
     @FXML private Button ajouterBtn;
     @FXML private Button modifierBtn;
@@ -91,7 +91,6 @@ public class BlogController implements Initializable {
         loadUtilisateurs();
         attachListeners();
         loadInitialData();
-        // Initialement, vue liste visible
         showListView();
     }
 
@@ -116,10 +115,8 @@ public class BlogController implements Initializable {
             currentUser = users.stream().filter(u -> u.getId() == 1).findFirst().orElse(null);
             if (currentUser != null) {
                 auteurLabel.setText(currentUser.getPrenom() + " " + currentUser.getNom());
-                connectedUserLabel.setText(currentUser.getPrenom() + " " + currentUser.getNom());
             } else {
                 auteurLabel.setText("Utilisateur inconnu");
-                connectedUserLabel.setText("Utilisateur inconnu");
             }
         } catch (SQLException e) {
             showError("Erreur chargement utilisateurs", e.getMessage());
@@ -178,9 +175,6 @@ public class BlogController implements Initializable {
         }
     }
 
-    /**
-     * Crée une carte de blog moderne et créative.
-     */
     private VBox createBlogCard(Blog blog) {
         VBox card = new VBox();
         card.setStyle("-fx-background-color: linear-gradient(to bottom, #fef9e7, #ffffff); " +
@@ -194,7 +188,6 @@ public class BlogController implements Initializable {
         card.setMaxWidth(300);
         card.setPadding(new Insets(0));
 
-        // Conteneur de l'image
         StackPane imageContainer = new StackPane();
         imageContainer.setPrefHeight(150);
         imageContainer.setStyle("-fx-background-radius: 15 15 0 0; -fx-clip: true;");
@@ -218,7 +211,6 @@ public class BlogController implements Initializable {
         }
         imageContainer.getChildren().add(imageView);
 
-        // Badge région (si présente)
         if (blog.getRegion() != null && !blog.getRegion().isEmpty()) {
             Label regionBadge = new Label("📍 " + blog.getRegion());
             regionBadge.setStyle("-fx-background-color: rgba(0,0,0,0.6); -fx-text-fill: white; -fx-padding: 3 8; -fx-background-radius: 20; -fx-font-size: 12px;");
@@ -227,7 +219,6 @@ public class BlogController implements Initializable {
             imageContainer.getChildren().add(regionBadge);
         }
 
-        // Contenu texte
         VBox content = new VBox(8);
         content.setPadding(new Insets(12, 12, 12, 12));
 
@@ -245,22 +236,18 @@ public class BlogController implements Initializable {
         HBox.setHgrow(spacer, Priority.ALWAYS);
         auteurDate.getChildren().addAll(auteur, date, spacer);
 
-        // Catégorie
         Label categorie = new Label("🏷️ " + (blog.getCategorie() != null ? blog.getCategorie() : "Non catégorisé"));
         categorie.setStyle("-fx-text-fill: #3498db; -fx-font-size: 13px;");
 
-        // Extrait
         String extrait = blog.getContenu().length() > 80 ? blog.getContenu().substring(0, 80) + "..." : blog.getContenu();
         Label extraitLabel = new Label(extrait);
         extraitLabel.setStyle("-fx-text-fill: #7f8c8d; -fx-font-size: 13px; -fx-wrap-text: true;");
         extraitLabel.setWrapText(true);
 
-        // Nombre de commentaires
         long nbComments = commentaireList.stream().filter(c -> c.getArticleId() == blog.getId()).count();
         Label commentCount = new Label("💬 " + nbComments + " commentaire(s)");
         commentCount.setStyle("-fx-text-fill: #27ae60; -fx-font-size: 13px;");
 
-        // Boutons d'action
         HBox actions = new HBox(10);
         actions.setAlignment(Pos.CENTER);
 
@@ -270,10 +257,7 @@ public class BlogController implements Initializable {
 
         Button modifierBtn = new Button("Modifier");
         modifierBtn.setStyle("-fx-background-color: #f39c12; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 5; -fx-padding: 5 12; -fx-cursor: hand;");
-        modifierBtn.setOnAction(e -> {
-            selectBlog(blog);
-            // On reste dans la vue liste, mais le formulaire est rempli
-        });
+        modifierBtn.setOnAction(e -> selectBlog(blog));
 
         Button supprimerBtn = new Button("Supprimer");
         supprimerBtn.setStyle("-fx-background-color: #e74c3c; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 5; -fx-padding: 5 12; -fx-cursor: hand;");
@@ -295,7 +279,6 @@ public class BlogController implements Initializable {
 
     private void showDetailView(Blog blog) {
         displayedDetailBlog = blog;
-        // Remplir les détails
         detailAuteurLabel.setText("👤 " + (blog.getAuteurNom() != null ? blog.getAuteurNom() : "Inconnu"));
         detailDateLabel.setText("📅 " + (blog.getDatePublication() != null ? blog.getDatePublication().format(dateShortFormatter) : ""));
         detailRegionLabel.setText("📍 " + (blog.getRegion() != null ? blog.getRegion() : ""));
@@ -591,6 +574,7 @@ public class BlogController implements Initializable {
             selectedBlog.setImage(imageField.getText().trim());
             selectedBlog.setRegion(regionCombo.getValue());
             selectedBlog.setCategorie(categorieCombo.getValue());
+            // L'auteur ne change pas
             blogCRUD.modifier(selectedBlog);
             refreshData();
             clearForm();
@@ -624,13 +608,22 @@ public class BlogController implements Initializable {
             showWarning("Le commentaire ne peut pas être vide.");
             return;
         }
+        int userId;
+        try {
+            userId = Integer.parseInt(commentUserField.getText().trim());
+        } catch (NumberFormatException e) {
+            showWarning("L'ID utilisateur doit être un nombre.");
+            return;
+        }
+        // Note : on utilise l'ID saisi, mais on pourrait forcer currentUser.getId()
         Commentaire c = new Commentaire();
         c.setContenu(contenu.trim());
-        c.setUtilisateur(currentUser.getId());
+        c.setUtilisateur(userId);
         c.setArticleId(selectedBlog.getId());
         try {
             commentaireCRUD.ajouter(c);
             newCommentField.clear();
+            commentUserField.clear();
             List<Commentaire> comments = commentaireCRUD.getCommentsByArticle(selectedBlog.getId());
             displayCommentaires(comments);
             loadAllComments();
@@ -706,7 +699,6 @@ public class BlogController implements Initializable {
     private void showWarning(String msg) { new Alert(Alert.AlertType.WARNING, msg).show(); }
     private void showError(String title, String msg) { Alert a = new Alert(Alert.AlertType.ERROR, msg); a.setTitle(title); a.show(); }
 
-    // Méthodes de navigation pour les boutons du menu
     @FXML private void goDashboard() { System.out.println("Dashboard"); }
     @FXML private void goAjouter() { System.out.println("Ajouter"); }
     @FXML private void goListe() { System.out.println("Liste"); }
