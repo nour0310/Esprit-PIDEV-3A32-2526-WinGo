@@ -3,37 +3,26 @@ package Entites;
 import java.time.LocalDateTime;
 
 public class Blog {
-    private int id;                  // correspond à id_article
+    private int id;
     private String titre;
     private String contenu;
     private LocalDateTime datePublication;
-    private String image;
-    private String region;
-    private String categorie;
-    private int auteur;               // FK vers utilisateur.id
-    private String auteurNom;         // non persisté, pour affichage
+    private int auteur;          // FK vers utilisateur.id
+    private String auteurNom;     // non persisté, pour affichage
 
     public Blog() {}
 
-    public Blog(String titre, String contenu, String image, String region,
-                String categorie, int auteur) {
+    public Blog(String titre, String contenu, int auteur) {
         this.titre = titre;
         this.contenu = contenu;
-        this.image = image;
-        this.region = region;
-        this.categorie = categorie;
         this.auteur = auteur;
     }
 
-    public Blog(int id, String titre, String contenu, LocalDateTime datePublication,
-                String image, String region, String categorie, int auteur) {
+    public Blog(int id, String titre, String contenu, LocalDateTime datePublication, int auteur) {
         this.id = id;
         this.titre = titre;
         this.contenu = contenu;
         this.datePublication = datePublication;
-        this.image = image;
-        this.region = region;
-        this.categorie = categorie;
         this.auteur = auteur;
     }
 
@@ -50,15 +39,6 @@ public class Blog {
     public LocalDateTime getDatePublication() { return datePublication; }
     public void setDatePublication(LocalDateTime datePublication) { this.datePublication = datePublication; }
 
-    public String getImage() { return image; }
-    public void setImage(String image) { this.image = image; }
-
-    public String getRegion() { return region; }
-    public void setRegion(String region) { this.region = region; }
-
-    public String getCategorie() { return categorie; }
-    public void setCategorie(String categorie) { this.categorie = categorie; }
-
     public int getAuteur() { return auteur; }
     public void setAuteur(int auteur) { this.auteur = auteur; }
 
@@ -67,10 +47,6 @@ public class Blog {
 
     @Override
     public String toString() {
-        return "Blog{" +
-                "id=" + id +
-                ", titre='" + titre + '\'' +
-                ", auteur=" + auteur +
-                '}';
+        return "Blog{" + "id=" + id + ", titre='" + titre + '\'' + ", auteur=" + auteur + '}';
     }
 }

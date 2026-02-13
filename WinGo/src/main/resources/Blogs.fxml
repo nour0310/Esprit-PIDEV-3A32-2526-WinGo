@@ -7,11 +7,11 @@
 <?import javafx.scene.text.Font?>
 
 <StackPane prefHeight="720" prefWidth="1200"
-           xmlns="http://javafx.com/javafx/25"
+           xmlns="http://javafx.com/javafx/17"
            xmlns:fx="http://javafx.com/fxml/1"
-           fx:controller="Controlles.AjouterProduit">
+           fx:controller="Controlles.BlogController">
 
-    <!-- BACKGROUND IMAGE -->
+    <!-- BACKGROUND IMAGE (à remplacer par votre image) -->
     <Pane mouseTransparent="true"
           style="-fx-background-image: url('/testt.png');
                  -fx-background-repeat: no-repeat;
@@ -31,7 +31,7 @@
         <effect><DropShadow color="#00000066" offsetY="14" radius="28" /></effect>
         <padding><Insets bottom="12" left="12" right="12" top="12" /></padding>
 
-        <!-- TOP BAR -->
+        <!-- TOP BAR (identique) -->
         <top>
             <HBox alignment="CENTER_LEFT" spacing="12"
                   style="-fx-background-color: rgba(0,0,0,0.22);
@@ -45,7 +45,7 @@
 
                 <Region HBox.hgrow="ALWAYS" />
 
-                <!-- Search pill -->
+                <!-- Search pill pour les articles -->
                 <HBox alignment="CENTER_LEFT" spacing="10"
                       style="-fx-background-color: rgba(0,0,0,0.22);
                              -fx-background-radius: 999;
@@ -53,13 +53,13 @@
                              -fx-border-color: rgba(255,255,255,0.22);
                              -fx-border-radius: 999;">
                     <Label text="🔍" style="-fx-text-fill: white; -fx-opacity: 0.95;" />
-                    <TextField promptText="Search destination (Djerba, Sousse…)"
+                    <TextField fx:id="searchField" promptText="Rechercher un article..."
                                style="-fx-background-color: transparent;
                                       -fx-border-color: transparent;
                                       -fx-text-fill: white;
                                       -fx-prompt-text-fill: rgba(255,255,255,0.70);
                                       -fx-pref-width: 340;" />
-                    <Button text="⚙"
+                    <Button fx:id="searchBtn" text="⚙"
                             style="-fx-background-color: #FFBD00;
                                    -fx-text-fill: #390099;
                                    -fx-background-radius: 999;
@@ -81,7 +81,7 @@
             </HBox>
         </top>
 
-        <!-- LEFT MINI NAV (tu peux connecter les onAction à tes méthodes) -->
+        <!-- LEFT MINI NAV (à connecter si nécessaire) -->
         <left>
             <VBox prefWidth="86" spacing="14"
                   style="-fx-background-color: rgba(0,0,0,0.22);
@@ -98,14 +98,14 @@
                                -fx-background-radius: 14;
                                -fx-padding: 12 12;" />
 
-                <Button text="➕" onAction="#goAjouter"
+                <Button text="📝" onAction="#goBlog"
                         style="-fx-background-color: transparent;
                                -fx-text-fill: rgba(255,255,255,0.92);
                                -fx-font-size: 18px;
                                -fx-background-radius: 14;
                                -fx-padding: 12 12;" />
 
-                <Button text="📦" onAction="#goListe"
+                <Button text="💬" onAction="#goCommentaires"
                         style="-fx-background-color: transparent;
                                -fx-text-fill: rgba(255,255,255,0.92);
                                -fx-font-size: 18px;
@@ -141,7 +141,7 @@
                         <VBox spacing="18">
                             <padding><Insets bottom="18" left="18" right="18" top="18"/></padding>
 
-                            <!-- HERO -->
+                            <!-- HERO SECTION -->
                             <HBox spacing="16">
                                 <VBox spacing="10" HBox.hgrow="ALWAYS"
                                       style="-fx-background-color: rgba(0,0,0,0.32);
@@ -150,20 +150,20 @@
                                              -fx-border-radius: 22;">
                                     <padding><Insets bottom="18" left="18" right="18" top="18"/></padding>
 
-                                    <Label text="Ajouter Produit ✨"
+                                    <Label text="Gestion des Blogs ✍️"
                                            style="-fx-text-fill: white; -fx-font-size: 26px; -fx-font-weight: 900;"/>
 
-                                    <Label text="Remplis les infos du produit (nom, prix, stock...)"
+                                    <Label text="Créez, modifiez ou supprimez vos articles de voyage"
                                            style="-fx-text-fill: rgba(255,255,255,0.78); -fx-font-size: 13px; -fx-font-weight: 700;"/>
 
                                     <HBox spacing="10">
-                                        <Label text="🛒" style="-fx-font-size: 18px;" />
-                                        <Label text="Interface Produits"
+                                        <Label text="📝" style="-fx-font-size: 18px;" />
+                                        <Label text="Articles et commentaires"
                                                style="-fx-text-fill: rgba(255,255,255,0.85); -fx-font-weight: 800;" />
                                     </HBox>
                                 </VBox>
 
-                                <!-- MINI CARD -->
+                                <!-- STATS MINI CARD -->
                                 <VBox prefWidth="260" spacing="10"
                                       style="-fx-background-color: rgba(0,0,0,0.30);
                                              -fx-background-radius: 22;
@@ -171,21 +171,77 @@
                                              -fx-border-radius: 22;">
                                     <padding><Insets bottom="18" left="18" right="18" top="18"/></padding>
 
-                                    <Label text="Tip"
+                                    <Label text="Statistiques"
                                            style="-fx-text-fill: rgba(255,255,255,0.80); -fx-font-weight: 800;"/>
-                                    <Label text="Image"
+                                    <Label text="📰 Articles : "
                                            style="-fx-text-fill: #FFBD00; -fx-font-size: 22px; -fx-font-weight: 900;"/>
-                                    <Label text="Mets un chemin ou URL"
+                                    <Label fx:id="totalBlogsLabel" text="0"
                                            style="-fx-text-fill: rgba(255,255,255,0.74); -fx-font-weight: 700;"/>
                                     <Separator opacity="0.28" />
-                                    <Label text="Prix"
+                                    <Label text="💬 Commentaires : "
                                            style="-fx-text-fill: rgba(255,255,255,0.80); -fx-font-weight: 800;"/>
-                                    <Label text="ex: 15.50"
+                                    <Label fx:id="totalCommentsLabel" text="0"
                                            style="-fx-text-fill: rgba(255,255,255,0.74); -fx-font-weight: 700;"/>
                                 </VBox>
                             </HBox>
 
-                            <!-- FORM PRODUIT (BEAUTIFUL CARD) -->
+                            <!-- FILTRES -->
+                            <HBox spacing="10" alignment="CENTER_LEFT"
+                                  style="-fx-background-color: rgba(0,0,0,0.28);
+                                         -fx-background-radius: 22;
+                                         -fx-border-color: rgba(255,255,255,0.18);
+                                         -fx-border-radius: 22;
+                                         -fx-padding: 12 18;">
+                                <Label text="Filtrer par :" style="-fx-text-fill: white; -fx-font-weight: 800;"/>
+                                <ComboBox fx:id="regionFilterCombo" promptText="Région"
+                                          style="-fx-background-color: rgba(255,255,255,0.10);
+                                                 -fx-background-radius: 12;
+                                                 -fx-border-color: rgba(255,255,255,0.18);
+                                                 -fx-border-radius: 12;
+                                                 -fx-text-fill: white;" />
+                                <ComboBox fx:id="categorieFilterCombo" promptText="Catégorie"
+                                          style="-fx-background-color: rgba(255,255,255,0.10);
+                                                 -fx-background-radius: 12;
+                                                 -fx-border-color: rgba(255,255,255,0.18);
+                                                 -fx-border-radius: 12;
+                                                 -fx-text-fill: white;" />
+                            </HBox>
+
+                            <!-- LISTE DES ARTICLES (FlowPane) -->
+                            <VBox spacing="10"
+                                  style="-fx-background-color: rgba(0,0,0,0.28);
+                                         -fx-background-radius: 22;
+                                         -fx-border-color: rgba(255,255,255,0.18);
+                                         -fx-border-radius: 22;
+                                         -fx-padding: 15;">
+                                <Label text="📰 Articles récents"
+                                       style="-fx-text-fill: white; -fx-font-size: 18px; -fx-font-weight: 900;"/>
+                                <ScrollPane fitToWidth="true" prefHeight="200"
+                                            style="-fx-background: transparent; -fx-background-color: transparent;">
+                                    <FlowPane fx:id="articlesFlowPane" hgap="15" vgap="15"
+                                              style="-fx-background-color: transparent;"/>
+                                </ScrollPane>
+                            </VBox>
+
+                            <!-- COMMENTAIRES DE L'ARTICLE SÉLECTIONNÉ -->
+                            <VBox spacing="10"
+                                  style="-fx-background-color: rgba(0,0,0,0.28);
+                                         -fx-background-radius: 22;
+                                         -fx-border-color: rgba(255,255,255,0.18);
+                                         -fx-border-radius: 22;
+                                         -fx-padding: 15;">
+                                <Label text="💬 Commentaires"
+                                       style="-fx-text-fill: white; -fx-font-size: 18px; -fx-font-weight: 900;"/>
+                                <Label fx:id="selectedArticleLabel" text="(aucun article sélectionné)"
+                                       style="-fx-text-fill: rgba(255,255,255,0.70); -fx-font-style: italic;"/>
+                                <ScrollPane fitToWidth="true" prefHeight="150"
+                                            style="-fx-background: transparent; -fx-background-color: transparent;">
+                                    <FlowPane fx:id="commentairesFlowPane" hgap="10" vgap="10"
+                                              style="-fx-background-color: transparent;"/>
+                                </ScrollPane>
+                            </VBox>
+
+                            <!-- FORMULAIRE D'AJOUT/ÉDITION D'ARTICLE -->
                             <StackPane style="-fx-background-color: rgba(0,0,0,0.28);
                                               -fx-background-radius: 22;
                                               -fx-border-color: rgba(255,255,255,0.18);
@@ -197,13 +253,12 @@
 
                                     <!-- Title row -->
                                     <HBox alignment="CENTER_LEFT" spacing="10">
-                                        <Label text="🛒"
+                                        <Label text="📝"
                                                style="-fx-font-size: 22px;" />
-                                        <Label text="Nouveau Produit"
+                                        <Label text="Formulaire Article"
                                                style="-fx-text-fill: white; -fx-font-size: 18px; -fx-font-weight: 900;" />
                                         <Region HBox.hgrow="ALWAYS" />
-                                        <Label fx:id="statusLabel"
-                                               text=""
+                                        <Label fx:id="statusLabel" text="Prêt"
                                                style="-fx-text-fill: #FFBD00; -fx-font-weight: 800;" />
                                     </HBox>
 
@@ -211,25 +266,22 @@
 
                                     <!-- Inputs -->
                                     <GridPane hgap="12" vgap="12">
-
-                                        <!-- Row 0 -->
+                                        <!-- ID (non éditable) -->
                                         <VBox spacing="6" GridPane.columnIndex="0" GridPane.rowIndex="0">
-                                            <Label text="ID Commerçant"
+                                            <Label text="ID"
                                                    style="-fx-text-fill: rgba(255,255,255,0.80); -fx-font-weight: 800;" />
-                                            <TextField fx:id="idCommercantField" promptText="ex: 3"
-                                                       style="-fx-background-color: rgba(255,255,255,0.10);
-                                                              -fx-background-radius: 12;
-                                                              -fx-border-color: rgba(255,255,255,0.18);
-                                                              -fx-border-radius: 12;
-                                                              -fx-text-fill: white;
-                                                              -fx-prompt-text-fill: rgba(255,255,255,0.55);
-                                                              -fx-padding: 10 12;" />
+                                            <Label fx:id="articleIdLabel" text="Nouveau"
+                                                   style="-fx-background-color: rgba(255,255,255,0.10);
+                                                          -fx-background-radius: 12;
+                                                          -fx-padding: 10 12;
+                                                          -fx-text-fill: white;"/>
                                         </VBox>
 
+                                        <!-- Titre -->
                                         <VBox spacing="6" GridPane.columnIndex="1" GridPane.rowIndex="0">
-                                            <Label text="Nom"
+                                            <Label text="Titre"
                                                    style="-fx-text-fill: rgba(255,255,255,0.80); -fx-font-weight: 800;" />
-                                            <TextField fx:id="nomTextField" promptText="Nom du produit"
+                                            <TextField fx:id="titreField" promptText="Titre de l'article"
                                                        style="-fx-background-color: rgba(255,255,255,0.10);
                                                               -fx-background-radius: 12;
                                                               -fx-border-color: rgba(255,255,255,0.18);
@@ -239,65 +291,11 @@
                                                               -fx-padding: 10 12;" />
                                         </VBox>
 
-                                        <!-- Row 1 -->
-                                        <VBox spacing="6" GridPane.columnIndex="0" GridPane.rowIndex="1">
-                                            <Label text="Prix (TND)"
+                                        <!-- Contenu (TextArea) -->
+                                        <VBox spacing="6" GridPane.columnIndex="0" GridPane.rowIndex="1" GridPane.columnSpan="2">
+                                            <Label text="Contenu"
                                                    style="-fx-text-fill: rgba(255,255,255,0.80); -fx-font-weight: 800;" />
-                                            <TextField fx:id="prixTextField" promptText="ex: 15.50"
-                                                       style="-fx-background-color: rgba(255,255,255,0.10);
-                                                              -fx-background-radius: 12;
-                                                              -fx-border-color: rgba(255,255,255,0.18);
-                                                              -fx-border-radius: 12;
-                                                              -fx-text-fill: white;
-                                                              -fx-prompt-text-fill: rgba(255,255,255,0.55);
-                                                              -fx-padding: 10 12;" />
-                                        </VBox>
-
-                                        <VBox spacing="6" GridPane.columnIndex="1" GridPane.rowIndex="1">
-                                            <Label text="Stock"
-                                                   style="-fx-text-fill: rgba(255,255,255,0.80); -fx-font-weight: 800;" />
-                                            <TextField fx:id="stockField" promptText="ex: 20"
-                                                       style="-fx-background-color: rgba(255,255,255,0.10);
-                                                              -fx-background-radius: 12;
-                                                              -fx-border-color: rgba(255,255,255,0.18);
-                                                              -fx-border-radius: 12;
-                                                              -fx-text-fill: white;
-                                                              -fx-prompt-text-fill: rgba(255,255,255,0.55);
-                                                              -fx-padding: 10 12;" />
-                                        </VBox>
-
-                                        <!-- Row 2 -->
-                                        <VBox spacing="6" GridPane.columnIndex="0" GridPane.rowIndex="2">
-                                            <Label text="Région"
-                                                   style="-fx-text-fill: rgba(255,255,255,0.80); -fx-font-weight: 800;" />
-                                            <TextField fx:id="regionField" promptText="ex: Tunis, Sousse..."
-                                                       style="-fx-background-color: rgba(255,255,255,0.10);
-                                                              -fx-background-radius: 12;
-                                                              -fx-border-color: rgba(255,255,255,0.18);
-                                                              -fx-border-radius: 12;
-                                                              -fx-text-fill: white;
-                                                              -fx-prompt-text-fill: rgba(255,255,255,0.55);
-                                                              -fx-padding: 10 12;" />
-                                        </VBox>
-
-                                        <VBox spacing="6" GridPane.columnIndex="1" GridPane.rowIndex="2">
-                                            <Label text="Catégorie"
-                                                   style="-fx-text-fill: rgba(255,255,255,0.80); -fx-font-weight: 800;" />
-                                            <TextField fx:id="categorieField" promptText="ex: Souvenir, Food..."
-                                                       style="-fx-background-color: rgba(255,255,255,0.10);
-                                                              -fx-background-radius: 12;
-                                                              -fx-border-color: rgba(255,255,255,0.18);
-                                                              -fx-border-radius: 12;
-                                                              -fx-text-fill: white;
-                                                              -fx-prompt-text-fill: rgba(255,255,255,0.55);
-                                                              -fx-padding: 10 12;" />
-                                        </VBox>
-
-                                        <!-- Row 3 -->
-                                        <VBox spacing="6" GridPane.columnIndex="0" GridPane.rowIndex="3" GridPane.columnSpan="2">
-                                            <Label text="Description"
-                                                   style="-fx-text-fill: rgba(255,255,255,0.80); -fx-font-weight: 800;" />
-                                            <TextArea fx:id="descriptionArea" promptText="Description du produit..."
+                                            <TextArea fx:id="contenuField" promptText="Contenu de l'article..."
                                                       prefRowCount="3"
                                                       style="-fx-background-color: rgba(255,255,255,0.10);
                                                              -fx-background-radius: 12;
@@ -308,11 +306,11 @@
                                                              -fx-padding: 10 12;" />
                                         </VBox>
 
-                                        <!-- Row 4 -->
-                                        <VBox spacing="6" GridPane.columnIndex="0" GridPane.rowIndex="4" GridPane.columnSpan="2">
-                                            <Label text="Image (URL ou chemin)"
+                                        <!-- Image -->
+                                        <VBox spacing="6" GridPane.columnIndex="0" GridPane.rowIndex="2">
+                                            <Label text="Image (URL)"
                                                    style="-fx-text-fill: rgba(255,255,255,0.80); -fx-font-weight: 800;" />
-                                            <TextField fx:id="imageField" promptText="ex: /assets/p1.png ou https://..."
+                                            <TextField fx:id="imageField" promptText="URL de l'image"
                                                        style="-fx-background-color: rgba(255,255,255,0.10);
                                                               -fx-background-radius: 12;
                                                               -fx-border-color: rgba(255,255,255,0.18);
@@ -322,43 +320,122 @@
                                                               -fx-padding: 10 12;" />
                                         </VBox>
 
+                                        <!-- Auteur (ComboBox avec utilisateurs) -->
+                                        <VBox spacing="6" GridPane.columnIndex="1" GridPane.rowIndex="2">
+                                            <Label text="Auteur"
+                                                   style="-fx-text-fill: rgba(255,255,255,0.80); -fx-font-weight: 800;" />
+                                            <ComboBox fx:id="auteurCombo" promptText="Sélectionner un auteur"
+                                                      style="-fx-background-color: rgba(255,255,255,0.10);
+                                                             -fx-background-radius: 12;
+                                                             -fx-border-color: rgba(255,255,255,0.18);
+                                                             -fx-border-radius: 12;
+                                                             -fx-text-fill: white;" />
+                                        </VBox>
+
+                                        <!-- Région -->
+                                        <VBox spacing="6" GridPane.columnIndex="0" GridPane.rowIndex="3">
+                                            <Label text="Région"
+                                                   style="-fx-text-fill: rgba(255,255,255,0.80); -fx-font-weight: 800;" />
+                                            <ComboBox fx:id="regionField" promptText="Région"
+                                                      style="-fx-background-color: rgba(255,255,255,0.10);
+                                                             -fx-background-radius: 12;
+                                                             -fx-border-color: rgba(255,255,255,0.18);
+                                                             -fx-border-radius: 12;
+                                                             -fx-text-fill: white;" />
+                                        </VBox>
+
+                                        <!-- Catégorie -->
+                                        <VBox spacing="6" GridPane.columnIndex="1" GridPane.rowIndex="3">
+                                            <Label text="Catégorie"
+                                                   style="-fx-text-fill: rgba(255,255,255,0.80); -fx-font-weight: 800;" />
+                                            <ComboBox fx:id="categorieField" promptText="Catégorie"
+                                                      style="-fx-background-color: rgba(255,255,255,0.10);
+                                                             -fx-background-radius: 12;
+                                                             -fx-border-color: rgba(255,255,255,0.18);
+                                                             -fx-border-radius: 12;
+                                                             -fx-text-fill: white;" />
+                                        </VBox>
+
                                         <columnConstraints>
                                             <ColumnConstraints percentWidth="50" />
                                             <ColumnConstraints percentWidth="50" />
                                         </columnConstraints>
                                     </GridPane>
 
-                                    <!-- Actions -->
-                                    <HBox spacing="10" alignment="CENTER_RIGHT">
-                                        <Button text="Effacer"
-                                                onAction="#clearForm"
+                                    <!-- Boutons CRUD article -->
+                                    <HBox spacing="10" alignment="CENTER">
+                                        <Button fx:id="ajouterBtn" text="➕ Ajouter" onAction="#ajouterBlog"
+                                                style="-fx-background-color: #28a745;
+                                                       -fx-text-fill: white;
+                                                       -fx-background-radius: 999;
+                                                       -fx-padding: 10 20;
+                                                       -fx-font-weight: 900;" />
+                                        <Button fx:id="modifierBtn" text="✏️ Modifier" onAction="#modifierBlog"
+                                                style="-fx-background-color: #ffc107;
+                                                       -fx-text-fill: black;
+                                                       -fx-background-radius: 999;
+                                                       -fx-padding: 10 20;
+                                                       -fx-font-weight: 900;" />
+                                        <Button fx:id="supprimerBtn" text="🗑️ Supprimer" onAction="#supprimerBlog"
+                                                style="-fx-background-color: #dc3545;
+                                                       -fx-text-fill: white;
+                                                       -fx-background-radius: 999;
+                                                       -fx-padding: 10 20;
+                                                       -fx-font-weight: 900;" />
+                                        <Button fx:id="clearBtn" text="🔄 Nouveau" onAction="#clearForm"
                                                 style="-fx-background-color: rgba(255,255,255,0.10);
                                                        -fx-text-fill: white;
                                                        -fx-background-radius: 999;
-                                                       -fx-padding: 10 16;
-                                                       -fx-font-weight: 900;" />
-
-                                        <Button text="🛒 Ajouter au panier"
-                                                onAction="#ajouterProduit"
-                                                style="-fx-background-color: #FF0054;
-                                                       -fx-text-fill: white;
-                                                       -fx-background-radius: 999;
-                                                       -fx-padding: 10 18;
+                                                       -fx-padding: 10 20;
                                                        -fx-font-weight: 900;" />
                                     </HBox>
-
-                                    <Label text="Astuce: ton controller fait déjà la validation live ✅"
-                                           style="-fx-text-fill: rgba(255,255,255,0.55); -fx-font-weight: 700;" />
                                 </VBox>
                             </StackPane>
 
+                            <!-- FORMULAIRE D'AJOUT DE COMMENTAIRE -->
+                            <StackPane style="-fx-background-color: rgba(0,0,0,0.28);
+                                              -fx-background-radius: 22;
+                                              -fx-border-color: rgba(255,255,255,0.18);
+                                              -fx-border-radius: 22;">
+                                <padding><Insets top="18" right="18" bottom="18" left="18"/></padding>
+                                <VBox spacing="10">
+                                    <Label text="➕ Ajouter un commentaire"
+                                           style="-fx-text-fill: white; -fx-font-size: 16px; -fx-font-weight: 900;"/>
+                                    <HBox spacing="10">
+                                        <TextField fx:id="newCommentField" promptText="Votre commentaire..."
+                                                   HBox.hgrow="ALWAYS"
+                                                   style="-fx-background-color: rgba(255,255,255,0.10);
+                                                          -fx-background-radius: 12;
+                                                          -fx-border-color: rgba(255,255,255,0.18);
+                                                          -fx-border-radius: 12;
+                                                          -fx-text-fill: white;
+                                                          -fx-prompt-text-fill: rgba(255,255,255,0.55);
+                                                          -fx-padding: 10 12;" />
+                                        <TextField fx:id="commentUserField" promptText="ID utilisateur"
+                                                   prefWidth="120"
+                                                   style="-fx-background-color: rgba(255,255,255,0.10);
+                                                          -fx-background-radius: 12;
+                                                          -fx-border-color: rgba(255,255,255,0.18);
+                                                          -fx-border-radius: 12;
+                                                          -fx-text-fill: white;
+                                                          -fx-prompt-text-fill: rgba(255,255,255,0.55);
+                                                          -fx-padding: 10 12;" />
+                                        <Button fx:id="addCommentBtn" text="Envoyer" onAction="#ajouterCommentaire"
+                                                style="-fx-background-color: #17a2b8;
+                                                       -fx-text-fill: white;
+                                                       -fx-background-radius: 999;
+                                                       -fx-padding: 10 20;
+                                                       -fx-font-weight: 900;" />
+                                    </HBox>
+                                </VBox>
+                            </StackPane>
                         </VBox>
                     </content>
                 </ScrollPane>
             </StackPane>
         </center>
 
-        <!-- BOTTOM NAV -->
+        <!-- BOTTOM NAV (identique) -->
         <bottom>
             <HBox alignment="CENTER" spacing="10"
                   style="-fx-background-color: rgba(0,0,0,0.22);
@@ -373,13 +450,13 @@
                                -fx-background-radius: 14;
                                -fx-padding: 8 18;
                                -fx-font-size: 16px;" />
-                <Button text="➕" onAction="#goAjouter"
+                <Button text="📝" onAction="#goBlog"
                         style="-fx-background-color: transparent;
                                -fx-text-fill: rgba(255,255,255,0.92);
                                -fx-background-radius: 14;
                                -fx-padding: 8 18;
                                -fx-font-size: 16px;" />
-                <Button text="📦" onAction="#goListe"
+                <Button text="💬" onAction="#goCommentaires"
                         style="-fx-background-color: transparent;
                                -fx-text-fill: rgba(255,255,255,0.92);
                                -fx-background-radius: 14;
@@ -399,6 +476,5 @@
                                -fx-font-size: 16px;" />
             </HBox>
         </bottom>
-
     </BorderPane>
 </StackPane>
