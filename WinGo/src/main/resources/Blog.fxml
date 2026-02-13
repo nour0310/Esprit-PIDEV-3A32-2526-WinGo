@@ -1,486 +1,134 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.geometry.*?>
 
-Parfait ! Je vais créer un **seul fichier Blog.fxml** avec tout le CSS intégré. Voici le fichier complet :
+<BorderPane xmlns="http://javafx.com/javafx/17"
+            xmlns:fx="http://javafx.com/fxml/1"
+            stylesheets="@blog-style.css"
+            styleClass="root">
 
-        ```xml
-        <?xml version="1.0" encoding="UTF-8"?>
-        <?import javafx.scene.layout.*?>
-        <?import javafx.scene.control.*?>
-        <?import javafx.scene.image.*?>
-        <?import javafx.scene.text.*?>
-        <?import javafx.geometry.*?>
-
-<BorderPane xmlns="http://javafx.com/javafx/25" styleClass="root">
-    <stylesheets>
-        <URL value="@data:text/css;base64," />
-    </stylesheets>
-    <styleClass>
-        <String fx:value="main-container"/>
-    </styleClass>
-
-    <!-- CSS INTÉGRÉ -->
-    <styles>
-        <Style text="
-.root {
-    -fx-background-color: linear-gradient(to bottom, #f8f9fa, #e9ecef);
-}
-
-.main-container {
-    -fx-background-color: linear-gradient(to bottom, #f8f9fa, #e9ecef);
-}
-
-/* ===== HEADER ===== */
-.header {
-    -fx-background-color: linear-gradient(to right, #E74C3C, #F39C12);
-    -fx-padding: 15px 30px;
-    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.2), 10, 0, 0, 2);
-}
-
-.brand-title {
-    -fx-font-size: 24px;
-    -fx-font-weight: BOLD;
-    -fx-text-fill: white;
-    -fx-font-family: 'Segoe UI', Arial, sans-serif;
-}
-
-.brand-subtitle {
-    -fx-font-size: 12px;
-    -fx-text-fill: rgba(255,255,255,0.8);
-    -fx-font-family: 'Segoe UI', Arial, sans-serif;
-}
-
-.search-field {
-    -fx-pref-width: 300px;
-    -fx-background-color: rgba(255,255,255,0.2);
-    -fx-border-color: rgba(255,255,255,0.3);
-    -fx-border-radius: 25px;
-    -fx-background-radius: 25px;
-    -fx-text-fill: white;
-    -fx-prompt-text-fill: rgba(255,255,255,0.7);
-    -fx-padding: 8px 15px;
-}
-
-.search-field:focused {
-    -fx-background-color: rgba(255,255,255,0.3);
-    -fx-border-color: white;
-}
-
-.profile-btn {
-    -fx-background-color: rgba(255,255,255,0.2);
-    -fx-text-fill: white;
-    -fx-border-color: rgba(255,255,255,0.3);
-    -fx-border-radius: 20px;
-    -fx-background-radius: 20px;
-    -fx-padding: 8px 20px;
-    -fx-font-weight: BOLD;
-    -fx-cursor: hand;
-}
-
-.profile-btn:hover {
-    -fx-background-color: rgba(255,255,255,0.3);
-    -fx-scale-x: 1.05;
-    -fx-scale-y: 1.05;
-}
-
-/* ===== SIDEBAR ===== */
-.sidebar {
-    -fx-background-color: white;
-    -fx-padding: 20px;
-    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 5, 0, 2, 0);
-}
-
-.sidebar-title {
-    -fx-font-size: 18px;
-    -fx-font-weight: BOLD;
-    -fx-text-fill: #2C3E50;
-    -fx-padding: 10px 0;
-}
-
-.nav-section {
-    -fx-padding: 10px 0;
-}
-
-.nav-btn {
-    -fx-background-color: transparent;
-    -fx-text-fill: #34495E;
-    -fx-alignment: CENTER_LEFT;
-    -fx-padding: 12px 15px;
-    -fx-border-radius: 10px;
-    -fx-background-radius: 10px;
-    -fx-font-size: 14px;
-    -fx-cursor: hand;
-}
-
-.nav-btn:hover {
-    -fx-background-color: #ECF0F1;
-    -fx-scale-x: 1.02;
-    -fx-scale-y: 1.02;
-}
-
-.nav-btn.active {
-    -fx-background-color: linear-gradient(to right, #E74C3C, #F39C12);
-    -fx-text-fill: white;
-}
-
-.region-btn {
-    -fx-background-color: #ECF0F1;
-    -fx-text-fill: #34495E;
-    -fx-alignment: CENTER_LEFT;
-    -fx-padding: 8px 15px;
-    -fx-border-radius: 8px;
-    -fx-background-radius: 8px;
-    -fx-font-size: 13px;
-    -fx-cursor: hand;
-}
-
-.region-btn:hover {
-    -fx-background-color: #3498DB;
-    -fx-text-fill: white;
-}
-
-.section-label {
-    -fx-font-size: 12px;
-    -fx-font-weight: BOLD;
-    -fx-text-fill: #34495E;
-    -fx-padding: 5px 0;
-}
-
-.nav-separator {
-    -fx-background-color: #ECF0F1;
-}
-
-/* ===== HERO SECTION ===== */
-.hero-section {
-    -fx-background-color: linear-gradient(135deg, #E74C3C, #F39C12);
-    -fx-background-radius: 20px;
-    -fx-padding: 40px;
-    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.2), 15, 0, 0, 5);
-}
-
-.hero-title {
-    -fx-font-size: 32px;
-    -fx-font-weight: BOLD;
-    -fx-text-fill: white;
-}
-
-.hero-subtitle {
-    -fx-font-size: 16px;
-    -fx-text-fill: rgba(255,255,255,0.9);
-    -fx-padding: 10px 0 20px 0;
-}
-
-.primary-btn {
-    -fx-background-color: white;
-    -fx-text-fill: #E74C3C;
-    -fx-border-radius: 25px;
-    -fx-background-radius: 25px;
-    -fx-padding: 12px 25px;
-    -fx-font-weight: BOLD;
-    -fx-font-size: 14px;
-    -fx-cursor: hand;
-    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.2), 5, 0, 0, 2);
-}
-
-.primary-btn:hover {
-    -fx-scale-x: 1.1;
-    -fx-scale-y: 1.1;
-    -fx-background-color: #ECF0F1;
-}
-
-.secondary-btn {
-    -fx-background-color: transparent;
-    -fx-text-fill: white;
-    -fx-border-color: white;
-    -fx-border-radius: 25px;
-    -fx-background-radius: 25px;
-    -fx-border-width: 2px;
-    -fx-padding: 10px 20px;
-    -fx-font-weight: BOLD;
-    -fx-cursor: hand;
-}
-
-.secondary-btn:hover {
-    -fx-background-color: rgba(255,255,255,0.1);
-}
-
-/* ===== STATS CARDS ===== */
-.stats-container {
-    -fx-padding: 0 10px;
-}
-
-.stat-card {
-    -fx-background-color: white;
-    -fx-background-radius: 15px;
-    -fx-padding: 20px;
-    -fx-alignment: CENTER;
-    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 8, 0, 0, 3);
-    -fx-cursor: hand;
-}
-
-.stat-card:hover {
-    -fx-scale-x: 1.05;
-    -fx-scale-y: 1.05;
-    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.2), 12, 0, 0, 5);
-}
-
-.stat-icon {
-    -fx-font-size: 32px;
-}
-
-.stat-number {
-    -fx-font-size: 28px;
-    -fx-font-weight: BOLD;
-    -fx-text-fill: #2C3E50;
-}
-
-.stat-label {
-    -fx-font-size: 12px;
-    -fx-text-fill: #34495E;
-}
-
-/* ===== FILTER BAR ===== */
-.filter-bar {
-    -fx-background-color: white;
-    -fx-background-radius: 12px;
-    -fx-padding: 15px 20px;
-    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 5, 0, 0, 2);
-}
-
-.filter-label {
-    -fx-font-weight: BOLD;
-    -fx-text-fill: #34495E;
-}
-
-.filter-combo {
-    -fx-background-color: #ECF0F1;
-    -fx-border-radius: 8px;
-    -fx-background-radius: 8px;
-    -fx-pref-width: 150px;
-}
-
-.view-toggle {
-    -fx-background-color: #3498DB;
-    -fx-text-fill: white;
-    -fx-border-radius: 20px;
-    -fx-background-radius: 20px;
-}
-
-/* ===== BLOGS GRID ===== */
-.blogs-grid {
-    -fx-padding: 10px;
-}
-
-.blog-card {
-    -fx-background-color: white;
-    -fx-background-radius: 15px;
-    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.15), 10, 0, 0, 5);
-    -fx-pref-width: 300;
-    -fx-pref-height: 400;
-    -fx-cursor: hand;
-}
-
-.blog-card:hover {
-    -fx-scale-x: 1.03;
-    -fx-scale-y: 1.03;
-    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.25), 15, 0, 0, 8);
-}
-
-.blog-card-image {
-    -fx-background-radius: 15px 15px 0 0;
-    -fx-pref-height: 180;
-}
-
-.blog-card-content {
-    -fx-padding: 15px;
-}
-
-.blog-card-title {
-    -fx-font-size: 16px;
-    -fx-font-weight: BOLD;
-    -fx-text-fill: #2C3E50;
-    -fx-wrap-text: true;
-}
-
-.blog-card-meta {
-    -fx-font-size: 12px;
-    -fx-text-fill: #34495E;
-    -fx-padding: 5px 0;
-}
-
-.blog-card-actions {
-    -fx-alignment: CENTER_RIGHT;
-    -fx-padding: 10px 0 0 0;
-}
-
-/* ===== FLOATING ACTION BUTTON ===== */
-.fab-container {
-    -fx-padding: 20px;
-}
-
-.fab {
-    -fx-background-color: linear-gradient(45deg, #E74C3C, #F39C12);
-    -fx-text-fill: white;
-    -fx-background-radius: 50px;
-    -fx-pref-width: 60px;
-    -fx-pref-height: 60px;
-    -fx-font-size: 24px;
-    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 10, 0, 0, 5);
-    -fx-cursor: hand;
-}
-
-.fab:hover {
-    -fx-scale-x: 1.1;
-    -fx-scale-y: 1.1;
-    -fx-rotate: 90deg;
-}
-
-/* ===== TABLE VIEW ===== */
-.blogs-table {
-    -fx-background-color: white;
-    -fx-background-radius: 15px;
-    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 8, 0, 0, 3);
-}
-
-.table-header {
-    -fx-background-color: #3498DB;
-    -fx-text-fill: white;
-    -fx-font-weight: BOLD;
-}
-
-.blogs-table .column-header {
-    -fx-background-color: #3498DB;
-    -fx-text-fill: white;
-}
-
-.blogs-table .table-cell {
-    -fx-border-color: #ECF0F1;
-    -fx-padding: 10px;
-}
-
-.blogs-table .table-row-cell:hover {
-    -fx-background-color: rgba(52, 152, 219, 0.1);
-}
-        "/>
-    </styles>
-
-    <!-- Header WinGo avec branding -->
+    <!-- Header WinGo -->
     <top>
         <HBox styleClass="header" alignment="CENTER_LEFT" spacing="20">
-            <VBox>
-                <Label text="🇹🇳 WinGo" styleClass="brand-title"/>
-                <Label text="Découvrir la Tunisie autrement" styleClass="brand-subtitle"/>
-            </VBox>
-            <Region HBox.hgrow="ALWAYS"/>
-            <TextField fx:id="tfSearch" promptText="🔍 Rechercher un blog..." styleClass="search-field"/>
-            <Button fx:id="btnProfile" text="👤 Mon Profil" styleClass="profile-btn"/>
+            <children>
+                <VBox>
+                    <Label text="🇹🇳 WinGo" styleClass="brand-title"/>
+                    <Label text="Découvrir la Tunisie autrement" styleClass="brand-subtitle"/>
+                </VBox>
+                <Region HBox.hgrow="ALWAYS"/>
+                <TextField fx:id="tfSearch" promptText="🔍 Rechercher un blog..." styleClass="search-field"/>
+                <Button fx:id="btnProfile" text="👤 Mon Profil" styleClass="profile-btn"/>
+            </children>
         </HBox>
     </top>
 
-    <!-- Sidebar navigation -->
+    <!-- Sidebar -->
     <left>
-        <VBox styleClass="sidebar" spacing="15" prefWidth="250">
-            <Label text="🇹🇳 Menu WinGo" styleClass="sidebar-title"/>
+        <VBox styleClass="sidebar" spacing="15.0" prefWidth="250">
+            <children>
+                <Label text="🇹🇳 Menu WinGo" styleClass="sidebar-title"/>
 
-            <VBox styleClass="nav-section" spacing="8">
-                <Button fx:id="btnDashboard" text="📊 Tableau de bord" styleClass="nav-btn"/>
-                <Button fx:id="btnBlogs" text="📝 Gérer les Blogs" styleClass="nav-btn active"/>
-                <Button fx:id="btnComments" text="💬 Commentaires" styleClass="nav-btn"/>
-                <Button fx:id="btnStats" text="📈 Statistiques" styleClass="nav-btn"/>
-            </VBox>
+                <VBox styleClass="nav-section" spacing="8.0">
+                    <Button fx:id="btnDashboard" text="📊 Tableau de bord" styleClass="nav-btn"/>
+                    <Button fx:id="btnBlogs" text="📝 Gérer les Blogs" styleClass="nav-btn active"/>
+                    <Button fx:id="btnComments" text="💬 Commentaires" styleClass="nav-btn"/>
+                    <Button fx:id="btnStats" text="📈 Statistiques" styleClass="nav-btn"/>
+                </VBox>
 
-            <Separator styleClass="nav-separator"/>
+                <Separator styleClass="nav-separator"/>
 
-            <VBox styleClass="nav-section" spacing="8">
-                <Label text="🌍 Régions" styleClass="section-label"/>
-                <Button fx:id="btnTunis" text="🏛️ Tunis" styleClass="region-btn"/>
-                <Button fx:id="btnSfax" text="🌊 Sfax" styleClass="region-btn"/>
-                <Button fx:id="btnSousse" text="🏖️ Sousse" styleClass="region-btn"/>
-                <Button fx:id="btnKairouan" text="🕌 Kairouan" styleClass="region-btn"/>
-                <Button fx:id="btnGabes" text="🌴 Gabès" styleClass="region-btn"/>
-            </VBox>
+                <VBox styleClass="nav-section" spacing="8.0">
+                    <Label text="🌍 Régions" styleClass="section-label"/>
+                    <Button fx:id="btnTunis" text="🏛️ Tunis" styleClass="region-btn"/>
+                    <Button fx:id="btnSfax" text="🌊 Sfax" styleClass="region-btn"/>
+                    <Button fx:id="btnSousse" text="🏖️ Sousse" styleClass="region-btn"/>
+                    <Button fx:id="btnKairouan" text="🕌 Kairouan" styleClass="region-btn"/>
+                    <Button fx:id="btnGabes" text="🌴 Gabès" styleClass="region-btn"/>
+                </VBox>
 
-            <Region VBox.vgrow="ALWAYS"/>
-            <Button fx:id="btnSettings" text="⚙️ Paramètres" styleClass="settings-btn"/>
+                <Region VBox.vgrow="ALWAYS"/>
+                <Button fx:id="btnSettings" text="⚙️ Paramètres" styleClass="nav-btn"/>
+            </children>
         </VBox>
     </left>
 
-    <!-- Main content area -->
+    <!-- Main Content -->
     <center>
         <ScrollPane styleClass="main-scroll" fitToWidth="true">
-            <VBox styleClass="content-area" spacing="20" padding="20">
-
-                <!-- Hero Section -->
-                <HBox styleClass="hero-section" alignment="CENTER_LEFT" spacing="30">
-                    <VBox styleClass="hero-content">
-                        <Label text="📝 Créer votre histoire" styleClass="hero-title"/>
-                        <Label text="Partagez votre expérience de voyage en Tunisie" styleClass="hero-subtitle"/>
-                        <HBox spacing="15">
-                            <Button fx:id="btnNewBlog" text="✨ Nouveau Blog" styleClass="primary-btn"/>
-                            <Button fx:id="btnDrafts" text="📄 Brouillons" styleClass="secondary-btn"/>
+            <content>
+                <VBox spacing="20.0">
+                    <padding>
+                        <Insets top="20.0" right="20.0" bottom="20.0" left="20.0"/>
+                    </padding>
+                    <children>
+                        <!-- Hero Section -->
+                        <HBox styleClass="hero-section" alignment="CENTER_LEFT">
+                            <children>
+                                <VBox>
+                                    <Label text="📝 Créer votre histoire" styleClass="hero-title"/>
+                                    <Label text="Partagez votre expérience de voyage en Tunisie" styleClass="hero-subtitle"/>
+                                    <HBox spacing="15.0">
+                                        <Button fx:id="btnNewBlog" text="✨ Nouveau Blog" styleClass="primary-btn"/>
+                                        <Button fx:id="btnDrafts" text="📄 Brouillons" styleClass="secondary-btn"/>
+                                    </HBox>
+                                </VBox>
+                            </children>
                         </HBox>
-                    </VBox>
-                </HBox>
 
-                <!-- Stats Cards -->
-                <HBox styleClass="stats-container" spacing="15">
-                    <VBox styleClass="stat-card" HBox.hgrow="ALWAYS">
-                        <Label text="📚" styleClass="stat-icon"/>
-                        <Label fx:id="lblTotalBlogs" text="0" styleClass="stat-number"/>
-                        <Label text="Blogs publiés" styleClass="stat-label"/>
-                    </VBox>
-                    <VBox styleClass="stat-card" HBox.hgrow="ALWAYS">
-                        <Label text="💬" styleClass="stat-icon"/>
-                        <Label fx:id="lblTotalComments" text="0" styleClass="stat-number"/>
-                        <Label text="Commentaires" styleClass="stat-label"/>
-                    </VBox>
-                    <VBox styleClass="stat-card" HBox.hgrow="ALWAYS">
-                        <Label text="👁️" styleClass="stat-icon"/>
-                        <Label fx:id="lblTotalViews" text="0" styleClass="stat-number"/>
-                        <Label text="Vues totales" styleClass="stat-label"/>
-                    </VBox>
-                    <VBox styleClass="stat-card" HBox.hgrow="ALWAYS">
-                        <Label text="❤️" styleClass="stat-icon"/>
-                        <Label fx:id="lblTotalLikes" text="0" styleClass="stat-number"/>
-                        <Label text="J'aime" styleClass="stat-label"/>
-                    </VBox>
-                </HBox>
+                        <!-- Stats Cards -->
+                        <HBox styleClass="stats-container" spacing="15.0">
+                            <VBox styleClass="stat-card" HBox.hgrow="ALWAYS">
+                                <Label text="📚" styleClass="stat-icon"/>
+                                <Label fx:id="lblTotalBlogs" text="0" styleClass="stat-number"/>
+                                <Label text="Blogs publiés" styleClass="stat-label"/>
+                            </VBox>
+                            <VBox styleClass="stat-card" HBox.hgrow="ALWAYS">
+                                <Label text="💬" styleClass="stat-icon"/>
+                                <Label fx:id="lblTotalComments" text="0" styleClass="stat-number"/>
+                                <Label text="Commentaires" styleClass="stat-label"/>
+                            </VBox>
+                            <VBox styleClass="stat-card" HBox.hgrow="ALWAYS">
+                                <Label text="👁️" styleClass="stat-icon"/>
+                                <Label fx:id="lblTotalViews" text="0" styleClass="stat-number"/>
+                                <Label text="Vues totales" styleClass="stat-label"/>
+                            </VBox>
+                            <VBox styleClass="stat-card" HBox.hgrow="ALWAYS">
+                                <Label text="❤️" styleClass="stat-icon"/>
+                                <Label fx:id="lblTotalLikes" text="0" styleClass="stat-number"/>
+                                <Label text="J'aime" styleClass="stat-label"/>
+                            </VBox>
+                        </HBox>
 
-                <!-- Filter Bar -->
-                <HBox styleClass="filter-bar" alignment="CENTER_LEFT" spacing="15">
-                    <Label text="Filtrer par:" styleClass="filter-label"/>
-                    <ComboBox fx:id="cbFilterCategory" promptText="Catégorie" styleClass="filter-combo"/>
-                    <ComboBox fx:id="cbFilterRegion" promptText="Région" styleClass="filter-combo"/>
-                    <ComboBox fx:id="cbSortBy" promptText="Trier par" styleClass="filter-combo"/>
-                    <Region HBox.hgrow="ALWAYS"/>
-                    <ToggleButton fx:id="toggleView" text="📋 Vue Liste" styleClass="view-toggle"/>
-                </HBox>
+                        <!-- Filter Bar -->
+                        <HBox styleClass="filter-bar" alignment="CENTER_LEFT" spacing="15.0">
+                            <children>
+                                <Label text="Filtrer par:" styleClass="filter-label"/>
+                                <ComboBox fx:id="cbFilterCategory" promptText="Catégorie" styleClass="filter-combo"/>
+                                <ComboBox fx:id="cbFilterRegion" promptText="Région" styleClass="filter-combo"/>
+                                <ComboBox fx:id="cbSortBy" promptText="Trier par" styleClass="filter-combo"/>
+                                <Region HBox.hgrow="ALWAYS"/>
+                                <ToggleButton fx:id="toggleView" text="📋 Vue Liste" styleClass="view-toggle"/>
+                            </children>
+                        </HBox>
 
-                <!-- Blogs Grid View -->
-                <FlowPane fx:id="blogsGrid" styleClass="blogs-grid" hgap="20" vgap="20">
-                    <!-- Blog cards will be added dynamically -->
-                </FlowPane>
-
-                <!-- Alternative Table View (hidden by default) -->
-                <TableView fx:id="tvBlogs" styleClass="blogs-table" visible="false" prefHeight="400">
-                    <columns>
-                        <TableColumn fx:id="colId" text="ID" styleClass="table-header"/>
-                        <TableColumn fx:id="colTitre" text="Titre" styleClass="table-header"/>
-                        <TableColumn fx:id="colAuteur" text="Auteur" styleClass="table-header"/>
-                        <TableColumn fx:id="colRegion" text="Région" styleClass="table-header"/>
-                        <TableColumn fx:id="colCategorie" text="Catégorie" styleClass="table-header"/>
-                        <TableColumn fx:id="colDate" text="Date" styleClass="table-header"/>
-                        <TableColumn fx:id="colActions" text="Actions" styleClass="table-header"/>
-                    </columns>
-                </TableView>
-
-            </VBox>
+                        <!-- Blogs Grid -->
+                        <FlowPane fx:id="blogsGrid" styleClass="blogs-grid" hgap="20.0" vgap="20.0"/>
+                    </children>
+                </VBox>
+            </content>
         </ScrollPane>
     </center>
 
-    <!-- Floating Action Button -->
+    <!-- Floating Button -->
     <bottom>
-        <HBox alignment="BOTTOM_RIGHT" styleClass="fab-container">
-            <Button fx:id="fabNewBlog" text="➕" styleClass="fab"/>
+        <HBox alignment="BOTTOM_RIGHT">
+            <padding>
+                <Insets bottom="20.0" right="20.0"/>
+            </padding>
+            <children>
+                <Button fx:id="fabNewBlog" text="➕" styleClass="fab"/>
+            </children>
         </HBox>
     </bottom>
-
 </BorderPane>
