@@ -14,7 +14,7 @@ public class Connection {
 
             List<Reservation> reservations = service.afficher();
 
-              them
+              
             for (Reservation r : reservations) {
                 System.out.println(
                         r.getId() + " | " + r.getUser() + " | " + r.getExp() + " | " +
