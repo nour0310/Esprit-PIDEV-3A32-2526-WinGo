@@ -54,11 +54,11 @@ public class BlogController implements Initializable {
     @FXML private TextField titreField;
     @FXML private TextArea contenuField;
     @FXML private TextField imageField;
-    @FXML private ComboBox<String> regionField;      // correspond à fx:id="regionField"
-    @FXML private ComboBox<String> categorieField;    // correspond à fx:id="categorieField"
-    @FXML private Label auteurLabel;                  // pour afficher l'auteur
+    @FXML private ComboBox<String> regionField;
+    @FXML private ComboBox<String> categorieField;
+    @FXML private Label auteurLabel;
     @FXML private TextField newCommentField;
-    @FXML private TextField commentUserField;
+    // @FXML private TextField commentUserField; // supprimé
     @FXML private Button choisirImageBtn;
     @FXML private Button ajouterBtn;
     @FXML private Button modifierBtn;
@@ -66,6 +66,7 @@ public class BlogController implements Initializable {
     @FXML private Button clearBtn;
     @FXML private Button addCommentBtn;
     @FXML private Label statusLabel;
+    @FXML private Label connectedUserLabel; // nouveau label pour afficher l'utilisateur connecté
 
     // Composants FXML de la vue détail
     @FXML private VBox listView;
@@ -81,10 +82,15 @@ public class BlogController implements Initializable {
     @FXML private TextField detailNewCommentField;
     @FXML private Button detailAddCommentBtn;
     @FXML private Label detailStatusLabel;
+    @FXML private Label detailConnectedUserLabel; // pour la vue détail (déjà existant peut-être)
 
     // Filtres
     @FXML private ComboBox<String> regionFilterCombo;
     @FXML private ComboBox<String> categorieFilterCombo;
+
+    // ScrollPanes pour les deux vues
+    @FXML private ScrollPane listViewScroll;
+    @FXML private ScrollPane detailViewScroll;
 
     private final DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
     private final DateTimeFormatter dateShortFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
@@ -109,10 +115,8 @@ public class BlogController implements Initializable {
                 "Plage", "Désert", "Montagne", "Culture", "Bien-être",
                 "Événements", "Gastronomie", "Aventure", "Nature", "Histoire"
         );
-        // Initialisation des ComboBox du formulaire
         regionField.setItems(regions);
         categorieField.setItems(categories);
-        // Initialisation des filtres
         regionFilterCombo.setItems(FXCollections.observableArrayList("Toutes", "Ariana", "Béja", "Ben Arous", "Bizerte", "Gabès", "Gafsa",
                 "Jendouba", "Kairouan", "Kasserine", "Kébili", "Le Kef", "Mahdia",
                 "La Manouba", "Médenine", "Monastir", "Nabeul", "Sfax", "Sidi Bouzid",
@@ -129,8 +133,17 @@ public class BlogController implements Initializable {
             currentUser = users.stream().filter(u -> u.getId() == 1).findFirst().orElse(null);
             if (currentUser != null) {
                 auteurLabel.setText(currentUser.getPrenom() + " " + currentUser.getNom());
+                // Mettre à jour les labels d'utilisateur connecté
+                if (connectedUserLabel != null) {
+                    connectedUserLabel.setText(currentUser.getPrenom() + " " + currentUser.getNom());
+                }
+                if (detailConnectedUserLabel != null) {
+                    detailConnectedUserLabel.setText(currentUser.getPrenom() + " " + currentUser.getNom());
+                }
             } else {
                 auteurLabel.setText("Utilisateur inconnu");
+                if (connectedUserLabel != null) connectedUserLabel.setText("Non connecté");
+                if (detailConnectedUserLabel != null) detailConnectedUserLabel.setText("Non connecté");
             }
         } catch (SQLException e) {
             showError("Erreur chargement utilisateurs", e.getMessage());
@@ -144,6 +157,7 @@ public class BlogController implements Initializable {
         choisirImageBtn.setOnAction(e -> choisirImage());
         backToListBtn.setOnAction(e -> showListView());
         detailAddCommentBtn.setOnAction(e -> ajouterCommentaireDetail());
+        addCommentBtn.setOnAction(e -> ajouterCommentaire()); // déjà lié dans FXML
     }
 
     private void choisirImage() {
@@ -315,17 +329,18 @@ public class BlogController implements Initializable {
         }
 
         afficherCommentairesDetail();
-        listView.setVisible(false);
-        listView.setManaged(false);
-        detailView.setVisible(true);
-        detailView.setManaged(true);
+        // Basculer la visibilité des ScrollPanes
+        listViewScroll.setVisible(false);
+        listViewScroll.setManaged(false);
+        detailViewScroll.setVisible(true);
+        detailViewScroll.setManaged(true);
     }
 
     private void showListView() {
-        listView.setVisible(true);
-        listView.setManaged(true);
-        detailView.setVisible(false);
-        detailView.setManaged(false);
+        listViewScroll.setVisible(true);
+        listViewScroll.setManaged(true);
+        detailViewScroll.setVisible(false);
+        detailViewScroll.setManaged(false);
         displayedDetailBlog = null;
     }
 
@@ -588,7 +603,6 @@ public class BlogController implements Initializable {
             selectedBlog.setImage(imageField.getText().trim());
             selectedBlog.setRegion(regionField.getValue());
             selectedBlog.setCategorie(categorieField.getValue());
-            // L'auteur ne change pas
             blogCRUD.modifier(selectedBlog);
             refreshData();
             clearForm();
@@ -622,13 +636,9 @@ public class BlogController implements Initializable {
             showWarning("Le commentaire ne peut pas être vide.");
             return;
         }
-        int userId;
-        try {
-            userId = Integer.parseInt(commentUserField.getText().trim());
-        } catch (NumberFormatException e) {
-            showWarning("L'ID utilisateur doit être un nombre.");
-            return;
-        }
+        // Utiliser l'utilisateur connecté
+        int userId = currentUser.getId();
+
         Commentaire c = new Commentaire();
         c.setContenu(contenu.trim());
         c.setUtilisateur(userId);
@@ -636,7 +646,7 @@ public class BlogController implements Initializable {
         try {
             commentaireCRUD.ajouter(c);
             newCommentField.clear();
-            commentUserField.clear();
+            // Recharger les commentaires de l'article sélectionné
             List<Commentaire> comments = commentaireCRUD.getCommentsByArticle(selectedBlog.getId());
             displayCommentaires(comments);
             loadAllComments();
