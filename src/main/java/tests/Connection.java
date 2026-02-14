@@ -11,10 +11,10 @@ public class Connection {
         ReservationCRUD service = new ReservationCRUD();
 
         try {
-             
+
             List<Reservation> reservations = service.afficher();
 
-            // Display them
+             Display them
             for (Reservation r : reservations) {
                 System.out.println(
                         r.getId() + " | " + r.getUser() + " | " + r.getExp() + " | " +
