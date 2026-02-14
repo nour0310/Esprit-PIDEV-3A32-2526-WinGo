@@ -67,7 +67,6 @@ public class Reservation {
     public String toString() {
         return "Reservation{" +
                 "user=" + user +
-                ", id=" + id +
                 ", statut='" + statut + '\'' +
                 ", Experience='" + exp + '\'' +
                 ", date=" + date +

@@ -88,7 +88,6 @@ public class Transport {
     public String toString() {
         return "Reservation{" +
                 "user=" + type +
-                ", id=" + id +
                 ", tarif='" + tarif + '\'' +
                 ", Experience='" + capacite + '\'' +
                 ", départ=" + depart +'\'' +
