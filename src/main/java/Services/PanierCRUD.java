@@ -1,162 +1,167 @@
 package Services;
 
 import Utils.MyBD;
-import Controlles.CartItem;
+
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
 public class PanierCRUD {
 
-    // ✅ retourne le panier actuel (sans id_commande)
+    // ---------------------------
+    // 1) Lire le panier actif (avant commande)
+    // ---------------------------
     public List<CartItem> getActiveCart(int userId) throws SQLException {
         String sql = """
-            SELECT p.id_produit, pr.nom, p.prix, p.qte
+            SELECT p.id_produit,
+                   pr.nom,
+                   p.prix_unitaire,
+                   p.quantite
             FROM panier p
             JOIN produit pr ON pr.idProduit = p.id_produit
-            WHERE p.utilisateur_id = ?
+            WHERE p.id_user = ?
             ORDER BY pr.nom
         """;
 
         List<CartItem> list = new ArrayList<>();
-        Connection conn = MyBD.getInstance().getConn();
 
-        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+        try (Connection conn = MyBD.getInstance().getConn();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
             ps.setInt(1, userId);
+
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
                     int idProduit = rs.getInt("id_produit");
                     String nom = rs.getString("nom");
-                    double prix = rs.getDouble("prix");
-                    int qty = rs.getInt("qte");
+                    double prix = rs.getDouble("prix_unitaire");
+                    int qty = rs.getInt("quantite");
+
                     list.add(new CartItem(idProduit, nom, prix, qty));
                 }
             }
         }
+
         return list;
     }
 
-    // ✅ ajoute au panier : si existe -> +1 sinon insert
-    public void addToCart(int userId, int idProduit, double prix, int qtyToAdd) throws SQLException {
-        String check = "SELECT qte FROM panier WHERE utilisateur_id=? AND id_produit=?";
-        String insert = "INSERT INTO panier(utilisateur_id, id_produit, prix, qte) VALUES (?,?,?,?)";
-        String update = "UPDATE panier SET qte = qte + ? WHERE utilisateur_id=? AND id_produit=?";
+    // ---------------------------
+    // 2) Ajouter au panier (si existe -> increment)
+    // ---------------------------
+    public void addToCart(int userId, int idProduit, double prixUnitaire, int qty) throws SQLException {
+        String checkSql = "SELECT quantite FROM panier WHERE id_user=? AND id_produit=?";
+        String updateSql = "UPDATE panier SET quantite = quantite + ?, prix_unitaire=? WHERE id_user=? AND id_produit=?";
+        String insertSql = "INSERT INTO panier (id_user, id_produit, quantite, prix_unitaire) VALUES (?, ?, ?, ?)";
 
-        Connection conn = MyBD.getInstance().getConn();
+        try (Connection conn = MyBD.getInstance().getConn()) {
 
-        try (PreparedStatement ps = conn.prepareStatement(check)) {
-            ps.setInt(1, userId);
-            ps.setInt(2, idProduit);
+            // check exist
+            try (PreparedStatement ps = conn.prepareStatement(checkSql)) {
+                ps.setInt(1, userId);
+                ps.setInt(2, idProduit);
 
-            try (ResultSet rs = ps.executeQuery()) {
-                if (rs.next()) {
-                    try (PreparedStatement up = conn.prepareStatement(update)) {
-                        up.setInt(1, qtyToAdd);
-                        up.setInt(2, userId);
-                        up.setInt(3, idProduit);
-                        up.executeUpdate();
-                    }
-                } else {
-                    try (PreparedStatement ins = conn.prepareStatement(insert)) {
-                        ins.setInt(1, userId);
-                        ins.setInt(2, idProduit);
-                        ins.setDouble(3, prix);
-                        ins.setInt(4, qtyToAdd);
-                        ins.executeUpdate();
+                try (ResultSet rs = ps.executeQuery()) {
+                    if (rs.next()) {
+                        // exists -> update qty
+                        try (PreparedStatement up = conn.prepareStatement(updateSql)) {
+                            up.setInt(1, qty);
+                            up.setDouble(2, prixUnitaire);
+                            up.setInt(3, userId);
+                            up.setInt(4, idProduit);
+                            up.executeUpdate();
+                        }
+                    } else {
+                        // not exists -> insert
+                        try (PreparedStatement ins = conn.prepareStatement(insertSql)) {
+                            ins.setInt(1, userId);
+                            ins.setInt(2, idProduit);
+                            ins.setInt(3, qty);
+                            ins.setDouble(4, prixUnitaire);
+                            ins.executeUpdate();
+                        }
                     }
                 }
             }
         }
     }
 
-    // ✅ change quantité (+1 / -1) et supprime si <=0
+    // ---------------------------
+    // 3) Changer quantité (+1 / -1). Si <=0 => remove
+    // ---------------------------
     public void changeQty(int userId, int idProduit, int delta) throws SQLException {
-        String sql = "UPDATE panier SET qte = qte + ? WHERE utilisateur_id=? AND id_produit=?";
-        Connection conn = MyBD.getInstance().getConn();
+        String sqlGet = "SELECT quantite FROM panier WHERE id_user=? AND id_produit=?";
+        String sqlUpdate = "UPDATE panier SET quantite=? WHERE id_user=? AND id_produit=?";
+        String sqlDelete = "DELETE FROM panier WHERE id_user=? AND id_produit=?";
 
-        try (PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setInt(1, delta);
-            ps.setInt(2, userId);
-            ps.setInt(3, idProduit);
-            ps.executeUpdate();
-        }
+        try (Connection conn = MyBD.getInstance().getConn()) {
+            int current = 0;
 
-        // delete si qte <= 0
-        String cleanup = "DELETE FROM panier WHERE utilisateur_id=? AND id_produit=? AND qte <= 0";
-        try (PreparedStatement ps = conn.prepareStatement(cleanup)) {
-            ps.setInt(1, userId);
-            ps.setInt(2, idProduit);
-            ps.executeUpdate();
-        }
-    }
-
-    public void remove(int userId, int idProduit) throws SQLException {
-        String sql = "DELETE FROM panier WHERE utilisateur_id=? AND id_produit=?";
-        Connection conn = MyBD.getInstance().getConn();
-
-        try (PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setInt(1, userId);
-            ps.setInt(2, idProduit);
-            ps.executeUpdate();
-        }
-    }
-
-    public void clear(int userId) throws SQLException {
-        String sql = "DELETE FROM panier WHERE utilisateur_id=?";
-        Connection conn = MyBD.getInstance().getConn();
-
-        try (PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setInt(1, userId);
-            ps.executeUpdate();
-        }
-    }
-
-    // ✅ checkout : créer commande + vider panier
-    // (version simple : tu adaptes à ta table commande / commande_ligne)
-    public int checkout(int userId) throws SQLException {
-        Connection conn = MyBD.getInstance().getConn();
-        conn.setAutoCommit(false);
-
-        try {
-            // 1) créer commande
-            int idCommande;
-            String insertCmd = "INSERT INTO commande(utilisateur_id, date_commande) VALUES (?, NOW())";
-            try (PreparedStatement ps = conn.prepareStatement(insertCmd, Statement.RETURN_GENERATED_KEYS)) {
+            try (PreparedStatement ps = conn.prepareStatement(sqlGet)) {
                 ps.setInt(1, userId);
-                ps.executeUpdate();
-                try (ResultSet keys = ps.getGeneratedKeys()) {
-                    if (!keys.next()) throw new SQLException("Impossible de créer commande.");
-                    idCommande = keys.getInt(1);
+                ps.setInt(2, idProduit);
+
+                try (ResultSet rs = ps.executeQuery()) {
+                    if (rs.next()) current = rs.getInt("quantite");
+                    else return;
                 }
             }
 
-            // 2) copier panier -> commande_ligne
-            String insertLines = """
-                INSERT INTO commande_ligne(id_commande, id_produit, prix, qte)
-                SELECT ?, id_produit, prix, qte
-                FROM panier
-                WHERE utilisateur_id=?
-            """;
-            try (PreparedStatement ps = conn.prepareStatement(insertLines)) {
-                ps.setInt(1, idCommande);
-                ps.setInt(2, userId);
-                ps.executeUpdate();
+            int newQty = current + delta;
+
+            if (newQty <= 0) {
+                try (PreparedStatement del = conn.prepareStatement(sqlDelete)) {
+                    del.setInt(1, userId);
+                    del.setInt(2, idProduit);
+                    del.executeUpdate();
+                }
+            } else {
+                try (PreparedStatement up = conn.prepareStatement(sqlUpdate)) {
+                    up.setInt(1, newQty);
+                    up.setInt(2, userId);
+                    up.setInt(3, idProduit);
+                    up.executeUpdate();
+                }
             }
-
-            // 3) vider panier
-            try (PreparedStatement ps = conn.prepareStatement("DELETE FROM panier WHERE utilisateur_id=?")) {
-                ps.setInt(1, userId);
-                ps.executeUpdate();
-            }
-
-            conn.commit();
-            return idCommande;
-
-        } catch (SQLException e) {
-            conn.rollback();
-            throw e;
-        } finally {
-            conn.setAutoCommit(true);
         }
+    }
+
+    // ---------------------------
+    // 4) Retirer un produit du panier
+    // ---------------------------
+    public void remove(int userId, int idProduit) throws SQLException {
+        String sql = "DELETE FROM panier WHERE id_user=? AND id_produit=?";
+
+        try (Connection conn = MyBD.getInstance().getConn();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setInt(1, userId);
+            ps.setInt(2, idProduit);
+            ps.executeUpdate();
+        }
+    }
+
+    // ---------------------------
+    // 5) Vider panier
+    // ---------------------------
+    public void clear(int userId) throws SQLException {
+        String sql = "DELETE FROM panier WHERE id_user=?";
+
+        try (Connection conn = MyBD.getInstance().getConn();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setInt(1, userId);
+            ps.executeUpdate();
+        }
+    }
+
+    // ---------------------------
+    // 6) Checkout (optionnel)
+    // ---------------------------
+    // Tu n’as pas id_commande dans panier => checkout doit créer une commande
+    // et déplacer les lignes du panier vers une table "ligne_commande".
+    // Pour l’instant on peut juste vider le panier.
+    public int checkout(int userId) throws SQLException {
+        clear(userId);
+        return 0; // si tu ajoutes table commande après, on retourne l'id de la commande.
     }
 }
