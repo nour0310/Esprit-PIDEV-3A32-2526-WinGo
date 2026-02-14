@@ -99,23 +99,52 @@ public class PanierCRUD {
         }
     }
 
-    // ✅ CONFIRMER COMMANDE: créer commande + lier les lignes panier
+    // ✅ CONFIRMER COMMANDE: calcule total + créer commande + lier les lignes panier
     public int checkout(int idUser) throws SQLException {
         conn.setAutoCommit(false);
+
         try {
-            // 1) créer commande
+            // 0) Vérifier qu'il y a des items dans le panier actif
+            String countSql = "SELECT COUNT(*) FROM panier WHERE id_user=? AND id_commande IS NULL";
+            int count;
+            try (PreparedStatement pst = conn.prepareStatement(countSql)) {
+                pst.setInt(1, idUser);
+                try (ResultSet rs = pst.executeQuery()) {
+                    rs.next();
+                    count = rs.getInt(1);
+                }
+            }
+            if (count == 0) {
+                throw new SQLException("Panier vide. Impossible de valider la commande.");
+            }
+
+            // 1) Calculer le total du panier actif
+            String totalSql = "SELECT COALESCE(SUM(prix_unitaire * quantite), 0) " +
+                    "FROM panier WHERE id_user=? AND id_commande IS NULL";
+            double total;
+            try (PreparedStatement pst = conn.prepareStatement(totalSql)) {
+                pst.setInt(1, idUser);
+                try (ResultSet rs = pst.executeQuery()) {
+                    rs.next();
+                    total = rs.getDouble(1);
+                }
+            }
+
+            // 2) Créer commande (avec total)
             int idCommande;
-            String insC = "INSERT INTO commande(id_user, status) VALUES(?, 'en_cours')";
+            String insC = "INSERT INTO commande(id_user, status, total) VALUES(?, 'en_cours', ?)";
             try (PreparedStatement pst = conn.prepareStatement(insC, Statement.RETURN_GENERATED_KEYS)) {
                 pst.setInt(1, idUser);
+                pst.setDouble(2, total);
                 pst.executeUpdate();
+
                 try (ResultSet keys = pst.getGeneratedKeys()) {
                     if (!keys.next()) throw new SQLException("Impossible de créer la commande.");
                     idCommande = keys.getInt(1);
                 }
             }
 
-            // 2) lier panier actif à cette commande
+            // 3) Lier les lignes du panier actif à cette commande
             String upd = "UPDATE panier SET id_commande=? WHERE id_user=? AND id_commande IS NULL";
             try (PreparedStatement pst = conn.prepareStatement(upd)) {
                 pst.setInt(1, idCommande);
@@ -125,9 +154,11 @@ public class PanierCRUD {
 
             conn.commit();
             return idCommande;
+
         } catch (SQLException e) {
             conn.rollback();
             throw e;
+
         } finally {
             conn.setAutoCommit(true);
         }
