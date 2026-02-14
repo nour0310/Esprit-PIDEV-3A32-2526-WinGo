@@ -49,7 +49,7 @@ public class BlogController implements Initializable {
     @FXML private Label totalBlogsLabel;
     @FXML private Label totalCommentsLabel;
     @FXML private FlowPane articlesFlowPane;
-    @FXML private FlowPane commentairesFlowPane;
+    // @FXML private FlowPane commentairesFlowPane; // Supprimé
     @FXML private Label selectedArticleLabel;
     @FXML private Label articleIdLabel;
     @FXML private TextField titreField;
@@ -76,7 +76,7 @@ public class BlogController implements Initializable {
     @FXML private StackPane detailImageContainer;
     @FXML private ImageView detailImageView;
     @FXML private Label detailAuteurLabel;
-    @FXML private Label detailAuteurInitiales; // Nouveau label pour les initiales
+    @FXML private Label detailAuteurInitiales;
     @FXML private Label detailDateLabel;
     @FXML private Label detailRegionLabel;
     @FXML private Label detailCategorieLabel;
@@ -105,6 +105,8 @@ public class BlogController implements Initializable {
         attachListeners();
         loadInitialData();
         showListView();
+        // Initialiser l'état des boutons du formulaire
+        updateFormButtons();
     }
 
     private void initComboBoxes() {
@@ -608,42 +610,10 @@ public class BlogController implements Initializable {
         categorieField.setValue(blog.getCategorie());
         auteurLabel.setText(blog.getAuteurNom() != null ? blog.getAuteurNom() : "Inconnu");
         selectedArticleLabel.setText("Article sélectionné : " + (blog.getTitre() != null ? blog.getTitre() : ""));
+        updateFormButtons();
 
-        try {
-            List<Commentaire> comments = commentaireCRUD.getCommentsByArticle(blog.getId());
-            displayCommentaires(comments);
-        } catch (SQLException e) {
-            showError("Erreur lors du chargement des commentaires", e.getMessage());
-        }
-    }
-
-    private void displayCommentaires(List<Commentaire> comments) {
-        commentairesFlowPane.getChildren().clear();
-        for (Commentaire c : comments) {
-            VBox card = new VBox(5);
-            card.setPadding(new Insets(8));
-            card.setStyle("-fx-background-color: rgba(0,0,0,0.6); -fx-background-radius: 8; -fx-border-color: #c49a6c; -fx-border-radius: 8;");
-            card.setPrefWidth(220);
-            Label contenu = new Label(c.getContenu() != null ? c.getContenu() : "");
-            contenu.setWrapText(true);
-            contenu.setStyle("-fx-text-fill: white; -fx-font-size: 13px;");
-            String auteurText = c.getUtilisateurNom() != null ? c.getUtilisateurNom() : "Utilisateur " + c.getUtilisateur();
-            Label auteur = new Label("Auteur: " + auteurText);
-            auteur.setStyle("-fx-text-fill: #FFBD00; -fx-font-size: 12px;");
-            String dateText = c.getDateCommentaire() != null ? c.getDateCommentaire().format(dateFormatter) : "";
-            Label date = new Label("Date: " + dateText);
-            date.setStyle("-fx-text-fill: rgba(255,255,255,0.7); -fx-font-size: 11px;");
-            Button btnModifier = new Button("✏️");
-            btnModifier.setStyle("-fx-background-color: #ffc107; -fx-text-fill: black; -fx-background-radius: 5; -fx-cursor: hand;");
-            btnModifier.setOnAction(e -> modifierCommentaire(c));
-            Button btnSupprimer = new Button("🗑️");
-            btnSupprimer.setStyle("-fx-background-color: #dc3545; -fx-text-fill: white; -fx-background-radius: 5; -fx-cursor: hand;");
-            btnSupprimer.setOnAction(e -> supprimerCommentaire(c));
-            HBox actions = new HBox(5, btnModifier, btnSupprimer);
-            actions.setStyle("-fx-alignment: center-right;");
-            card.getChildren().addAll(contenu, auteur, date, actions);
-            commentairesFlowPane.getChildren().add(card);
-        }
+        // Plus d'affichage des commentaires dans la liste
+        // On peut éventuellement ne rien faire ici
     }
 
     private void modifierCommentaire(Commentaire commentaire) {
@@ -657,10 +627,7 @@ public class BlogController implements Initializable {
                 commentaire.setContenu(nouveauContenu.trim());
                 try {
                     commentaireCRUD.modifier(commentaire);
-                    if (selectedBlog != null) {
-                        List<Commentaire> comments = commentaireCRUD.getCommentsByArticle(selectedBlog.getId());
-                        displayCommentaires(comments);
-                    }
+                    // Pas de mise à jour de l'affichage dans la liste
                     loadAllComments();
                     showInfo("Commentaire modifié.");
                 } catch (SQLException e) {
@@ -679,10 +646,6 @@ public class BlogController implements Initializable {
             if (r == ButtonType.YES) {
                 try {
                     commentaireCRUD.supprimer(commentaire.getId());
-                    if (selectedBlog != null) {
-                        List<Commentaire> comments = commentaireCRUD.getCommentsByArticle(selectedBlog.getId());
-                        displayCommentaires(comments);
-                    }
                     loadAllComments();
                     showInfo("Commentaire supprimé.");
                 } catch (SQLException e) {
@@ -778,8 +741,6 @@ public class BlogController implements Initializable {
         try {
             commentaireCRUD.ajouter(c);
             newCommentField.clear();
-            List<Commentaire> comments = commentaireCRUD.getCommentsByArticle(selectedBlog.getId());
-            displayCommentaires(comments);
             loadAllComments();
             showInfo("Commentaire ajouté.");
         } catch (SQLException e) {
@@ -802,7 +763,8 @@ public class BlogController implements Initializable {
             auteurLabel.setText("Utilisateur inconnu");
         }
         selectedArticleLabel.setText("(aucun article sélectionné)");
-        commentairesFlowPane.getChildren().clear();
+        // Plus de commentairesFlowPane à vider
+        updateFormButtons();
     }
 
     private void filterArticles() {
@@ -857,6 +819,17 @@ public class BlogController implements Initializable {
     private void showInfo(String msg) { statusLabel.setText("✅ " + msg); }
     private void showWarning(String msg) { new Alert(Alert.AlertType.WARNING, msg).show(); }
     private void showError(String title, String msg) { Alert a = new Alert(Alert.AlertType.ERROR, msg); a.setTitle(title); a.show(); }
+
+    // Gestion de l'affichage des boutons du formulaire
+    private void updateFormButtons() {
+        boolean isEditing = (selectedBlog != null);
+        ajouterBtn.setVisible(!isEditing);
+        ajouterBtn.setManaged(!isEditing);
+        modifierBtn.setVisible(isEditing);
+        modifierBtn.setManaged(isEditing);
+        supprimerBtn.setVisible(isEditing);
+        supprimerBtn.setManaged(isEditing);
+    }
 
     // Navigation
     @FXML private void goDashboard() { System.out.println("Dashboard"); }
