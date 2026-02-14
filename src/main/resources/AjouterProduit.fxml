@@ -335,29 +335,16 @@
 
                             <VBox spacing="6" GridPane.columnIndex="0" GridPane.rowIndex="3" GridPane.columnSpan="2">
                                 <Label text="Description" style="-fx-text-fill: rgba(255,255,255,0.80); -fx-font-weight: 800;"/>
-                                <TextArea fx:id="descriptionArea"
-                                          promptText="Description..."
-                                          prefRowCount="3"
-                                          minHeight="90"
-                                          wrapText="true"
-                                          style="
-              -fx-background-color: rgba(255,255,255,0.10);
-              -fx-background-radius: 12;
-              -fx-background-insets: 0;
-
-              -fx-border-color: rgba(255,255,255,0.18);
-              -fx-border-radius: 12;
-              -fx-border-insets: 0;
-
-              -fx-text-fill: white;
-              -fx-prompt-text-fill: rgba(255,255,255,0.55);
-
-              -fx-control-inner-background: rgba(255,255,255,0.10);
-              -fx-padding: 10 12;
-
-              -fx-highlight-fill: rgba(255,189,0,0.35);
-              -fx-highlight-text-fill: white;
-          "/>
+                                <TextField fx:id="descriptionField"
+                                           promptText="Description..."
+                                           style="-fx-background-color: rgba(255,255,255,0.10);
+                  -fx-background-radius: 12;
+                  -fx-border-color: rgba(255,255,255,0.18);
+                  -fx-border-radius: 12;
+                  -fx-text-fill: white;
+                  -fx-prompt-text-fill: rgba(255,255,255,0.55);
+                  -fx-padding: 10 12;"
+                                           minHeight="90"/>
                                     <stylesheets></stylesheets>
                                 </TextArea>
                             </VBox>
