@@ -70,7 +70,7 @@ public class BlogController implements Initializable {
     // Composants FXML de la vue détail
     @FXML private VBox listView;
     @FXML private VBox detailView;
-    @FXML private Button backToListBtn;  // Bouton retour
+    @FXML private Button backToListBtn;
     @FXML private StackPane detailImageContainer;
     @FXML private ImageView detailImageView;
     @FXML private Label detailTitreLabel;
@@ -150,11 +150,8 @@ public class BlogController implements Initializable {
         searchField.setOnAction(e -> filterArticles());
         clearBtn.setOnAction(e -> clearForm());
         choisirImageBtn.setOnAction(e -> choisirImage());
-        // Bouton retour
         if (backToListBtn != null) {
             backToListBtn.setOnAction(e -> showListView());
-        } else {
-            System.err.println("backToListBtn est null !");
         }
         detailAddCommentBtn.setOnAction(e -> ajouterCommentaireDetail());
     }
@@ -388,13 +385,11 @@ public class BlogController implements Initializable {
     // ========== VUE DÉTAIL ==========
     private void showDetailView(Blog blog) {
         displayedDetailBlog = blog;
-        // Mise à jour des labels
         detailTitreLabel.setText(blog.getTitre() != null ? blog.getTitre() : "");
         detailAuteurLabel.setText(blog.getAuteurNom() != null ? blog.getAuteurNom() : "Inconnu");
         detailDateLabel.setText(blog.getDatePublication() != null ? blog.getDatePublication().format(dateShortFormatter) : "");
         detailContenuLabel.setText(blog.getContenu() != null ? blog.getContenu() : "");
 
-        // Chargement de l'image
         Image img = loadImage(blog.getImage());
         if (img != null && !img.isError()) {
             detailImageView.setImage(img);
@@ -464,12 +459,14 @@ public class BlogController implements Initializable {
         HBox actions = new HBox(10);
         actions.setAlignment(Pos.CENTER_RIGHT);
         if (currentUser != null && commentaire.getUtilisateur() == currentUser.getId()) {
+            // Bouton Modifier (orange)
             Button editBtn = new Button("✏️");
-            editBtn.setStyle("-fx-background-color: rgba(255,255,255,0.2); -fx-text-fill: white; -fx-background-radius: 20; -fx-cursor: hand; -fx-padding: 5 12; -fx-border-color: rgba(255,255,255,0.4); -fx-border-radius: 20;");
+            editBtn.setStyle("-fx-background-color: #f39c12; -fx-text-fill: white; -fx-background-radius: 20; -fx-cursor: hand; -fx-padding: 5 12; -fx-border-color: rgba(255,255,255,0.4); -fx-border-radius: 20;");
             editBtn.setOnAction(e -> showEditComment(commentaire, card, contenuLabel, meta, actions));
 
+            // Bouton Supprimer (rouge)
             Button deleteBtn = new Button("🗑️");
-            deleteBtn.setStyle("-fx-background-color: rgba(255,255,255,0.2); -fx-text-fill: white; -fx-background-radius: 20; -fx-cursor: hand; -fx-padding: 5 12; -fx-border-color: rgba(255,255,255,0.4); -fx-border-radius: 20;");
+            deleteBtn.setStyle("-fx-background-color: #e74c3c; -fx-text-fill: white; -fx-background-radius: 20; -fx-cursor: hand; -fx-padding: 5 12; -fx-border-color: rgba(255,255,255,0.4); -fx-border-radius: 20;");
             deleteBtn.setOnAction(e -> supprimerCommentaireDetail(commentaire));
 
             actions.getChildren().addAll(editBtn, deleteBtn);
@@ -480,14 +477,11 @@ public class BlogController implements Initializable {
     }
 
     private void showEditComment(Commentaire commentaire, VBox card, Label contenuLabel, HBox meta, HBox actions) {
-        // Cacher les éléments d'affichage
         card.getChildren().clear();
 
-        // Champ de texte pour l'édition
         TextField editField = new TextField(commentaire.getContenu());
         editField.setStyle("-fx-background-color: rgba(255,255,255,0.2); -fx-text-fill: white; -fx-prompt-text-fill: rgba(255,255,255,0.7); -fx-background-radius: 15; -fx-border-color: rgba(255,255,255,0.4); -fx-border-radius: 15; -fx-padding: 8;");
 
-        // Boutons Enregistrer et Annuler
         HBox editActions = new HBox(10);
         editActions.setAlignment(Pos.CENTER_RIGHT);
 
@@ -500,7 +494,7 @@ public class BlogController implements Initializable {
                 try {
                     commentaireCRUD.modifier(commentaire);
                     commentaireList.setAll(commentaireCRUD.afficher());
-                    afficherCommentairesDetail(); // Recharge toutes les cartes
+                    afficherCommentairesDetail();
                     detailStatusLabel.setText("✅ Commentaire modifié.");
                 } catch (SQLException ex) {
                     detailStatusLabel.setText("❌ Erreur : " + ex.getMessage());
@@ -510,13 +504,9 @@ public class BlogController implements Initializable {
 
         Button cancelBtn = new Button("✕ Annuler");
         cancelBtn.setStyle("-fx-background-color: #e74c3c; -fx-text-fill: white; -fx-background-radius: 20; -fx-cursor: hand; -fx-padding: 6 15; -fx-font-size: 12px;");
-        cancelBtn.setOnAction(e -> {
-            afficherCommentairesDetail(); // Recharge toutes les cartes
-        });
+        cancelBtn.setOnAction(e -> afficherCommentairesDetail());
 
         editActions.getChildren().addAll(saveBtn, cancelBtn);
-
-        // On garde les métadonnées (meta)
         card.getChildren().addAll(editField, meta, editActions);
     }
 
@@ -783,7 +773,7 @@ public class BlogController implements Initializable {
         supprimerBtn.setManaged(isEditing);
     }
 
-    // Navigation (utilisée par les boutons latéraux)
+    // Navigation
     @FXML private void goDashboard() { System.out.println("Dashboard"); }
     @FXML private void goBlog() { showListView(); }
     @FXML private void goCommentaires() { System.out.println("Commentaires"); }
