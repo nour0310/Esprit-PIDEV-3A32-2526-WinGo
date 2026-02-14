@@ -1,0 +1,201 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.effect.DropShadow?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.Font?>
+
+<StackPane prefHeight="720" prefWidth="1200"
+           xmlns="http://javafx.com/javafx/25"
+           xmlns:fx="http://javafx.com/fxml/1"
+           fx:controller="GUI.MixedFX">
+
+    <FlowPane fx:id="cardContainer"/>
+
+    <!-- BACKGROUND IMAGE -->
+    <Pane mouseTransparent="true"
+          style="-fx-background-image: url('/assets/testt.png');
+                 -fx-background-repeat: no-repeat;
+                 -fx-background-position: center center;
+                 -fx-background-size: 100% 100%;" />
+
+    <!-- Overlay -->
+    <Pane mouseTransparent="true" style="-fx-background-color: rgba(0,0,0,0.18);" />
+
+    <!-- Main glass shell -->
+    <BorderPane maxHeight="650" maxWidth="1100"
+                style="-fx-background-color: rgba(0,0,0,0.22);
+                       -fx-background-radius: 26;
+                       -fx-border-color: rgba(255,255,255,0.16);
+                       -fx-border-radius: 26;
+                       -fx-border-width: 1.2;">
+        <effect><DropShadow color="#00000066" offsetY="14" radius="28" /></effect>
+        <padding><Insets bottom="12" left="12" right="12" top="12" /></padding>
+
+        <!-- TOP BAR -->
+        <top>
+            <HBox alignment="CENTER_LEFT" spacing="12">
+                <padding><Insets bottom="18" left="18" right="18" top="18" /></padding>
+                <Label text="WinGo Travel"
+                       style="-fx-text-fill: white; -fx-font-size: 18px; -fx-font-weight: 900;" />
+                <Region HBox.hgrow="ALWAYS" />
+                <HBox alignment="CENTER_LEFT" spacing="10">
+                    <Label text="🔍" />
+                    <TextField promptText="Search..." />
+                    <Button text="⚙"/>
+                </HBox>
+                <Region HBox.hgrow="ALWAYS" />
+                <Button text="🔔"/>
+                <Button text="👤"/>
+            </HBox>
+        </top>
+
+        <!-- LEFT MINI NAV -->
+        <left>
+            <VBox prefWidth="86" spacing="14">
+                <padding><Insets bottom="18" left="12" right="12" top="18" /></padding>
+                <Button text="🏠"/>
+                <Button text="➕"/>
+                <Button text="📦"/>
+                <Button text="⚙"/>
+                <Region VBox.vgrow="ALWAYS" />
+                <Label text="© 2026" />
+            </VBox>
+        </left>
+
+        <!-- CENTER CONTENT -->
+        <center>
+            <StackPane>
+                <ScrollPane fitToWidth="true">
+                    <content>
+                        <VBox spacing="18">
+
+                            <StackPane>
+                                <padding><Insets top="18" right="18" bottom="18" left="18"/></padding>
+                                <VBox spacing="14">
+
+                                    <!-- RESERVATION PAGE -->
+                                    <VBox fx:id="reservationPage" spacing="14">
+                                        <HBox alignment="CENTER_LEFT" spacing="10">
+                                            <Label text="📝"/>
+                                            <Label text="Nouvelle Réservation"/>
+                                            <Region HBox.hgrow="ALWAYS" />
+                                            <Label fx:id="statusLabel" text=""/>
+                                        </HBox>
+
+                                        <Separator opacity="0.25"/>
+
+                                        <GridPane hgap="12" vgap="12">
+                                            <VBox spacing="6" GridPane.columnIndex="1" GridPane.rowIndex="0">
+                                                <Label text="Votre Nom et Prenom"/>
+                                                <TextField fx:id="userField"/>
+                                            </VBox>
+
+                                            <VBox spacing="6" GridPane.columnIndex="0" GridPane.rowIndex="1">
+                                                <Label text="Votre Experience"/>
+                                                <TextField fx:id="expField"/>
+                                            </VBox>
+
+                                            <VBox spacing="6" GridPane.columnIndex="1" GridPane.rowIndex="1">
+                                                <Label text="Statut d votre voyage"/>
+                                                <TextField fx:id="statutField"/>
+                                            </VBox>
+
+                                            <ScrollPane fx:id="scrollPane" fitToWidth="true" prefHeight="400" prefWidth="600">
+                                                <content>
+                                                    <VBox fx:id="cardsContainerr" spacing="10">
+                                                        <padding>
+                                                            <Insets top="10" right="10" bottom="10" left="10"/>
+                                                        </padding>
+                                                    </VBox>
+                                                </content>
+                                            </ScrollPane>
+
+                                            <columnConstraints>
+                                                <ColumnConstraints percentWidth="50"/>
+                                                <ColumnConstraints percentWidth="50"/>
+                                            </columnConstraints>
+                                        </GridPane>
+
+                                        <HBox spacing="10" alignment="CENTER_RIGHT">
+                                            <Button text="Effacer" onAction="#clearForm"/>
+                                            <Button text="➕ Ajouter" onAction="#addReservation"/>
+                                            <Button text="➕ modifier" onAction="#handleUpdateReservation"/>
+                                            <Button text="➕ supprimer" onAction="#handleDeleteReservation"/>
+                                            <Button text="Switch to Transport" onAction="#showTransport"/>
+                                        </HBox>
+                                    </VBox>
+
+                                    <!-- TRANSPORT PAGE -->
+                                    <VBox fx:id="transportPage" spacing="14" visible="false">
+                                        <HBox alignment="CENTER_LEFT" spacing="10">
+                                            <Label text="🚚"/>
+                                            <Label text="Nouveau Transport"/>
+                                            <Region HBox.hgrow="ALWAYS" />
+                                            <Label fx:id="statusLabelt" text=""/>
+                                        </HBox>
+
+                                        <Separator opacity="0.25"/>
+
+                                        <GridPane hgap="12" vgap="12">
+                                            <VBox spacing="6" GridPane.columnIndex="0" GridPane.rowIndex="0">
+                                                <Label text="Type"/>
+                                                <TextField fx:id="typeField"/>
+                                            </VBox>
+
+                                            <VBox spacing="6" GridPane.columnIndex="1" GridPane.rowIndex="0">
+                                                <Label text="Capacité"/>
+                                                <TextField fx:id="capaciteField"/>
+                                            </VBox>
+
+                                            <VBox spacing="6" GridPane.columnIndex="0" GridPane.rowIndex="1">
+                                                <Label text="Tarif"/>
+                                                <TextField fx:id="tarifField"/>
+                                            </VBox>
+
+                                            <VBox spacing="6" GridPane.columnIndex="1" GridPane.rowIndex="1">
+                                                <Label text="Départ"/>
+                                                <TextField fx:id="departField"/>
+                                            </VBox>
+
+                                            <VBox spacing="6" GridPane.columnIndex="0" GridPane.rowIndex="2">
+                                                <Label text="Arrivée"/>
+                                                <TextField fx:id="arriveeField"/>
+                                            </VBox>
+
+                                            <ScrollPane fitToWidth="true" prefHeight="400" prefWidth="600">
+                                                <content>
+                                                    <VBox fx:id="cardsContainer" spacing="10">
+                                                        <padding>
+                                                            <Insets top="10" right="10" bottom="10" left="10"/>
+                                                        </padding>
+                                                    </VBox>
+                                                </content>
+                                            </ScrollPane>
+
+                                            <columnConstraints>
+                                                <ColumnConstraints percentWidth="50"/>
+                                                <ColumnConstraints percentWidth="50"/>
+                                            </columnConstraints>
+                                        </GridPane>
+
+                                        <HBox spacing="10" alignment="CENTER_RIGHT">
+                                            <Button text="Effacer" onAction="#clearForm"/>
+                                            <Button text="➕ Ajouter" onAction="#addTransport"/>
+                                            <Button text="➕ modifier" onAction="#updateTransport"/>
+                                            <Button text="➕ supprimer" onAction="#deleteTransport"/>
+                                            <Button text="Switch to Reservation" onAction="#showTransport"/>
+                                        </HBox>
+                                    </VBox>
+
+                                </VBox>
+                            </StackPane>
+
+                        </VBox>
+                    </content>
+                </ScrollPane>
+            </StackPane>
+        </center>
+    </BorderPane>
+</StackPane>
