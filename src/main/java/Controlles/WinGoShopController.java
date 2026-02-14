@@ -363,35 +363,46 @@ public class WinGoShopController {
     }
 
     private Produit buildProduitFromForm() {
-        String nom = nomTextField.getText().trim();
-        String prixS = prixTextField.getText().trim().replace(",", ".");
-        String stockS = stockField.getText().trim();
+        String nom = nomTextField.getText() == null ? "" : nomTextField.getText().trim();
+        String prixStr = prixTextField.getText() == null ? "" : prixTextField.getText().trim();
+        String stockStr = stockField.getText() == null ? "" : stockField.getText().trim();
 
-        if (nom.isEmpty() || prixS.isEmpty() || stockS.isEmpty())
-            throw new IllegalArgumentException("Champs obligatoires: nom, prix, stock.");
+        if (nom.isEmpty()) throw new IllegalArgumentException("Nom obligatoire.");
+        if (prixStr.isEmpty()) throw new IllegalArgumentException("Prix obligatoire.");
+        if (stockStr.isEmpty()) throw new IllegalArgumentException("Stock obligatoire.");
 
-        double prix = Double.parseDouble(prixS);
-        int stock = Integer.parseInt(stockS);
+        double prix;
+        int stock;
+
+        try { prix = Double.parseDouble(prixStr); }
+        catch (NumberFormatException e) { throw new IllegalArgumentException("Prix invalide."); }
+
+        try { stock = Integer.parseInt(stockStr); }
+        catch (NumberFormatException e) { throw new IllegalArgumentException("Stock invalide."); }
+
+        if (prix < 0) throw new IllegalArgumentException("Prix doit être >= 0.");
+        if (stock < 0) throw new IllegalArgumentException("Stock doit être >= 0.");
 
         Produit p = new Produit();
-        p.setIdUser(Session.getUserId());
+
+        // ✅ ID du commerçant connecté (ton système)
+        p.setIdUser(currentUserId); // <-- change si ton variable s'appelle autrement
+
         p.setNom(nom);
         p.setPrix(prix);
         p.setStock(stock);
 
-        String desc = descriptionArea.getText().trim();
-        String region = regionField.getText().trim();
-        String cat = categorieField.getText().trim();
-        String img = imageField.getText().trim();
+        p.setRegion(regionField.getText() == null ? null : regionField.getText().trim());
+        p.setCategorie(categorieField.getText() == null ? null : categorieField.getText().trim());
 
-        p.setDescription(desc.isEmpty() ? null : desc);
-        p.setRegion(region.isEmpty() ? null : region);
-        p.setCategorie(cat.isEmpty() ? null : cat);
-        p.setImage(img.isEmpty() ? null : img);
+        // ✅ IMPORTANT: DESCRIPTION (ton problème)
+        p.setDescription(descriptionField.getText() == null ? null : descriptionField.getText().trim());
+
+        p.setImage(imageField.getText() == null ? null : imageField.getText().trim());
 
         return p;
     }
-
+    
     @FXML
     private void clearForm() {
         nomTextField.clear();
