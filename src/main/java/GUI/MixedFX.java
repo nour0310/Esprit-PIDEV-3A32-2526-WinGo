@@ -4,13 +4,18 @@ import Entites.Reservation;
 import Entites.Transport;
 import Services.ReservationCRUD;
 import Services.TransportCRUD;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Node;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.VBox;
 import javafx.scene.layout.HBox;
+import javafx.stage.Stage;
 
-import java.sql.SQLException;
-import java.sql.Timestamp;
+import java.io.IOException;
+import java.sql.*;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -36,6 +41,8 @@ public class MixedFX {
 
     private Reservation selectedReservation;
     private Transport selectedTransport;
+    @FXML
+    private VBox transportContainer;
 
     private final ReservationCRUD reservationService = new ReservationCRUD();
     private final TransportCRUD transportService = new TransportCRUD();
@@ -45,6 +52,43 @@ public class MixedFX {
         loadCards();
     }
 
+    @FXML
+    private void goToTransport(ActionEvent event) throws IOException {
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("/GUI/Transport.fxml"));
+        Scene scene = new Scene(loader.load());
+
+        // get current stage
+        Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+        stage.setScene(scene);
+        stage.show();
+    }
+    private void loadTransportData() {
+        String url = "jdbc:mysql://localhost:3306/your_db";
+        String user = "root";
+        String password = "root";
+
+        String query = "SELECT id, name, capacity, tarif FROM transport";
+
+        try (Connection conn = DriverManager.getConnection(url, user, password);
+             Statement stmt = conn.createStatement();
+             ResultSet rs = stmt.executeQuery(query)) {
+
+            while (rs.next()) {
+                HBox card = new HBox();
+                card.setStyle("-fx-padding: 10; -fx-border-color: gray; -fx-spacing: 10;");
+
+                Label name = new Label("Name: " + rs.getString("name"));
+                Label capacity = new Label("Capacity: " + rs.getInt("capacity"));
+                Label tarif = new Label("Tarif: " + rs.getDouble("tarif"));
+
+                card.getChildren().addAll(name, capacity, tarif);
+                transportContainer.getChildren().add(card);
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
     // ================= RESERVATION LOGIC =================
     @FXML
     private void addReservation() {

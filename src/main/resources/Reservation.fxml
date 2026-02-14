@@ -185,8 +185,11 @@
                                             <Button text="➕ Ajouter" onAction="#addTransport"/>
                                             <Button text="➕ modifier" onAction="#updateTransport"/>
                                             <Button text="➕ supprimer" onAction="#deleteTransport"/>
-                                            <Button text="Switch to Reservation" onAction="#showTransport"/>
+                                            <Button fx:id="btnTransport" text="Transport" onAction="#goToTransport"/>
                                         </HBox>
+                                        <VBox fx:id="transportContainer" spacing="10" visible="false">
+                                            <!-- Cards will be added dynamically -->
+                                        </VBox>
                                     </VBox>
 
                                 </VBox>
