@@ -13,23 +13,29 @@ public class MyBD {
 
     private static MyBD instance;
 
-    private MyBD() { }
+    private MyBD() {
+        try {
+            conn = DriverManager.getConnection(URL, USER, PASS);
+            System.out.println("Connected");
+        } catch (SQLException e) {
+            throw new RuntimeException("DB connection failed: " + e.getMessage(), e);
+        }
+    }
 
     public static MyBD getInstance() {
         if (instance == null) instance = new MyBD();
         return instance;
     }
 
-    private Connection newConn() throws SQLException {
-        Connection c = DriverManager.getConnection(URL, USER, PASS);
-        System.out.println("Connected");
-        return c;
-    }
-
-    public Connection getConn() throws SQLException {
-        if (conn == null || conn.isClosed()) {
-            conn = newConn();
+    public Connection getConn() {
+        try {
+            if (conn == null || conn.isClosed()) {
+                conn = DriverManager.getConnection(URL, USER, PASS);
+                System.out.println("Reconnected");
+            }
+            return conn;
+        } catch (SQLException e) {
+            throw new RuntimeException("DB connection failed: " + e.getMessage(), e);
         }
-        return conn;
     }
 }
