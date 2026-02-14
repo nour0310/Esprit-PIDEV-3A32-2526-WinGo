@@ -396,81 +396,82 @@
                     </content>
                 </ScrollPane>
 
-                <!-- ScrollPane pour la vue détail (créative) -->
+                <!-- ===== VUE DÉTAIL AMÉLIORÉE (TRANSPARENTE, SANS CADRES) ===== -->
                 <ScrollPane fx:id="detailViewScroll" fitToWidth="true" visible="false" managed="false"
                             style="-fx-background-color: transparent; -fx-background: transparent;">
                     <content>
                         <VBox fx:id="detailView" spacing="20" alignment="TOP_CENTER"
-                              style="-fx-background-color: white; -fx-background-radius: 30; -fx-padding: 25; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 20, 0.5, 0, 10); -fx-border-color: linear-gradient(to bottom right, #FFBD00, #FF6F00); -fx-border-width: 3; -fx-border-radius: 30;">
+                              style="-fx-background-color: rgba(255,255,255,0.15); -fx-background-radius: 30; -fx-padding: 25; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.4), 20, 0.5, 0, 10);">
                             <padding><Insets bottom="25" left="25" right="25" top="25"/></padding>
 
-                            <!-- Bouton retour stylisé -->
+                            <!-- Bouton retour stylisé (sans cadre) -->
                             <Button fx:id="backToListBtn" text="← Retour aux articles"
                                     maxWidth="Infinity" alignment="CENTER_LEFT"
-                                    style="-fx-background-color: linear-gradient(to right, #3498db, #2980b9); -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 12 20; -fx-background-radius: 50; -fx-cursor: hand; -fx-font-size: 14px;"/>
+                                    style="-fx-background-color: rgba(255,255,255,0.25); -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 12 20; -fx-background-radius: 50; -fx-cursor: hand; -fx-font-size: 14px;"/>
 
-                            <!-- Image avec cadre arrondi et ombre -->
+                            <!-- Image avec cadre arrondi (sans bordure) -->
                             <StackPane fx:id="detailImageContainer" prefHeight="280" maxWidth="Infinity"
-                                       style="-fx-background-color: #ecf0f1; -fx-background-radius: 20; -fx-border-radius: 20; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.2), 10, 0.3, 0, 5);">
+                                       style="-fx-background-color: rgba(0,0,0,0.2); -fx-background-radius: 20; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 10, 0.3, 0, 5);">
                                 <ImageView fx:id="detailImageView" preserveRatio="true" smooth="true" cache="true" />
                             </StackPane>
 
-                            <!-- ===== PARTIE INFORMATIONS AMÉLIORÉE ===== -->
-                            <VBox spacing="20" style="-fx-background-color: white; -fx-background-radius: 30; -fx-padding: 25; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.15), 15, 0.3, 0, 8);">
-                                <!-- En-tête avec auteur, date et badges -->
+                            <!-- ===== PARTIE INFORMATIONS (GLASSMORPHISM SANS CADRES) ===== -->
+                            <VBox spacing="20" style="-fx-background-color: rgba(255,255,255,0.2); -fx-background-radius: 30; -fx-padding: 25; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.2), 15, 0.3, 0, 8);">
+                                <!-- En-tête avec auteur, date et badges (sans bordures) -->
                                 <HBox spacing="15" alignment="CENTER_LEFT">
-                                    <!-- Avatar auteur (cercle avec initiales) -->
-                                    <StackPane prefWidth="50" prefHeight="50" style="-fx-background-color: linear-gradient(to bottom right, #b7472a, #e67e22); -fx-background-radius: 50; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.2), 8, 0.3, 2, 2);">
+                                    <!-- Avatar auteur (cercle sans bordure) -->
+                                    <StackPane prefWidth="50" prefHeight="50" style="-fx-background-color: linear-gradient(to bottom right, #b7472a, #e67e22); -fx-background-radius: 50; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 8, 0.3, 2, 2);">
                                         <Label fx:id="detailAuteurInitiales" text="ZB" style="-fx-text-fill: white; -fx-font-size: 20px; -fx-font-weight: bold;"/>
                                     </StackPane>
                                     <VBox spacing="5">
-                                        <Label fx:id="detailAuteurLabel" style="-fx-font-size: 18px; -fx-text-fill: #2c3e50; -fx-font-weight: bold;"/>
+                                        <Label fx:id="detailAuteurLabel" style="-fx-font-size: 18px; -fx-text-fill: white; -fx-font-weight: bold; -fx-effect: dropshadow(gaussian, black, 3, 0.3, 1, 1);"/>
                                         <HBox spacing="10" alignment="CENTER_LEFT">
-                                            <Label text="📅" style="-fx-font-size: 14px;"/>
-                                            <Label fx:id="detailDateLabel" style="-fx-font-size: 14px; -fx-text-fill: #7f8c8d;"/>
+                                            <Label text="📅" style="-fx-font-size: 14px; -fx-text-fill: white;"/>
+                                            <Label fx:id="detailDateLabel" style="-fx-font-size: 14px; -fx-text-fill: white; -fx-effect: dropshadow(gaussian, black, 2, 0.2, 1, 1);"/>
                                         </HBox>
                                     </VBox>
                                     <Region HBox.hgrow="ALWAYS" />
-                                    <!-- Badges région et catégorie -->
+                                    <!-- Badges région et catégorie (sans bordures) -->
                                     <HBox spacing="10" alignment="CENTER_RIGHT">
-                                        <Label fx:id="detailRegionLabel" style="-fx-font-size: 14px; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-color: linear-gradient(to bottom right, #e67e22, #f39c12); -fx-padding: 8 18; -fx-background-radius: 50; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.2), 5, 0.2, 0, 2);"/>
-                                        <Label fx:id="detailCategorieLabel" style="-fx-font-size: 14px; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-color: linear-gradient(to bottom right, #3498db, #2980b9); -fx-padding: 8 18; -fx-background-radius: 50; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.2), 5, 0.2, 0, 2);"/>
+                                        <Label fx:id="detailRegionLabel" style="-fx-font-size: 14px; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-color: rgba(230,126,34,0.8); -fx-padding: 8 18; -fx-background-radius: 50; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 5, 0.2, 0, 2);"/>
+                                        <Label fx:id="detailCategorieLabel" style="-fx-font-size: 14px; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-color: rgba(52,152,219,0.8); -fx-padding: 8 18; -fx-background-radius: 50; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 5, 0.2, 0, 2);"/>
                                     </HBox>
                                 </HBox>
 
                                 <!-- Contenu avec titre -->
                                 <VBox spacing="10">
-                                    <Label text="📝 Contenu" style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #2c3e50; -fx-border-color: transparent transparent #FFBD00 transparent; -fx-border-width: 0 0 2 0; -fx-padding: 0 0 5 0;"/>
+                                    <Label text="📝 Contenu" style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: white; -fx-border-color: transparent transparent rgba(255,255,255,0.6) transparent; -fx-border-width: 0 0 2 0; -fx-padding: 0 0 5 0; -fx-effect: dropshadow(gaussian, black, 2, 0.2, 1, 1);"/>
                                     <ScrollPane fitToWidth="true" prefHeight="150" style="-fx-background: transparent; -fx-background-color: transparent;">
-                                        <Label fx:id="detailContenuLabel" wrapText="true" style="-fx-font-size: 15px; -fx-text-fill: #34495e; -fx-padding: 15; -fx-background-color: #f8f9fa; -fx-background-radius: 20; -fx-border-radius: 20; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.05), 5, 0.1, 0, 2);"/>
+                                        <Label fx:id="detailContenuLabel" wrapText="true" style="-fx-font-size: 15px; -fx-text-fill: white; -fx-padding: 15; -fx-background-color: rgba(255,255,255,0.15); -fx-background-radius: 20; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 5, 0.1, 0, 2);"/>
                                     </ScrollPane>
                                 </VBox>
                             </VBox>
-                            <!-- ===== FIN PARTIE AMÉLIORÉE ===== -->
+                            <!-- ===== FIN PARTIE INFORMATIONS ===== -->
 
-                            <Separator style="-fx-background: linear-gradient(to right, #FFBD00, #FF6F00); -fx-pref-height: 2;"/>
+                            <Separator style="-fx-background: linear-gradient(to right, rgba(255,255,255,0.5), rgba(255,255,255,0.1)); -fx-pref-height: 2;"/>
 
                             <!-- Section commentaires -->
                             <VBox spacing="15">
-                                <Label text="💬 Commentaires" style="-fx-font-size: 22px; -fx-font-weight: bold; -fx-text-fill: linear-gradient(to right, #b7472a, #e67e22);"/>
+                                <Label text="💬 Commentaires" style="-fx-font-size: 22px; -fx-font-weight: bold; -fx-text-fill: white; -fx-effect: dropshadow(gaussian, black, 3, 0.3, 1, 1);"/>
                                 <ScrollPane fitToWidth="true" prefHeight="200" style="-fx-background: transparent; -fx-background-color: transparent;">
                                     <FlowPane fx:id="detailCommentairesPane" hgap="15" vgap="15" style="-fx-background-color: transparent;"/>
                                 </ScrollPane>
                             </VBox>
 
-                            <!-- Ajout d'un commentaire -->
+                            <!-- Ajout d'un commentaire (sans bordure) -->
                             <HBox spacing="10" alignment="CENTER_LEFT">
                                 <TextField fx:id="detailNewCommentField" promptText="Votre commentaire..." HBox.hgrow="ALWAYS"
-                                           style="-fx-padding: 12; -fx-background-radius: 30; -fx-border-radius: 30; -fx-border-color: #ccc; -fx-font-size: 14px;"/>
+                                           style="-fx-padding: 12; -fx-background-radius: 30; -fx-background-color: rgba(255,255,255,0.2); -fx-text-fill: white; -fx-prompt-text-fill: rgba(255,255,255,0.7); -fx-font-size: 14px;"/>
                                 <Label fx:id="detailConnectedUserLabel" text="(connexion...)"
-                                       style="-fx-background-color: #f0f0f0; -fx-padding: 12 20; -fx-background-radius: 30; -fx-border-radius: 30; -fx-border-color: #ccc; -fx-font-size: 14px; -fx-font-weight: bold;"/>
+                                       style="-fx-background-color: rgba(255,255,255,0.2); -fx-padding: 12 20; -fx-background-radius: 30; -fx-text-fill: white; -fx-font-size: 14px; -fx-font-weight: bold;"/>
                                 <Button fx:id="detailAddCommentBtn" text="Envoyer"
-                                        style="-fx-background-color: linear-gradient(to right, #27ae60, #2ecc71); -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 12 25; -fx-background-radius: 30; -fx-cursor: hand; -fx-font-size: 14px;"/>
+                                        style="-fx-background-color: rgba(46,204,113,0.8); -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 12 25; -fx-background-radius: 30; -fx-cursor: hand; -fx-font-size: 14px;"/>
                             </HBox>
-                            <Label fx:id="detailStatusLabel" style="-fx-text-fill: #27ae60; -fx-font-size: 13px;"/>
+                            <Label fx:id="detailStatusLabel" style="-fx-text-fill: #2ecc71; -fx-font-size: 13px; -fx-effect: dropshadow(gaussian, black, 1, 0.2, 1, 1);"/>
                         </VBox>
                     </content>
                 </ScrollPane>
+                <!-- ===== FIN VUE DÉTAIL ===== -->
             </StackPane>
         </center>
 
