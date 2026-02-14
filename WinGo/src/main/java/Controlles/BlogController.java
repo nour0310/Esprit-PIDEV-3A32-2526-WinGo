@@ -16,6 +16,7 @@ import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
+import javafx.scene.shape.Rectangle;
 import javafx.stage.FileChooser;
 
 import java.io.File;
@@ -197,7 +198,7 @@ public class BlogController implements Initializable {
         }
     }
 
-    // ==================== CARTE FINALE AVEC BOUTONS LISIBLES ====================
+    // ==================== CARTE AMÉLIORÉE ====================
     private VBox createBlogCard(Blog blog) {
         VBox card = new VBox();
         card.setStyle(
@@ -210,29 +211,37 @@ public class BlogController implements Initializable {
         card.setMaxWidth(280);
         card.setPadding(Insets.EMPTY);
 
-        // Conteneur de l'image
+        // Conteneur de l'image avec clip pour arrondir les coins supérieurs
         StackPane imageContainer = new StackPane();
         imageContainer.setPrefHeight(180);
-        imageContainer.setStyle("-fx-background-radius: 20 20 0 0; -fx-clip: true;");
+        imageContainer.setStyle("-fx-background-radius: 20 20 0 0;");
+        // Appliquer un clip pour que l'image soit coupée aux bords arrondis
+        Rectangle clip = new Rectangle(280, 180);
+        clip.setArcWidth(20);
+        clip.setArcHeight(20);
+        imageContainer.setClip(clip);
 
         ImageView imageView = new ImageView();
         imageView.setFitWidth(280);
         imageView.setFitHeight(180);
         imageView.setPreserveRatio(true);
-        try {
-            if (blog.getImage() != null && !blog.getImage().isEmpty()) {
-                Image img = new Image("file:" + blog.getImage(), true);
-                imageView.setImage(img);
-            } else {
-                Image defaultImg = new Image(getClass().getResourceAsStream("/default.jpg"));
-                imageView.setImage(defaultImg);
-            }
-        } catch (Exception e) {
+        imageView.setSmooth(true);
+        imageView.setCache(true);
+
+        // Chargement sécurisé de l'image
+        Image img = loadImage(blog.getImage());
+        if (img != null && !img.isError()) {
+            imageView.setImage(img);
+        } else {
+            // Image par défaut
             try {
                 Image defaultImg = new Image(getClass().getResourceAsStream("/default.jpg"));
                 imageView.setImage(defaultImg);
-            } catch (Exception ex) {}
+            } catch (Exception ex) {
+                // Ignorer
+            }
         }
+
         imageContainer.getChildren().add(imageView);
 
         // Titre superposé (fond semi-transparent noir)
@@ -301,7 +310,7 @@ public class BlogController implements Initializable {
         Label commentCount = new Label("Commentaires: " + nbComments);
         commentCount.setStyle("-fx-text-fill: #27ae60; -fx-font-size: 13px;");
 
-        // Boutons d'action (texte complet)
+        // Boutons d'action
         HBox actions = new HBox(8);
         actions.setAlignment(Pos.CENTER);
 
@@ -359,6 +368,21 @@ public class BlogController implements Initializable {
         return card;
     }
 
+    // Méthode utilitaire pour charger une image depuis un chemin fichier
+    private Image loadImage(String path) {
+        if (path == null || path.isEmpty()) return null;
+        try {
+            File file = new File(path);
+            if (file.exists()) {
+                String url = file.toURI().toString();
+                return new Image(url, true);
+            }
+        } catch (Exception e) {
+            // Ignorer
+        }
+        return null;
+    }
+
     // ========== VUE DÉTAIL ==========
 
     private void showDetailView(Blog blog) {
@@ -369,15 +393,11 @@ public class BlogController implements Initializable {
         detailCategorieLabel.setText("Catégorie: " + (blog.getCategorie() != null ? blog.getCategorie() : ""));
         detailContenuLabel.setText(blog.getContenu());
 
-        try {
-            if (blog.getImage() != null && !blog.getImage().isEmpty()) {
-                Image img = new Image("file:" + blog.getImage(), true);
-                detailImageView.setImage(img);
-            } else {
-                Image defaultImg = new Image(getClass().getResourceAsStream("/default.jpg"));
-                detailImageView.setImage(defaultImg);
-            }
-        } catch (Exception e) {
+        // Chargement de l'image pour la vue détail
+        Image img = loadImage(blog.getImage());
+        if (img != null && !img.isError()) {
+            detailImageView.setImage(img);
+        } else {
             try {
                 Image defaultImg = new Image(getClass().getResourceAsStream("/default.jpg"));
                 detailImageView.setImage(defaultImg);
