@@ -1,15 +1,11 @@
 package Utils;
 
 public final class Session {
-    private static int currentUserId = -1;
-    private static String currentUserType = null; // CLIENT / COMMERCANT / ADMIN
+
+    private static int currentUserId = 1;          // ✅ ID FIXE (change selon ton utilisateur)
+    private static String currentUserType = "COMMERCANT"; // ✅ ou "CLIENT"
 
     private Session() {}
-
-    public static void setUser(int userId, String type) {
-        currentUserId = userId;
-        currentUserType = type;
-    }
 
     public static int getUserId() {
         return currentUserId;
@@ -25,6 +21,12 @@ public final class Session {
 
     public static boolean isCommercant() {
         return "COMMERCANT".equalsIgnoreCase(currentUserType);
+    }
+
+    // ✅ plus tard quand login sera prêt
+    public static void setUser(int id, String type) {
+        currentUserId = id;
+        currentUserType = type;
     }
 
     public static void clear() {
