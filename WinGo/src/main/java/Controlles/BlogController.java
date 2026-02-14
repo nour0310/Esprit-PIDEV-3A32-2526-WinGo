@@ -197,23 +197,25 @@ public class BlogController implements Initializable {
         }
     }
 
-    // ==================== CARTE AVEC STYLE HARMONIEUX ====================
+    // ==================== CARTE EXTRAORDINAIRE ====================
     private VBox createBlogCard(Blog blog) {
+        // Carte principale
         VBox card = new VBox();
         card.setStyle(
                 "-fx-background-color: white;" +
                         "-fx-background-radius: 20;" +
-                        "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.15), 15, 0.5, 0, 5);" +
+                        "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.25), 20, 0.5, 0, 8);" +
                         "-fx-cursor: hand;"
         );
         card.setPrefWidth(280);
         card.setMaxWidth(280);
         card.setPadding(Insets.EMPTY);
 
-        // Conteneur de l'image
+        // Conteneur de l'image avec effet de zoom au survol
         StackPane imageContainer = new StackPane();
         imageContainer.setPrefHeight(180);
         imageContainer.setStyle("-fx-background-radius: 20 20 0 0; -fx-clip: true;");
+        imageContainer.setId("image-container");
 
         ImageView imageView = new ImageView();
         imageView.setFitWidth(280);
@@ -235,26 +237,27 @@ public class BlogController implements Initializable {
         }
         imageContainer.getChildren().add(imageView);
 
-        // Overlay dégradé (ocre/orangé pour rappeler les tons tunisiens)
+        // Overlay dégradé moderne (du rose/orange au transparent)
         Region gradientOverlay = new Region();
         gradientOverlay.setStyle(
-                "-fx-background-color: linear-gradient(to top, rgba(230,126,34,0.7), rgba(241,196,15,0.3));"
+                "-fx-background-color: linear-gradient(to top, rgba(231, 76, 60, 0.8), rgba(243, 156, 18, 0.4));"
         );
         gradientOverlay.setPrefHeight(180);
         gradientOverlay.setMaxWidth(280);
         StackPane.setAlignment(gradientOverlay, Pos.BOTTOM_CENTER);
         imageContainer.getChildren().add(gradientOverlay);
 
-        // Titre superposé
+        // Titre superposé avec un fond flou (effet verre dépoli)
         Label titleOverlay = new Label(blog.getTitre());
         titleOverlay.setStyle(
                 "-fx-text-fill: white;" +
                         "-fx-font-size: 18px;" +
                         "-fx-font-weight: bold;" +
-                        "-fx-background-color: rgba(0,0,0,0.5);" +
+                        "-fx-background-color: rgba(0,0,0,0.3);" +
                         "-fx-background-radius: 30;" +
-                        "-fx-padding: 5 15;" +
-                        "-fx-wrap-text: true;"
+                        "-fx-padding: 6 15;" +
+                        "-fx-wrap-text: true;" +
+                        "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 5, 0, 0, 2);"
         );
         titleOverlay.setMaxWidth(260);
         titleOverlay.setWrapText(true);
@@ -262,16 +265,17 @@ public class BlogController implements Initializable {
         StackPane.setMargin(titleOverlay, new Insets(0, 0, 15, 15));
         imageContainer.getChildren().add(titleOverlay);
 
-        // Badge région (doré)
+        // Badge région (avec une belle couleur chaude)
         if (blog.getRegion() != null && !blog.getRegion().isEmpty()) {
-            Label regionBadge = new Label(blog.getRegion());
+            Label regionBadge = new Label("📍 " + blog.getRegion());
             regionBadge.setStyle(
-                    "-fx-background-color: #f1c40f;" +
-                            "-fx-text-fill: black;" +
+                    "-fx-background-color: #f39c12;" +
+                            "-fx-text-fill: white;" +
                             "-fx-font-weight: bold;" +
                             "-fx-padding: 5 12;" +
-                            "-fx-background-radius: 20;" +
-                            "-fx-font-size: 12px;"
+                            "-fx-background-radius: 30;" +
+                            "-fx-font-size: 12px;" +
+                            "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.2), 4, 0, 0, 2);"
             );
             StackPane.setAlignment(regionBadge, Pos.TOP_RIGHT);
             StackPane.setMargin(regionBadge, new Insets(12));
@@ -282,15 +286,25 @@ public class BlogController implements Initializable {
         VBox content = new VBox(8);
         content.setPadding(new Insets(15, 15, 15, 15));
 
-        // Auteur (texte simple, couleur chaude)
-        Label auteur = new Label("Auteur: " + (blog.getAuteurNom() != null ? blog.getAuteurNom() : "Inconnu"));
+        // Auteur avec icône
+        HBox auteurBox = new HBox(5);
+        auteurBox.setAlignment(Pos.CENTER_LEFT);
+        Label auteurIcon = new Label("👤");
+        auteurIcon.setStyle("-fx-font-size: 14px;");
+        Label auteur = new Label(blog.getAuteurNom() != null ? blog.getAuteurNom() : "Inconnu");
         auteur.setStyle("-fx-text-fill: #e67e22; -fx-font-weight: bold; -fx-font-size: 13px;");
+        auteurBox.getChildren().addAll(auteurIcon, auteur);
 
-        // Date
-        Label date = new Label("Date: " + (blog.getDatePublication() != null ? blog.getDatePublication().format(dateShortFormatter) : ""));
+        // Date avec icône
+        HBox dateBox = new HBox(5);
+        dateBox.setAlignment(Pos.CENTER_LEFT);
+        Label dateIcon = new Label("📅");
+        dateIcon.setStyle("-fx-font-size: 14px;");
+        Label date = new Label(blog.getDatePublication() != null ? blog.getDatePublication().format(dateShortFormatter) : "");
         date.setStyle("-fx-text-fill: #7f8c8d; -fx-font-size: 13px;");
+        dateBox.getChildren().addAll(dateIcon, date);
 
-        // Catégorie (bleu)
+        // Catégorie (badge coloré)
         Label categorie = new Label(blog.getCategorie() != null ? blog.getCategorie() : "Divers");
         categorie.setStyle(
                 "-fx-background-color: #3498db;" +
@@ -306,12 +320,17 @@ public class BlogController implements Initializable {
         extraitLabel.setStyle("-fx-text-fill: #34495e; -fx-font-size: 13px; -fx-wrap-text: true;");
         extraitLabel.setWrapText(true);
 
-        // Nombre de commentaires
+        // Nombre de commentaires avec icône
+        HBox commentBox = new HBox(5);
+        commentBox.setAlignment(Pos.CENTER_LEFT);
         long nbComments = commentaireList.stream().filter(c -> c.getArticleId() == blog.getId()).count();
-        Label commentCount = new Label("Commentaires: " + nbComments);
+        Label commentIcon = new Label("💬");
+        commentIcon.setStyle("-fx-font-size: 14px;");
+        Label commentCount = new Label(nbComments + " commentaire(s)");
         commentCount.setStyle("-fx-text-fill: #27ae60; -fx-font-size: 13px;");
+        commentBox.getChildren().addAll(commentIcon, commentCount);
 
-        // Boutons d'action (harmonieux : voir en bleu, modifier en orange, supprimer en rouge)
+        // Boutons d'action (très visibles)
         HBox actions = new HBox(10);
         actions.setAlignment(Pos.CENTER);
 
@@ -321,10 +340,10 @@ public class BlogController implements Initializable {
                         "-fx-text-fill: white;" +
                         "-fx-font-weight: bold;" +
                         "-fx-background-radius: 30;" +
-                        "-fx-padding: 6 20;" +
-                        "-fx-font-size: 12px;" +
+                        "-fx-padding: 8 20;" +
+                        "-fx-font-size: 13px;" +
                         "-fx-cursor: hand;" +
-                        "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 5, 0, 0, 2);"
+                        "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.2), 5, 0, 0, 2);"
         );
         voirBtn.setOnAction(e -> showDetailView(blog));
 
@@ -334,10 +353,10 @@ public class BlogController implements Initializable {
                         "-fx-text-fill: white;" +
                         "-fx-font-weight: bold;" +
                         "-fx-background-radius: 30;" +
-                        "-fx-padding: 6 20;" +
-                        "-fx-font-size: 12px;" +
+                        "-fx-padding: 8 20;" +
+                        "-fx-font-size: 13px;" +
                         "-fx-cursor: hand;" +
-                        "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 5, 0, 0, 2);"
+                        "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.2), 5, 0, 0, 2);"
         );
         modifierBtn.setOnAction(e -> selectBlog(blog));
 
@@ -347,22 +366,32 @@ public class BlogController implements Initializable {
                         "-fx-text-fill: white;" +
                         "-fx-font-weight: bold;" +
                         "-fx-background-radius: 30;" +
-                        "-fx-padding: 6 20;" +
-                        "-fx-font-size: 12px;" +
+                        "-fx-padding: 8 20;" +
+                        "-fx-font-size: 13px;" +
                         "-fx-cursor: hand;" +
-                        "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 5, 0, 0, 2);"
+                        "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.2), 5, 0, 0, 2);"
         );
         supprimerBtn.setOnAction(e -> supprimerBlog(blog));
 
         actions.getChildren().addAll(voirBtn, modifierBtn, supprimerBtn);
 
-        content.getChildren().addAll(auteur, date, categorie, extraitLabel, commentCount, actions);
+        // Assemblage
+        content.getChildren().addAll(auteurBox, dateBox, categorie, extraitLabel, commentBox, actions);
         card.getChildren().addAll(imageContainer, content);
 
-        // Effet de survol
-        card.setOnMouseEntered(e -> card.setScaleX(1.02));
-        card.setOnMouseExited(e -> card.setScaleX(1.0));
+        // Effet de survol : léger zoom et ombre renforcée
+        card.setOnMouseEntered(e -> {
+            card.setScaleX(1.02);
+            card.setScaleY(1.02);
+            card.setStyle(card.getStyle() + "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.35), 25, 0.5, 0, 10);");
+        });
+        card.setOnMouseExited(e -> {
+            card.setScaleX(1.0);
+            card.setScaleY(1.0);
+            card.setStyle("-fx-background-color: white; -fx-background-radius: 20; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.25), 20, 0.5, 0, 8);");
+        });
 
+        // Clic sur la carte pour voir les détails
         card.setOnMouseClicked(e -> {
             if (e.getClickCount() == 1) {
                 showDetailView(blog);
