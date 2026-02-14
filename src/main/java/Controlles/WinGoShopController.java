@@ -2,6 +2,7 @@ package Controlles;
 
 import Entites.Produit;
 import Services.ProduitCRUD;
+import Utils.MyBD;
 import Utils.Session;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -10,6 +11,9 @@ import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.VBox;
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
 
@@ -52,6 +56,9 @@ public class WinGoShopController {
     @FXML private TextField imageField;
     @FXML private Label formTitleLabel;
     @FXML private Button saveBtn;
+
+    // ✅ Welcome label
+    @FXML private Label welcomeLabel;
 
     // Cart
     @FXML private TableView<CartItem> cartTable;
@@ -104,6 +111,15 @@ public class WinGoShopController {
             showLogin();
             return;
         }
+
+        // ✅ Welcome message
+        String fullName = getNomPrenomUtilisateur(Session.getUserId());
+        if (Session.isCommercant()) {
+            welcomeLabel.setText("Bienvenue " + fullName + " 👋  •  Tu es commerçant ✅");
+        } else {
+            welcomeLabel.setText("Bienvenue " + fullName + " 👋  •  Mode client 🧑‍💼");
+        }
+
         clearForm(null);
         formTitleLabel.setText("➕ Ajouter Produit");
         saveBtn.setText("✅ Enregistrer");
@@ -121,15 +137,36 @@ public class WinGoShopController {
             return;
         }
 
-        // ✅ TODO: remplace par ta vraie vérification DB
-        // Exemple fictif: si email contient "shop" => COMMERCANT sinon CLIENT
-        int fakeId = 1;
+        // ✅ TEMPORAIRE (tu remplaces après par vraie DB)
+        // email contient "shop" => COMMERCANT sinon CLIENT
+        int fakeId = 1; // IMPORTANT: doit exister dans table utilisateur
         String fakeType = email.toLowerCase().contains("shop") ? "COMMERCANT" : "CLIENT";
 
         Session.setUser(fakeId, fakeType);
 
         loginStatusLabel.setText("✅ Connecté (" + fakeType + ").");
         showProducts();
+    }
+
+    // ✅ Récupérer nom/prenom depuis DB
+    private String getNomPrenomUtilisateur(int idUser) {
+        String sql = "SELECT nom, prenom FROM utilisateur WHERE id=?";
+        try (Connection conn = MyBD.getInstance().getConn();
+             PreparedStatement pst = conn.prepareStatement(sql)) {
+
+            pst.setInt(1, idUser);
+            try (ResultSet rs = pst.executeQuery()) {
+                if (rs.next()) {
+                    String nom = rs.getString("nom");
+                    String prenom = rs.getString("prenom");
+                    String full = (prenom != null ? prenom : "") + " " + (nom != null ? nom : "");
+                    return full.trim().isEmpty() ? "Utilisateur" : full.trim();
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return "Utilisateur";
     }
 
     // ------------------ PRODUCTS ------------------
@@ -195,7 +232,6 @@ public class WinGoShopController {
         Produit p = produitsTable.getSelectionModel().getSelectedItem();
         if (p == null) { statusLabel.setText("⚠ Sélectionne un produit."); return; }
 
-        // Option: empêcher un commerçant de modifier le produit d’un autre user
         if (p.getIdUser() != Session.getUserId()) {
             statusLabel.setText("⚠ Tu ne peux pas modifier le produit d’un autre vendeur.");
             return;
@@ -292,7 +328,7 @@ public class WinGoShopController {
         int stock = Integer.parseInt(stockS);
 
         Produit p = new Produit();
-        p.setIdUser(Session.getUserId()); // ✅ vient du login
+        p.setIdUser(Session.getUserId());
         p.setNom(nom);
         p.setPrix(prix);
         p.setStock(stock);
