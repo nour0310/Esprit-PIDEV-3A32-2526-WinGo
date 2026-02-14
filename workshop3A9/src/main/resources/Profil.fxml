@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane xmlns:fx="http://javafx.com/fxml"
+            fx:controller="Controlles.ProfilController"
+            prefWidth="1000" prefHeight="600"
+            style="-fx-background-color: linear-gradient(to bottom right, #1e1e2f, #2b2b45);">
+
+    <top>
+        <HBox alignment="CENTER_LEFT" spacing="20"
+              style="-fx-background-color: rgba(0,0,0,0.3); -fx-padding: 20;">
+            <Button text="← Back to Dashboard"
+                    onAction="#backToDashboard"
+                    style="-fx-background-color: #8338EC; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 10; -fx-padding: 10 20;" />
+            <Label text="📝 Gestion des Profils"
+                   style="-fx-text-fill: white; -fx-font-size: 24px; -fx-font-weight: bold;" />
+        </HBox>
+    </top>
+
+    <center>
+        <VBox spacing="20" style="-fx-padding: 25;">
+            <!-- FORM -->
+            <VBox spacing="15" style="-fx-background-color: rgba(255,255,255,0.1); -fx-padding: 20; -fx-background-radius: 15;">
+                <Label text="✨ Nouveau Profil" style="-fx-text-fill: white; -fx-font-size: 18px; -fx-font-weight: bold;" />
+                <HBox spacing="15" alignment="CENTER_LEFT">
+                    <TextField fx:id="bioField" promptText="📄 Bio" prefWidth="300"
+                               style="-fx-background-color: rgba(255,255,255,0.12); -fx-background-radius: 10; -fx-text-fill: white; -fx-prompt-text-fill: rgba(255,255,255,0.6);" />
+                    <TextField fx:id="imageField" promptText="🖼 Image URL" prefWidth="200"
+                               style="-fx-background-color: rgba(255,255,255,0.12); -fx-background-radius: 10; -fx-text-fill: white; -fx-prompt-text-fill: rgba(255,255,255,0.6);" />
+                    <TextField fx:id="utilisateurIdField" promptText="👤 User ID" prefWidth="100"
+                               style="-fx-background-color: rgba(255,255,255,0.12); -fx-background-radius: 10; -fx-text-fill: white; -fx-prompt-text-fill: rgba(255,255,255,0.6);" />
+                </HBox>
+                <HBox spacing="15">
+                    <Button text="➕ Ajouter" onAction="#ajouterProfil"
+                            style="-fx-background-color: #11998e; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 10;" />
+                    <Button text="✏ Modifier" onAction="#modifierProfil"
+                            style="-fx-background-color: #8338EC; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 10;" />
+                    <Button text="🗑 Supprimer" onAction="#supprimerProfil"
+                            style="-fx-background-color: #e53935; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 10;" />
+                </HBox>
+            </VBox>
+
+            <!-- TABLE -->
+            <TableView fx:id="tableProfil"
+                       style="-fx-background-color: rgba(255,255,255,0.08); -fx-text-fill: white;">
+                <columns>
+                    <TableColumn fx:id="colId" text="ID" prefWidth="60"/>
+                    <TableColumn fx:id="colBio" text="Bio" prefWidth="300"/>
+                    <TableColumn fx:id="colImage" text="Image" prefWidth="200"/>
+                    <TableColumn fx:id="colUtilisateurId" text="User ID" prefWidth="80"/>
+                </columns>
+            </TableView>
+        </VBox>
+    </center>
+</BorderPane>
