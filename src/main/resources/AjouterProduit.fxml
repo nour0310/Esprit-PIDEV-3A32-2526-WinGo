@@ -255,11 +255,22 @@
                                            -fx-font-weight: 900;" />
                         </HBox>
 
+                        <!-- ✅ NEW: Welcome banner -->
+                        <HBox alignment="CENTER_LEFT" spacing="10"
+                              style="-fx-background-color: rgba(255,189,0,0.18);
+                                     -fx-background-radius: 16;
+                                     -fx-border-color: rgba(255,189,0,0.28);
+                                     -fx-border-radius: 16;
+                                     -fx-padding: 10 12;">
+                            <Label text="🏪" style="-fx-font-size: 18px;" />
+                            <Label fx:id="welcomeLabel" text="Bienvenue"
+                                   style="-fx-text-fill: #FFBD00; -fx-font-weight: 900;" />
+                        </HBox>
+
                         <!-- hidden for edit -->
                         <TextField fx:id="idProduitHidden" visible="false" managed="false"/>
 
                         <GridPane hgap="12" vgap="12">
-
 
                             <VBox spacing="6" GridPane.columnIndex="0" GridPane.rowIndex="0">
                                 <Label text="Nom" style="-fx-text-fill: rgba(255,255,255,0.80); -fx-font-weight: 800;"/>
