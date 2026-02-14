@@ -28,7 +28,7 @@ public class Connection {
                 service.modifier(first);
             }
 
-            // Example: delete a 
+            // Example: 
             if (!reservations.isEmpty()) {
                 Reservation last = reservations.get(reservations.size() - 1);
                 service.supprimer(last.getId());
