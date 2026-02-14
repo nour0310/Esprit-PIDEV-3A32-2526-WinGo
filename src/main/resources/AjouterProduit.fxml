@@ -343,10 +343,7 @@
                   -fx-border-radius: 12;
                   -fx-text-fill: white;
                   -fx-prompt-text-fill: rgba(255,255,255,0.55);
-                  -fx-padding: 10 12;"
-                                           minHeight="90"/>
-                                    <stylesheets></stylesheets>
-                                </TextArea>
+                  -fx-padding: 10 12;"></TextField>
                             </VBox>
 
                             <VBox spacing="6" GridPane.columnIndex="0" GridPane.rowIndex="4" GridPane.columnSpan="2">
