@@ -185,8 +185,7 @@
                     </VBox>
 
                     <!-- 2) PRODUCTS LIST SCREEN -->
-                    <VBox fx:id="productsPane" spacing="12"
-                          style="-fx-background-color: transparent;">
+                    <VBox fx:id="productsPane" spacing="12" style="-fx-background-color: transparent;">
                         <padding><Insets top="14" right="14" bottom="14" left="14"/></padding>
 
                         <HBox alignment="CENTER_LEFT" spacing="10">
@@ -256,7 +255,7 @@
                                            -fx-font-weight: 900;" />
                         </HBox>
 
-                        <!-- ✅ NEW: Welcome banner -->
+                        <!-- Welcome banner -->
                         <HBox alignment="CENTER_LEFT" spacing="10"
                               style="-fx-background-color: rgba(255,189,0,0.18);
                                      -fx-background-radius: 16;
@@ -268,11 +267,9 @@
                                    style="-fx-text-fill: #FFBD00; -fx-font-weight: 900;" />
                         </HBox>
 
-                        <!-- hidden for edit -->
                         <TextField fx:id="idProduitHidden" visible="false" managed="false"/>
 
                         <GridPane hgap="12" vgap="12">
-
                             <VBox spacing="6" GridPane.columnIndex="0" GridPane.rowIndex="0">
                                 <Label text="Nom" style="-fx-text-fill: rgba(255,255,255,0.80); -fx-font-weight: 800;"/>
                                 <TextField fx:id="nomTextField" promptText="Nom du produit"
@@ -333,17 +330,19 @@
                                                   -fx-padding: 10 12;" />
                             </VBox>
 
+                            <!-- ✅ Description as TextField (Option 2) -->
                             <VBox spacing="6" GridPane.columnIndex="0" GridPane.rowIndex="3" GridPane.columnSpan="2">
                                 <Label text="Description" style="-fx-text-fill: rgba(255,255,255,0.80); -fx-font-weight: 800;"/>
                                 <TextField fx:id="descriptionField"
                                            promptText="Description..."
+                                           minHeight="90"
                                            style="-fx-background-color: rgba(255,255,255,0.10);
-                  -fx-background-radius: 12;
-                  -fx-border-color: rgba(255,255,255,0.18);
-                  -fx-border-radius: 12;
-                  -fx-text-fill: white;
-                  -fx-prompt-text-fill: rgba(255,255,255,0.55);
-                  -fx-padding: 10 12;"></TextField>
+                                                  -fx-background-radius: 12;
+                                                  -fx-border-color: rgba(255,255,255,0.18);
+                                                  -fx-border-radius: 12;
+                                                  -fx-text-fill: white;
+                                                  -fx-prompt-text-fill: rgba(255,255,255,0.55);
+                                                  -fx-padding: 10 12;" />
                             </VBox>
 
                             <VBox spacing="6" GridPane.columnIndex="0" GridPane.rowIndex="4" GridPane.columnSpan="2">
