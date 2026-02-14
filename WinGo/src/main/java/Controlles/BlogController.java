@@ -192,22 +192,22 @@ public class BlogController implements Initializable {
     private VBox createBlogCard(Blog blog) {
         VBox card = new VBox();
         card.setStyle("-fx-background-color: linear-gradient(to bottom, #fef9e7, #ffffff); " +
-                "-fx-background-radius: 15; " +
-                "-fx-border-radius: 15; " +
+                "-fx-background-radius: 12; " +
+                "-fx-border-radius: 12; " +
                 "-fx-border-color: #c49a6c; " +
                 "-fx-border-width: 1; " +
-                "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.2), 10, 0, 0, 3); " +
+                "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.2), 8, 0, 0, 2); " +
                 "-fx-cursor: hand;");
-        card.setPrefWidth(300);
-        card.setMaxWidth(300);
+        card.setPrefWidth(250);
+        card.setMaxWidth(250);
         card.setPadding(new Insets(0));
 
         StackPane imageContainer = new StackPane();
-        imageContainer.setPrefHeight(150);
-        imageContainer.setStyle("-fx-background-radius: 15 15 0 0; -fx-clip: true;");
+        imageContainer.setPrefHeight(120);
+        imageContainer.setStyle("-fx-background-radius: 12 12 0 0; -fx-clip: true;");
         ImageView imageView = new ImageView();
-        imageView.setFitWidth(300);
-        imageView.setFitHeight(150);
+        imageView.setFitWidth(250);
+        imageView.setFitHeight(120);
         imageView.setPreserveRatio(true);
         try {
             if (blog.getImage() != null && !blog.getImage().isEmpty()) {
