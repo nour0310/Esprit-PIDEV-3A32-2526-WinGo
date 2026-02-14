@@ -2,6 +2,7 @@ package Controlles;
 
 import Entites.Produit;
 import Services.ProduitCRUD;
+import Utils.Session;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -40,7 +41,7 @@ public class WinGoShopController {
 
     @FXML private Label statusLabel;
 
-    // Form fields (same as your AjouterProduit)
+    // Form fields (ADD / EDIT)
     @FXML private TextField idProduitHidden;     // for edit
     @FXML private TextField nomTextField;
     @FXML private TextArea descriptionArea;
@@ -66,8 +67,6 @@ public class WinGoShopController {
     private final CartService cartService = new CartService();
     private final ObservableList<CartItem> cartData = FXCollections.observableArrayList();
 
-    private boolean loggedIn = false; // simple flag
-
     @FXML
     public void initialize() {
         setupProductsTable();
@@ -76,11 +75,10 @@ public class WinGoShopController {
         refreshProducts();
         refreshCartUI();
 
-        // start screen
         showProducts();
     }
 
-    // ------------------ NAVIGATION (ONE FXML) ------------------
+    // ------------------ NAVIGATION ------------------
     private void showOnly(VBox pane) {
         loginPane.setVisible(false);  loginPane.setManaged(false);
         productsPane.setVisible(false); productsPane.setManaged(false);
@@ -95,10 +93,14 @@ public class WinGoShopController {
     @FXML public void showProducts() { showOnly(productsPane); }
     @FXML public void showCart() { showOnly(cartPane); refreshCartUI(); }
 
+    private boolean canManageProducts() {
+        return Session.isLoggedIn() && Session.isCommercant();
+    }
+
     @FXML
     public void showAddForm() {
-        if (!loggedIn) { // tu peux enlever ça si tu veux ajouter sans login
-            statusLabel.setText("⚠ Login requis pour ajouter/modifier.");
+        if (!canManageProducts()) {
+            statusLabel.setText("⚠ Login commerçant requis pour ajouter/modifier.");
             showLogin();
             return;
         }
@@ -108,7 +110,7 @@ public class WinGoShopController {
         showOnly(formPane);
     }
 
-    // ------------------ LOGIN (simple) ------------------
+    // ------------------ LOGIN ------------------
     @FXML
     public void doLogin() {
         String email = emailField.getText().trim();
@@ -119,10 +121,14 @@ public class WinGoShopController {
             return;
         }
 
-        // ✅ Ici tu branches ta vraie vérification DB.
-        // Pour l'instant: accepte n'importe quoi (tu remplaces après par AuthService)
-        loggedIn = true;
-        loginStatusLabel.setText("✅ Connecté.");
+        // ✅ TODO: remplace par ta vraie vérification DB
+        // Exemple fictif: si email contient "shop" => COMMERCANT sinon CLIENT
+        int fakeId = 1;
+        String fakeType = email.toLowerCase().contains("shop") ? "COMMERCANT" : "CLIENT";
+
+        Session.setUser(fakeId, fakeType);
+
+        loginStatusLabel.setText("✅ Connecté (" + fakeType + ").");
         showProducts();
     }
 
@@ -142,6 +148,7 @@ public class WinGoShopController {
         try {
             List<Produit> list = produitCRUD.afficher();
             produitsData.setAll(list);
+            produitsTable.setItems(produitsData);
         } catch (SQLException e) {
             statusLabel.setText("❌ Erreur DB: " + e.getMessage());
             e.printStackTrace();
@@ -152,10 +159,9 @@ public class WinGoShopController {
     public void onSearch() {
         String q = (searchField == null) ? "" : searchField.getText().trim().toLowerCase();
         if (q.isEmpty()) {
-            refreshProducts();
+            produitsTable.setItems(produitsData);
             return;
         }
-        // simple filter in-memory
         ObservableList<Produit> filtered = FXCollections.observableArrayList();
         for (Produit p : produitsData) {
             if ((p.getNom() != null && p.getNom().toLowerCase().contains(q))
@@ -180,14 +186,22 @@ public class WinGoShopController {
 
     @FXML
     public void editSelectedProduct() {
-        if (!loggedIn) { statusLabel.setText("⚠ Login requis pour modifier."); showLogin(); return; }
+        if (!canManageProducts()) {
+            statusLabel.setText("⚠ Login commerçant requis pour modifier.");
+            showLogin();
+            return;
+        }
 
         Produit p = produitsTable.getSelectionModel().getSelectedItem();
         if (p == null) { statusLabel.setText("⚠ Sélectionne un produit."); return; }
 
-        // fill form
+        // Option: empêcher un commerçant de modifier le produit d’un autre user
+        if (p.getIdUser() != Session.getUserId()) {
+            statusLabel.setText("⚠ Tu ne peux pas modifier le produit d’un autre vendeur.");
+            return;
+        }
+
         idProduitHidden.setText(String.valueOf(p.getIdProduit()));
-        idCommercantField.setText(String.valueOf(p.getIdCommercant()));
         nomTextField.setText(p.getNom());
         descriptionArea.setText(p.getDescription() == null ? "" : p.getDescription());
         prixTextField.setText(String.valueOf(p.getPrix()));
@@ -203,10 +217,19 @@ public class WinGoShopController {
 
     @FXML
     public void deleteSelectedProduct() {
-        if (!loggedIn) { statusLabel.setText("⚠ Login requis pour supprimer."); showLogin(); return; }
+        if (!canManageProducts()) {
+            statusLabel.setText("⚠ Login commerçant requis pour supprimer.");
+            showLogin();
+            return;
+        }
 
         Produit p = produitsTable.getSelectionModel().getSelectedItem();
         if (p == null) { statusLabel.setText("⚠ Sélectionne un produit."); return; }
+
+        if (p.getIdUser() != Session.getUserId()) {
+            statusLabel.setText("⚠ Tu ne peux pas supprimer le produit d’un autre vendeur.");
+            return;
+        }
 
         Alert a = new Alert(Alert.AlertType.CONFIRMATION, "Supprimer: " + p.getNom() + " ?", ButtonType.YES, ButtonType.NO);
         a.setHeaderText(null);
@@ -227,7 +250,11 @@ public class WinGoShopController {
     // ------------------ SAVE (ADD / UPDATE) ------------------
     @FXML
     public void saveProduct() {
-        if (!loggedIn) { statusLabel.setText("⚠ Login requis."); showLogin(); return; }
+        if (!canManageProducts()) {
+            statusLabel.setText("⚠ Login commerçant requis.");
+            showLogin();
+            return;
+        }
 
         try {
             Produit p = buildProduitFromForm();
@@ -254,20 +281,18 @@ public class WinGoShopController {
     }
 
     private Produit buildProduitFromForm() {
-        String idCom = idCommercantField.getText().trim();
         String nom = nomTextField.getText().trim();
         String prixS = prixTextField.getText().trim().replace(",", ".");
         String stockS = stockField.getText().trim();
 
-        if (idCom.isEmpty() || nom.isEmpty() || prixS.isEmpty() || stockS.isEmpty())
-            throw new IllegalArgumentException("Champs obligatoires: idCommercant, nom, prix, stock.");
+        if (nom.isEmpty() || prixS.isEmpty() || stockS.isEmpty())
+            throw new IllegalArgumentException("Champs obligatoires: nom, prix, stock.");
 
-        int idCommercant = Integer.parseInt(idCom);
         double prix = Double.parseDouble(prixS);
         int stock = Integer.parseInt(stockS);
 
         Produit p = new Produit();
-        p.setIdCommercant(idCommercant);
+        p.setIdUser(Session.getUserId()); // ✅ vient du login
         p.setNom(nom);
         p.setPrix(prix);
         p.setStock(stock);
@@ -288,7 +313,6 @@ public class WinGoShopController {
     @FXML
     public void clearForm(javafx.event.ActionEvent e) {
         idProduitHidden.clear();
-        idCommercantField.clear();
         nomTextField.clear();
         descriptionArea.clear();
         prixTextField.clear();
@@ -313,32 +337,28 @@ public class WinGoShopController {
         cartTotalLabel.setText(String.format("Total: %.2f TND", cartService.totalPrice()));
     }
 
-    @FXML
-    public void qtyPlus() {
+    @FXML public void qtyPlus() {
         CartItem it = cartTable.getSelectionModel().getSelectedItem();
         if (it == null) return;
         cartService.changeQty(it.getIdProduit(), +1);
         refreshCartUI();
     }
 
-    @FXML
-    public void qtyMinus() {
+    @FXML public void qtyMinus() {
         CartItem it = cartTable.getSelectionModel().getSelectedItem();
         if (it == null) return;
         cartService.changeQty(it.getIdProduit(), -1);
         refreshCartUI();
     }
 
-    @FXML
-    public void removeFromCart() {
+    @FXML public void removeFromCart() {
         CartItem it = cartTable.getSelectionModel().getSelectedItem();
         if (it == null) return;
         cartService.remove(it.getIdProduit());
         refreshCartUI();
     }
 
-    @FXML
-    public void clearCart() {
+    @FXML public void clearCart() {
         cartService.clear();
         refreshCartUI();
     }
