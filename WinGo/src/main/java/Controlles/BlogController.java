@@ -197,7 +197,7 @@ public class BlogController implements Initializable {
         }
     }
 
-    // ==================== CARTE CRÉATIVE AVEC LABELS SIMPLES ====================
+    // ==================== CARTE AVEC STYLE HARMONIEUX ====================
     private VBox createBlogCard(Blog blog) {
         VBox card = new VBox();
         card.setStyle(
@@ -235,10 +235,10 @@ public class BlogController implements Initializable {
         }
         imageContainer.getChildren().add(imageView);
 
-        // Overlay dégradé
+        // Overlay dégradé (ocre/orangé pour rappeler les tons tunisiens)
         Region gradientOverlay = new Region();
         gradientOverlay.setStyle(
-                "-fx-background-color: linear-gradient(to top, rgba(128,0,128,0.6), rgba(255,165,0,0.3));"
+                "-fx-background-color: linear-gradient(to top, rgba(230,126,34,0.7), rgba(241,196,15,0.3));"
         );
         gradientOverlay.setPrefHeight(180);
         gradientOverlay.setMaxWidth(280);
@@ -262,11 +262,11 @@ public class BlogController implements Initializable {
         StackPane.setMargin(titleOverlay, new Insets(0, 0, 15, 15));
         imageContainer.getChildren().add(titleOverlay);
 
-        // Badge région
+        // Badge région (doré)
         if (blog.getRegion() != null && !blog.getRegion().isEmpty()) {
             Label regionBadge = new Label(blog.getRegion());
             regionBadge.setStyle(
-                    "-fx-background-color: #FFD700;" +
+                    "-fx-background-color: #f1c40f;" +
                             "-fx-text-fill: black;" +
                             "-fx-font-weight: bold;" +
                             "-fx-padding: 5 12;" +
@@ -282,15 +282,15 @@ public class BlogController implements Initializable {
         VBox content = new VBox(8);
         content.setPadding(new Insets(15, 15, 15, 15));
 
-        // Auteur (texte simple)
+        // Auteur (texte simple, couleur chaude)
         Label auteur = new Label("Auteur: " + (blog.getAuteurNom() != null ? blog.getAuteurNom() : "Inconnu"));
-        auteur.setStyle("-fx-text-fill: #b7472a; -fx-font-weight: bold; -fx-font-size: 13px;");
+        auteur.setStyle("-fx-text-fill: #e67e22; -fx-font-weight: bold; -fx-font-size: 13px;");
 
         // Date
         Label date = new Label("Date: " + (blog.getDatePublication() != null ? blog.getDatePublication().format(dateShortFormatter) : ""));
         date.setStyle("-fx-text-fill: #7f8c8d; -fx-font-size: 13px;");
 
-        // Catégorie
+        // Catégorie (bleu)
         Label categorie = new Label(blog.getCategorie() != null ? blog.getCategorie() : "Divers");
         categorie.setStyle(
                 "-fx-background-color: #3498db;" +
@@ -311,13 +311,13 @@ public class BlogController implements Initializable {
         Label commentCount = new Label("Commentaires: " + nbComments);
         commentCount.setStyle("-fx-text-fill: #27ae60; -fx-font-size: 13px;");
 
-        // Boutons
+        // Boutons d'action (harmonieux : voir en bleu, modifier en orange, supprimer en rouge)
         HBox actions = new HBox(10);
         actions.setAlignment(Pos.CENTER);
 
         Button voirBtn = new Button("Voir");
         voirBtn.setStyle(
-                "-fx-background-color: #9b59b6;" +
+                "-fx-background-color: #3498db;" +
                         "-fx-text-fill: white;" +
                         "-fx-font-weight: bold;" +
                         "-fx-background-radius: 30;" +
@@ -330,8 +330,8 @@ public class BlogController implements Initializable {
 
         Button modifierBtn = new Button("Modifier");
         modifierBtn.setStyle(
-                "-fx-background-color: #f1c40f;" +
-                        "-fx-text-fill: black;" +
+                "-fx-background-color: #f39c12;" +
+                        "-fx-text-fill: white;" +
                         "-fx-font-weight: bold;" +
                         "-fx-background-radius: 30;" +
                         "-fx-padding: 6 20;" +
@@ -429,7 +429,7 @@ public class BlogController implements Initializable {
             contenu.setStyle("-fx-font-size: 12px; -fx-text-fill: #2c3e50;");
 
             Label auteur = new Label("Auteur: " + (c.getUtilisateurNom() != null ? c.getUtilisateurNom() : "Utilisateur " + c.getUtilisateur()));
-            auteur.setStyle("-fx-text-fill: #b7472a; -fx-font-size: 11px;");
+            auteur.setStyle("-fx-text-fill: #e67e22; -fx-font-size: 11px;");
 
             Label date = new Label("Date: " + (c.getDateCommentaire() != null ? c.getDateCommentaire().format(dateFormatter) : ""));
             date.setStyle("-fx-text-fill: #7f8c8d; -fx-font-size: 11px;");
