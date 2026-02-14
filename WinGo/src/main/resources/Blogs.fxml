@@ -124,7 +124,7 @@
             </VBox>
         </left>
 
-        <!-- CENTER CONTENT avec deux vues et scroll global -->
+        <!-- CENTER CONTENT avec deux vues -->
         <center>
             <StackPane style="-fx-background-color: rgba(0,0,0,0.22);
                               -fx-background-radius: 20;
@@ -140,7 +140,7 @@
                         <VBox fx:id="listView" spacing="12">
                             <padding><Insets bottom="12" left="12" right="12" top="12"/></padding>
 
-                            <!-- HERO SECTION -->
+                            <!-- HERO SECTION (compacte) -->
                             <HBox spacing="12">
                                 <VBox spacing="6" HBox.hgrow="ALWAYS"
                                       style="-fx-background-color: rgba(0,0,0,0.32);
@@ -151,8 +151,10 @@
 
                                     <Label text="Gestion des Blogs ✍️"
                                            style="-fx-text-fill: white; -fx-font-size: 20px; -fx-font-weight: 900;"/>
+
                                     <Label text="Créez, modifiez ou supprimez vos articles"
                                            style="-fx-text-fill: rgba(255,255,255,0.78); -fx-font-size: 11px; -fx-font-weight: 700;"/>
+
                                     <HBox spacing="6">
                                         <Label text="📝" style="-fx-font-size: 14px;" />
                                         <Label text="Articles et commentaires"
@@ -160,13 +162,14 @@
                                     </HBox>
                                 </VBox>
 
-                                <!-- STATS MINI CARD -->
+                                <!-- STATS MINI CARD (compacte) -->
                                 <VBox prefWidth="200" spacing="6"
                                       style="-fx-background-color: rgba(0,0,0,0.30);
                                              -fx-background-radius: 18;
                                              -fx-border-color: rgba(255,255,255,0.18);
                                              -fx-border-radius: 18;">
                                     <padding><Insets bottom="10" left="10" right="10" top="10"/></padding>
+
                                     <Label text="Statistiques"
                                            style="-fx-text-fill: rgba(255,255,255,0.80); -fx-font-size: 12px; -fx-font-weight: 800;"/>
                                     <Label text="📰 Articles : "
@@ -181,7 +184,7 @@
                                 </VBox>
                             </HBox>
 
-                            <!-- FILTRES -->
+                            <!-- FILTRES (compacts) -->
                             <HBox spacing="6" alignment="CENTER_LEFT"
                                   style="-fx-background-color: rgba(0,0,0,0.28);
                                          -fx-background-radius: 18;
@@ -203,7 +206,7 @@
                                                  -fx-text-fill: white; -fx-pref-width: 120;" />
                             </HBox>
 
-                            <!-- LISTE DES ARTICLES -->
+                            <!-- LISTE DES ARTICLES (hauteur réduite) -->
                             <VBox spacing="6" VBox.vgrow="ALWAYS"
                                   style="-fx-background-color: rgba(0,0,0,0.28);
                                          -fx-background-radius: 18;
@@ -219,7 +222,7 @@
                                 </ScrollPane>
                             </VBox>
 
-                            <!-- COMMENTAIRES DE L'ARTICLE SÉLECTIONNÉ -->
+                            <!-- COMMENTAIRES DE L'ARTICLE SÉLECTIONNÉ (réduit) -->
                             <VBox spacing="6"
                                   style="-fx-background-color: rgba(0,0,0,0.28);
                                          -fx-background-radius: 18;
@@ -237,7 +240,7 @@
                                 </ScrollPane>
                             </VBox>
 
-                            <!-- FORMULAIRE D'AJOUT D'ARTICLE -->
+                            <!-- FORMULAIRE D'AJOUT D'ARTICLE (compact) -->
                             <StackPane style="-fx-background-color: rgba(0,0,0,0.28);
                                               -fx-background-radius: 18;
                                               -fx-border-color: #c49a6c;
@@ -323,7 +326,7 @@
                                                     style="-fx-background-color: #FFBD00; -fx-text-fill: #390099; -fx-background-radius: 8; -fx-padding: 6 8; -fx-font-weight: bold; -fx-font-size: 11px; -fx-cursor: hand;" />
                                         </VBox>
 
-                                        <!-- Auteur -->
+                                        <!-- Auteur (affiché) -->
                                         <VBox spacing="4" GridPane.columnIndex="0" GridPane.rowIndex="3" GridPane.columnSpan="2">
                                             <Label text="Auteur" style="-fx-text-fill: rgba(255,255,255,0.80); -fx-font-size: 10px; -fx-font-weight: 800;" />
                                             <Label fx:id="auteurLabel" text="(connexion...)"
@@ -372,7 +375,7 @@
                                 </VBox>
                             </StackPane>
 
-                            <!-- FORMULAIRE D'AJOUT DE COMMENTAIRE -->
+                            <!-- FORMULAIRE D'AJOUT DE COMMENTAIRE (compact) avec label utilisateur -->
                             <StackPane style="-fx-background-color: rgba(0,0,0,0.28);
                                               -fx-background-radius: 18;
                                               -fx-border-color: #c49a6c;
@@ -392,16 +395,15 @@
                                                           -fx-prompt-text-fill: rgba(255,255,255,0.7);
                                                           -fx-padding: 6 8;
                                                           -fx-font-size: 11px;" />
-                                        <TextField fx:id="commentUserField" promptText="ID"
-                                                   prefWidth="50"
-                                                   style="-fx-background-color: rgba(0,0,0,0.5);
-                                                          -fx-background-radius: 8;
-                                                          -fx-border-color: rgba(255,255,255,0.3);
-                                                          -fx-border-radius: 8;
-                                                          -fx-text-fill: white;
-                                                          -fx-prompt-text-fill: rgba(255,255,255,0.7);
-                                                          -fx-padding: 6 6;
-                                                          -fx-font-size: 11px;" />
+                                        <Label fx:id="connectedUserLabel" text="(connexion...)"
+                                               style="-fx-background-color: rgba(0,0,0,0.5);
+                                                      -fx-background-radius: 8;
+                                                      -fx-border-color: rgba(255,255,255,0.3);
+                                                      -fx-border-radius: 8;
+                                                      -fx-padding: 6 8;
+                                                      -fx-text-fill: white;
+                                                      -fx-font-size: 11px;
+                                                      -fx-alignment: center;" />
                                         <Button fx:id="addCommentBtn" text="Envoyer" onAction="#ajouterCommentaire"
                                                 style="-fx-background-color: #17a2b8; -fx-text-fill: white; -fx-background-radius: 999; -fx-padding: 6 12; -fx-font-weight: 900; -fx-font-size: 11px;" />
                                     </HBox>
@@ -438,6 +440,8 @@
                             </ScrollPane>
                             <HBox spacing="8" alignment="CENTER_LEFT">
                                 <TextField fx:id="detailNewCommentField" promptText="Votre commentaire..." HBox.hgrow="ALWAYS" style="-fx-padding: 6; -fx-background-radius: 5; -fx-border-radius: 5; -fx-border-color: #ccc;" />
+                                <Label fx:id="detailConnectedUserLabel" text="(connexion...)"
+                                       style="-fx-background-color: #f0f0f0; -fx-padding: 6; -fx-background-radius: 5; -fx-border-radius: 5; -fx-border-color: #ccc; -fx-font-size: 13px;" />
                                 <Button fx:id="detailAddCommentBtn" text="Commenter" style="-fx-background-color: #27ae60; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 6 15; -fx-background-radius: 5;" />
                             </HBox>
                             <Label fx:id="detailStatusLabel" style="-fx-text-fill: #27ae60;" />
