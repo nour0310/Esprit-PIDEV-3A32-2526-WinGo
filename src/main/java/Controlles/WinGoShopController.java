@@ -479,4 +479,22 @@ public class WinGoShopController {
             statusLabel.setText("❌ " + e.getMessage());
         }
     }
+    @FXML
+    public void checkoutNow() {
+        if (!Session.isLoggedIn()) {
+            statusLabel.setText("⚠ Connecte-toi d'abord.");
+            showLogin();
+            return;
+        }
+
+        try {
+            int idCmd = panierCRUD.checkout(Session.getUserId());
+            statusLabel.setText("✅ Commande validée (#" + idCmd + ")");
+            refreshCartUI(); // panier devient vide car id_commande n'est plus null
+            showProducts();
+        } catch (SQLException e) {
+            statusLabel.setText("❌ " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
 }
