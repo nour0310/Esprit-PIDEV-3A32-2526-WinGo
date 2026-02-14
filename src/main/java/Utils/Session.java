@@ -34,3 +34,6 @@ public final class Session {
         currentUserType = null;
     }
 }
+public static int getUserId() { return 1; } // temporaire
+public static boolean isLoggedIn() { return true; }
+public static boolean isCommercant() { return true; }
