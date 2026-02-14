@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.Font?>
+
+<AnchorPane xmlns:fx="http://javafx.com/fxml"
+            fx:controller="Controlles.LoginController"
+            prefWidth="500" prefHeight="400"
+            style="-fx-background-color: linear-gradient(to bottom right, #1e1e2f, #2b2b45);">
+
+    <children>
+
+        <VBox alignment="CENTER" spacing="20"
+              AnchorPane.topAnchor="50"
+              AnchorPane.leftAnchor="100"
+              AnchorPane.rightAnchor="100">
+
+            <Label text="🔐 Login"
+                   style="-fx-text-fill: white; -fx-font-size: 28px; -fx-font-weight: bold;" />
+
+            <VBox spacing="15"
+                  style="-fx-background-color: #2f2f4f;
+                         -fx-padding: 30;
+                         -fx-background-radius: 20;">
+
+                <TextField fx:id="emailField"
+                           promptText="📧 Email"
+                           style="-fx-background-radius: 10;" />
+
+                <PasswordField fx:id="passwordField"
+                               promptText="🔑 Password"
+                               style="-fx-background-radius: 10;" />
+
+                <Button text="🚀 Login"
+                        onAction="#login"
+                        style="-fx-background-color: linear-gradient(to right, #6a11cb, #2575fc);
+                               -fx-text-fill: white;
+                               -fx-font-weight: bold;
+                               -fx-background-radius: 15;" />
+              
+               <Button text="📝 Sign Up"
+                     onAction="#goToSignup"
+                            style="-fx-background-color: linear-gradient(to right, #11998e, #38ef7d);
+                                   -fx-text-fill: white;
+                                   -fx-font-weight: bold;
+                                   -fx-background-radius: 15;" />
+
+
+                <Label fx:id="errorLabel"
+                       style="-fx-text-fill: red;" />
+
+            </VBox>
+        </VBox>
+
+    </children>
+</AnchorPane>
