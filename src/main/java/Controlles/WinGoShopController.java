@@ -180,6 +180,38 @@ public class WinGoShopController {
         colStock.setCellValueFactory(new PropertyValueFactory<>("stock"));
         colCat.setCellValueFactory(new PropertyValueFactory<>("categorie"));
         colRegion.setCellValueFactory(new PropertyValueFactory<>("region"));
+
+        // ✅ URL -> ImageView
+        colImage.setCellValueFactory(new PropertyValueFactory<>("image"));
+        colImage.setCellFactory(col -> new TableCell<>() {
+            private final ImageView iv = new ImageView();
+
+            {
+                iv.setFitWidth(60);
+                iv.setFitHeight(60);
+                iv.setPreserveRatio(true);
+                iv.setSmooth(true);
+            }
+
+            @Override
+            protected void updateItem(String url, boolean empty) {
+                super.updateItem(url, empty);
+
+                if (empty || url == null || url.isBlank()) {
+                    setGraphic(null);
+                } else {
+                    try {
+                        // backgroundLoading=true ✅
+                        iv.setImage(new Image(url.trim(), true));
+                        setGraphic(iv);
+                    } catch (Exception e) {
+                        setGraphic(null);
+                    }
+                }
+                setText(null);
+            }
+        });
+
         produitsTable.setItems(produitsData);
     }
 
