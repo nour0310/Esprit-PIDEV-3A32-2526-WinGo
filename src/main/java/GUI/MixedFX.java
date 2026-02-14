@@ -136,17 +136,24 @@ public class MixedFX {
     }
 
     private void populateItems(List<?> items) {
+
         itemsFlowPane.getChildren().clear();
+
         for (Object obj : items) {
-            Button btn = new Button(obj.toString());
-            btn.setOnAction(e -> showDetails(obj));
-            itemsFlowPane.getChildren().add(btn);
-        }
-        if (trTypeField == null) {
-            System.out.println("Form not initialized yet!");
-            return;
+
+            Button card = new Button(obj.toString());
+
+            card.setOnMouseClicked(e -> {
+
+                selectedItem = obj;     // store selected object
+                populateForm();      // send data to textfields
+
+            });
+
+            itemsFlowPane.getChildren().add(card);
         }
     }
+
 
 
     /** Populate formGrid based on current entity */
