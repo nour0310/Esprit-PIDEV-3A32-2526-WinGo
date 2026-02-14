@@ -1,3 +1,4 @@
+// FILE: src/main/java/Controlles/WinGoShopController.java
 package Controlles;
 
 import Entites.Produit;
@@ -9,7 +10,10 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
+import javafx.scene.control.TableCell;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.VBox;
 
 import java.sql.Connection;
@@ -17,9 +21,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
-import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
-import javafx.scene.control.TableCell;
+
 public class WinGoShopController {
 
     // Screens
@@ -31,7 +33,7 @@ public class WinGoShopController {
     // Top
     @FXML private TextField searchField;
     @FXML private Label cartCountLabel;
-    @FXML private TextField descriptionField;
+
     // Login
     @FXML private TextField emailField;
     @FXML private PasswordField passwordField;
@@ -39,19 +41,19 @@ public class WinGoShopController {
 
     // Products table
     @FXML private TableView<Produit> produitsTable;
+    @FXML private TableColumn<Produit, String> colImage;
     @FXML private TableColumn<Produit, Integer> colId;
     @FXML private TableColumn<Produit, String> colNom;
     @FXML private TableColumn<Produit, Double> colPrix;
     @FXML private TableColumn<Produit, Integer> colStock;
     @FXML private TableColumn<Produit, String> colCat;
     @FXML private TableColumn<Produit, String> colRegion;
-    @FXML private TableColumn<Produit, String> colImage;
     @FXML private Label statusLabel;
 
     // Form fields (ADD / EDIT)
-    @FXML private TextField idProduitHidden;     // for edit
+    @FXML private TextField idProduitHidden;     // for edit (hidden)
     @FXML private TextField nomTextField;
-    @FXML private TextArea descriptionArea;
+    @FXML private TextField descriptionField;   // ✅ dans ton FXML tu utilises descriptionField (TextField)
     @FXML private TextField prixTextField;
     @FXML private TextField stockField;
     @FXML private TextField regionField;
@@ -60,7 +62,7 @@ public class WinGoShopController {
     @FXML private Label formTitleLabel;
     @FXML private Button saveBtn;
 
-    // ✅ Welcome label (dans formPane)
+    // Welcome label (optionnel)
     @FXML private Label welcomeLabel;
 
     // Cart
@@ -90,18 +92,18 @@ public class WinGoShopController {
 
     // ------------------ NAVIGATION ------------------
     private void showOnly(VBox pane) {
-        loginPane.setVisible(false);  loginPane.setManaged(false);
-        productsPane.setVisible(false); productsPane.setManaged(false);
-        formPane.setVisible(false); formPane.setManaged(false);
-        cartPane.setVisible(false); cartPane.setManaged(false);
+        loginPane.setVisible(false);     loginPane.setManaged(false);
+        productsPane.setVisible(false);  productsPane.setManaged(false);
+        formPane.setVisible(false);      formPane.setManaged(false);
+        cartPane.setVisible(false);      cartPane.setManaged(false);
 
         pane.setVisible(true);
         pane.setManaged(true);
     }
 
-    @FXML public void showLogin() { showOnly(loginPane); }
+    @FXML public void showLogin()    { showOnly(loginPane); }
     @FXML public void showProducts() { showOnly(productsPane); }
-    @FXML public void showCart() { showOnly(cartPane); refreshCartUI(); }
+    @FXML public void showCart()     { showOnly(cartPane); refreshCartUI(); }
 
     private boolean canManageProducts() {
         return Session.isLoggedIn() && Session.isCommercant();
@@ -116,12 +118,12 @@ public class WinGoShopController {
         }
 
         // ✅ Welcome message
-        String fullName = getNomPrenomUtilisateur(Session.getUserId());
         if (welcomeLabel != null) {
+            String fullName = getNomPrenomUtilisateur(Session.getUserId());
             welcomeLabel.setText("Bienvenue " + fullName + " 👋  •  Tu es commerçant ✅");
         }
 
-        clearForm(null);
+        clearForm();
         formTitleLabel.setText("➕ Ajouter Produit");
         saveBtn.setText("✅ Enregistrer");
         showOnly(formPane);
@@ -130,17 +132,16 @@ public class WinGoShopController {
     // ------------------ LOGIN ------------------
     @FXML
     public void doLogin() {
-        String email = emailField.getText().trim();
-        String pass = passwordField.getText().trim();
+        String email = emailField.getText() == null ? "" : emailField.getText().trim();
+        String pass  = passwordField.getText() == null ? "" : passwordField.getText().trim();
 
         if (email.isEmpty() || pass.isEmpty()) {
             loginStatusLabel.setText("⚠ Remplis email + mot de passe.");
             return;
         }
 
-        // ✅ TEMPORAIRE: on fixe un userId existant dans DB
-        // Change fakeId selon un id موجود في utilisateur
-        int fakeId = 1;
+        // ⚠️ TEMP: tu remplaces après par vrai login DB
+        int fakeId = 1; // <-- mets un id موجود في utilisateur
         String fakeType = email.toLowerCase().contains("shop") ? "COMMERCANT" : "CLIENT";
 
         Session.setUser(fakeId, fakeType);
@@ -150,12 +151,12 @@ public class WinGoShopController {
         showProducts();
     }
 
-    // ✅ Récupérer nom/prenom depuis DB
+    // ✅ IMPORTANT: ne JAMAIS fermer la connexion globale MyBD ici (sinon "connection closed")
     private String getNomPrenomUtilisateur(int idUser) {
         String sql = "SELECT nom, prenom FROM utilisateur WHERE id=?";
-        try (Connection conn = MyBD.getInstance().getConn();
-             PreparedStatement pst = conn.prepareStatement(sql)) {
+        Connection conn = MyBD.getInstance().getConn();
 
+        try (PreparedStatement pst = conn.prepareStatement(sql)) {
             pst.setInt(1, idUser);
             try (ResultSet rs = pst.executeQuery()) {
                 if (rs.next()) {
@@ -181,27 +182,23 @@ public class WinGoShopController {
         colCat.setCellValueFactory(new PropertyValueFactory<>("categorie"));
         colRegion.setCellValueFactory(new PropertyValueFactory<>("region"));
 
-        // ✅ URL -> ImageView
+        // ✅ Image column (URL -> ImageView)
         colImage.setCellValueFactory(new PropertyValueFactory<>("image"));
         colImage.setCellFactory(col -> new TableCell<>() {
             private final ImageView iv = new ImageView();
-
             {
                 iv.setFitWidth(60);
                 iv.setFitHeight(60);
                 iv.setPreserveRatio(true);
                 iv.setSmooth(true);
             }
-
             @Override
             protected void updateItem(String url, boolean empty) {
                 super.updateItem(url, empty);
-
                 if (empty || url == null || url.isBlank()) {
                     setGraphic(null);
                 } else {
                     try {
-                        // backgroundLoading=true ✅
                         iv.setImage(new Image(url.trim(), true));
                         setGraphic(iv);
                     } catch (Exception e) {
@@ -219,7 +216,6 @@ public class WinGoShopController {
         try {
             List<Produit> list = produitCRUD.afficher();
             produitsData.setAll(list);
-            produitsTable.setItems(produitsData);
         } catch (SQLException e) {
             statusLabel.setText("❌ Erreur DB: " + e.getMessage());
             e.printStackTrace();
@@ -228,11 +224,12 @@ public class WinGoShopController {
 
     @FXML
     public void onSearch() {
-        String q = (searchField == null) ? "" : searchField.getText().trim().toLowerCase();
+        String q = (searchField == null || searchField.getText() == null) ? "" : searchField.getText().trim().toLowerCase();
         if (q.isEmpty()) {
             produitsTable.setItems(produitsData);
             return;
         }
+
         ObservableList<Produit> filtered = FXCollections.observableArrayList();
         for (Produit p : produitsData) {
             if ((p.getNom() != null && p.getNom().toLowerCase().contains(q))
@@ -284,13 +281,13 @@ public class WinGoShopController {
         }
 
         idProduitHidden.setText(String.valueOf(p.getIdProduit()));
-        nomTextField.setText(p.getNom());
-        descriptionArea.setText(p.getDescription() == null ? "" : p.getDescription());
+        nomTextField.setText(nullSafe(p.getNom()));
+        descriptionField.setText(nullSafe(p.getDescription())); // ✅ plus de descriptionArea
         prixTextField.setText(String.valueOf(p.getPrix()));
         stockField.setText(String.valueOf(p.getStock()));
-        regionField.setText(p.getRegion() == null ? "" : p.getRegion());
-        categorieField.setText(p.getCategorie() == null ? "" : p.getCategorie());
-        imageField.setText(p.getImage() == null ? "" : p.getImage());
+        regionField.setText(nullSafe(p.getRegion()));
+        categorieField.setText(nullSafe(p.getCategorie()));
+        imageField.setText(nullSafe(p.getImage()));
 
         formTitleLabel.setText("✏ Modifier Produit");
         saveBtn.setText("💾 Mettre à jour");
@@ -313,7 +310,9 @@ public class WinGoShopController {
             return;
         }
 
-        Alert a = new Alert(Alert.AlertType.CONFIRMATION, "Supprimer: " + p.getNom() + " ?", ButtonType.YES, ButtonType.NO);
+        Alert a = new Alert(Alert.AlertType.CONFIRMATION,
+                "Supprimer: " + p.getNom() + " ?",
+                ButtonType.YES, ButtonType.NO);
         a.setHeaderText(null);
         a.showAndWait();
 
@@ -363,9 +362,9 @@ public class WinGoShopController {
     }
 
     private Produit buildProduitFromForm() {
-        String nom = nomTextField.getText() == null ? "" : nomTextField.getText().trim();
-        String prixStr = prixTextField.getText() == null ? "" : prixTextField.getText().trim();
-        String stockStr = stockField.getText() == null ? "" : stockField.getText().trim();
+        String nom = safeText(nomTextField);
+        String prixStr = safeText(prixTextField);
+        String stockStr = safeText(stockField);
 
         if (nom.isEmpty()) throw new IllegalArgumentException("Nom obligatoire.");
         if (prixStr.isEmpty()) throw new IllegalArgumentException("Prix obligatoire.");
@@ -385,34 +384,31 @@ public class WinGoShopController {
 
         Produit p = new Produit();
 
-        // ✅ ID du commerçant connecté (ton système)
-        p.setIdUser(currentUserId); // <-- change si ton variable s'appelle autrement
+        // ✅ ID du commerçant connecté
+        p.setIdUser(Session.getUserId());
 
         p.setNom(nom);
         p.setPrix(prix);
         p.setStock(stock);
 
-        p.setRegion(regionField.getText() == null ? null : regionField.getText().trim());
-        p.setCategorie(categorieField.getText() == null ? null : categorieField.getText().trim());
-
-        // ✅ IMPORTANT: DESCRIPTION (ton problème)
-        p.setDescription(descriptionField.getText() == null ? null : descriptionField.getText().trim());
-
-        p.setImage(imageField.getText() == null ? null : imageField.getText().trim());
+        p.setRegion(emptyToNull(regionField));
+        p.setCategorie(emptyToNull(categorieField));
+        p.setDescription(emptyToNull(descriptionField));
+        p.setImage(emptyToNull(imageField));
 
         return p;
     }
-    
+
     @FXML
     private void clearForm() {
-        nomTextField.clear();
-        prixTextField.clear();
-        stockField.clear();
-        regionField.clear();
-        categorieField.clear();
-        descriptionField.clear(); // ✅ au lieu de descriptionArea
-        imageField.clear();
-        idProduitHidden.clear();
+        if (nomTextField != null) nomTextField.clear();
+        if (prixTextField != null) prixTextField.clear();
+        if (stockField != null) stockField.clear();
+        if (regionField != null) regionField.clear();
+        if (categorieField != null) categorieField.clear();
+        if (descriptionField != null) descriptionField.clear();
+        if (imageField != null) imageField.clear();
+        if (idProduitHidden != null) idProduitHidden.clear();
     }
 
     // ------------------ CART (DB) ------------------
@@ -483,6 +479,7 @@ public class WinGoShopController {
     }
 
     @FXML public void clearCart() {
+        if (!Session.isLoggedIn()) return;
         try {
             panierCRUD.clear(Session.getUserId());
             refreshCartUI();
@@ -490,6 +487,7 @@ public class WinGoShopController {
             statusLabel.setText("❌ " + e.getMessage());
         }
     }
+
     @FXML
     public void checkoutNow() {
         if (!Session.isLoggedIn()) {
@@ -501,11 +499,26 @@ public class WinGoShopController {
         try {
             int idCmd = panierCRUD.checkout(Session.getUserId());
             statusLabel.setText("✅ Commande validée (#" + idCmd + ")");
-            refreshCartUI(); // panier devient vide car id_commande n'est plus null
+            refreshCartUI();
             showProducts();
         } catch (SQLException e) {
             statusLabel.setText("❌ " + e.getMessage());
             e.printStackTrace();
         }
+    }
+
+    // ------------------ HELPERS ------------------
+    private static String nullSafe(String s) {
+        return s == null ? "" : s;
+    }
+
+    private static String safeText(TextField tf) {
+        if (tf == null || tf.getText() == null) return "";
+        return tf.getText().trim();
+    }
+
+    private static String emptyToNull(TextField tf) {
+        String v = safeText(tf);
+        return v.isEmpty() ? null : v;
     }
 }
