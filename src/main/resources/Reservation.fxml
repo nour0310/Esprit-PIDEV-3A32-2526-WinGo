@@ -77,7 +77,7 @@
                 <effect><DropShadow color="#00000055" offsetY="10" radius="18"/></effect>
 
                 <!-- LIST VIEW -->
-                <ScrollPane fx:id="listScroll" fitToWidth="true">
+                <ScrollPane fx:id="listScroll" fitToWidth="true" style="-fx-background-color: transparent;">
                     <content>
                         <VBox fx:id="listContainer" spacing="12">
                             <padding><Insets top="12" left="12" right="12" bottom="12"/></padding>
@@ -129,7 +129,7 @@
                 </ScrollPane>
 
                 <!-- DETAIL VIEW -->
-                <ScrollPane fx:id="detailScroll" fitToWidth="true" visible="false" managed="false">
+                <ScrollPane fx:id="detailScroll" fitToWidth="true" visible="false" managed="false" style="-fx-background-color: transparent;">
                     <content>
                         <VBox fx:id="detailContainer" spacing="15">
                             <padding><Insets bottom="12" left="12" right="12" top="12"/></padding>
