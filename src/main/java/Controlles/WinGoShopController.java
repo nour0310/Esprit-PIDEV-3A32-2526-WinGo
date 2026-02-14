@@ -42,7 +42,6 @@ public class WinGoShopController {
 
     // Form fields (same as your AjouterProduit)
     @FXML private TextField idProduitHidden;     // for edit
-    @FXML private TextField idCommercantField;
     @FXML private TextField nomTextField;
     @FXML private TextArea descriptionArea;
     @FXML private TextField prixTextField;
