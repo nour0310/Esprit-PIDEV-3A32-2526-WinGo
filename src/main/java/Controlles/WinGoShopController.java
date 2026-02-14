@@ -45,7 +45,7 @@ public class WinGoShopController {
     @FXML private TableColumn<Produit, Integer> colStock;
     @FXML private TableColumn<Produit, String> colCat;
     @FXML private TableColumn<Produit, String> colRegion;
-
+    @FXML private TableColumn<Produit, String> colImage;
     @FXML private Label statusLabel;
 
     // Form fields (ADD / EDIT)
