@@ -28,14 +28,14 @@ public class Connection {
                 service.modifier(first);
             }
 
-             
+
             if (!reservations.isEmpty()) {
                 Reservation last = reservations.get(reservations.size() - 1);
                 service.supprimer(last.getId());
             }
 
         } catch (SQLException e) {
-            System.out.println("❌ Database operation failed!");
+            System.out.println("❌ Database operation failed !");
             e.printStackTrace();
         }
     }
