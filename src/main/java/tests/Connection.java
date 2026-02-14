@@ -22,7 +22,7 @@ public class Connection {
                 );
             }
 
-            // Example:  
+            
             if (!reservations.isEmpty()) {
                 Reservation first = reservations.get(0);
                 service.modifier(first);
