@@ -11,7 +11,7 @@ public class Connection {
         ReservationCRUD service = new ReservationCRUD();
 
         try {
-             Load all reservations from DB
+             L all reservations from DB
             List<Reservation> reservations = service.afficher();
 
             // Display them
