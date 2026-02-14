@@ -3,6 +3,7 @@
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.effect.DropShadow?>
+<?import javafx.scene.image.Image?>
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.shape.Rectangle?>
@@ -41,8 +42,14 @@
                          -fx-border-width: 0 0 1 0;">
                 <padding><Insets bottom="18" left="18" right="18" top="18" /></padding>
 
-                <Label text="WinGo Travel"
-                       style="-fx-text-fill: white; -fx-font-size: 18px; -fx-font-weight: 900;" />
+                <!-- Logo et titre -->
+                <HBox spacing="12" alignment="CENTER_LEFT">
+                    <ImageView fitHeight="40" fitWidth="40" preserveRatio="true">
+                        <Image url="@/logo.png" />
+                    </ImageView>
+                    <Label text="WinGo Travel"
+                           style="-fx-text-fill: white; -fx-font-size: 18px; -fx-font-weight: 900;" />
+                </HBox>
 
                 <Region HBox.hgrow="ALWAYS" />
 
@@ -150,14 +157,15 @@
                                              -fx-border-radius: 18;">
                                     <padding><Insets bottom="12" left="12" right="12" top="12"/></padding>
 
-                                    <Label text="Gestion des Blogs ✍️"
+                                    <Label text="Blog WinGo"
                                            style="-fx-text-fill: white; -fx-font-size: 20px; -fx-font-weight: 900;"/>
 
-                                    <Label text="Créez, modifiez ou supprimez vos articles"
+                                    <Label text="Découvrez les plus belles destinations, expériences et saveurs de la Tunisie à travers nos articles passionnants."
+                                           wrapText="true"
                                            style="-fx-text-fill: rgba(255,255,255,0.78); -fx-font-size: 11px; -fx-font-weight: 700;"/>
 
                                     <HBox spacing="6">
-                                        <Label text="📝" style="-fx-font-size: 14px;" />
+                                        <Label text="📖" style="-fx-font-size: 14px;" />
                                         <Label text="Articles et commentaires"
                                                style="-fx-text-fill: rgba(255,255,255,0.85); -fx-font-weight: 800;" />
                                     </HBox>
@@ -400,63 +408,48 @@
                     </content>
                 </ScrollPane>
 
-                <!-- ===== VUE DÉTAIL AMÉLIORÉE (TRANSPARENTE) ===== -->
+                <!-- ===== VUE DÉTAIL AMÉLIORÉE (CRÉATIVE) ===== -->
                 <ScrollPane fx:id="detailViewScroll" fitToWidth="true" visible="false" managed="false"
                             style="-fx-background-color: transparent; -fx-background: transparent;">
                     <content>
-                        <VBox fx:id="detailView" spacing="20" alignment="TOP_CENTER"
-                              style="-fx-background-color: rgba(255,255,255,0.15); -fx-background-radius: 30; -fx-padding: 25; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.4), 20, 0.5, 0, 10); -fx-border-color: rgba(255,255,255,0.3); -fx-border-width: 1.5; -fx-border-radius: 30;">
-                            <padding><Insets bottom="25" left="25" right="25" top="25"/></padding>
+                        <VBox fx:id="detailView" spacing="25" alignment="TOP_CENTER"
+                              style="-fx-background-color: rgba(255,255,255,0.15); -fx-background-radius: 30; -fx-padding: 0; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.4), 20, 0.5, 0, 10); -fx-border-color: rgba(255,255,255,0.3); -fx-border-width: 1.5; -fx-border-radius: 30;">
 
-                            <!-- Bouton retour stylisé -->
-                            <Button fx:id="backToListBtn" text="← Retour aux articles"
-                                    maxWidth="Infinity" alignment="CENTER_LEFT"
-                                    style="-fx-background-color: rgba(255,255,255,0.25); -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 12 20; -fx-background-radius: 50; -fx-cursor: hand; -fx-font-size: 14px; -fx-border-color: rgba(255,255,255,0.4); -fx-border-radius: 50;"/>
-
-                            <!-- Image avec cadre arrondi et ombre -->
-                            <StackPane fx:id="detailImageContainer" prefHeight="280" maxWidth="Infinity"
-                                       style="-fx-background-color: rgba(0,0,0,0.2); -fx-background-radius: 20; -fx-border-radius: 20; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 10, 0.3, 0, 5); -fx-border-color: rgba(255,255,255,0.3); -fx-border-width: 1;">
+                            <!-- Image en haut, sans padding interne -->
+                            <StackPane fx:id="detailImageContainer" prefHeight="300" maxWidth="Infinity"
+                                       style="-fx-background-color: rgba(0,0,0,0.2); -fx-background-radius: 30 30 0 0; -fx-border-radius: 30 30 0 0;">
                                 <ImageView fx:id="detailImageView" preserveRatio="true" smooth="true" cache="true" />
+                                <!-- Dégradé sur l'image pour faire ressortir le titre -->
+                                <Pane style="-fx-background-color: linear-gradient(to bottom, rgba(0,0,0,0) 0%, rgba(0,0,0,0.7) 100%);" />
+                                <!-- Titre superposé -->
+                                <Label fx:id="detailTitreLabel" style="-fx-font-size: 32px; -fx-font-weight: bold; -fx-text-fill: white; -fx-wrap-text: true; -fx-text-alignment: center; -fx-padding: 0 20 20 20; -fx-effect: dropshadow(gaussian, black, 5, 0.5, 2, 2);" StackPane.alignment="BOTTOM_CENTER" />
                             </StackPane>
 
-                            <!-- ===== PARTIE INFORMATIONS (GLASSMORPHISM) ===== -->
-                            <VBox spacing="20" style="-fx-background-color: rgba(255,255,255,0.2); -fx-background-radius: 30; -fx-padding: 25; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.2), 15, 0.3, 0, 8); -fx-border-color: rgba(255,255,255,0.3); -fx-border-width: 1; -fx-border-radius: 30;">
-                                <!-- En-tête avec auteur, date et badges -->
-                                <HBox spacing="15" alignment="CENTER_LEFT">
-                                    <!-- Avatar auteur (cercle avec initiales) -->
-                                    <StackPane prefWidth="50" prefHeight="50" style="-fx-background-color: linear-gradient(to bottom right, #b7472a, #e67e22); -fx-background-radius: 50; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 8, 0.3, 2, 2); -fx-border-color: rgba(255,255,255,0.5); -fx-border-width: 1;">
-                                        <Label fx:id="detailAuteurInitiales" text="ZB" style="-fx-text-fill: white; -fx-font-size: 20px; -fx-font-weight: bold;"/>
-                                    </StackPane>
-                                    <VBox spacing="5">
-                                        <Label fx:id="detailAuteurLabel" style="-fx-font-size: 18px; -fx-text-fill: white; -fx-font-weight: bold; -fx-effect: dropshadow(gaussian, black, 3, 0.3, 1, 1);"/>
-                                        <HBox spacing="10" alignment="CENTER_LEFT">
-                                            <Label text="📅" style="-fx-font-size: 14px; -fx-text-fill: white;"/>
-                                            <Label fx:id="detailDateLabel" style="-fx-font-size: 14px; -fx-text-fill: white; -fx-effect: dropshadow(gaussian, black, 2, 0.2, 1, 1);"/>
-                                        </HBox>
-                                    </VBox>
-                                    <Region HBox.hgrow="ALWAYS" />
-                                    <!-- Badges région et catégorie (sans cadre épais) -->
-                                    <HBox spacing="10" alignment="CENTER_RIGHT">
-                                        <Label fx:id="detailRegionLabel" style="-fx-font-size: 14px; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-color: rgba(230,126,34,0.8); -fx-padding: 8 18; -fx-background-radius: 50; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 5, 0.2, 0, 2);"/>
-                                        <Label fx:id="detailCategorieLabel" style="-fx-font-size: 14px; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-color: rgba(52,152,219,0.8); -fx-padding: 8 18; -fx-background-radius: 50; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 5, 0.2, 0, 2);"/>
-                                    </HBox>
+                            <!-- Informations auteur et date -->
+                            <HBox spacing="30" alignment="CENTER" style="-fx-padding: 0 20;">
+                                <HBox spacing="8" alignment="CENTER">
+                                    <Label text="👤" style="-fx-font-size: 18px; -fx-text-fill: white;"/>
+                                    <Label fx:id="detailAuteurLabel" style="-fx-font-size: 16px; -fx-text-fill: white; -fx-font-weight: bold;"/>
                                 </HBox>
+                                <HBox spacing="8" alignment="CENTER">
+                                    <Label text="📅" style="-fx-font-size: 18px; -fx-text-fill: white;"/>
+                                    <Label fx:id="detailDateLabel" style="-fx-font-size: 16px; -fx-text-fill: white;"/>
+                                </HBox>
+                            </HBox>
 
-                                <!-- Contenu avec titre -->
-                                <VBox spacing="10">
-                                    <Label text="📝 Contenu" style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: white; -fx-border-color: transparent transparent rgba(255,255,255,0.6) transparent; -fx-border-width: 0 0 2 0; -fx-padding: 0 0 5 0; -fx-effect: dropshadow(gaussian, black, 2, 0.2, 1, 1);"/>
-                                    <ScrollPane fitToWidth="true" prefHeight="150" style="-fx-background: transparent; -fx-background-color: transparent;">
-                                        <Label fx:id="detailContenuLabel" wrapText="true" style="-fx-font-size: 15px; -fx-text-fill: white; -fx-padding: 15; -fx-background-color: rgba(255,255,255,0.15); -fx-background-radius: 20; -fx-border-radius: 20; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 5, 0.1, 0, 2);"/>
-                                    </ScrollPane>
-                                </VBox>
+                            <!-- Contenu dans une carte stylisée -->
+                            <VBox spacing="10" style="-fx-background-color: rgba(255,255,255,0.2); -fx-background-radius: 20; -fx-padding: 20; -fx-border-color: rgba(255,255,255,0.3); -fx-border-radius: 20; -fx-margin: 0 20 0 20;">
+                                <Label text="📝 Récit de voyage" style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: white; -fx-border-color: transparent transparent rgba(255,255,255,0.3) transparent; -fx-border-width: 0 0 2 0; -fx-padding: 0 0 5 0;"/>
+                                <Label fx:id="detailContenuLabel" wrapText="true" style="-fx-font-size: 15px; -fx-text-fill: white; -fx-line-spacing: 5;"/>
                             </VBox>
-                            <!-- ===== FIN PARTIE INFORMATIONS ===== -->
 
-                            <!-- Separator corrigé (remplacement de -fx-background par -fx-background-color) -->
-                            <Separator style="-fx-background-color: linear-gradient(to right, rgba(255,255,255,0.5), rgba(255,255,255,0.1)); -fx-pref-height: 2;"/>
+                            <!-- Séparateur décoratif -->
+                            <HBox alignment="CENTER" style="-fx-padding: 5 0;">
+                                <Rectangle width="50" height="2" style="-fx-fill: rgba(255,255,255,0.5); -fx-arc-width: 2; -fx-arc-height: 2;"/>
+                            </HBox>
 
                             <!-- Section commentaires -->
-                            <VBox spacing="15">
+                            <VBox spacing="15" style="-fx-padding: 0 20 20 20;">
                                 <Label text="💬 Commentaires" style="-fx-font-size: 22px; -fx-font-weight: bold; -fx-text-fill: white; -fx-effect: dropshadow(gaussian, black, 3, 0.3, 1, 1);"/>
                                 <ScrollPane fitToWidth="true" prefHeight="200" style="-fx-background: transparent; -fx-background-color: transparent;">
                                     <FlowPane fx:id="detailCommentairesPane" hgap="15" vgap="15" style="-fx-background-color: transparent;"/>
@@ -464,7 +457,7 @@
                             </VBox>
 
                             <!-- Ajout d'un commentaire -->
-                            <HBox spacing="10" alignment="CENTER_LEFT">
+                            <HBox spacing="10" alignment="CENTER_LEFT" style="-fx-padding: 0 20 20 20;">
                                 <TextField fx:id="detailNewCommentField" promptText="Votre commentaire..." HBox.hgrow="ALWAYS"
                                            style="-fx-padding: 12; -fx-background-radius: 30; -fx-border-radius: 30; -fx-background-color: rgba(255,255,255,0.2); -fx-border-color: rgba(255,255,255,0.4); -fx-text-fill: white; -fx-prompt-text-fill: rgba(255,255,255,0.7); -fx-font-size: 14px;"/>
                                 <Label fx:id="detailConnectedUserLabel" text="(connexion...)"
@@ -472,7 +465,7 @@
                                 <Button fx:id="detailAddCommentBtn" text="Envoyer"
                                         style="-fx-background-color: rgba(46,204,113,0.8); -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 12 25; -fx-background-radius: 30; -fx-cursor: hand; -fx-font-size: 14px; -fx-border-color: rgba(255,255,255,0.4); -fx-border-width: 1;"/>
                             </HBox>
-                            <Label fx:id="detailStatusLabel" style="-fx-text-fill: #2ecc71; -fx-font-size: 13px; -fx-effect: dropshadow(gaussian, black, 1, 0.2, 1, 1);"/>
+                            <Label fx:id="detailStatusLabel" style="-fx-text-fill: #2ecc71; -fx-font-size: 13px; -fx-padding: 0 20 20 20; -fx-effect: dropshadow(gaussian, black, 1, 0.2, 1, 1);"/>
                         </VBox>
                     </content>
                 </ScrollPane>
