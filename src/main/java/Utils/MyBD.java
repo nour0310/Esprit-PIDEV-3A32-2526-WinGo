@@ -5,14 +5,13 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 
 public class MyBD {
-
-    private static MyBD instance;
     private Connection conn;
 
-    private static final String URL  =
-            "jdbc:mysql://localhost:3306/wingo?useSSL=false&serverTimezone=UTC";
+    private static final String URL  = "jdbc:mysql://localhost:3306/wingo?useSSL=false&serverTimezone=UTC";
     private static final String USER = "root";
     private static final String PASS = "";
+
+    private static MyBD instance;
 
     private MyBD() { }
 
@@ -21,11 +20,15 @@ public class MyBD {
         return instance;
     }
 
-    // ✅ toujours retourner une connexion ouverte
+    private Connection newConn() throws SQLException {
+        Connection c = DriverManager.getConnection(URL, USER, PASS);
+        System.out.println("Connected");
+        return c;
+    }
+
     public Connection getConn() throws SQLException {
         if (conn == null || conn.isClosed()) {
-            conn = DriverManager.getConnection(URL, USER, PASS);
-            System.out.println("Connected");
+            conn = newConn();
         }
         return conn;
     }
