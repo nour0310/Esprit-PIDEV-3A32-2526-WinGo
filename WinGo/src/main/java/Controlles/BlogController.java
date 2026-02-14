@@ -197,7 +197,7 @@ public class BlogController implements Initializable {
         }
     }
 
-    // ==================== CARTE AVEC IMAGE EN MODE COVER ====================
+    // ==================== CARTE FINALE AVEC BOUTONS LISIBLES ====================
     private VBox createBlogCard(Blog blog) {
         VBox card = new VBox();
         card.setStyle(
@@ -210,44 +210,32 @@ public class BlogController implements Initializable {
         card.setMaxWidth(280);
         card.setPadding(Insets.EMPTY);
 
-        // Conteneur de l'image avec fond gris clair si pas d'image
+        // Conteneur de l'image
         StackPane imageContainer = new StackPane();
         imageContainer.setPrefHeight(180);
-        imageContainer.setStyle("-fx-background-radius: 20 20 0 0; -fx-background-color: #f0f0f0; -fx-clip: true;");
+        imageContainer.setStyle("-fx-background-radius: 20 20 0 0; -fx-clip: true;");
 
-        // Chargement de l'image
-        Image img = null;
+        ImageView imageView = new ImageView();
+        imageView.setFitWidth(280);
+        imageView.setFitHeight(180);
+        imageView.setPreserveRatio(true);
         try {
             if (blog.getImage() != null && !blog.getImage().isEmpty()) {
-                img = new Image("file:" + blog.getImage(), true);
+                Image img = new Image("file:" + blog.getImage(), true);
+                imageView.setImage(img);
+            } else {
+                Image defaultImg = new Image(getClass().getResourceAsStream("/default.jpg"));
+                imageView.setImage(defaultImg);
             }
         } catch (Exception e) {
-            // ignore
-        }
-        if (img == null || img.isError()) {
             try {
-                img = new Image(getClass().getResourceAsStream("/default.jpg"));
-            } catch (Exception ex) {
-                // si pas d'image par défaut, on laisse le fond gris
-            }
+                Image defaultImg = new Image(getClass().getResourceAsStream("/default.jpg"));
+                imageView.setImage(defaultImg);
+            } catch (Exception ex) {}
         }
+        imageContainer.getChildren().add(imageView);
 
-        // On utilise un Background pour un remplissage cover (l'image couvre tout le conteneur)
-        if (img != null && !img.isError()) {
-            BackgroundImage bgImage = new BackgroundImage(
-                    img,
-                    BackgroundRepeat.NO_REPEAT,
-                    BackgroundRepeat.NO_REPEAT,
-                    BackgroundPosition.CENTER,
-                    new BackgroundSize(280, 180, false, false, true, true) // cover
-            );
-            imageContainer.setBackground(new Background(bgImage));
-        } else {
-            // fond gris par défaut
-            imageContainer.setStyle("-fx-background-radius: 20 20 0 0; -fx-background-color: #cccccc;");
-        }
-
-        // Titre superposé
+        // Titre superposé (fond semi-transparent noir)
         Label titleOverlay = new Label(blog.getTitre());
         titleOverlay.setStyle(
                 "-fx-text-fill: white;" +
@@ -313,7 +301,7 @@ public class BlogController implements Initializable {
         Label commentCount = new Label("Commentaires: " + nbComments);
         commentCount.setStyle("-fx-text-fill: #27ae60; -fx-font-size: 13px;");
 
-        // Boutons d'action
+        // Boutons d'action (texte complet)
         HBox actions = new HBox(8);
         actions.setAlignment(Pos.CENTER);
 
@@ -705,7 +693,7 @@ public class BlogController implements Initializable {
             showWarning("Le commentaire ne peut pas être vide.");
             return;
         }
-        // On utilise l'utilisateur connecté
+        // On utilise l'utilisateur connecté, pas de champ ID
         Commentaire c = new Commentaire();
         c.setContenu(contenu.trim());
         c.setUtilisateur(currentUser.getId());
