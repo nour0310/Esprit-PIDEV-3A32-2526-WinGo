@@ -1,6 +1,7 @@
 package Controlles;
 
 import Entites.Produit;
+import Services.PanierCRUD;
 import Services.ProduitCRUD;
 import Utils.MyBD;
 import Utils.Session;
@@ -57,7 +58,7 @@ public class WinGoShopController {
     @FXML private Label formTitleLabel;
     @FXML private Button saveBtn;
 
-    // ✅ Welcome label
+    // ✅ Welcome label (dans formPane)
     @FXML private Label welcomeLabel;
 
     // Cart
@@ -69,9 +70,9 @@ public class WinGoShopController {
     @FXML private Label cartTotalLabel;
 
     private final ProduitCRUD produitCRUD = new ProduitCRUD();
-    private final ObservableList<Produit> produitsData = FXCollections.observableArrayList();
+    private final PanierCRUD panierCRUD = new PanierCRUD();
 
-    private final CartService cartService = new CartService();
+    private final ObservableList<Produit> produitsData = FXCollections.observableArrayList();
     private final ObservableList<CartItem> cartData = FXCollections.observableArrayList();
 
     @FXML
@@ -114,10 +115,8 @@ public class WinGoShopController {
 
         // ✅ Welcome message
         String fullName = getNomPrenomUtilisateur(Session.getUserId());
-        if (Session.isCommercant()) {
+        if (welcomeLabel != null) {
             welcomeLabel.setText("Bienvenue " + fullName + " 👋  •  Tu es commerçant ✅");
-        } else {
-            welcomeLabel.setText("Bienvenue " + fullName + " 👋  •  Mode client 🧑‍💼");
         }
 
         clearForm(null);
@@ -137,14 +136,15 @@ public class WinGoShopController {
             return;
         }
 
-        // ✅ TEMPORAIRE (tu remplaces après par vraie DB)
-        // email contient "shop" => COMMERCANT sinon CLIENT
-        int fakeId = 1; // IMPORTANT: doit exister dans table utilisateur
+        // ✅ TEMPORAIRE: on fixe un userId existant dans DB
+        // Change fakeId selon un id موجود في utilisateur
+        int fakeId = 1;
         String fakeType = email.toLowerCase().contains("shop") ? "COMMERCANT" : "CLIENT";
 
         Session.setUser(fakeId, fakeType);
 
         loginStatusLabel.setText("✅ Connecté (" + fakeType + ").");
+        refreshCartUI();
         showProducts();
     }
 
@@ -160,7 +160,8 @@ public class WinGoShopController {
                     String nom = rs.getString("nom");
                     String prenom = rs.getString("prenom");
                     String full = (prenom != null ? prenom : "") + " " + (nom != null ? nom : "");
-                    return full.trim().isEmpty() ? "Utilisateur" : full.trim();
+                    full = full.trim();
+                    return full.isEmpty() ? "Utilisateur" : full;
                 }
             }
         } catch (Exception e) {
@@ -177,7 +178,6 @@ public class WinGoShopController {
         colStock.setCellValueFactory(new PropertyValueFactory<>("stock"));
         colCat.setCellValueFactory(new PropertyValueFactory<>("categorie"));
         colRegion.setCellValueFactory(new PropertyValueFactory<>("region"));
-
         produitsTable.setItems(produitsData);
     }
 
@@ -210,15 +210,27 @@ public class WinGoShopController {
         produitsTable.setItems(filtered);
     }
 
+    // ✅ AJOUT AU PANIER (DB)
     @FXML
     public void addSelectedToCart() {
+        if (!Session.isLoggedIn()) {
+            statusLabel.setText("⚠ Connecte-toi pour utiliser le panier.");
+            showLogin();
+            return;
+        }
+
         Produit p = produitsTable.getSelectionModel().getSelectedItem();
         if (p == null) { statusLabel.setText("⚠ Sélectionne un produit."); return; }
         if (p.getStock() <= 0) { statusLabel.setText("⚠ Stock vide."); return; }
 
-        cartService.add(p, 1);
-        refreshCartUI();
-        statusLabel.setText("✅ Ajouté au panier: " + p.getNom());
+        try {
+            panierCRUD.addToCart(Session.getUserId(), p.getIdProduit(), p.getPrix(), 1);
+            refreshCartUI();
+            statusLabel.setText("✅ Ajouté au panier: " + p.getNom());
+        } catch (SQLException e) {
+            statusLabel.setText("❌ Erreur panier: " + e.getMessage());
+            e.printStackTrace();
+        }
     }
 
     @FXML
@@ -358,7 +370,7 @@ public class WinGoShopController {
         imageField.clear();
     }
 
-    // ------------------ CART ------------------
+    // ------------------ CART (DB) ------------------
     private void setupCartTable() {
         cartColNom.setCellValueFactory(new PropertyValueFactory<>("nom"));
         cartColPrix.setCellValueFactory(new PropertyValueFactory<>("prix"));
@@ -368,34 +380,69 @@ public class WinGoShopController {
     }
 
     private void refreshCartUI() {
-        cartData.setAll(cartService.getItems());
-        cartCountLabel.setText(String.valueOf(cartService.totalQty()));
-        cartTotalLabel.setText(String.format("Total: %.2f TND", cartService.totalPrice()));
+        if (!Session.isLoggedIn()) {
+            cartData.clear();
+            cartCountLabel.setText("0");
+            cartTotalLabel.setText("Total: 0.00 TND");
+            return;
+        }
+
+        try {
+            cartData.setAll(panierCRUD.getActiveCart(Session.getUserId()));
+
+            int totalQty = cartData.stream().mapToInt(CartItem::getQty).sum();
+            double total = cartData.stream().mapToDouble(CartItem::getSubtotal).sum();
+
+            cartCountLabel.setText(String.valueOf(totalQty));
+            cartTotalLabel.setText(String.format("Total: %.2f TND", total));
+        } catch (SQLException e) {
+            statusLabel.setText("❌ Erreur panier: " + e.getMessage());
+            e.printStackTrace();
+        }
     }
 
     @FXML public void qtyPlus() {
         CartItem it = cartTable.getSelectionModel().getSelectedItem();
         if (it == null) return;
-        cartService.changeQty(it.getIdProduit(), +1);
-        refreshCartUI();
+
+        try {
+            panierCRUD.changeQty(Session.getUserId(), it.getIdProduit(), +1);
+            refreshCartUI();
+        } catch (SQLException e) {
+            statusLabel.setText("❌ " + e.getMessage());
+        }
     }
 
     @FXML public void qtyMinus() {
         CartItem it = cartTable.getSelectionModel().getSelectedItem();
         if (it == null) return;
-        cartService.changeQty(it.getIdProduit(), -1);
-        refreshCartUI();
+
+        try {
+            panierCRUD.changeQty(Session.getUserId(), it.getIdProduit(), -1);
+            refreshCartUI();
+        } catch (SQLException e) {
+            statusLabel.setText("❌ " + e.getMessage());
+        }
     }
 
     @FXML public void removeFromCart() {
         CartItem it = cartTable.getSelectionModel().getSelectedItem();
         if (it == null) return;
-        cartService.remove(it.getIdProduit());
-        refreshCartUI();
+
+        try {
+            panierCRUD.remove(Session.getUserId(), it.getIdProduit());
+            refreshCartUI();
+        } catch (SQLException e) {
+            statusLabel.setText("❌ " + e.getMessage());
+        }
     }
 
     @FXML public void clearCart() {
-        cartService.clear();
-        refreshCartUI();
+        try {
+            panierCRUD.clear(Session.getUserId());
+            refreshCartUI();
+        } catch (SQLException e) {
+            statusLabel.setText("❌ " + e.getMessage());
+        }
     }
 }
