@@ -197,7 +197,7 @@ public class BlogController implements Initializable {
         }
     }
 
-    // ==================== CARTE SANS VIOLET, AVEC BOUTON BLEU ====================
+    // ==================== CARTE FINALE AVEC BOUTONS LISIBLES ====================
     private VBox createBlogCard(Blog blog) {
         VBox card = new VBox();
         card.setStyle(
@@ -234,10 +234,6 @@ public class BlogController implements Initializable {
             } catch (Exception ex) {}
         }
         imageContainer.getChildren().add(imageView);
-
-        // Suppression du dégradé violet/orange – on garde juste le fond semi-transparent pour le titre
-        // (le titre a déjà son propre fond, donc on peut enlever ce gradient)
-        // On ne met aucun overlay supplémentaire.
 
         // Titre superposé (fond semi-transparent noir)
         Label titleOverlay = new Label(blog.getTitre());
@@ -276,7 +272,7 @@ public class BlogController implements Initializable {
         VBox content = new VBox(8);
         content.setPadding(new Insets(15, 15, 15, 15));
 
-        // Auteur (texte simple)
+        // Auteur
         Label auteur = new Label("Auteur: " + (blog.getAuteurNom() != null ? blog.getAuteurNom() : "Inconnu"));
         auteur.setStyle("-fx-text-fill: #b7472a; -fx-font-weight: bold; -fx-font-size: 13px;");
 
@@ -305,34 +301,31 @@ public class BlogController implements Initializable {
         Label commentCount = new Label("Commentaires: " + nbComments);
         commentCount.setStyle("-fx-text-fill: #27ae60; -fx-font-size: 13px;");
 
-        // Boutons d'action
-        HBox actions = new HBox(10);
+        // Boutons d'action (texte complet)
+        HBox actions = new HBox(8);
         actions.setAlignment(Pos.CENTER);
 
-        // Bouton Voir en bleu (remplace le violet)
         Button voirBtn = new Button("Voir");
         voirBtn.setStyle(
                 "-fx-background-color: #3498db;" +
                         "-fx-text-fill: white;" +
                         "-fx-font-weight: bold;" +
                         "-fx-background-radius: 30;" +
-                        "-fx-padding: 6 20;" +
+                        "-fx-padding: 6 15;" +
                         "-fx-font-size: 12px;" +
-                        "-fx-cursor: hand;" +
-                        "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 5, 0, 0, 2);"
+                        "-fx-cursor: hand;"
         );
         voirBtn.setOnAction(e -> showDetailView(blog));
 
         Button modifierBtn = new Button("Modifier");
         modifierBtn.setStyle(
-                "-fx-background-color: #f1c40f;" +
-                        "-fx-text-fill: black;" +
+                "-fx-background-color: #f39c12;" +
+                        "-fx-text-fill: white;" +
                         "-fx-font-weight: bold;" +
                         "-fx-background-radius: 30;" +
-                        "-fx-padding: 6 20;" +
+                        "-fx-padding: 6 15;" +
                         "-fx-font-size: 12px;" +
-                        "-fx-cursor: hand;" +
-                        "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 5, 0, 0, 2);"
+                        "-fx-cursor: hand;"
         );
         modifierBtn.setOnAction(e -> selectBlog(blog));
 
@@ -342,10 +335,9 @@ public class BlogController implements Initializable {
                         "-fx-text-fill: white;" +
                         "-fx-font-weight: bold;" +
                         "-fx-background-radius: 30;" +
-                        "-fx-padding: 6 20;" +
+                        "-fx-padding: 6 15;" +
                         "-fx-font-size: 12px;" +
-                        "-fx-cursor: hand;" +
-                        "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 5, 0, 0, 2);"
+                        "-fx-cursor: hand;"
         );
         supprimerBtn.setOnAction(e -> supprimerBlog(blog));
 
