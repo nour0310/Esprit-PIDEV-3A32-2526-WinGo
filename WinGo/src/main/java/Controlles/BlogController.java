@@ -76,6 +76,7 @@ public class BlogController implements Initializable {
     @FXML private StackPane detailImageContainer;
     @FXML private ImageView detailImageView;
     @FXML private Label detailAuteurLabel;
+    @FXML private Label detailAuteurInitiales; // Nouveau label pour les initiales
     @FXML private Label detailDateLabel;
     @FXML private Label detailRegionLabel;
     @FXML private Label detailCategorieLabel;
@@ -401,17 +402,30 @@ public class BlogController implements Initializable {
         return null;
     }
 
-    // ========== VUE DÉTAIL AMÉLIORÉE ==========
-
+    // ========== VUE DÉTAIL ==========
     private void showDetailView(Blog blog) {
         displayedDetailBlog = blog;
-        detailAuteurLabel.setText("Auteur: " + (blog.getAuteurNom() != null ? blog.getAuteurNom() : "Inconnu"));
-        detailDateLabel.setText("Date: " + (blog.getDatePublication() != null ? blog.getDatePublication().format(dateShortFormatter) : ""));
-        detailRegionLabel.setText("Région: " + (blog.getRegion() != null ? blog.getRegion() : ""));
-        detailCategorieLabel.setText("Catégorie: " + (blog.getCategorie() != null ? blog.getCategorie() : ""));
+        // Mise à jour des labels
+        detailAuteurLabel.setText(blog.getAuteurNom() != null ? blog.getAuteurNom() : "Inconnu");
+        detailDateLabel.setText(blog.getDatePublication() != null ? blog.getDatePublication().format(dateShortFormatter) : "");
+        detailRegionLabel.setText(blog.getRegion() != null ? blog.getRegion() : "");
+        detailCategorieLabel.setText(blog.getCategorie() != null ? blog.getCategorie() : "");
         detailContenuLabel.setText(blog.getContenu() != null ? blog.getContenu() : "");
 
-        // Chargement de l'image pour la vue détail
+        // Calcul des initiales
+        String auteurNom = blog.getAuteurNom();
+        String initiales = "";
+        if (auteurNom != null && !auteurNom.isEmpty()) {
+            String[] parts = auteurNom.split(" ");
+            if (parts.length >= 2) {
+                initiales = parts[0].substring(0, 1) + parts[1].substring(0, 1);
+            } else if (parts.length == 1) {
+                initiales = parts[0].substring(0, 1);
+            }
+        }
+        detailAuteurInitiales.setText(initiales.toUpperCase());
+
+        // Chargement de l'image
         Image img = loadImage(blog.getImage());
         if (img != null && !img.isError()) {
             detailImageView.setImage(img);
@@ -423,9 +437,9 @@ public class BlogController implements Initializable {
                 detailImageView.setImage(null);
             }
         }
-        // Adapter l'image à la largeur du conteneur avec une hauteur fixe
+        // Lier la largeur de l'image à celle du conteneur et fixer une hauteur
         detailImageView.fitWidthProperty().bind(detailImageContainer.widthProperty());
-        detailImageView.setFitHeight(250); // Hauteur fixe
+        detailImageView.setFitHeight(250); // Hauteur fixe pour un bel affichage
 
         afficherCommentairesDetail();
         listViewScroll.setVisible(false);
@@ -449,34 +463,39 @@ public class BlogController implements Initializable {
                 .filter(c -> c.getArticleId() == displayedDetailBlog.getId())
                 .toList();
         for (Commentaire c : comments) {
+            // Création d'une carte de commentaire stylisée
             VBox card = new VBox(5);
-            card.setPadding(new Insets(10));
-            card.setStyle("-fx-background-color: #f0f0f0; -fx-background-radius: 10; -fx-border-color: #ddd; -fx-border-radius: 10;");
+            card.setPadding(new Insets(12));
+            card.setStyle("-fx-background-color: #f9f9f9; -fx-background-radius: 15; -fx-border-color: #ddd; -fx-border-radius: 15; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 5, 0.2, 0, 2);");
             card.setPrefWidth(250);
 
             Label contenu = new Label(c.getContenu() != null ? c.getContenu() : "");
             contenu.setWrapText(true);
             contenu.setStyle("-fx-font-size: 13px; -fx-text-fill: #2c3e50;");
 
-            Label auteur = new Label("Auteur: " + (c.getUtilisateurNom() != null ? c.getUtilisateurNom() : "Utilisateur " + c.getUtilisateur()));
-            auteur.setStyle("-fx-text-fill: #b7472a; -fx-font-size: 12px;");
-
-            Label date = new Label("Date: " + (c.getDateCommentaire() != null ? c.getDateCommentaire().format(dateFormatter) : ""));
+            HBox meta = new HBox(10);
+            meta.setAlignment(Pos.CENTER_LEFT);
+            Label auteur = new Label("👤 " + (c.getUtilisateurNom() != null ? c.getUtilisateurNom() : "Utilisateur " + c.getUtilisateur()));
+            auteur.setStyle("-fx-text-fill: #b7472a; -fx-font-size: 12px; -fx-font-weight: bold;");
+            Label date = new Label("📅 " + (c.getDateCommentaire() != null ? c.getDateCommentaire().format(dateFormatter) : ""));
             date.setStyle("-fx-text-fill: #7f8c8d; -fx-font-size: 11px;");
+            Region spacer = new Region();
+            HBox.setHgrow(spacer, Priority.ALWAYS);
+            meta.getChildren().addAll(auteur, spacer, date);
 
             if (currentUser != null && c.getUtilisateur() == currentUser.getId()) {
                 HBox actions = new HBox(5);
                 actions.setAlignment(Pos.CENTER_RIGHT);
                 Button editBtn = new Button("✏️");
-                editBtn.setStyle("-fx-background-color: #f39c12; -fx-text-fill: white; -fx-background-radius: 5; -fx-cursor: hand; -fx-padding: 5;");
+                editBtn.setStyle("-fx-background-color: #f39c12; -fx-text-fill: white; -fx-background-radius: 20; -fx-cursor: hand; -fx-padding: 5 10;");
                 editBtn.setOnAction(e -> modifierCommentaireDetail(c));
                 Button deleteBtn = new Button("🗑️");
-                deleteBtn.setStyle("-fx-background-color: #e74c3c; -fx-text-fill: white; -fx-background-radius: 5; -fx-cursor: hand; -fx-padding: 5;");
+                deleteBtn.setStyle("-fx-background-color: #e74c3c; -fx-text-fill: white; -fx-background-radius: 20; -fx-cursor: hand; -fx-padding: 5 10;");
                 deleteBtn.setOnAction(e -> supprimerCommentaireDetail(c));
                 actions.getChildren().addAll(editBtn, deleteBtn);
-                card.getChildren().addAll(contenu, auteur, date, actions);
+                card.getChildren().addAll(contenu, meta, actions);
             } else {
-                card.getChildren().addAll(contenu, auteur, date);
+                card.getChildren().addAll(contenu, meta);
             }
             detailCommentairesPane.getChildren().add(card);
         }
@@ -548,7 +567,6 @@ public class BlogController implements Initializable {
     // ========== CRUD BLOG ==========
 
     private void supprimerBlog(Blog blog) {
-        // Vérification que l'utilisateur est l'auteur (sécurité supplémentaire)
         if (currentUser == null || blog.getAuteur() != currentUser.getId()) {
             showWarning("Vous ne pouvez supprimer que vos propres articles.");
             return;
@@ -577,7 +595,6 @@ public class BlogController implements Initializable {
     }
 
     private void selectBlog(Blog blog) {
-        // On ne permet la sélection que si l'utilisateur est l'auteur (pour modification)
         if (currentUser == null || blog.getAuteur() != currentUser.getId()) {
             showWarning("Vous ne pouvez modifier que vos propres articles.");
             return;
@@ -706,7 +723,6 @@ public class BlogController implements Initializable {
             showWarning("Sélectionnez un article à modifier.");
             return;
         }
-        // Vérification que l'utilisateur est bien l'auteur
         if (currentUser == null || selectedBlog.getAuteur() != currentUser.getId()) {
             showWarning("Vous ne pouvez modifier que vos propres articles.");
             return;
@@ -733,7 +749,6 @@ public class BlogController implements Initializable {
             showWarning("Sélectionnez un article à supprimer.");
             return;
         }
-        // Vérification que l'utilisateur est bien l'auteur
         if (currentUser == null || selectedBlog.getAuteur() != currentUser.getId()) {
             showWarning("Vous ne pouvez supprimer que vos propres articles.");
             return;
