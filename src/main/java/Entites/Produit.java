@@ -4,7 +4,7 @@ import java.sql.Timestamp;
 
 public class Produit {
     private int idProduit;
-    private int idCommercant;
+    private int idUser;              // ✅ nouveau (remplace idCommercant)
     private String nom;
     private String description;
     private double prix;
@@ -16,10 +16,10 @@ public class Produit {
 
     public Produit() {}
 
-    public Produit(int idProduit, int idCommercant, String nom, String description, double prix,
+    public Produit(int idProduit, int idUser, String nom, String description, double prix,
                    String region, String categorie, int stock, String image, Timestamp dateAjout) {
         this.idProduit = idProduit;
-        this.idCommercant = idCommercant;
+        this.idUser = idUser;
         this.nom = nom;
         this.description = description;
         this.prix = prix;
@@ -33,8 +33,8 @@ public class Produit {
     public int getIdProduit() { return idProduit; }
     public void setIdProduit(int idProduit) { this.idProduit = idProduit; }
 
-    public int getIdCommercant() { return idCommercant; }
-    public void setIdCommercant(int idCommercant) { this.idCommercant = idCommercant; }
+    public int getIdUser() { return idUser; }
+    public void setIdUser(int idUser) { this.idUser = idUser; }
 
     public String getNom() { return nom; }
     public void setNom(String nom) { this.nom = nom; }
@@ -64,10 +64,17 @@ public class Produit {
     public String toString() {
         return "Produit{" +
                 "idProduit=" + idProduit +
-                ", idCommercant=" + idCommercant +
+                ", idUser=" + idUser +
                 ", nom='" + nom + '\'' +
                 ", prix=" + prix +
                 ", stock=" + stock +
                 '}';
     }
+
+    // ✅ (optionnel) compatibilité temporaire si tu as encore du code ancien
+    @Deprecated
+    public int getIdCommercant() { return idUser; }
+
+    @Deprecated
+    public void setIdCommercant(int idCommercant) { this.idUser = idCommercant; }
 }
