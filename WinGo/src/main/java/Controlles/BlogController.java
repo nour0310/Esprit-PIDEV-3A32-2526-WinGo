@@ -66,7 +66,7 @@ public class BlogController implements Initializable {
     @FXML private Button clearBtn;
     @FXML private Button addCommentBtn;
     @FXML private Label statusLabel;
-    @FXML private Label connectedUserLabel; // pour le commentaire
+    @FXML private Label connectedUserLabel;
 
     // Composants FXML de la vue détail
     @FXML private VBox listView;
@@ -197,28 +197,27 @@ public class BlogController implements Initializable {
         }
     }
 
-    // ==================== CARTE AMÉLIORÉE ====================
+    // ==================== CARTE CRÉATIVE AVEC LABELS SIMPLES ====================
     private VBox createBlogCard(Blog blog) {
         VBox card = new VBox();
-        card.setStyle("-fx-background-color: linear-gradient(to bottom, #fef9e7, #ffffff); " +
-                "-fx-background-radius: 12; " +
-                "-fx-border-radius: 12; " +
-                "-fx-border-color: #c49a6c; " +
-                "-fx-border-width: 1; " +
-                "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.2), 8, 0, 0, 2); " +
-                "-fx-cursor: hand;");
-        card.setPrefWidth(250);
-        card.setMaxWidth(250);
-        card.setPadding(new Insets(0));
+        card.setStyle(
+                "-fx-background-color: white;" +
+                        "-fx-background-radius: 20;" +
+                        "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.15), 15, 0.5, 0, 5);" +
+                        "-fx-cursor: hand;"
+        );
+        card.setPrefWidth(280);
+        card.setMaxWidth(280);
+        card.setPadding(Insets.EMPTY);
 
-        // Conteneur de l'image avec effet de superposition
+        // Conteneur de l'image
         StackPane imageContainer = new StackPane();
-        imageContainer.setPrefHeight(160);
-        imageContainer.setStyle("-fx-background-radius: 12 12 0 0; -fx-clip: true;");
+        imageContainer.setPrefHeight(180);
+        imageContainer.setStyle("-fx-background-radius: 20 20 0 0; -fx-clip: true;");
 
         ImageView imageView = new ImageView();
-        imageView.setFitWidth(250);
-        imageView.setFitHeight(160);
+        imageView.setFitWidth(280);
+        imageView.setFitHeight(180);
         imageView.setPreserveRatio(true);
         try {
             if (blog.getImage() != null && !blog.getImage().isEmpty()) {
@@ -236,82 +235,133 @@ public class BlogController implements Initializable {
         }
         imageContainer.getChildren().add(imageView);
 
-        // Overlay dégradé pour améliorer la lisibilité du titre
+        // Overlay dégradé
         Region gradientOverlay = new Region();
-        gradientOverlay.setStyle("-fx-background-color: linear-gradient(to top, rgba(0,0,0,0.7), transparent);");
-        gradientOverlay.setPrefHeight(160);
-        gradientOverlay.setMaxWidth(250);
+        gradientOverlay.setStyle(
+                "-fx-background-color: linear-gradient(to top, rgba(128,0,128,0.6), rgba(255,165,0,0.3));"
+        );
+        gradientOverlay.setPrefHeight(180);
+        gradientOverlay.setMaxWidth(280);
         StackPane.setAlignment(gradientOverlay, Pos.BOTTOM_CENTER);
         imageContainer.getChildren().add(gradientOverlay);
 
-        // Titre superposé en bas à gauche
+        // Titre superposé
         Label titleOverlay = new Label(blog.getTitre());
-        titleOverlay.setStyle("-fx-text-fill: white; -fx-font-size: 16px; -fx-font-weight: bold; -fx-padding: 8; -fx-wrap-text: true;");
-        titleOverlay.setMaxWidth(230);
+        titleOverlay.setStyle(
+                "-fx-text-fill: white;" +
+                        "-fx-font-size: 18px;" +
+                        "-fx-font-weight: bold;" +
+                        "-fx-background-color: rgba(0,0,0,0.5);" +
+                        "-fx-background-radius: 30;" +
+                        "-fx-padding: 5 15;" +
+                        "-fx-wrap-text: true;"
+        );
+        titleOverlay.setMaxWidth(260);
         titleOverlay.setWrapText(true);
         StackPane.setAlignment(titleOverlay, Pos.BOTTOM_LEFT);
-        StackPane.setMargin(titleOverlay, new Insets(0, 0, 10, 10));
+        StackPane.setMargin(titleOverlay, new Insets(0, 0, 15, 15));
         imageContainer.getChildren().add(titleOverlay);
 
-        // Badge région (en haut à droite)
+        // Badge région
         if (blog.getRegion() != null && !blog.getRegion().isEmpty()) {
-            Label regionBadge = new Label("📍 " + blog.getRegion());
-            regionBadge.setStyle("-fx-background-color: rgba(0,0,0,0.6); -fx-text-fill: white; -fx-padding: 3 8; -fx-background-radius: 20; -fx-font-size: 12px;");
+            Label regionBadge = new Label(blog.getRegion());
+            regionBadge.setStyle(
+                    "-fx-background-color: #FFD700;" +
+                            "-fx-text-fill: black;" +
+                            "-fx-font-weight: bold;" +
+                            "-fx-padding: 5 12;" +
+                            "-fx-background-radius: 20;" +
+                            "-fx-font-size: 12px;"
+            );
             StackPane.setAlignment(regionBadge, Pos.TOP_RIGHT);
-            StackPane.setMargin(regionBadge, new Insets(8));
+            StackPane.setMargin(regionBadge, new Insets(12));
             imageContainer.getChildren().add(regionBadge);
         }
 
-        // Contenu texte sous l'image (compact)
-        VBox content = new VBox(6);
-        content.setPadding(new Insets(10, 10, 10, 10));
+        // Contenu texte
+        VBox content = new VBox(8);
+        content.setPadding(new Insets(15, 15, 15, 15));
 
-        // Ligne auteur + date
-        HBox auteurDate = new HBox(6);
-        auteurDate.setAlignment(Pos.CENTER_LEFT);
-        Label auteur = new Label("👤 " + (blog.getAuteurNom() != null ? blog.getAuteurNom() : "Inconnu"));
-        auteur.setStyle("-fx-text-fill: #b7472a; -fx-font-size: 12px;");
-        Label date = new Label("📅 " + (blog.getDatePublication() != null ? blog.getDatePublication().format(dateShortFormatter) : ""));
-        date.setStyle("-fx-text-fill: #7f8c8d; -fx-font-size: 12px;");
-        Region spacer = new Region();
-        HBox.setHgrow(spacer, Priority.ALWAYS);
-        auteurDate.getChildren().addAll(auteur, date, spacer);
+        // Auteur (texte simple)
+        Label auteur = new Label("Auteur: " + (blog.getAuteurNom() != null ? blog.getAuteurNom() : "Inconnu"));
+        auteur.setStyle("-fx-text-fill: #b7472a; -fx-font-weight: bold; -fx-font-size: 13px;");
+
+        // Date
+        Label date = new Label("Date: " + (blog.getDatePublication() != null ? blog.getDatePublication().format(dateShortFormatter) : ""));
+        date.setStyle("-fx-text-fill: #7f8c8d; -fx-font-size: 13px;");
 
         // Catégorie
-        Label categorie = new Label("🏷️ " + (blog.getCategorie() != null ? blog.getCategorie() : "Non catégorisé"));
-        categorie.setStyle("-fx-text-fill: #3498db; -fx-font-size: 12px;");
+        Label categorie = new Label(blog.getCategorie() != null ? blog.getCategorie() : "Divers");
+        categorie.setStyle(
+                "-fx-background-color: #3498db;" +
+                        "-fx-text-fill: white;" +
+                        "-fx-padding: 4 12;" +
+                        "-fx-background-radius: 30;" +
+                        "-fx-font-size: 12px;"
+        );
 
         // Extrait
-        String extrait = blog.getContenu().length() > 60 ? blog.getContenu().substring(0, 60) + "..." : blog.getContenu();
+        String extrait = blog.getContenu().length() > 70 ? blog.getContenu().substring(0, 70) + "..." : blog.getContenu();
         Label extraitLabel = new Label(extrait);
-        extraitLabel.setStyle("-fx-text-fill: #7f8c8d; -fx-font-size: 12px; -fx-wrap-text: true;");
+        extraitLabel.setStyle("-fx-text-fill: #34495e; -fx-font-size: 13px; -fx-wrap-text: true;");
         extraitLabel.setWrapText(true);
 
         // Nombre de commentaires
         long nbComments = commentaireList.stream().filter(c -> c.getArticleId() == blog.getId()).count();
-        Label commentCount = new Label("💬 " + nbComments + " commentaire(s)");
-        commentCount.setStyle("-fx-text-fill: #27ae60; -fx-font-size: 12px;");
+        Label commentCount = new Label("Commentaires: " + nbComments);
+        commentCount.setStyle("-fx-text-fill: #27ae60; -fx-font-size: 13px;");
 
-        // Boutons d'action (plus petits)
-        HBox actions = new HBox(6);
+        // Boutons
+        HBox actions = new HBox(10);
         actions.setAlignment(Pos.CENTER);
 
         Button voirBtn = new Button("Voir");
-        voirBtn.setStyle("-fx-background-color: #3498db; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 5; -fx-padding: 4 10; -fx-cursor: hand; -fx-font-size: 11px;");
+        voirBtn.setStyle(
+                "-fx-background-color: #9b59b6;" +
+                        "-fx-text-fill: white;" +
+                        "-fx-font-weight: bold;" +
+                        "-fx-background-radius: 30;" +
+                        "-fx-padding: 6 20;" +
+                        "-fx-font-size: 12px;" +
+                        "-fx-cursor: hand;" +
+                        "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 5, 0, 0, 2);"
+        );
         voirBtn.setOnAction(e -> showDetailView(blog));
 
         Button modifierBtn = new Button("Modifier");
-        modifierBtn.setStyle("-fx-background-color: #f39c12; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 5; -fx-padding: 4 10; -fx-cursor: hand; -fx-font-size: 11px;");
+        modifierBtn.setStyle(
+                "-fx-background-color: #f1c40f;" +
+                        "-fx-text-fill: black;" +
+                        "-fx-font-weight: bold;" +
+                        "-fx-background-radius: 30;" +
+                        "-fx-padding: 6 20;" +
+                        "-fx-font-size: 12px;" +
+                        "-fx-cursor: hand;" +
+                        "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 5, 0, 0, 2);"
+        );
         modifierBtn.setOnAction(e -> selectBlog(blog));
 
         Button supprimerBtn = new Button("Supprimer");
-        supprimerBtn.setStyle("-fx-background-color: #e74c3c; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 5; -fx-padding: 4 10; -fx-cursor: hand; -fx-font-size: 11px;");
+        supprimerBtn.setStyle(
+                "-fx-background-color: #e74c3c;" +
+                        "-fx-text-fill: white;" +
+                        "-fx-font-weight: bold;" +
+                        "-fx-background-radius: 30;" +
+                        "-fx-padding: 6 20;" +
+                        "-fx-font-size: 12px;" +
+                        "-fx-cursor: hand;" +
+                        "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 5, 0, 0, 2);"
+        );
         supprimerBtn.setOnAction(e -> supprimerBlog(blog));
 
         actions.getChildren().addAll(voirBtn, modifierBtn, supprimerBtn);
 
-        content.getChildren().addAll(auteurDate, categorie, extraitLabel, commentCount, actions);
+        content.getChildren().addAll(auteur, date, categorie, extraitLabel, commentCount, actions);
         card.getChildren().addAll(imageContainer, content);
+
+        // Effet de survol
+        card.setOnMouseEntered(e -> card.setScaleX(1.02));
+        card.setOnMouseExited(e -> card.setScaleX(1.0));
 
         card.setOnMouseClicked(e -> {
             if (e.getClickCount() == 1) {
@@ -322,12 +372,14 @@ public class BlogController implements Initializable {
         return card;
     }
 
+    // ========== VUE DÉTAIL ==========
+
     private void showDetailView(Blog blog) {
         displayedDetailBlog = blog;
-        detailAuteurLabel.setText("👤 " + (blog.getAuteurNom() != null ? blog.getAuteurNom() : "Inconnu"));
-        detailDateLabel.setText("📅 " + (blog.getDatePublication() != null ? blog.getDatePublication().format(dateShortFormatter) : ""));
-        detailRegionLabel.setText("📍 " + (blog.getRegion() != null ? blog.getRegion() : ""));
-        detailCategorieLabel.setText("🏷️ " + (blog.getCategorie() != null ? blog.getCategorie() : ""));
+        detailAuteurLabel.setText("Auteur: " + (blog.getAuteurNom() != null ? blog.getAuteurNom() : "Inconnu"));
+        detailDateLabel.setText("Date: " + (blog.getDatePublication() != null ? blog.getDatePublication().format(dateShortFormatter) : ""));
+        detailRegionLabel.setText("Région: " + (blog.getRegion() != null ? blog.getRegion() : ""));
+        detailCategorieLabel.setText("Catégorie: " + (blog.getCategorie() != null ? blog.getCategorie() : ""));
         detailContenuLabel.setText(blog.getContenu());
 
         try {
@@ -376,10 +428,10 @@ public class BlogController implements Initializable {
             contenu.setWrapText(true);
             contenu.setStyle("-fx-font-size: 12px; -fx-text-fill: #2c3e50;");
 
-            Label auteur = new Label("👤 " + (c.getUtilisateurNom() != null ? c.getUtilisateurNom() : "Utilisateur " + c.getUtilisateur()));
+            Label auteur = new Label("Auteur: " + (c.getUtilisateurNom() != null ? c.getUtilisateurNom() : "Utilisateur " + c.getUtilisateur()));
             auteur.setStyle("-fx-text-fill: #b7472a; -fx-font-size: 11px;");
 
-            Label date = new Label("📅 " + (c.getDateCommentaire() != null ? c.getDateCommentaire().format(dateFormatter) : ""));
+            Label date = new Label("Date: " + (c.getDateCommentaire() != null ? c.getDateCommentaire().format(dateFormatter) : ""));
             date.setStyle("-fx-text-fill: #7f8c8d; -fx-font-size: 11px;");
 
             if (currentUser != null && c.getUtilisateur() == currentUser.getId()) {
@@ -463,6 +515,8 @@ public class BlogController implements Initializable {
         }
     }
 
+    // ========== CRUD BLOG ==========
+
     private void supprimerBlog(Blog blog) {
         Alert confirm = new Alert(Alert.AlertType.CONFIRMATION,
                 "Supprimer cet article ? Tous les commentaires associés seront également supprimés.",
@@ -517,10 +571,10 @@ public class BlogController implements Initializable {
             contenu.setWrapText(true);
             contenu.setStyle("-fx-text-fill: white; -fx-font-size: 13px;");
             String auteurText = c.getUtilisateurNom() != null ? c.getUtilisateurNom() : "Utilisateur " + c.getUtilisateur();
-            Label auteur = new Label("👤 " + auteurText);
+            Label auteur = new Label("Auteur: " + auteurText);
             auteur.setStyle("-fx-text-fill: #FFBD00; -fx-font-size: 12px;");
             String dateText = c.getDateCommentaire() != null ? c.getDateCommentaire().format(dateFormatter) : "";
-            Label date = new Label(dateText);
+            Label date = new Label("Date: " + dateText);
             date.setStyle("-fx-text-fill: rgba(255,255,255,0.7); -fx-font-size: 11px;");
             Button btnModifier = new Button("✏️");
             btnModifier.setStyle("-fx-background-color: #ffc107; -fx-text-fill: black; -fx-background-radius: 5; -fx-cursor: hand;");
@@ -740,6 +794,7 @@ public class BlogController implements Initializable {
     private void showWarning(String msg) { new Alert(Alert.AlertType.WARNING, msg).show(); }
     private void showError(String title, String msg) { Alert a = new Alert(Alert.AlertType.ERROR, msg); a.setTitle(title); a.show(); }
 
+    // Navigation
     @FXML private void goDashboard() { System.out.println("Dashboard"); }
     @FXML private void goAjouter() { System.out.println("Ajouter"); }
     @FXML private void goListe() { System.out.println("Liste"); }
