@@ -14,7 +14,7 @@ public class Connection {
 
             List<Reservation> reservations = service.afficher();
 
-              
+
             for (Reservation r : reservations) {
                 System.out.println(
                         r.getId() + " | " + r.getUser() + " | " + r.getExp() + " | " +
@@ -22,7 +22,7 @@ public class Connection {
                 );
             }
 
-            // Example: update a reservation
+            // Example: update a 
             if (!reservations.isEmpty()) {
                 Reservation first = reservations.get(0);
                 service.modifier(first);
