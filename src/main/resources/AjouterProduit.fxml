@@ -261,7 +261,7 @@
                         <GridPane hgap="12" vgap="12">
 
 
-                            <VBox spacing="6" GridPane.columnIndex="1" GridPane.rowIndex="0">
+                            <VBox spacing="6" GridPane.columnIndex="0" GridPane.rowIndex="0">
                                 <Label text="Nom" style="-fx-text-fill: rgba(255,255,255,0.80); -fx-font-weight: 800;"/>
                                 <TextField fx:id="nomTextField" promptText="Nom du produit"
                                            style="-fx-background-color: rgba(255,255,255,0.10);
