@@ -21,264 +21,143 @@ import java.util.List;
 
 public class MixedFX {
 
-    // --- Reservation Fields ---
-    @FXML private TextField userField;
-    @FXML private TextField expField;
-    @FXML private TextField statutField;
+    @FXML private Button reservationToggleBtn, transportToggleBtn;
+    @FXML private FlowPane itemsFlowPane;
+    @FXML private GridPane formGrid, detailGrid;
+    @FXML private Label formTitle;
+    @FXML private Button addBtn, editBtn, deleteBtn, clearBtn;
+    @FXML private ScrollPane listScroll, detailScroll;
 
-    // --- Transport Fields ---
-    @FXML private TextField typeField;
-    @FXML private TextField capaciteField;
-    @FXML private TextField tarifField;
-    @FXML private TextField departField;
-    @FXML private TextField arriveeField;
+    private boolean showingReservations = true;
 
-    // --- Common UI ---
-    @FXML private VBox cardsContainer;
-    @FXML private Label statusLabel;
+    private ReservationCRUD reservationService = new ReservationCRUD();
+    private TransportCRUD transportService = new TransportCRUD();
 
-    private boolean showingReservation = true;
+    private List<Reservation> reservationList;
+    private List<Transport> transportList;
 
-    private Reservation selectedReservation;
-    private Transport selectedTransport;
-    @FXML
-    private VBox transportContainer;
-
-    private final ReservationCRUD reservationService = new ReservationCRUD();
-    private final TransportCRUD transportService = new TransportCRUD();
+    private Object selectedItem;
 
     @FXML
     public void initialize() {
-        loadCards();
+        loadReservations();
     }
 
     @FXML
-    private void goToTransport(ActionEvent event) throws IOException {
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("/GUI/Transport.fxml"));
-        Scene scene = new Scene(loader.load());
-
-        // get current stage
-        Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
-        stage.setScene(scene);
-        stage.show();
+    private void showReservations() {
+        showingReservations = true;
+        reservationToggleBtn.setStyle("-fx-background-color: #FFBD00;");
+        transportToggleBtn.setStyle("-fx-background-color: transparent;");
+        loadReservations();
+        clearForm();
     }
-    private void loadTransportData() {
-        String url = "jdbc:mysql://localhost:3306/your_db";
-        String user = "root";
-        String password = "root";
 
-        String query = "SELECT id, name, capacity, tarif FROM transport";
+    @FXML
+    private void showTransports() {
+        showingReservations = false;
+        transportToggleBtn.setStyle("-fx-background-color: #FFBD00;");
+        reservationToggleBtn.setStyle("-fx-background-color: transparent;");
+        loadTransports();
+        clearForm();
+    }
 
-        try (Connection conn = DriverManager.getConnection(url, user, password);
-             Statement stmt = conn.createStatement();
-             ResultSet rs = stmt.executeQuery(query)) {
-
-            while (rs.next()) {
-                HBox card = new HBox();
-                card.setStyle("-fx-padding: 10; -fx-border-color: gray; -fx-spacing: 10;");
-
-                Label name = new Label("Name: " + rs.getString("name"));
-                Label capacity = new Label("Capacity: " + rs.getInt("capacity"));
-                Label tarif = new Label("Tarif: " + rs.getDouble("tarif"));
-
-                card.getChildren().addAll(name, capacity, tarif);
-                transportContainer.getChildren().add(card);
-            }
-
+    private void loadReservations() {
+        try {
+            reservationList = reservationService.getAll();
+            populateItems(reservationList);
         } catch (SQLException e) {
             e.printStackTrace();
         }
     }
-    // ================= RESERVATION LOGIC =================
-    @FXML
-    private void addReservation() {
-        if (!showingReservation) return;
-        try {
-            Reservation r = new Reservation();
-            r.setUser(userField.getText());
-            r.setExp(expField.getText());
-            r.setStatut(statutField.getText());
-            r.setDate(Timestamp.valueOf(LocalDateTime.now()));
 
-            reservationService.ajouter(r);
-            loadCards();
-            statusLabel.setText("✅ Reservation added");
-            clearForm();
+    private void loadTransports() {
+        try {
+            transportList = transportService.getAll();
+            populateItems(transportList);
         } catch (SQLException e) {
-            statusLabel.setText("❌ Add Error: " + e.getMessage());
+            e.printStackTrace();
         }
     }
 
-    @FXML
-    private void handleUpdateReservation() {
-        if (!showingReservation || selectedReservation == null) return;
-        try {
-            selectedReservation.setUser(userField.getText());
-            selectedReservation.setExp(expField.getText());
-            selectedReservation.setStatut(statutField.getText());
-            selectedReservation.setDate(Timestamp.valueOf(LocalDateTime.now()));
-
-            reservationService.modifier(selectedReservation);
-            loadCards();
-            statusLabel.setText("✅ Reservation updated");
-            clearForm();
-        } catch (SQLException e) {
-            statusLabel.setText("❌ Update Error: " + e.getMessage());
+    private void populateItems(List<?> items) {
+        itemsFlowPane.getChildren().clear();
+        for (Object obj : items) {
+            Button btn = new Button(obj.toString()); // replace with custom display
+            btn.setOnAction(e -> showDetails(obj));
+            itemsFlowPane.getChildren().add(btn);
         }
     }
 
-    @FXML
-    private void handleDeleteReservation() {
-        if (!showingReservation || selectedReservation == null) return;
-        try {
-            reservationService.supprimer(selectedReservation.getId());
-            loadCards();
-            statusLabel.setText("❌ Reservation deleted");
-            clearForm();
-        } catch (SQLException e) {
-            statusLabel.setText("❌ Delete Error: " + e.getMessage());
-        }
-    }
-
-    // ================= TRANSPORT LOGIC =================
-    @FXML
-    private void addTransport() {
-        if (showingReservation) return;
-        try {
-            Transport t = new Transport();
-            t.setType(typeField.getText());
-            t.setCapacite(capaciteField.getText());
-            t.setTarif(Float.parseFloat(tarifField.getText()));
-            t.setDepart(departField.getText());
-            t.setArrivee(arriveeField.getText());
-            t.setDateDepart(LocalDateTime.now());
-
-            transportService.ajouter(t);
-            loadCards();
-            statusLabel.setText("✅ Transport added");
-            clearForm();
-        } catch (SQLException e) {
-            statusLabel.setText("❌ Add Error: " + e.getMessage());
-        } catch (NumberFormatException e) {
-            statusLabel.setText("❌ Invalid number format");
-        }
+    private void showDetails(Object item) {
+        selectedItem = item;
+        listScroll.setVisible(false);
+        listScroll.setManaged(false);
+        detailScroll.setVisible(true);
+        detailScroll.setManaged(true);
+        detailGrid.getChildren().clear();
+        // populate detailGrid dynamically based on type
     }
 
     @FXML
-    private void updateTransport() {
-        if (showingReservation || selectedTransport == null) return;
-        try {
-            selectedTransport.setType(typeField.getText());
-            selectedTransport.setCapacite(capaciteField.getText());
-            selectedTransport.setTarif(Float.parseFloat(tarifField.getText()));
-            selectedTransport.setDepart(departField.getText());
-            selectedTransport.setArrivee(arriveeField.getText());
-            selectedTransport.setDateDepart(LocalDateTime.now());
-
-            transportService.modifier(selectedTransport);
-            loadCards();
-            statusLabel.setText("✅ Transport updated");
-            clearForm();
-        } catch (SQLException e) {
-            statusLabel.setText("❌ Update Error: " + e.getMessage());
-        } catch (NumberFormatException e) {
-            statusLabel.setText("❌ Invalid number format");
-        }
+    private void backToList() {
+        detailScroll.setVisible(false);
+        detailScroll.setManaged(false);
+        listScroll.setVisible(true);
+        listScroll.setManaged(true);
     }
 
     @FXML
-    private void deleteTransport() {
-        if (showingReservation || selectedTransport == null) return;
-        try {
-            transportService.supprimer(selectedTransport.getId());
-            loadCards();
-            statusLabel.setText("❌ Transport deleted");
-            clearForm();
-        } catch (SQLException e) {
-            statusLabel.setText("❌ Delete Error: " + e.getMessage());
+    private void handleAdd() {
+        if (showingReservations) {
+            // call reservationService.ajouter(...)
+        } else {
+            // call transportService.ajouter(...)
         }
+        reloadCurrent();
     }
 
-    // ================= COMMON =================
-    private void loadCards() {
+    @FXML
+    private void handleEdit() {
+        if (selectedItem == null) return;
+        if (showingReservations) {
+            // call reservationService.modifier(...)
+        } else {
+            // call transportService.modifier(...)
+        }
+        reloadCurrent();
+    }
+
+    @FXML
+    private void handleDelete() {
+        if (selectedItem == null) return;
         try {
-            cardsContainer.getChildren().clear();
-            if (showingReservation) {
-                List<Reservation> list = reservationService.getAll();
-                for (Reservation r : list) {
-                    cardsContainer.getChildren().add(createReservationCard(r));
-                }
+            if (showingReservations) {
+                reservationService.supprimer(((Reservation) selectedItem).getId());
             } else {
-                List<Transport> list = transportService.getAll();
-                for (Transport t : list) {
-                    cardsContainer.getChildren().add(createTransportCard(t));
-                }
+                transportService.supprimer(((Transport) selectedItem).getId());
             }
+            reloadCurrent();
         } catch (SQLException e) {
-            statusLabel.setText("❌ Load Error: " + e.getMessage());
+            e.printStackTrace();
         }
-    }
-
-    private HBox createReservationCard(Reservation r) {
-        HBox card = new HBox(10);
-        Label userLabel = new Label(r.getUser());
-        Label expLabel = new Label(r.getExp());
-        Button editButton = new Button("Edit");
-        editButton.setOnAction(e -> {
-            selectedReservation = r;
-            userField.setText(r.getUser());
-            expField.setText(r.getExp());
-            statutField.setText(r.getStatut());
-            statusLabel.setText("✏️ Editing reservation");
-        });
-        card.getChildren().addAll(userLabel, expLabel, editButton);
-        return card;
-    }
-
-    private HBox createTransportCard(Transport t) {
-        HBox card = new HBox(10);
-        Label typeLabel = new Label(t.getType());
-        Label capaciteLabel = new Label(t.getCapacite());
-        Label tarifLabel = new Label(String.valueOf(t.getTarif()));
-        Label departLabel = new Label(t.getDepart());
-        Label arriveeLabel = new Label(t.getArrivee());
-
-        Button editButton = new Button("Edit");
-        editButton.setOnAction(e -> {
-            selectedTransport = t;
-            typeField.setText(t.getType());
-            capaciteField.setText(t.getCapacite());
-            tarifField.setText(String.valueOf(t.getTarif()));
-            departField.setText(t.getDepart());
-            arriveeField.setText(t.getArrivee());
-            statusLabel.setText("✏️ Editing transport");
-        });
-
-        Button deleteButton = new Button("Delete");
-        deleteButton.setOnAction(e -> deleteTransport());
-
-        card.getChildren().addAll(typeLabel, capaciteLabel, tarifLabel, departLabel, arriveeLabel, editButton, deleteButton);
-        return card;
     }
 
     @FXML
     private void clearForm() {
-        userField.clear();
-        expField.clear();
-        statutField.clear();
-        typeField.clear();
-        capaciteField.clear();
-        tarifField.clear();
-        departField.clear();
-        arriveeField.clear();
-        selectedReservation = null;
-        selectedTransport = null;
+        formGrid.getChildren().clear();
+        selectedItem = null;
+        if (showingReservations) {
+            formTitle.setText("Formulaire Réservation");
+            // dynamically create Reservation fields in formGrid
+        } else {
+            formTitle.setText("Formulaire Transport");
+            // dynamically create Transport fields in formGrid
+        }
     }
 
-    @FXML
-    private void showTransport() {
-        showingReservation = !showingReservation;
+    private void reloadCurrent() {
+        if (showingReservations) loadReservations();
+        else loadTransports();
         clearForm();
-        loadCards();
     }
 }

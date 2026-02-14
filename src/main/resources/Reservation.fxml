@@ -1,29 +1,23 @@
 <?xml version="1.0" encoding="UTF-8"?>
-
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.effect.DropShadow?>
+<?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.*?>
-<?import javafx.scene.text.Font?>
-
 <StackPane prefHeight="720" prefWidth="1200"
-           xmlns="http://javafx.com/javafx/25"
+           xmlns="http://javafx.com/javafx/17"
            xmlns:fx="http://javafx.com/fxml/1"
            fx:controller="GUI.MixedFX">
 
-    <FlowPane fx:id="cardContainer"/>
-
-    <!-- BACKGROUND IMAGE -->
+    <!-- BACKGROUND -->
     <Pane mouseTransparent="true"
           style="-fx-background-image: url('/assets/testt.png');
                  -fx-background-repeat: no-repeat;
                  -fx-background-position: center center;
                  -fx-background-size: 100% 100%;" />
 
-    <!-- Overlay -->
     <Pane mouseTransparent="true" style="-fx-background-color: rgba(0,0,0,0.18);" />
 
-    <!-- Main glass shell -->
     <BorderPane maxHeight="650" maxWidth="1100"
                 style="-fx-background-color: rgba(0,0,0,0.22);
                        -fx-background-radius: 26;
@@ -35,169 +29,120 @@
 
         <!-- TOP BAR -->
         <top>
-            <HBox alignment="CENTER_LEFT" spacing="12">
+            <HBox alignment="CENTER_LEFT" spacing="12"
+                  style="-fx-background-color: rgba(0,0,0,0.22);
+                         -fx-background-radius: 26 26 18 18;
+                         -fx-border-color: rgba(255,255,255,0.14);
+                         -fx-border-width: 0 0 1 0;">
                 <padding><Insets bottom="18" left="18" right="18" top="18" /></padding>
-                <Label text="WinGo Travel"
+                <Label text="WinGo Management"
                        style="-fx-text-fill: white; -fx-font-size: 18px; -fx-font-weight: 900;" />
-                <Region HBox.hgrow="ALWAYS" />
-                <HBox alignment="CENTER_LEFT" spacing="10">
-                    <Label text="🔍" />
-                    <TextField promptText="Search..." />
-                    <Button text="⚙"/>
-                </HBox>
-                <Region HBox.hgrow="ALWAYS" />
-                <Button text="🔔"/>
-                <Button text="👤"/>
+                <Region HBox.hgrow="ALWAYS"/>
+                <Button text="🔔"
+                        style="-fx-background-color: rgba(0,0,0,0.22);
+                               -fx-text-fill: white; -fx-background-radius: 14; -fx-padding: 8 12;" />
+                <Button text="👤"
+                        style="-fx-background-color: rgba(0,0,0,0.22);
+                               -fx-text-fill: white; -fx-background-radius: 14; -fx-padding: 8 12;" />
             </HBox>
         </top>
 
         <!-- LEFT MINI NAV -->
         <left>
-            <VBox prefWidth="86" spacing="14">
+            <VBox prefWidth="86" spacing="14"
+                  style="-fx-background-color: rgba(0,0,0,0.22);
+                         -fx-background-radius: 18;
+                         -fx-border-color: rgba(255,255,255,0.14);
+                         -fx-border-radius: 18;">
                 <padding><Insets bottom="18" left="12" right="12" top="18" /></padding>
-                <Button text="🏠"/>
-                <Button text="➕"/>
-                <Button text="📦"/>
-                <Button text="⚙"/>
+
+                <Button fx:id="reservationToggleBtn" text="📄" onAction="#showReservations"
+                        style="-fx-background-color: #FFBD00; -fx-text-fill: #390099; -fx-font-size: 18px; -fx-font-weight: 900; -fx-background-radius: 14; -fx-padding: 12 12;" />
+
+                <Button fx:id="transportToggleBtn" text="🚚" onAction="#showTransports"
+                        style="-fx-background-color: transparent; -fx-text-fill: rgba(255,255,255,0.92); -fx-font-size: 18px; -fx-background-radius: 14; -fx-padding: 12 12;" />
+
                 <Region VBox.vgrow="ALWAYS" />
-                <Label text="© 2026" />
+                <Label text="© 2026" style="-fx-text-fill: rgba(255,255,255,0.62); -fx-font-size: 10px;" />
             </VBox>
         </left>
 
         <!-- CENTER CONTENT -->
         <center>
-            <StackPane>
-                <ScrollPane fitToWidth="true">
+            <StackPane style="-fx-background-color: rgba(0,0,0,0.22);
+                              -fx-background-radius: 20;
+                              -fx-border-color: rgba(255,255,255,0.22);
+                              -fx-border-radius: 20;">
+                <padding><Insets bottom="10" left="10" right="10" top="10"/></padding>
+                <effect><DropShadow color="#00000055" offsetY="10" radius="18"/></effect>
+
+                <!-- LIST VIEW -->
+                <ScrollPane fx:id="listScroll" fitToWidth="true">
                     <content>
-                        <VBox spacing="18">
+                        <VBox fx:id="listContainer" spacing="12">
+                            <padding><Insets top="12" left="12" right="12" bottom="12"/></padding>
 
-                            <StackPane>
-                                <padding><Insets top="18" right="18" bottom="18" left="18"/></padding>
-                                <VBox spacing="14">
+                            <!-- FILTERS -->
+                            <HBox spacing="6" alignment="CENTER_LEFT"
+                                  style="-fx-background-color: rgba(0,0,0,0.28);
+                                         -fx-background-radius: 18;
+                                         -fx-border-color: #c49a6c;
+                                         -fx-border-radius: 18;
+                                         -fx-padding: 6 10;">
+                                <Label text="Filtrer par :" style="-fx-text-fill: white; -fx-font-weight: 800; -fx-font-size: 11px;"/>
+                                <ComboBox fx:id="filter1" promptText="Filtre 1"
+                                          style="-fx-background-color: rgba(0,0,0,0.5); -fx-background-radius: 8; -fx-border-color: rgba(255,255,255,0.3); -fx-border-radius: 8; -fx-text-fill: white; -fx-pref-width: 120;" />
+                                <ComboBox fx:id="filter2" promptText="Filtre 2"
+                                          style="-fx-background-color: rgba(0,0,0,0.5); -fx-background-radius: 8; -fx-border-color: rgba(255,255,255,0.3); -fx-border-radius: 8; -fx-text-fill: white; -fx-pref-width: 120;" />
+                            </HBox>
 
-                                    <!-- RESERVATION PAGE -->
-                                    <VBox fx:id="reservationPage" spacing="14">
-                                        <HBox alignment="CENTER_LEFT" spacing="10">
-                                            <Label text="📝"/>
-                                            <Label text="Nouvelle Réservation"/>
-                                            <Region HBox.hgrow="ALWAYS" />
-                                            <Label fx:id="statusLabel" text=""/>
-                                        </HBox>
+                            <!-- FLOWPANE FOR ITEMS -->
+                            <ScrollPane fitToWidth="true" prefHeight="200" style="-fx-background-color: transparent;">
+                                <FlowPane fx:id="itemsFlowPane" hgap="8" vgap="8" style="-fx-background-color: transparent;" />
+                            </ScrollPane>
 
-                                        <Separator opacity="0.25"/>
+                            <!-- FORM -->
+                            <StackPane style="-fx-background-color: rgba(0,0,0,0.28); -fx-background-radius: 18; -fx-border-color: #c49a6c; -fx-border-radius: 18;">
+                                <padding><Insets top="10" right="10" bottom="10" left="10"/></padding>
+                                <VBox spacing="8">
+                                    <Label fx:id="formTitle" text="Formulaire" style="-fx-text-fill: white; -fx-font-size: 14px; -fx-font-weight: 900;" />
 
-                                        <GridPane hgap="12" vgap="12">
-                                            <VBox spacing="6" GridPane.columnIndex="1" GridPane.rowIndex="0">
-                                                <Label text="Votre Nom et Prenom"/>
-                                                <TextField fx:id="userField"/>
-                                            </VBox>
+                                    <GridPane fx:id="formGrid" hgap="8" vgap="8">
+                                        <!-- Dynamic form fields populated by controller -->
+                                    </GridPane>
 
-                                            <VBox spacing="6" GridPane.columnIndex="0" GridPane.rowIndex="1">
-                                                <Label text="Votre Experience"/>
-                                                <TextField fx:id="expField"/>
-                                            </VBox>
-
-                                            <VBox spacing="6" GridPane.columnIndex="1" GridPane.rowIndex="1">
-                                                <Label text="Statut d votre voyage"/>
-                                                <TextField fx:id="statutField"/>
-                                            </VBox>
-
-                                            <ScrollPane fx:id="scrollPane" fitToWidth="true" prefHeight="400" prefWidth="600">
-                                                <content>
-                                                    <VBox fx:id="cardsContainerr" spacing="10">
-                                                        <padding>
-                                                            <Insets top="10" right="10" bottom="10" left="10"/>
-                                                        </padding>
-                                                    </VBox>
-                                                </content>
-                                            </ScrollPane>
-
-                                            <columnConstraints>
-                                                <ColumnConstraints percentWidth="50"/>
-                                                <ColumnConstraints percentWidth="50"/>
-                                            </columnConstraints>
-                                        </GridPane>
-
-                                        <HBox spacing="10" alignment="CENTER_RIGHT">
-                                            <Button text="Effacer" onAction="#clearForm"/>
-                                            <Button text="➕ Ajouter" onAction="#addReservation"/>
-                                            <Button text="➕ modifier" onAction="#handleUpdateReservation"/>
-                                            <Button text="➕ supprimer" onAction="#handleDeleteReservation"/>
-                                            <Button text="Switch to Transport" onAction="#showTransport"/>
-                                        </HBox>
-                                    </VBox>
-
-                                    <!-- TRANSPORT PAGE -->
-                                    <VBox fx:id="transportPage" spacing="14" visible="false">
-                                        <HBox alignment="CENTER_LEFT" spacing="10">
-                                            <Label text="🚚"/>
-                                            <Label text="Nouveau Transport"/>
-                                            <Region HBox.hgrow="ALWAYS" />
-                                            <Label fx:id="statusLabelt" text=""/>
-                                        </HBox>
-
-                                        <Separator opacity="0.25"/>
-
-                                        <GridPane hgap="12" vgap="12">
-                                            <VBox spacing="6" GridPane.columnIndex="0" GridPane.rowIndex="0">
-                                                <Label text="Type"/>
-                                                <TextField fx:id="typeField"/>
-                                            </VBox>
-
-                                            <VBox spacing="6" GridPane.columnIndex="1" GridPane.rowIndex="0">
-                                                <Label text="Capacité"/>
-                                                <TextField fx:id="capaciteField"/>
-                                            </VBox>
-
-                                            <VBox spacing="6" GridPane.columnIndex="0" GridPane.rowIndex="1">
-                                                <Label text="Tarif"/>
-                                                <TextField fx:id="tarifField"/>
-                                            </VBox>
-
-                                            <VBox spacing="6" GridPane.columnIndex="1" GridPane.rowIndex="1">
-                                                <Label text="Départ"/>
-                                                <TextField fx:id="departField"/>
-                                            </VBox>
-
-                                            <VBox spacing="6" GridPane.columnIndex="0" GridPane.rowIndex="2">
-                                                <Label text="Arrivée"/>
-                                                <TextField fx:id="arriveeField"/>
-                                            </VBox>
-
-                                            <ScrollPane fitToWidth="true" prefHeight="400" prefWidth="600">
-                                                <content>
-                                                    <VBox fx:id="cardsContainer" spacing="10">
-                                                        <padding>
-                                                            <Insets top="10" right="10" bottom="10" left="10"/>
-                                                        </padding>
-                                                    </VBox>
-                                                </content>
-                                            </ScrollPane>
-
-                                            <columnConstraints>
-                                                <ColumnConstraints percentWidth="50"/>
-                                                <ColumnConstraints percentWidth="50"/>
-                                            </columnConstraints>
-                                        </GridPane>
-
-                                        <HBox spacing="10" alignment="CENTER_RIGHT">
-                                            <Button text="Effacer" onAction="#clearForm"/>
-                                            <Button text="➕ Ajouter" onAction="#addTransport"/>
-                                            <Button text="➕ modifier" onAction="#updateTransport"/>
-                                            <Button text="➕ supprimer" onAction="#deleteTransport"/>
-                                            <Button fx:id="btnTransport" text="Transport" onAction="#goToTransport"/>
-                                        </HBox>
-                                        <VBox fx:id="transportContainer" spacing="10" visible="false">
-                                            <!-- Cards will be added dynamically -->
-                                        </VBox>
-                                    </VBox>
-
+                                    <!-- CRUD Buttons -->
+                                    <HBox spacing="6" alignment="CENTER">
+                                        <Button fx:id="addBtn" text="➕ Ajouter" onAction="#handleAdd"
+                                                style="-fx-background-color: #28a745; -fx-text-fill: white; -fx-background-radius: 999; -fx-padding: 6 12; -fx-font-weight: 900; -fx-font-size: 11px;"/>
+                                        <Button fx:id="editBtn" text="✏️ Modifier" onAction="#handleEdit"
+                                                style="-fx-background-color: #ffc107; -fx-text-fill: black; -fx-background-radius: 999; -fx-padding: 6 12; -fx-font-weight: 900; -fx-font-size: 11px;"/>
+                                        <Button fx:id="deleteBtn" text="🗑️ Supprimer" onAction="#handleDelete"
+                                                style="-fx-background-color: #dc3545; -fx-text-fill: white; -fx-background-radius: 999; -fx-padding: 6 12; -fx-font-weight: 900; -fx-font-size: 11px;"/>
+                                        <Button fx:id="clearBtn" text="🔄 Nouveau" onAction="#clearForm"
+                                                style="-fx-background-color: rgba(255,255,255,0.10); -fx-text-fill: white; -fx-background-radius: 999; -fx-padding: 6 12; -fx-font-weight: 900; -fx-font-size: 11px;"/>
+                                    </HBox>
                                 </VBox>
                             </StackPane>
-
                         </VBox>
                     </content>
                 </ScrollPane>
+
+                <!-- DETAIL VIEW -->
+                <ScrollPane fx:id="detailScroll" fitToWidth="true" visible="false" managed="false">
+                    <content>
+                        <VBox fx:id="detailContainer" spacing="15">
+                            <padding><Insets bottom="12" left="12" right="12" top="12"/></padding>
+                            <Button fx:id="backBtn" text="← Retour" onAction="#backToList"
+                                    maxWidth="Infinity" alignment="CENTER_LEFT"
+                                    style="-fx-background-color: #3498db; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 6 12; -fx-background-radius: 5;" />
+                            <GridPane fx:id="detailGrid" hgap="8" vgap="8">
+                                <!-- Dynamic detail fields -->
+                            </GridPane>
+                        </VBox>
+                    </content>
+                </ScrollPane>
+
             </StackPane>
         </center>
     </BorderPane>

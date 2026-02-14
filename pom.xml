@@ -33,7 +33,13 @@
             <classifier>win</classifier>
         </dependency>
 
-        <!-- MySQL Connector -->
+        <dependency>
+            <groupId>org.openjfx</groupId>
+            <artifactId>javafx-graphics</artifactId>
+            <version>${javafx.version}</version>
+            <classifier>win</classifier>
+        </dependency>
+
         <dependency>
             <groupId>com.mysql</groupId>
             <artifactId>mysql-connector-j</artifactId>
@@ -52,9 +58,13 @@
                     <options>
                         <option>--add-modules</option>
                         <option>javafx.controls,javafx.fxml</option>
+                        <argument>--module-path</argument>
+                        <argument>${java.home}/lib</argument>
+
                     </options>
                 </configuration>
             </plugin>
+
         </plugins>
     </build>
 
