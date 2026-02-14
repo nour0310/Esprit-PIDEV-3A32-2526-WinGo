@@ -42,45 +42,79 @@ public class MixedFX {
 
     @FXML
     public void initialize() {
-        setupReservationFields();
-        setupTransportFields();
-        showReservations(); // start with reservations
+        setupFormFields();
+        loadReservations();
+        loadTransports();// start with reservations
     }
 
     /** Setup persistent Reservation fields */
-    private void setupReservationFields() {
-        resUserField = new TextField();
-        resExpField = new TextField();
-        resStatutField = new TextField();
-        resDateField = new DatePicker();
-    }
+    private void setupFormFields() {
+        formGrid.getChildren().clear();
 
-    /** Setup persistent Transport fields */
-    private void setupTransportFields() {
-        trTypeField = new TextField();
-        trCapField = new TextField();
-        trTarifField = new TextField();
-        trDepartField = new TextField();
-        trArriveeField = new TextField();
-        trDateField = new DatePicker();
+        if (showingReservations) {
+            formTitle.setText("Formulaire Réservation");
+
+            Label userLabel = new Label("User:");
+            resUserField = new TextField();
+            Label expLabel = new Label("Exp:");
+            resExpField = new TextField();
+            Label statLabel = new Label("Stat:");
+            resStatutField = new TextField();
+            Label dateLabel = new Label("Date:");
+            resDateField = new DatePicker();
+
+            formGrid.add(userLabel, 0, 0); formGrid.add(resUserField, 1, 0);
+            formGrid.add(expLabel, 0, 1); formGrid.add(resExpField, 1, 1);
+            formGrid.add(statLabel, 0, 2); formGrid.add(resStatutField, 1, 2);
+            formGrid.add(dateLabel, 0, 3); formGrid.add(resDateField, 1, 3);
+
+        } else {
+            formTitle.setText("Formulaire Transport");
+
+            Label typeLabel = new Label("Type:");
+            trTypeField = new TextField();
+            Label capLabel = new Label("Capacité:");
+            trCapField = new TextField();
+            Label tarifLabel = new Label("Tarif:");
+            trTarifField = new TextField();
+            Label departLabel = new Label("Départ:");
+            trDepartField = new TextField();
+            Label arriveeLabel = new Label("Arrivée:");
+            trArriveeField = new TextField();
+            Label dateLabel = new Label("Date départ:");
+            trDateField = new DatePicker();
+
+            formGrid.add(typeLabel, 0, 0); formGrid.add(trTypeField, 1, 0);
+            formGrid.add(capLabel, 0, 1); formGrid.add(trCapField, 1, 1);
+            formGrid.add(tarifLabel, 0, 2); formGrid.add(trTarifField, 1, 2);
+            formGrid.add(departLabel, 0, 3); formGrid.add(trDepartField, 1, 3);
+            formGrid.add(arriveeLabel, 0, 4); formGrid.add(trArriveeField, 1, 4);
+            formGrid.add(dateLabel, 0, 5); formGrid.add(trDateField, 1, 5);
+        }
     }
 
     @FXML
     private void showReservations() {
         showingReservations = true;
+
         reservationToggleBtn.setStyle("-fx-background-color: #FFBD00;");
         transportToggleBtn.setStyle("-fx-background-color: transparent;");
+
+        setupFormFields();   // ✅ VERY IMPORTANT
         loadReservations();
-        populateForm();
+        selectedItem = null;
     }
 
     @FXML
     private void showTransports() {
         showingReservations = false;
+
         transportToggleBtn.setStyle("-fx-background-color: #FFBD00;");
         reservationToggleBtn.setStyle("-fx-background-color: transparent;");
+
+        setupFormFields();   // ✅ CREATE THE FIELDS FIRST
         loadTransports();
-        populateForm();
+        selectedItem = null;
     }
 
     private void loadReservations() {
@@ -108,7 +142,12 @@ public class MixedFX {
             btn.setOnAction(e -> showDetails(obj));
             itemsFlowPane.getChildren().add(btn);
         }
+        if (trTypeField == null) {
+            System.out.println("Form not initialized yet!");
+            return;
+        }
     }
+
 
     /** Populate formGrid based on current entity */
     private void populateForm() {
