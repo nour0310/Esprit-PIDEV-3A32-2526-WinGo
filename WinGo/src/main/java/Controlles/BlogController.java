@@ -150,7 +150,11 @@ public class BlogController implements Initializable {
         searchField.setOnAction(e -> filterArticles());
         clearBtn.setOnAction(e -> clearForm());
         choisirImageBtn.setOnAction(e -> choisirImage());
-        backToListBtn.setOnAction(e -> showListView());
+        if (backToListBtn != null) {
+            backToListBtn.setOnAction(e -> showListView());
+        } else {
+            System.err.println("backToListBtn est null !");
+        }
         detailAddCommentBtn.setOnAction(e -> ajouterCommentaireDetail());
     }
 
