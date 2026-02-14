@@ -206,7 +206,7 @@
                                                  -fx-text-fill: white; -fx-pref-width: 120;" />
                             </HBox>
 
-                            <!-- LISTE DES ARTICLES (hauteur réduite) -->
+                            <!-- LISTE DES ARTICLES (agrandie) -->
                             <VBox spacing="6" VBox.vgrow="ALWAYS"
                                   style="-fx-background-color: rgba(0,0,0,0.28);
                                          -fx-background-radius: 18;
@@ -215,27 +215,9 @@
                                          -fx-padding: 10;">
                                 <Label text="📰 Articles récents"
                                        style="-fx-text-fill: #FFBD00; -fx-font-size: 15px; -fx-font-weight: 900;"/>
-                                <ScrollPane fitToWidth="true" prefHeight="180"
+                                <ScrollPane fitToWidth="true" prefHeight="300"
                                             style="-fx-background: transparent; -fx-background-color: transparent;">
                                     <FlowPane fx:id="articlesFlowPane" hgap="8" vgap="8"
-                                              style="-fx-background-color: transparent;"/>
-                                </ScrollPane>
-                            </VBox>
-
-                            <!-- COMMENTAIRES DE L'ARTICLE SÉLECTIONNÉ (réduit) -->
-                            <VBox spacing="6"
-                                  style="-fx-background-color: rgba(0,0,0,0.28);
-                                         -fx-background-radius: 18;
-                                         -fx-border-color: #c49a6c;
-                                         -fx-border-radius: 18;
-                                         -fx-padding: 10;">
-                                <Label text="💬 Commentaires"
-                                       style="-fx-text-fill: #FFBD00; -fx-font-size: 15px; -fx-font-weight: 900;"/>
-                                <Label fx:id="selectedArticleLabel" text="(aucun article sélectionné)"
-                                       style="-fx-text-fill: rgba(255,255,255,0.70); -fx-font-style: italic; -fx-font-size: 11px;"/>
-                                <ScrollPane fitToWidth="true" prefHeight="70"
-                                            style="-fx-background: transparent; -fx-background-color: transparent;">
-                                    <FlowPane fx:id="commentairesFlowPane" hgap="6" vgap="6"
                                               style="-fx-background-color: transparent;"/>
                                 </ScrollPane>
                             </VBox>
