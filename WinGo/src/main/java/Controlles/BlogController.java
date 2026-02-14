@@ -58,7 +58,7 @@ public class BlogController implements Initializable {
     @FXML private ComboBox<String> categorieField;
     @FXML private Label auteurLabel;
     @FXML private TextField newCommentField;
-    // @FXML private TextField commentUserField; // supprimé
+    @FXML private TextField commentUserField;
     @FXML private Button choisirImageBtn;
     @FXML private Button ajouterBtn;
     @FXML private Button modifierBtn;
@@ -66,7 +66,7 @@ public class BlogController implements Initializable {
     @FXML private Button clearBtn;
     @FXML private Button addCommentBtn;
     @FXML private Label statusLabel;
-    @FXML private Label connectedUserLabel; // nouveau label pour afficher l'utilisateur connecté
+    @FXML private Label connectedUserLabel; // pour le commentaire
 
     // Composants FXML de la vue détail
     @FXML private VBox listView;
@@ -82,13 +82,13 @@ public class BlogController implements Initializable {
     @FXML private TextField detailNewCommentField;
     @FXML private Button detailAddCommentBtn;
     @FXML private Label detailStatusLabel;
-    @FXML private Label detailConnectedUserLabel; // pour la vue détail (déjà existant peut-être)
+    @FXML private Label detailConnectedUserLabel;
 
     // Filtres
     @FXML private ComboBox<String> regionFilterCombo;
     @FXML private ComboBox<String> categorieFilterCombo;
 
-    // ScrollPanes pour les deux vues
+    // ScrollPanes
     @FXML private ScrollPane listViewScroll;
     @FXML private ScrollPane detailViewScroll;
 
@@ -133,17 +133,12 @@ public class BlogController implements Initializable {
             currentUser = users.stream().filter(u -> u.getId() == 1).findFirst().orElse(null);
             if (currentUser != null) {
                 auteurLabel.setText(currentUser.getPrenom() + " " + currentUser.getNom());
-                // Mettre à jour les labels d'utilisateur connecté
-                if (connectedUserLabel != null) {
-                    connectedUserLabel.setText(currentUser.getPrenom() + " " + currentUser.getNom());
-                }
-                if (detailConnectedUserLabel != null) {
-                    detailConnectedUserLabel.setText(currentUser.getPrenom() + " " + currentUser.getNom());
-                }
+                connectedUserLabel.setText(currentUser.getPrenom() + " " + currentUser.getNom());
+                detailConnectedUserLabel.setText(currentUser.getPrenom() + " " + currentUser.getNom());
             } else {
                 auteurLabel.setText("Utilisateur inconnu");
-                if (connectedUserLabel != null) connectedUserLabel.setText("Non connecté");
-                if (detailConnectedUserLabel != null) detailConnectedUserLabel.setText("Non connecté");
+                connectedUserLabel.setText("Utilisateur inconnu");
+                detailConnectedUserLabel.setText("Utilisateur inconnu");
             }
         } catch (SQLException e) {
             showError("Erreur chargement utilisateurs", e.getMessage());
@@ -157,7 +152,6 @@ public class BlogController implements Initializable {
         choisirImageBtn.setOnAction(e -> choisirImage());
         backToListBtn.setOnAction(e -> showListView());
         detailAddCommentBtn.setOnAction(e -> ajouterCommentaireDetail());
-        addCommentBtn.setOnAction(e -> ajouterCommentaire()); // déjà lié dans FXML
     }
 
     private void choisirImage() {
@@ -203,6 +197,7 @@ public class BlogController implements Initializable {
         }
     }
 
+    // ==================== CARTE AMÉLIORÉE ====================
     private VBox createBlogCard(Blog blog) {
         VBox card = new VBox();
         card.setStyle("-fx-background-color: linear-gradient(to bottom, #fef9e7, #ffffff); " +
@@ -216,12 +211,14 @@ public class BlogController implements Initializable {
         card.setMaxWidth(250);
         card.setPadding(new Insets(0));
 
+        // Conteneur de l'image avec effet de superposition
         StackPane imageContainer = new StackPane();
-        imageContainer.setPrefHeight(120);
+        imageContainer.setPrefHeight(160);
         imageContainer.setStyle("-fx-background-radius: 12 12 0 0; -fx-clip: true;");
+
         ImageView imageView = new ImageView();
         imageView.setFitWidth(250);
-        imageView.setFitHeight(120);
+        imageView.setFitHeight(160);
         imageView.setPreserveRatio(true);
         try {
             if (blog.getImage() != null && !blog.getImage().isEmpty()) {
@@ -239,6 +236,24 @@ public class BlogController implements Initializable {
         }
         imageContainer.getChildren().add(imageView);
 
+        // Overlay dégradé pour améliorer la lisibilité du titre
+        Region gradientOverlay = new Region();
+        gradientOverlay.setStyle("-fx-background-color: linear-gradient(to top, rgba(0,0,0,0.7), transparent);");
+        gradientOverlay.setPrefHeight(160);
+        gradientOverlay.setMaxWidth(250);
+        StackPane.setAlignment(gradientOverlay, Pos.BOTTOM_CENTER);
+        imageContainer.getChildren().add(gradientOverlay);
+
+        // Titre superposé en bas à gauche
+        Label titleOverlay = new Label(blog.getTitre());
+        titleOverlay.setStyle("-fx-text-fill: white; -fx-font-size: 16px; -fx-font-weight: bold; -fx-padding: 8; -fx-wrap-text: true;");
+        titleOverlay.setMaxWidth(230);
+        titleOverlay.setWrapText(true);
+        StackPane.setAlignment(titleOverlay, Pos.BOTTOM_LEFT);
+        StackPane.setMargin(titleOverlay, new Insets(0, 0, 10, 10));
+        imageContainer.getChildren().add(titleOverlay);
+
+        // Badge région (en haut à droite)
         if (blog.getRegion() != null && !blog.getRegion().isEmpty()) {
             Label regionBadge = new Label("📍 " + blog.getRegion());
             regionBadge.setStyle("-fx-background-color: rgba(0,0,0,0.6); -fx-text-fill: white; -fx-padding: 3 8; -fx-background-radius: 20; -fx-font-size: 12px;");
@@ -247,53 +262,55 @@ public class BlogController implements Initializable {
             imageContainer.getChildren().add(regionBadge);
         }
 
-        VBox content = new VBox(8);
-        content.setPadding(new Insets(12, 12, 12, 12));
+        // Contenu texte sous l'image (compact)
+        VBox content = new VBox(6);
+        content.setPadding(new Insets(10, 10, 10, 10));
 
-        Label titre = new Label(blog.getTitre());
-        titre.setStyle("-fx-font-weight: bold; -fx-font-size: 18px; -fx-text-fill: #5a3e2b; -fx-wrap-text: true;");
-        titre.setWrapText(true);
-
-        HBox auteurDate = new HBox(10);
+        // Ligne auteur + date
+        HBox auteurDate = new HBox(6);
         auteurDate.setAlignment(Pos.CENTER_LEFT);
         Label auteur = new Label("👤 " + (blog.getAuteurNom() != null ? blog.getAuteurNom() : "Inconnu"));
-        auteur.setStyle("-fx-text-fill: #b7472a; -fx-font-size: 13px;");
+        auteur.setStyle("-fx-text-fill: #b7472a; -fx-font-size: 12px;");
         Label date = new Label("📅 " + (blog.getDatePublication() != null ? blog.getDatePublication().format(dateShortFormatter) : ""));
-        date.setStyle("-fx-text-fill: #7f8c8d; -fx-font-size: 13px;");
+        date.setStyle("-fx-text-fill: #7f8c8d; -fx-font-size: 12px;");
         Region spacer = new Region();
         HBox.setHgrow(spacer, Priority.ALWAYS);
         auteurDate.getChildren().addAll(auteur, date, spacer);
 
+        // Catégorie
         Label categorie = new Label("🏷️ " + (blog.getCategorie() != null ? blog.getCategorie() : "Non catégorisé"));
-        categorie.setStyle("-fx-text-fill: #3498db; -fx-font-size: 13px;");
+        categorie.setStyle("-fx-text-fill: #3498db; -fx-font-size: 12px;");
 
-        String extrait = blog.getContenu().length() > 80 ? blog.getContenu().substring(0, 80) + "..." : blog.getContenu();
+        // Extrait
+        String extrait = blog.getContenu().length() > 60 ? blog.getContenu().substring(0, 60) + "..." : blog.getContenu();
         Label extraitLabel = new Label(extrait);
-        extraitLabel.setStyle("-fx-text-fill: #7f8c8d; -fx-font-size: 13px; -fx-wrap-text: true;");
+        extraitLabel.setStyle("-fx-text-fill: #7f8c8d; -fx-font-size: 12px; -fx-wrap-text: true;");
         extraitLabel.setWrapText(true);
 
+        // Nombre de commentaires
         long nbComments = commentaireList.stream().filter(c -> c.getArticleId() == blog.getId()).count();
         Label commentCount = new Label("💬 " + nbComments + " commentaire(s)");
-        commentCount.setStyle("-fx-text-fill: #27ae60; -fx-font-size: 13px;");
+        commentCount.setStyle("-fx-text-fill: #27ae60; -fx-font-size: 12px;");
 
-        HBox actions = new HBox(10);
+        // Boutons d'action (plus petits)
+        HBox actions = new HBox(6);
         actions.setAlignment(Pos.CENTER);
 
         Button voirBtn = new Button("Voir");
-        voirBtn.setStyle("-fx-background-color: #3498db; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 5; -fx-padding: 5 12; -fx-cursor: hand;");
+        voirBtn.setStyle("-fx-background-color: #3498db; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 5; -fx-padding: 4 10; -fx-cursor: hand; -fx-font-size: 11px;");
         voirBtn.setOnAction(e -> showDetailView(blog));
 
         Button modifierBtn = new Button("Modifier");
-        modifierBtn.setStyle("-fx-background-color: #f39c12; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 5; -fx-padding: 5 12; -fx-cursor: hand;");
+        modifierBtn.setStyle("-fx-background-color: #f39c12; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 5; -fx-padding: 4 10; -fx-cursor: hand; -fx-font-size: 11px;");
         modifierBtn.setOnAction(e -> selectBlog(blog));
 
         Button supprimerBtn = new Button("Supprimer");
-        supprimerBtn.setStyle("-fx-background-color: #e74c3c; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 5; -fx-padding: 5 12; -fx-cursor: hand;");
+        supprimerBtn.setStyle("-fx-background-color: #e74c3c; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 5; -fx-padding: 4 10; -fx-cursor: hand; -fx-font-size: 11px;");
         supprimerBtn.setOnAction(e -> supprimerBlog(blog));
 
         actions.getChildren().addAll(voirBtn, modifierBtn, supprimerBtn);
 
-        content.getChildren().addAll(titre, auteurDate, categorie, extraitLabel, commentCount, actions);
+        content.getChildren().addAll(auteurDate, categorie, extraitLabel, commentCount, actions);
         card.getChildren().addAll(imageContainer, content);
 
         card.setOnMouseClicked(e -> {
@@ -329,7 +346,6 @@ public class BlogController implements Initializable {
         }
 
         afficherCommentairesDetail();
-        // Basculer la visibilité des ScrollPanes
         listViewScroll.setVisible(false);
         listViewScroll.setManaged(false);
         detailViewScroll.setVisible(true);
@@ -636,17 +652,14 @@ public class BlogController implements Initializable {
             showWarning("Le commentaire ne peut pas être vide.");
             return;
         }
-        // Utiliser l'utilisateur connecté
-        int userId = currentUser.getId();
-
+        // On utilise l'utilisateur connecté, pas de champ ID
         Commentaire c = new Commentaire();
         c.setContenu(contenu.trim());
-        c.setUtilisateur(userId);
+        c.setUtilisateur(currentUser.getId());
         c.setArticleId(selectedBlog.getId());
         try {
             commentaireCRUD.ajouter(c);
             newCommentField.clear();
-            // Recharger les commentaires de l'article sélectionné
             List<Commentaire> comments = commentaireCRUD.getCommentsByArticle(selectedBlog.getId());
             displayCommentaires(comments);
             loadAllComments();
