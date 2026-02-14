@@ -70,7 +70,7 @@ public class BlogController implements Initializable {
     // Composants FXML de la vue détail
     @FXML private VBox listView;
     @FXML private VBox detailView;
-    @FXML private Button backToListBtn;
+    // @FXML private Button backToListBtn; // Supprimé
     @FXML private StackPane detailImageContainer;
     @FXML private ImageView detailImageView;
     @FXML private Label detailTitreLabel;
@@ -150,12 +150,8 @@ public class BlogController implements Initializable {
         searchField.setOnAction(e -> filterArticles());
         clearBtn.setOnAction(e -> clearForm());
         choisirImageBtn.setOnAction(e -> choisirImage());
-        if (backToListBtn != null) {
-            backToListBtn.setOnAction(e -> showListView());
-        } else {
-            System.err.println("backToListBtn est null !");
-        }
         detailAddCommentBtn.setOnAction(e -> ajouterCommentaireDetail());
+        // Pas de backToListBtn
     }
 
     private void choisirImage() {
@@ -782,11 +778,12 @@ public class BlogController implements Initializable {
         supprimerBtn.setManaged(isEditing);
     }
 
-    // Navigation
+    // Navigation - utilisée par les boutons de la barre latérale
     @FXML private void goDashboard() { System.out.println("Dashboard"); }
-    @FXML private void goAjouter() { System.out.println("Ajouter"); }
-    @FXML private void goListe() { System.out.println("Liste"); }
-    @FXML private void goSettings() { System.out.println("Settings"); }
-    @FXML private void goBlog() { System.out.println("Blog"); }
+    @FXML private void goBlog() {
+        // Revenir à la liste des articles
+        showListView();
+    }
     @FXML private void goCommentaires() { System.out.println("Commentaires"); }
+    @FXML private void goSettings() { System.out.println("Settings"); }
 }
