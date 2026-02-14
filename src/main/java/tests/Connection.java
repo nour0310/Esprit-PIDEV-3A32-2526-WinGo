@@ -22,13 +22,13 @@ public class Connection {
                 );
             }
 
-            
+
             if (!reservations.isEmpty()) {
                 Reservation first = reservations.get(0);
                 service.modifier(first);
             }
 
-            // Example: delete a reservation
+            // Example: delete a 
             if (!reservations.isEmpty()) {
                 Reservation last = reservations.get(reservations.size() - 1);
                 service.supprimer(last.getId());
