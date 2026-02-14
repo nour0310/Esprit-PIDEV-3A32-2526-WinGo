@@ -203,6 +203,7 @@
                                           -fx-border-color: rgba(255,255,255,0.18);
                                           -fx-border-radius: 18;">
                             <columns>
+                                <TableColumn fx:id="colImage" text="Image" prefWidth="90"/>
                                 <TableColumn fx:id="colId" text="ID" prefWidth="60"/>
                                 <TableColumn fx:id="colNom" text="Nom" prefWidth="220"/>
                                 <TableColumn fx:id="colPrix" text="Prix" prefWidth="90"/>
