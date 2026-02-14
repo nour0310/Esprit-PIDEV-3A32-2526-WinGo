@@ -31,7 +31,7 @@ public class WinGoShopController {
     // Top
     @FXML private TextField searchField;
     @FXML private Label cartCountLabel;
-
+    @FXML private TextField descriptionField;
     // Login
     @FXML private TextField emailField;
     @FXML private PasswordField passwordField;
@@ -393,15 +393,15 @@ public class WinGoShopController {
     }
 
     @FXML
-    public void clearForm(javafx.event.ActionEvent e) {
-        idProduitHidden.clear();
+    private void clearForm() {
         nomTextField.clear();
-        descriptionArea.clear();
         prixTextField.clear();
         stockField.clear();
         regionField.clear();
         categorieField.clear();
+        descriptionField.clear(); // ✅ au lieu de descriptionArea
         imageField.clear();
+        idProduitHidden.clear();
     }
 
     // ------------------ CART (DB) ------------------
