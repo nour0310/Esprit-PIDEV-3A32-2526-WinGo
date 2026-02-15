@@ -40,7 +40,7 @@ public class WinGoShopController {
     @FXML private HBox userBox;
 
     // ==================== CART (NEW DESIGN) ====================
-    @FXML private VBox cartItemsBox;   // conteneur des cartes
+    @FXML private VBox cartItemsBox;
     @FXML private Label cartTotalLabel;
 
     // ==================== LEFT NAV ROOT ====================
@@ -61,7 +61,7 @@ public class WinGoShopController {
     @FXML private VBox commercantProductsPane;
     @FXML private ScrollPane formScrollPane;
     @FXML private VBox formPane;
-    @FXML private HBox cartPane; // IMPORTANT: HBox (comme ton FXML)
+    @FXML private HBox cartPane;
     @FXML private VBox becomeCommercantPane;
     @FXML private VBox dashboardPane;
 
@@ -112,6 +112,7 @@ public class WinGoShopController {
     @FXML private Label dashTotalStock;
     @FXML private Label dashStockValue;
     @FXML private TableView<?> dashboardRecentTable;
+
     private final Map<String, Image> imageCache = new ConcurrentHashMap<>();
 
     private Image getCachedImage(String url, double w, double h) {
@@ -119,25 +120,27 @@ public class WinGoShopController {
         String key = url.trim();
         if (key.isEmpty()) return null;
 
-        return imageCache.computeIfAbsent(key, u ->
-                // backgroundLoading = true
-                new Image(u, w, h, false, true, true)
-        );
+        return imageCache.computeIfAbsent(key, u -> new Image(u, w, h, false, true, true));
     }
+
     // ==================== SERVICES ====================
     private final ProduitCRUD produitCRUD = new ProduitCRUD();
     private final PanierCRUD panierCRUD = new PanierCRUD();
 
-    private final ObservableList<Produit> produitsData = FXCollections.observableArrayList();
-    private final ObservableList<CartItem> cartData = FXCollections.observableArrayList();
+    // ✅ IMPORTANT: 2 LISTES SÉPARÉES
+    private final ObservableList<Produit> allProductsData = FXCollections.observableArrayList(); // client
+    private final ObservableList<Produit> myProductsData  = FXCollections.observableArrayList(); // commercant
+    private final ObservableList<CartItem> cartData       = FXCollections.observableArrayList();
 
     @FXML
     public void initialize() {
         setupProductsTable();
         setupFilters();
-        refreshProducts();
-        refreshCartUI();
 
+        // on charge les produits globaux au démarrage
+        refreshAllProducts();
+
+        refreshCartUI();
         updateUIForUserType();
         showLogin();
     }
@@ -150,28 +153,16 @@ public class WinGoShopController {
     }
 
     private void setTopLoginMode(boolean isLogin) {
-        if (topActionsBox != null) {
-            topActionsBox.setVisible(!isLogin);
-            topActionsBox.setManaged(!isLogin);
-        }
+        if (topActionsBox != null) { topActionsBox.setVisible(!isLogin); topActionsBox.setManaged(!isLogin); }
+        if (searchBox != null) { searchBox.setVisible(!isLogin); searchBox.setManaged(!isLogin); }
+        if (cartBadgeBox != null) { cartBadgeBox.setVisible(!isLogin); cartBadgeBox.setManaged(!isLogin); }
 
-        if (searchBox != null) {
-            searchBox.setVisible(!isLogin);
-            searchBox.setManaged(!isLogin);
-        }
-        if (cartBadgeBox != null) {
-            cartBadgeBox.setVisible(!isLogin);
-            cartBadgeBox.setManaged(!isLogin);
-        }
         if (modeSwitchBox != null) {
             boolean showMode = !isLogin && Session.isLoggedIn() && Session.isCommercant();
             modeSwitchBox.setVisible(showMode);
             modeSwitchBox.setManaged(showMode);
         }
-        if (userBox != null) {
-            userBox.setVisible(!isLogin);
-            userBox.setManaged(!isLogin);
-        }
+        if (userBox != null) { userBox.setVisible(!isLogin); userBox.setManaged(!isLogin); }
 
         if (searchField != null) searchField.setDisable(isLogin);
     }
@@ -232,7 +223,8 @@ public class WinGoShopController {
             }
         });
 
-        produitsTable.setItems(produitsData);
+        // ✅ table commerçant = myProductsData
+        produitsTable.setItems(myProductsData);
     }
 
     // ==================== NAVIGATION & UI MODE ====================
@@ -316,12 +308,12 @@ public class WinGoShopController {
         if (isCommercantView()) {
             commercantProductsPane.setVisible(true);
             commercantProductsPane.setManaged(true);
-            refreshCommercantProducts();
+            refreshMyProducts();
         } else {
             clientProductsPane.setVisible(true);
             clientProductsPane.setManaged(true);
-            refreshProducts();
-            refreshClientProducts();
+            refreshAllProducts();
+            refreshClientProductsGrid(allProductsData);
         }
     }
 
@@ -379,10 +371,10 @@ public class WinGoShopController {
     }
 
     // ==================== CLIENT MODE: CARDS VIEW ====================
-    private void refreshClientProducts() {
+    private void refreshClientProductsGrid(List<Produit> list) {
         if (clientProductsGrid == null) return;
         clientProductsGrid.getChildren().clear();
-        for (Produit p : produitsData) clientProductsGrid.getChildren().add(createProductCard(p));
+        for (Produit p : list) clientProductsGrid.getChildren().add(createProductCard(p));
     }
 
     private VBox createProductCard(Produit p) {
@@ -455,22 +447,21 @@ public class WinGoShopController {
         String catFilter = clientCategoryFilter.getValue();
         String regFilter = clientRegionFilter.getValue();
 
-        List<Produit> filtered = produitsData.stream()
+        List<Produit> filtered = allProductsData.stream()
                 .filter(p -> catFilter == null || catFilter.equals("Toutes") ||
                         (p.getCategorie() != null && p.getCategorie().equals(catFilter)))
                 .filter(p -> regFilter == null || regFilter.equals("Toutes") ||
                         (p.getRegion() != null && p.getRegion().equals(regFilter)))
                 .collect(Collectors.toList());
 
-        clientProductsGrid.getChildren().clear();
-        for (Produit p : filtered) clientProductsGrid.getChildren().add(createProductCard(p));
+        refreshClientProductsGrid(filtered);
     }
 
-    // ==================== COMMERCANT MODE: TABLE VIEW ====================
-    private void refreshCommercantProducts() {
+    // ==================== COMMERCANT MODE ====================
+    private void refreshMyProducts() {
         try {
             List<Produit> myProducts = produitCRUD.afficherParUser(Session.getUserId());
-            produitsData.setAll(myProducts);
+            myProductsData.setAll(myProducts);
             if (commercantProductCount != null) commercantProductCount.setText(myProducts.size() + " produits");
         } catch (SQLException e) {
             if (statusLabel != null) statusLabel.setText("❌ Erreur DB");
@@ -478,10 +469,13 @@ public class WinGoShopController {
         }
     }
 
-    // ==================== PRODUCTS CRUD ====================
-    private void refreshProducts() {
-        try { produitsData.setAll(produitCRUD.afficher()); }
-        catch (SQLException e) { e.printStackTrace(); }
+    // ==================== ALL PRODUCTS (CLIENT) ====================
+    private void refreshAllProducts() {
+        try {
+            allProductsData.setAll(produitCRUD.afficher());
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 
     @FXML
@@ -491,26 +485,35 @@ public class WinGoShopController {
         String q = searchField.getText() == null ? "" : searchField.getText().trim().toLowerCase();
 
         if (q.isEmpty()) {
-            if (Session.isLoggedIn() && Session.isCommercant()) refreshCommercantProducts();
-            else { refreshProducts(); refreshClientProducts(); }
+            if (isCommercantView()) {
+                refreshMyProducts();
+            } else {
+                refreshAllProducts();
+                refreshClientProductsGrid(allProductsData);
+            }
             return;
         }
 
-        List<Produit> filtered = produitsData.stream()
-                .filter(p -> (p.getNom() != null && p.getNom().toLowerCase().contains(q)) ||
-                        (p.getCategorie() != null && p.getCategorie().toLowerCase().contains(q)) ||
-                        (p.getRegion() != null && p.getRegion().toLowerCase().contains(q)))
-                .collect(Collectors.toList());
+        if (isCommercantView()) {
+            List<Produit> filtered = myProductsData.stream()
+                    .filter(p -> (p.getNom() != null && p.getNom().toLowerCase().contains(q)) ||
+                            (p.getCategorie() != null && p.getCategorie().toLowerCase().contains(q)) ||
+                            (p.getRegion() != null && p.getRegion().toLowerCase().contains(q)))
+                    .collect(Collectors.toList());
 
-        if (Session.isLoggedIn() && Session.isCommercant()) {
             produitsTable.setItems(FXCollections.observableArrayList(filtered));
         } else {
-            clientProductsGrid.getChildren().clear();
-            for (Produit p : filtered) clientProductsGrid.getChildren().add(createProductCard(p));
+            List<Produit> filtered = allProductsData.stream()
+                    .filter(p -> (p.getNom() != null && p.getNom().toLowerCase().contains(q)) ||
+                            (p.getCategorie() != null && p.getCategorie().toLowerCase().contains(q)) ||
+                            (p.getRegion() != null && p.getRegion().toLowerCase().contains(q)))
+                    .collect(Collectors.toList());
+
+            refreshClientProductsGrid(filtered);
         }
     }
 
-    // ==================== CART UI (CARDS) ====================
+    // ==================== CART UI ====================
     private void refreshCartUI() {
         if (cartItemsBox == null) return;
 
@@ -542,24 +545,20 @@ public class WinGoShopController {
     }
 
     private HBox createCartItemCard(CartItem it) {
-
-        // ✅ IMAGE (vient de produit.image via panierCRUD)
         ImageView iv = new ImageView();
         iv.setFitWidth(56);
         iv.setFitHeight(56);
         iv.setPreserveRatio(true);
         iv.setSmooth(true);
 
-        // petit arrondi (optionnel)
         javafx.scene.shape.Rectangle clip = new javafx.scene.shape.Rectangle(56, 56);
         clip.setArcWidth(14);
         clip.setArcHeight(14);
         iv.setClip(clip);
 
-        Image img = loadImageSmart(it.getImage());   // ✅ important
+        Image img = loadImageSmart(it.getImage());
         if (img != null) iv.setImage(img);
 
-        // INFO
         Label name = new Label(it.getNom());
         name.setStyle("-fx-text-fill: white; -fx-font-weight: 900; -fx-font-size: 13px;");
 
@@ -571,7 +570,6 @@ public class WinGoShopController {
 
         VBox info = new VBox(4, name, price, qty);
 
-        // ACTIONS
         Button minus = new Button("➖");
         Button plus  = new Button("➕");
         Button del   = new Button("🗑");
@@ -624,8 +622,6 @@ public class WinGoShopController {
 
         updateUIForUserType();
         showProducts();
-        if (isCommercantView()) refreshCommercantProducts();
-        else { refreshProducts(); refreshClientProducts(); }
     }
 
     private boolean isCommercantView() {
@@ -737,7 +733,8 @@ public class WinGoShopController {
 
         try {
             produitCRUD.supprimer(selected.getIdProduit());
-            refreshCommercantProducts();
+            refreshMyProducts();
+            refreshAllProducts(); // ✅ pour client
             showAlert("✅ Supprimé", "Produit supprimé.");
         } catch (SQLException e) {
             e.printStackTrace();
@@ -787,16 +784,12 @@ public class WinGoShopController {
                 showAlert("✅ Modifié", "Produit mis à jour.");
             }
 
-// ✅ IMPORTANT : refresh des 2 vues
-            refreshCommercantProducts();
-            refreshProducts();
-            refreshClientProducts();
+            // ✅ refresh des 2 listes
+            refreshMyProducts();
+            refreshAllProducts();
 
             clearForm();
-            showProducts();
-
-            clearForm();
-            showProducts();
+            showProducts(); // reste sur l'écran actuel (commerçant)
 
         } catch (SQLException e) {
             e.printStackTrace();
@@ -829,14 +822,12 @@ public class WinGoShopController {
 
     @FXML
     public void submitBecomeCommercant() {
-
         if (!Session.isLoggedIn()) { showLogin(); return; }
         if (Session.isCommercant()) {
             showAlert("✅ Info", "Vous êtes déjà commerçant.");
             return;
         }
 
-        // (optionnel) validation simple des champs
         String nom = becomeCommercantNom.getText() == null ? "" : becomeCommercantNom.getText().trim();
         String phone = becomeCommercantPhone.getText() == null ? "" : becomeCommercantPhone.getText().trim();
         String typeP = becomeCommercantType.getText() == null ? "" : becomeCommercantType.getText().trim();
@@ -860,28 +851,21 @@ public class WinGoShopController {
             int updated = ps.executeUpdate();
 
             if (updated == 1) {
-                // ✅ mettre à jour la session
                 Session.setUser(Session.getUserId(), "COMMERCANT");
 
-                // ✅ passer directement en mode commerçant (view)
                 viewAsCommercant = true;
                 if (modeToggle != null) {
                     modeToggle.setSelected(true);
                     modeToggle.setText("Commerçant");
                 }
 
-                // ✅ reset formulaire + message
                 if (becomeCommercantStatusLabel != null) becomeCommercantStatusLabel.setText("");
                 showAlert("🎉 Bienvenue !", "Votre compte est maintenant Commerçant ✅");
 
-                // ✅ refresh UI + redirection
                 refreshCartUI();
                 updateUIForUserType();
 
-                // tu peux choisir où l’envoyer :
-                showAddForm(); // direct page ajouter produit
-                // ou: showProducts();
-                // ou: showDashboard();
+                showAddForm();
 
             } else {
                 showAlert("❌ Erreur", "Impossible de changer le type utilisateur.");
@@ -894,13 +878,15 @@ public class WinGoShopController {
     }
 
     private void updateDashboardStats() {
-        if (dashTotalProducts != null) dashTotalProducts.setText(String.valueOf(produitsData.size()));
+        // dashboard basé sur myProductsData (logique commerçant)
+        if (dashTotalProducts != null) dashTotalProducts.setText(String.valueOf(myProductsData.size()));
+
         if (dashTotalStock != null) {
-            int totalStock = produitsData.stream().mapToInt(Produit::getStock).sum();
+            int totalStock = myProductsData.stream().mapToInt(Produit::getStock).sum();
             dashTotalStock.setText(String.valueOf(totalStock));
         }
         if (dashStockValue != null) {
-            double val = produitsData.stream().mapToDouble(p -> p.getPrix() * p.getStock()).sum();
+            double val = myProductsData.stream().mapToDouble(p -> p.getPrix() * p.getStock()).sum();
             dashStockValue.setText(String.format("%.2f TND", val));
         }
     }
@@ -910,19 +896,15 @@ public class WinGoShopController {
         String p = path.trim();
 
         try {
-            // 1) URL web
             if (p.startsWith("http://") || p.startsWith("https://")) {
                 return new Image(p, true);
             }
 
-            // 2) Resource JavaFX dans resources (ex: /assets/p1.png)
             if (p.startsWith("/")) {
                 var is = getClass().getResourceAsStream(p);
                 if (is != null) return new Image(is);
             }
 
-            // 3) Fichier local
-            // si l’utilisateur met "C:\img\p1.png" => on convertit en file:/...
             if (!p.startsWith("file:")) {
                 p = "file:/" + p.replace("\\", "/");
             }
