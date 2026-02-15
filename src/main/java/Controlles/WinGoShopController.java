@@ -235,10 +235,7 @@ public class WinGoShopController {
                 super.updateItem(item, empty);
                 setGraphic(empty ? null : box);
                 setText(null);
-            }
-        });
-
-        cartTable.setItems(cartData);
+                cartTable.setItems(cartData);
     }
 
     // ==================== NAVIGATION & UI MODE ====================

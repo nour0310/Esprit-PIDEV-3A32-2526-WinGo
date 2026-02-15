@@ -36,8 +36,8 @@ public class PanierCRUD {
                     String nom = rs.getString("nom");
                     double prixUnitaire = rs.getDouble("prix_unitaire");
                     int qty = rs.getInt("quantite");
-                    // si ton CartItem calcule total tout seul, tu peux ignorer total
-                    list.add(new CartItem(idProduit, nom, prixUnitaire, qty));
+                    String image = rs.getString("image");
+                    list.add(new CartItem(idProduit, nom, image, prixUnitaire, qty));
                 }
             }
         }
