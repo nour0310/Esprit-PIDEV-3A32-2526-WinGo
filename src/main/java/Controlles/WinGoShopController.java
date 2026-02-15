@@ -475,6 +475,8 @@ public class WinGoShopController {
         VBox card = new VBox(10);
         card.setAlignment(Pos.TOP_CENTER);
         card.setPrefWidth(220);
+        card.setPrefHeight(360);
+        card.setMinHeight(360);
         card.setStyle(
                 "-fx-background-color: rgba(0,0,0,0.28);" +
                         "-fx-background-radius: 16;" +
@@ -484,19 +486,24 @@ public class WinGoShopController {
                         "-fx-cursor: hand;"
         );
 
-        // Image
+        // Image (fixed size + cover crop)
         ImageView imageView = new ImageView();
         imageView.setFitWidth(196);
-        imageView.setFitHeight(196);
-        imageView.setPreserveRatio(true);
-        imageView.setStyle("-fx-background-radius: 12;");
+        imageView.setFitHeight(160);     // <-- hauteur fixe (tu peux mettre 180)
+        imageView.setPreserveRatio(false); // <-- IMPORTANT (sinon bannière = problème)
+        imageView.setSmooth(true);
+
+// coins arrondis sur l'image
+        javafx.scene.shape.Rectangle clip = new javafx.scene.shape.Rectangle(196, 160);
+        clip.setArcWidth(16);
+        clip.setArcHeight(16);
+        imageView.setClip(clip);
+
         try {
             if (p.getImage() != null && !p.getImage().isBlank()) {
-                imageView.setImage(new Image(p.getImage(), true));
+                imageView.setImage(new Image(p.getImage().trim(), true));
             }
-        } catch (Exception e) {
-            // Placeholder
-        }
+        } catch (Exception ignored) {}
 
         // Name
         Label nameLabel = new Label(p.getNom());
