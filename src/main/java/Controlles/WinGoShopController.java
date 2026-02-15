@@ -624,6 +624,8 @@ public class WinGoShopController {
 
         updateUIForUserType();
         showProducts();
+        if (isCommercantView()) refreshCommercantProducts();
+        else { refreshProducts(); refreshClientProducts(); }
     }
 
     private boolean isCommercantView() {
