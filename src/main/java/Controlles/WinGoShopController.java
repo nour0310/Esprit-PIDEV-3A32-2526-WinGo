@@ -819,7 +819,68 @@ public class WinGoShopController {
 
     @FXML
     public void submitBecomeCommercant() {
-        showAlert("✅ Demande envoyée", "Demande commerçant (à implémenter).");
+
+        if (!Session.isLoggedIn()) { showLogin(); return; }
+        if (Session.isCommercant()) {
+            showAlert("✅ Info", "Vous êtes déjà commerçant.");
+            return;
+        }
+
+        // (optionnel) validation simple des champs
+        String nom = becomeCommercantNom.getText() == null ? "" : becomeCommercantNom.getText().trim();
+        String phone = becomeCommercantPhone.getText() == null ? "" : becomeCommercantPhone.getText().trim();
+        String typeP = becomeCommercantType.getText() == null ? "" : becomeCommercantType.getText().trim();
+        String mot  = becomeCommercantMotivation.getText() == null ? "" : becomeCommercantMotivation.getText().trim();
+
+        if (nom.isEmpty() || phone.isEmpty() || typeP.isEmpty() || mot.isEmpty()) {
+            if (becomeCommercantStatusLabel != null) {
+                becomeCommercantStatusLabel.setText("⚠ Remplis tous les champs.");
+            } else {
+                showAlert("⚠ Champs manquants", "Remplis tous les champs.");
+            }
+            return;
+        }
+
+        String sql = "UPDATE utilisateur SET type='COMMERCANT' WHERE id=?";
+
+        try (Connection conn = MyBD.getInstance().getConn();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setInt(1, Session.getUserId());
+            int updated = ps.executeUpdate();
+
+            if (updated == 1) {
+                // ✅ mettre à jour la session
+                Session.setUser(Session.getUserId(), "COMMERCANT");
+
+                // ✅ passer directement en mode commerçant (view)
+                viewAsCommercant = true;
+                if (modeToggle != null) {
+                    modeToggle.setSelected(true);
+                    modeToggle.setText("Commerçant");
+                }
+
+                // ✅ reset formulaire + message
+                if (becomeCommercantStatusLabel != null) becomeCommercantStatusLabel.setText("");
+                showAlert("🎉 Bienvenue !", "Votre compte est maintenant Commerçant ✅");
+
+                // ✅ refresh UI + redirection
+                refreshCartUI();
+                updateUIForUserType();
+
+                // tu peux choisir où l’envoyer :
+                showAddForm(); // direct page ajouter produit
+                // ou: showProducts();
+                // ou: showDashboard();
+
+            } else {
+                showAlert("❌ Erreur", "Impossible de changer le type utilisateur.");
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+            showAlert("❌ Erreur", "Erreur DB: " + e.getMessage());
+        }
     }
 
     private void updateDashboardStats() {
