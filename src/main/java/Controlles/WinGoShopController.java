@@ -411,11 +411,8 @@ public class WinGoShopController {
         clip.setArcHeight(16);
         imageView.setClip(clip);
 
-        try {
-            if (p.getImage() != null && !p.getImage().isBlank()) {
-                imageView.setImage(new Image(p.getImage().trim(), true));
-            }
-        } catch (Exception ignored) {}
+        Image img = getCachedImage(p.getImage(), 196, 160);
+        if (img != null) imageView.setImage(img);
 
         Label nameLabel = new Label(p.getNom());
         nameLabel.setStyle("-fx-text-fill: white; -fx-font-weight: 900; -fx-font-size: 14px; -fx-wrap-text: true;");
