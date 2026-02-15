@@ -46,7 +46,7 @@ public class PanierCRUD {
 
         return list;
     }
-    
+
     public void addToCart(int userId, int idProduit, double prixUnitaire, int qty) throws SQLException {
 
         String checkSql  = "SELECT quantite FROM panier WHERE id_user=? AND id_produit=?";

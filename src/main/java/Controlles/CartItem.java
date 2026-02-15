@@ -3,7 +3,7 @@ package Controlles;
 public class CartItem {
     private final int idProduit;
     private final String nom;
-    private final String image; // ✅ new
+    private final String image;
     private final double prix;
     private int qty;
 
@@ -17,11 +17,9 @@ public class CartItem {
 
     public int getIdProduit() { return idProduit; }
     public String getNom() { return nom; }
-    public String getImage() { return image; }   // ✅ new
+    public String getImage() { return image; }
     public double getPrix() { return prix; }
     public int getQty() { return qty; }
-
     public void setQty(int qty) { this.qty = qty; }
-
     public double getSubtotal() { return prix * qty; }
 }
