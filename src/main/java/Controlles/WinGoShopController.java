@@ -229,49 +229,6 @@ public class WinGoShopController {
         produitsTable.setItems(produitsData);
     }
 
-    private void setupCartTable() {
-        cartColNom.setCellValueFactory(new PropertyValueFactory<>("nom"));
-        cartColPrix.setCellValueFactory(new PropertyValueFactory<>("prix"));
-        cartColQty.setCellValueFactory(new PropertyValueFactory<>("qty"));
-        cartColSub.setCellValueFactory(new PropertyValueFactory<>("subtotal"));
-
-        cartColActions.setCellFactory(col -> new TableCell<>() {
-            private final Button minus = new Button("➖");
-            private final Button plus  = new Button("➕");
-            private final Button del   = new Button("🗑");
-            private final HBox box = new HBox(8, minus, plus, del);
-
-            {
-                box.setAlignment(Pos.CENTER);
-
-                String baseBtn =
-                        "-fx-background-radius: 999;" +
-                                "-fx-padding: 6 10;" +
-                                "-fx-font-weight: 900;" +
-                                "-fx-cursor: hand;";
-
-                minus.setStyle(baseBtn + "-fx-background-color: rgba(255,255,255,0.10); -fx-text-fill: white;");
-                plus.setStyle(baseBtn + "-fx-background-color: rgba(255,189,0,0.25); -fx-text-fill: #FFBD00;");
-                del.setStyle(baseBtn + "-fx-background-color: rgba(255,0,84,0.25); -fx-text-fill: white;");
-
-                minus.setOnAction(e -> {
-                    CartItem it = getTableView().getItems().get(getIndex());
-                    try { panierCRUD.changeQty(Session.getUserId(), it.getIdProduit(), -1); refreshCartUI(); }
-                    catch (SQLException ex) { ex.printStackTrace(); }
-                });
-
-                plus.setOnAction(e -> {
-                    CartItem it = getTableView().getItems().get(getIndex());
-                    try { panierCRUD.changeQty(Session.getUserId(), it.getIdProduit(), +1); refreshCartUI(); }
-                    catch (SQLException ex) { ex.printStackTrace(); }
-                });
-
-                del.setOnAction(e -> {
-                    CartItem it = getTableView().getItems().get(getIndex());
-                    try { panierCRUD.remove(Session.getUserId(), it.getIdProduit()); refreshCartUI(); }
-                    catch (SQLException ex) { ex.printStackTrace(); }
-                });
-            }
 
             @Override
             protected void updateItem(Void item, boolean empty) {
@@ -797,31 +754,6 @@ public class WinGoShopController {
         if (regionField != null) regionField.clear();
         if (categorieField != null) categorieField.clear();
         if (imageField != null) imageField.clear();
-    }
-
-    // ==================== CART BUTTONS ====================
-    @FXML
-    public void qtyPlus() {
-        CartItem it = cartTable.getSelectionModel().getSelectedItem();
-        if (it == null) { showAlert("Panier", "Sélectionne une ligne."); return; }
-        try { panierCRUD.changeQty(Session.getUserId(), it.getIdProduit(), +1); refreshCartUI(); }
-        catch (SQLException e) { e.printStackTrace(); }
-    }
-
-    @FXML
-    public void qtyMinus() {
-        CartItem it = cartTable.getSelectionModel().getSelectedItem();
-        if (it == null) { showAlert("Panier", "Sélectionne une ligne."); return; }
-        try { panierCRUD.changeQty(Session.getUserId(), it.getIdProduit(), -1); refreshCartUI(); }
-        catch (SQLException e) { e.printStackTrace(); }
-    }
-
-    @FXML
-    public void removeFromCart() {
-        CartItem it = cartTable.getSelectionModel().getSelectedItem();
-        if (it == null) { showAlert("Panier", "Sélectionne une ligne."); return; }
-        try { panierCRUD.remove(Session.getUserId(), it.getIdProduit()); refreshCartUI(); }
-        catch (SQLException e) { e.printStackTrace(); }
     }
 
     @FXML
