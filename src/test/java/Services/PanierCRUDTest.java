@@ -4,7 +4,10 @@ import Controlles.CartItem;
 import Utils.MyBD;
 import org.junit.jupiter.api.*;
 
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -21,12 +24,15 @@ public class PanierCRUDTest {
         panierCRUD = new PanierCRUD();
         userId = getAnyUserId();
         produitId = getAnyProduitId();
-        panierCRUD.clear(userId); // clean start
+
+        // ✅ éviter de polluer la DB
+        panierCRUD.clear(userId);
     }
 
     @AfterAll
     static void tearDown() throws SQLException {
-        panierCRUD.clear(userId); // clean end
+        // ✅ clean à la fin
+        panierCRUD.clear(userId);
     }
 
     private static int getAnyUserId() throws SQLException {
@@ -67,39 +73,47 @@ public class PanierCRUDTest {
         CartItem item = findItem(items, produitId);
         assertNotNull(item, "Le produit doit exister dans le panier");
         assertEquals(2, item.getQty(), "La quantité doit être 2");
-        assertEquals(10.0, item.getPrixUnitaire(), 0.0001, "Le prix unitaire doit être 10.0");
+        assertEquals(10.0, item.getPrix(), 0.0001, "Le prix doit être 10.0");
+        assertEquals(20.0, item.getSubtotal(), 0.0001, "Subtotal doit être prix*qty");
     }
 
     @Test
     @Order(2)
     void testChangeQty() throws SQLException {
-        // On suppose que le produit existe déjà dans le panier après le test 1
+        // Assure qu'il existe
+        panierCRUD.addToCart(userId, produitId, 10.0, 2);
+
         panierCRUD.changeQty(userId, produitId, +3); // 2 + 3 = 5
 
         List<CartItem> items = panierCRUD.getActiveCart(userId);
         CartItem item = findItem(items, produitId);
-        assertNotNull(item);
+
+        assertNotNull(item, "Après changeQty, l'item doit exister");
         assertEquals(5, item.getQty(), "La quantité doit devenir 5");
+        assertEquals(50.0, item.getSubtotal(), 0.0001);
     }
 
     @Test
     @Order(3)
     void testRemove() throws SQLException {
+        // Assure qu'il existe
+        panierCRUD.addToCart(userId, produitId, 10.0, 1);
+
         panierCRUD.remove(userId, produitId);
 
         List<CartItem> items = panierCRUD.getActiveCart(userId);
         CartItem item = findItem(items, produitId);
+
         assertNull(item, "Après remove, l'item ne doit plus exister");
     }
 
     @Test
     @Order(4)
     void testClear() throws SQLException {
-        // Ajouter 2 produits (le même produit 2 fois c’est ok: ton code update la quantité)
-        panierCRUD.addToCart(userId, produitId, 7.0, 1);
+        // Ajout
         panierCRUD.addToCart(userId, produitId, 7.0, 1);
 
-        assertFalse(panierCRUD.getActiveCart(userId).isEmpty());
+        assertFalse(panierCRUD.getActiveCart(userId).isEmpty(), "Avant clear, panier doit contenir des items");
 
         panierCRUD.clear(userId);
 
