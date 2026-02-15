@@ -14,9 +14,10 @@ public class PanierCRUD {
         String sql = """
     SELECT p.id_produit,
            pr.nom,
-           pr.image,
+           pr.image,          -- ✅ AJOUTE ÇA
            p.prix_unitaire,
-           p.quantite
+           p.quantite,
+           p.total
     FROM panier p
     JOIN produit pr ON pr.id_produit = p.id_produit
     WHERE p.id_user = ?
