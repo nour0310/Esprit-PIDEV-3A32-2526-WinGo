@@ -882,4 +882,15 @@ public class WinGoShopController {
         alert.setContentText(message);
         alert.showAndWait();
     }
+
+    @FXML
+    public void toggleMode() {
+        if (!Session.isLoggedIn() || !Session.isCommercant()) return;
+
+        viewAsCommercant = modeToggle.isSelected();
+        modeToggle.setText(viewAsCommercant ? "Commerçant" : "Client");
+
+        updateUIForUserType();
+        showProducts();
+    }
 }
