@@ -280,7 +280,7 @@ public class WinGoShopController {
         // si pas commerçant, on force mode client
         if (!realCommercant) viewAsCommercant = false;
 
-        boolean isCommercantView = realCommercant && viewAsCommercant; // <- mode affichage
+        boolean isCommercantView = isCommercantView();
         boolean isClientView = !isCommercantView;
 
         // Navigation
