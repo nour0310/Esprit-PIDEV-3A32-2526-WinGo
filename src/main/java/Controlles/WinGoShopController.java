@@ -397,30 +397,32 @@ public class WinGoShopController {
                         "-fx-cursor: hand;"
         );
 
-        // ✅ IMAGE avec placeholder par défaut
+        // IMAGE
         ImageView imageView = new ImageView();
         imageView.setFitWidth(196);
         imageView.setFitHeight(160);
         imageView.setPreserveRatio(false);
         imageView.setSmooth(true);
 
-        // Clip arrondi
         javafx.scene.shape.Rectangle clip = new javafx.scene.shape.Rectangle(196, 160);
         clip.setArcWidth(16);
         clip.setArcHeight(16);
         imageView.setClip(clip);
 
-        // ✅ Essayer de charger l'image
-        Image img = loadImageSmart(p.getImage());
-        if (img != null && !img.isError()) {
-            imageView.setImage(img);
-        } else {
-            // ✅ Placeholder si échec
-            System.out.println("⚠️ Using placeholder for: " + p.getNom());
-            // Tu peux créer une image placeholder ou laisser vide
-            imageView.setStyle("-fx-background-color: rgba(255,189,0,0.15);");
+        // ✅ SOLUTION : Le 7ème paramètre = true (backgroundLoading)
+        String imageUrl = p.getImage();
+        if (imageUrl != null && !imageUrl.isBlank()) {
+            try {
+                // width, height, preserveRatio, smooth, backgroundLoading = TRUE
+                Image img = new Image(imageUrl.trim(), 196, 160, false, true, true);
+                imageView.setImage(img);
+            } catch (Exception e) {
+                // Placeholder en cas d'erreur
+                imageView.setStyle("-fx-background-color: rgba(255,189,0,0.15);");
+            }
         }
 
+        // Labels et bouton (inchangés)
         Label nameLabel = new Label(p.getNom());
         nameLabel.setStyle("-fx-text-fill: white; -fx-font-weight: 900; -fx-font-size: 14px; -fx-wrap-text: true;");
         nameLabel.setMaxWidth(196);
