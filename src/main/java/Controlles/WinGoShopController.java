@@ -785,6 +785,14 @@ public class WinGoShopController {
                 showAlert("✅ Modifié", "Produit mis à jour.");
             }
 
+// ✅ IMPORTANT : refresh des 2 vues
+            refreshCommercantProducts();
+            refreshProducts();
+            refreshClientProducts();
+
+            clearForm();
+            showProducts();
+
             clearForm();
             showProducts();
 
