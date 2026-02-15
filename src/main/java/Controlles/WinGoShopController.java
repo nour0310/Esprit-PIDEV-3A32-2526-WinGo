@@ -389,23 +389,34 @@ public class WinGoShopController {
                         "-fx-cursor: hand;"
         );
 
+        // ✅ IMAGE avec placeholder par défaut
         ImageView imageView = new ImageView();
         imageView.setFitWidth(196);
         imageView.setFitHeight(160);
         imageView.setPreserveRatio(false);
         imageView.setSmooth(true);
 
+        // Clip arrondi
         javafx.scene.shape.Rectangle clip = new javafx.scene.shape.Rectangle(196, 160);
         clip.setArcWidth(16);
         clip.setArcHeight(16);
         imageView.setClip(clip);
 
+        // ✅ Essayer de charger l'image
         Image img = loadImageSmart(p.getImage());
-        if (img != null) imageView.setImage(img);
+        if (img != null && !img.isError()) {
+            imageView.setImage(img);
+        } else {
+            // ✅ Placeholder si échec
+            System.out.println("⚠️ Using placeholder for: " + p.getNom());
+            // Tu peux créer une image placeholder ou laisser vide
+            imageView.setStyle("-fx-background-color: rgba(255,189,0,0.15);");
+        }
 
         Label nameLabel = new Label(p.getNom());
         nameLabel.setStyle("-fx-text-fill: white; -fx-font-weight: 900; -fx-font-size: 14px; -fx-wrap-text: true;");
         nameLabel.setMaxWidth(196);
+        nameLabel.setWrapText(true);
 
         Label priceLabel = new Label(String.format("%.2f TND", p.getPrix()));
         priceLabel.setStyle("-fx-text-fill: #FFBD00; -fx-font-weight: 900; -fx-font-size: 16px;");
