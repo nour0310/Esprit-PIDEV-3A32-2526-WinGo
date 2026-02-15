@@ -397,6 +397,10 @@ public class WinGoShopController {
 
     @FXML
     public void showDashboard() {
+        if (!isCommercantView()) {
+            showAlert("⚠ Mode commerçant", "Passe en mode Commerçant pour voir le dashboard.");
+            return;
+        }
         if (!Session.isLoggedIn() || !Session.isCommercant()) {
             showLogin();
             return;
