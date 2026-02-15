@@ -2,26 +2,25 @@ package Controlles;
 
 import Entites.Produit;
 
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class CartService {
-
     private final Map<Integer, CartItem> map = new LinkedHashMap<>();
 
     public void add(Produit p, int qty) {
-        if (p == null || qty <= 0) return;
+        if (qty <= 0) return;
 
-        int id = p.getIdProduit();
-        CartItem it = map.get(id);
-
-        String img = (p.getImage() == null) ? "" : p.getImage();
-
+        CartItem it = map.get(p.getIdProduit());
         if (it == null) {
-            // ✅ constructeur 5 params (id, nom, image, prix, qty)
-            map.put(id, new CartItem(id, p.getNom(), img, p.getPrix(), qty));
+            map.put(p.getIdProduit(),
+                    new CartItem(
+                            p.getIdProduit(),
+                            p.getNom(),
+                            p.getImage(),   // ✅ ajoute image produit
+                            p.getPrix(),
+                            qty
+                    )
+            );
         } else {
             it.setQty(it.getQty() + qty);
         }
@@ -36,17 +35,9 @@ public class CartService {
         else it.setQty(newQty);
     }
 
-    public void remove(int idProduit) {
-        map.remove(idProduit);
-    }
-
-    public void clear() {
-        map.clear();
-    }
-
-    public List<CartItem> getItems() {
-        return new ArrayList<>(map.values());
-    }
+    public void remove(int idProduit) { map.remove(idProduit); }
+    public void clear() { map.clear(); }
+    public List<CartItem> getItems() { return new ArrayList<>(map.values()); }
 
     public int totalQty() {
         int sum = 0;
