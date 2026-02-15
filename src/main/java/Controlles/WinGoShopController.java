@@ -482,9 +482,11 @@ public class WinGoShopController {
     // ==================== PRODUCTS CRUD ====================
     private void refreshProducts() {
         try {
-            imageCache.clear(); // ✅ AJOUTER
-            produitsData.setAll(produitCRUD.afficher());
+            List<Produit> list = produitCRUD.afficher();
+            produitsData.setAll(list);
+            System.out.println("✅ Loaded " + list.size() + " products from DB"); // Debug
         } catch (SQLException e) {
+            System.err.println("❌ Error loading products");
             e.printStackTrace();
         }
     }
