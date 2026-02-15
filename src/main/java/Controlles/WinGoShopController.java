@@ -112,18 +112,7 @@ public class WinGoShopController {
     @FXML private Label dashTotalStock;
     @FXML private Label dashStockValue;
     @FXML private TableView<?> dashboardRecentTable;
-    private final Map<String, Image> imageCache = new ConcurrentHashMap<>();
-
-    private Image getCachedImage(String url, double w, double h) {
-        if (url == null) return null;
-        String key = url.trim();
-        if (key.isEmpty()) return null;
-
-        return imageCache.computeIfAbsent(key, u ->
-                // backgroundLoading = true
-                new Image(u, w, h, false, true, true)
-        );
-    }
+ 
     // ==================== SERVICES ====================
     private final ProduitCRUD produitCRUD = new ProduitCRUD();
     private final PanierCRUD panierCRUD = new PanierCRUD();
