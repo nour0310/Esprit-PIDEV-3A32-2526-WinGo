@@ -37,7 +37,11 @@ public class WinGoShopController {
     @FXML private HBox cartBadgeBox;
     @FXML private Label userNameLabel;
     @FXML private Label topSubtitleLabel;
+    @FXML private HBox modeSwitchBox;
+    @FXML private ToggleButton modeToggle;
 
+    // mode d'affichage (sans changer le type en DB)
+    private boolean viewAsCommercant = false;
     // ==================== NAVIGATION ====================
     @FXML private Button navHomeBtn;
     @FXML private VBox navAddBox;
@@ -209,40 +213,54 @@ public class WinGoShopController {
     }
 
     private void updateUIForUserType() {
-        boolean isCommercant = Session.isLoggedIn() && Session.isCommercant();
-        boolean isClient = Session.isLoggedIn() && !Session.isCommercant();
+        boolean logged = Session.isLoggedIn();
+        boolean realCommercant = logged && Session.isCommercant();
 
-        // Navigation visibility
-        navAddBox.setVisible(isCommercant);
-        navAddBox.setManaged(isCommercant);
-        navDashboardBox.setVisible(isCommercant);
-        navDashboardBox.setManaged(isCommercant);
+        // si c'est un commerçant, il peut switcher l'affichage
+        if (modeSwitchBox != null) {
+            modeSwitchBox.setVisible(realCommercant);
+            modeSwitchBox.setManaged(realCommercant);
+        }
 
-        navCartBox.setVisible(!isCommercant);
-        navCartBox.setManaged(!isCommercant);
-        navBecomeCommercantBox.setVisible(isClient);
-        navBecomeCommercantBox.setManaged(isClient);
+        // si pas commerçant, on force mode client
+        if (!realCommercant) viewAsCommercant = false;
 
-        cartBadgeBox.setVisible(!isCommercant);
-        cartBadgeBox.setManaged(!isCommercant);
+        boolean isCommercantView = realCommercant && viewAsCommercant; // <- mode affichage
+        boolean isClientView = !isCommercantView;
+
+        // Navigation
+        navAddBox.setVisible(isCommercantView);
+        navAddBox.setManaged(isCommercantView);
+
+        navDashboardBox.setVisible(isCommercantView);
+        navDashboardBox.setManaged(isCommercantView);
+
+        navCartBox.setVisible(isClientView);
+        navCartBox.setManaged(isClientView);
+
+        // "Vendre" visible uniquement si c'est un client (pas commerçant réel)
+        boolean isClientReal = logged && !Session.isCommercant();
+        navBecomeCommercantBox.setVisible(isClientReal);
+        navBecomeCommercantBox.setManaged(isClientReal);
+
+        cartBadgeBox.setVisible(isClientView);
+        cartBadgeBox.setManaged(isClientView);
 
         // Top subtitle
         if (topSubtitleLabel != null) {
-            if (isCommercant) {
-                topSubtitleLabel.setText("Espace Commerçant");
-            } else {
-                topSubtitleLabel.setText("Produits Locaux Tunisiens");
-            }
+            topSubtitleLabel.setText(isCommercantView ? "Espace Commerçant" : "Produits Locaux Tunisiens");
         }
 
         // User name
         if (userNameLabel != null) {
-            if (Session.isLoggedIn()) {
-                String name = getNomPrenomUtilisateur(Session.getUserId());
-                userNameLabel.setText(name);
-            } else {
-                userNameLabel.setText("Visiteur");
-            }
+            if (logged) userNameLabel.setText(getNomPrenomUtilisateur(Session.getUserId()));
+            else userNameLabel.setText("Visiteur");
+        }
+
+        // Toggle text
+        if (modeToggle != null && realCommercant) {
+            modeToggle.setSelected(isCommercantView);
+            modeToggle.setText(isCommercantView ? "Commerçant" : "Client");
         }
     }
 
