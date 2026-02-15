@@ -29,6 +29,32 @@ public class Produit {
         this.image = image;
         this.dateAjout = dateAjout;
     }
+    // ✅ INSERT (sans idProduit, sans dateAjout)
+    public Produit(int idUser, String nom, String description, double prix,
+                   String region, String categorie, int stock, String image) {
+        this.idUser = idUser;
+        this.nom = nom;
+        this.description = description;
+        this.prix = prix;
+        this.region = region;
+        this.categorie = categorie;
+        this.stock = stock;
+        this.image = image;
+    }
+
+    // ✅ UPDATE (avec idProduit, sans dateAjout)
+    public Produit(int idProduit, int idUser, String nom, String description, double prix,
+                   String region, String categorie, int stock, String image) {
+        this.idProduit = idProduit;
+        this.idUser = idUser;
+        this.nom = nom;
+        this.description = description;
+        this.prix = prix;
+        this.region = region;
+        this.categorie = categorie;
+        this.stock = stock;
+        this.image = image;
+    }
 
     public int getIdProduit() { return idProduit; }
     public void setIdProduit(int idProduit) { this.idProduit = idProduit; }

@@ -608,4 +608,243 @@ public class WinGoShopController {
     private boolean isCommercantView() {
         return Session.isLoggedIn() && Session.isCommercant() && viewAsCommercant;
     }
+
+    // ==================== MISSING METHODS (FIX FXML ACTIONS) ====================
+
+    @FXML
+    public void showAddForm() {
+        // seulement en mode commerçant (toggle ON) + connecté
+        if (!Session.isLoggedIn() || !Session.isCommercant()) {
+            showAlert("⚠ Accès refusé", "Connecte-toi en tant que commerçant.");
+            showLogin();
+            return;
+        }
+        // si commerçant mais pas encore en vue commerçant
+        if (!isCommercantView()) {
+            showAlert("⚠ Mode Commerçant", "Active le mode Commerçant pour ajouter.");
+            return;
+        }
+
+        hideAllScreens();
+        updateUIForUserType();
+
+        // montre formulaire
+        formScrollPane.setVisible(true);
+        formScrollPane.setManaged(true);
+
+        clearForm();
+        if (formTitleLabel != null) formTitleLabel.setText("➕ Ajouter Produit");
+        if (saveBtn != null) saveBtn.setText("✅ Enregistrer");
+    }
+
+    @FXML
+    public void showDashboard() {
+        if (!Session.isLoggedIn() || !Session.isCommercant()) {
+            showLogin();
+            return;
+        }
+        if (!isCommercantView()) {
+            showAlert("⚠ Mode Commerçant", "Active le mode Commerçant pour voir le dashboard.");
+            return;
+        }
+
+        hideAllScreens();
+        updateUIForUserType();
+
+        dashboardPane.setVisible(true);
+        dashboardPane.setManaged(true);
+
+        updateDashboardStats();
+    }
+
+    @FXML
+    public void showBecomeCommercant() {
+        if (!Session.isLoggedIn()) {
+            showLogin();
+            return;
+        }
+        if (Session.isCommercant()) {
+            showAlert("✅ Info", "Vous êtes déjà commerçant.");
+            return;
+        }
+
+        hideAllScreens();
+        updateUIForUserType();
+
+        becomeCommercantPane.setVisible(true);
+        becomeCommercantPane.setManaged(true);
+    }
+
+    @FXML
+    public void editSelectedProduct() {
+        Produit selected = produitsTable.getSelectionModel().getSelectedItem();
+        if (selected == null) {
+            showAlert("✏ Modifier", "Sélectionne un produit d'abord.");
+            return;
+        }
+
+        // ouvrir form en mode edit
+        hideAllScreens();
+        updateUIForUserType();
+
+        formScrollPane.setVisible(true);
+        formScrollPane.setManaged(true);
+
+        if (idProduitHidden != null) idProduitHidden.setText(String.valueOf(selected.getIdProduit()));
+        if (nomTextField != null) nomTextField.setText(selected.getNom());
+        if (prixTextField != null) prixTextField.setText(String.valueOf(selected.getPrix()));
+        if (stockField != null) stockField.setText(String.valueOf(selected.getStock()));
+        if (categorieField != null) categorieField.setText(selected.getCategorie());
+        if (regionField != null) regionField.setText(selected.getRegion());
+        if (imageField != null) imageField.setText(selected.getImage());
+        if (descriptionField != null) descriptionField.setText(selected.getDescription());
+
+        if (formTitleLabel != null) formTitleLabel.setText("✏ Modifier Produit");
+        if (saveBtn != null) saveBtn.setText("💾 Mettre à jour");
+    }
+
+    @FXML
+    public void deleteSelectedProduct() {
+        Produit selected = produitsTable.getSelectionModel().getSelectedItem();
+        if (selected == null) {
+            showAlert("🗑 Supprimer", "Sélectionne un produit d'abord.");
+            return;
+        }
+
+        Alert confirm = new Alert(Alert.AlertType.CONFIRMATION);
+        confirm.setTitle("Confirmation");
+        confirm.setHeaderText(null);
+        confirm.setContentText("Supprimer : " + selected.getNom() + " ?");
+        if (confirm.showAndWait().orElse(ButtonType.CANCEL) != ButtonType.OK) return;
+
+        try {
+            produitCRUD.supprimer(selected.getIdProduit());
+            refreshCommercantProducts();
+            showAlert("✅ Supprimé", "Produit supprimé.");
+        } catch (SQLException e) {
+            e.printStackTrace();
+            showAlert("❌ Erreur", "Impossible de supprimer.");
+        }
+    }
+
+    @FXML
+    public void saveProduct() {
+        if (!Session.isLoggedIn() || !Session.isCommercant() || !isCommercantView()) {
+            showAlert("⚠ Accès refusé", "Mode commerçant requis.");
+            return;
+        }
+
+        // lecture champs
+        String nom = nomTextField.getText() == null ? "" : nomTextField.getText().trim();
+        String cat = categorieField.getText() == null ? "" : categorieField.getText().trim();
+        String region = regionField.getText() == null ? "" : regionField.getText().trim();
+        String img = imageField.getText() == null ? "" : imageField.getText().trim();
+        String desc = descriptionField.getText() == null ? "" : descriptionField.getText().trim();
+
+        double prix;
+        int stock;
+
+        try {
+            prix = Double.parseDouble(prixTextField.getText().trim());
+            stock = Integer.parseInt(stockField.getText().trim());
+        } catch (Exception ex) {
+            showAlert("⚠ Champs invalides", "Prix/Stock doivent être numériques.");
+            return;
+        }
+
+        if (nom.isEmpty() || cat.isEmpty()) {
+            showAlert("⚠ Champs obligatoires", "Nom et Catégorie sont obligatoires.");
+            return;
+        }
+
+        try {
+            // si idProduitHidden vide => INSERT, sinon UPDATE
+            String idTxt = idProduitHidden.getText() == null ? "" : idProduitHidden.getText().trim();
+            if (idTxt.isEmpty()) {
+                Produit p = new Produit(nom, desc, prix, stock, region, cat, img, Session.getUserId());
+                produitCRUD.ajouter(p);
+                showAlert("✅ Ajout", "Produit ajouté.");
+            } else {
+                int id = Integer.parseInt(idTxt);
+                Produit p = new Produit(id, nom, desc, prix, stock, region, cat, img, Session.getUserId());
+                produitCRUD.modifier(p);
+                showAlert("✅ Modifié", "Produit mis à jour.");
+            }
+
+            clearForm();
+            showProducts();
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+            showAlert("❌ Erreur", "Impossible d'enregistrer.");
+        }
+    }
+
+    @FXML
+    public void clearForm() {
+        if (idProduitHidden != null) idProduitHidden.clear();
+        if (nomTextField != null) nomTextField.clear();
+        if (descriptionField != null) descriptionField.clear();
+        if (prixTextField != null) prixTextField.clear();
+        if (stockField != null) stockField.clear();
+        if (regionField != null) regionField.clear();
+        if (categorieField != null) categorieField.clear();
+        if (imageField != null) imageField.clear();
+    }
+
+    // ==================== CART BUTTONS ====================
+    @FXML
+    public void qtyPlus() {
+        CartItem it = cartTable.getSelectionModel().getSelectedItem();
+        if (it == null) { showAlert("Panier", "Sélectionne une ligne."); return; }
+        try { panierCRUD.changeQty(Session.getUserId(), it.getIdProduit(), +1); refreshCartUI(); }
+        catch (SQLException e) { e.printStackTrace(); }
+    }
+
+    @FXML
+    public void qtyMinus() {
+        CartItem it = cartTable.getSelectionModel().getSelectedItem();
+        if (it == null) { showAlert("Panier", "Sélectionne une ligne."); return; }
+        try { panierCRUD.changeQty(Session.getUserId(), it.getIdProduit(), -1); refreshCartUI(); }
+        catch (SQLException e) { e.printStackTrace(); }
+    }
+
+    @FXML
+    public void removeFromCart() {
+        CartItem it = cartTable.getSelectionModel().getSelectedItem();
+        if (it == null) { showAlert("Panier", "Sélectionne une ligne."); return; }
+        try { panierCRUD.remove(Session.getUserId(), it.getIdProduit()); refreshCartUI(); }
+        catch (SQLException e) { e.printStackTrace(); }
+    }
+
+    @FXML
+    public void clearCart() {
+        try { panierCRUD.clear(Session.getUserId()); refreshCartUI(); }
+        catch (SQLException e) { e.printStackTrace(); }
+    }
+
+    @FXML
+    public void checkoutNow() {
+        showAlert("✅ Commande", "Checkout (à implémenter).");
+    }
+
+    // ==================== BECOME COMMERCANT ====================
+    @FXML
+    public void submitBecomeCommercant() {
+        showAlert("✅ Demande envoyée", "Demande commerçant (à implémenter).");
+    }
+
+    // ==================== DASHBOARD ====================
+    private void updateDashboardStats() {
+        // simple placeholder pour éviter erreurs (tu complèteras plus tard)
+        if (dashTotalProducts != null) dashTotalProducts.setText(String.valueOf(produitsData.size()));
+        if (dashTotalStock != null) {
+            int totalStock = produitsData.stream().mapToInt(Produit::getStock).sum();
+            dashTotalStock.setText(String.valueOf(totalStock));
+        }
+        if (dashStockValue != null) {
+            double val = produitsData.stream().mapToDouble(p -> p.getPrix() * p.getStock()).sum();
+            dashStockValue.setText(String.format("%.2f TND", val));
+        }
+    }
 }

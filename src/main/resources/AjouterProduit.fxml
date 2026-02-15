@@ -125,7 +125,7 @@
                 </HBox>
             </HBox>
         </top>
-        
+
         <!-- LEFT NAV -->
         <left>
             <VBox fx:id="leftNav" prefWidth="90" spacing="14"
