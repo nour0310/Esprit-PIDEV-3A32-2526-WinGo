@@ -51,21 +51,21 @@
                 <Region HBox.hgrow="ALWAYS"/>
 
                 <!-- Search Bar -->
-                <HBox alignment="CENTER_LEFT" spacing="10"
+                <HBox fx:id="searchBox" alignment="CENTER_LEFT" spacing="10"
                       style="-fx-background-color: rgba(0,0,0,0.28);
-                             -fx-background-radius: 999;
-                             -fx-padding: 8 14;
-                             -fx-border-color: rgba(255,255,255,0.22);
-                             -fx-border-radius: 999;">
+             -fx-background-radius: 999;
+             -fx-padding: 8 14;
+             -fx-border-color: rgba(255,255,255,0.22);
+             -fx-border-radius: 999;">
                     <Label text="🔍" style="-fx-text-fill: white; -fx-opacity: 0.95; -fx-font-size: 14px;"/>
                     <TextField fx:id="searchField"
                                promptText="Chercher un produit..."
                                onKeyReleased="#onSearch"
                                style="-fx-background-color: transparent;
-                                      -fx-border-color: transparent;
-                                      -fx-text-fill: white;
-                                      -fx-prompt-text-fill: rgba(255,255,255,0.70);
-                                      -fx-pref-width: 280;" />
+                      -fx-border-color: transparent;
+                      -fx-text-fill: white;
+                      -fx-prompt-text-fill: rgba(255,255,255,0.70);
+                      -fx-pref-width: 280;" />
                 </HBox>
 
                 <!-- Cart Badge (CLIENT mode) -->
