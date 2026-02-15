@@ -793,8 +793,10 @@ public class WinGoShopController {
             }
 
 // ✅ IMPORTANT : refresh des 2 vues
-            refreshCommercantProducts();
+
+            imageCache.clear();
             refreshProducts();
+            refreshCommercantProducts();
             refreshClientProducts();
 
             clearForm();
