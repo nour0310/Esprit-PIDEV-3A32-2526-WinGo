@@ -771,7 +771,13 @@ public class WinGoShopController {
                 showAlert("✅ Ajout", "Produit ajouté.");
             } else {
                 int id = Integer.parseInt(idTxt);
-                Produit p = new Produit(id, nom, desc, prix, stock, region, cat, img, Session.getUserId());
+                Produit p = new Produit(
+                        id,
+                        Session.getUserId(),
+                        nom, desc, prix,
+                        region, cat,
+                        stock, img
+                );
                 produitCRUD.modifier(p);
                 showAlert("✅ Modifié", "Produit mis à jour.");
             }
