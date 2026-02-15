@@ -584,7 +584,6 @@
                        -fx-cursor: hand;" />
                         </VBox>
                     </HBox>
-
                     <!-- ==================== BECOME COMMERCANT FORM ==================== -->
                     <VBox fx:id="becomeCommercantPane" spacing="16" alignment="CENTER"
                           style="-fx-background-color: rgba(0,0,0,0.28);
