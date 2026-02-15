@@ -250,3 +250,29 @@
 .shadow-lg {
     -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.4), 28, 0, 0, 14);
 }
+.glass-textarea {
+    -fx-background-color: rgba(255,255,255,0.10);
+    -fx-control-inner-background: rgba(255,255,255,0.10);
+    -fx-background-insets: 0;
+    -fx-text-fill: white;
+    -fx-highlight-fill: rgba(255,189,0,0.35);
+    -fx-highlight-text-fill: white;
+}
+
+.glass-textarea .content {
+    -fx-background-color: rgba(255,255,255,0.10);
+    -fx-background-insets: 0;
+    -fx-background-radius: 12;
+}
+
+.glass-textarea .viewport {
+    -fx-background-color: transparent;
+}
+
+.glass-textarea .scroll-pane {
+    -fx-background-color: transparent;
+}
+
+.glass-textarea .scroll-pane .corner {
+    -fx-background-color: transparent;
+}
