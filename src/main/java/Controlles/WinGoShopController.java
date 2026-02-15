@@ -32,7 +32,6 @@ public class WinGoShopController {
     @FXML private Label topSubtitleLabel;
     @FXML private HBox modeSwitchBox;
     @FXML private ToggleButton modeToggle;
-    @FXML private TableColumn<CartItem, Void> cartColActions;
 
     @FXML private HBox searchBox;
 
@@ -100,11 +99,7 @@ public class WinGoShopController {
     @FXML private Label welcomeLabel;
 
     // ==================== CART ====================
-    @FXML private TableView<CartItem> cartTable;
-    @FXML private TableColumn<CartItem, String> cartColNom;
-    @FXML private TableColumn<CartItem, Double> cartColPrix;
-    @FXML private TableColumn<CartItem, Integer> cartColQty;
-    @FXML private TableColumn<CartItem, Double> cartColSub;
+
     @FXML private Label cartTotalLabel;
 
     // ==================== BECOME COMMERCANT ====================
