@@ -1,0 +1,474 @@
+/* ========================================
+   WinGo Travel - Module Produits Tunisiens
+   Stylesheet CSS JavaFX - VERSION CORRIGÉE
+   Version 2.1 - Février 2026
+   ======================================== */
+
+/* ==================== ROOT COLORS ==================== */
+.root {
+    /* Couleurs principales */
+    -primary-red: #FF0054;
+    -primary-gold: #FFBD00;
+    -primary-purple: #390099;
+    -primary-green: #00FF9D;
+
+    /* Backgrounds */
+    -bg-dark: rgba(0,0,0,0.28);
+    -bg-darker: rgba(0,0,0,0.22);
+    -bg-darkest: rgba(0,0,0,0.38);
+    -bg-light: rgba(255,255,255,0.10);
+    -bg-lighter: rgba(255,255,255,0.18);
+
+    /* Gold accents */
+    -gold-bg-light: rgba(255,189,0,0.12);
+    -gold-bg: rgba(255,189,0,0.18);
+    -gold-bg-dark: rgba(255,189,0,0.28);
+    -gold-border: rgba(255,189,0,0.28);
+    -gold-border-light: rgba(255,189,0,0.22);
+
+    /* Borders */
+    -border-light: rgba(255,255,255,0.18);
+    -border-lighter: rgba(255,255,255,0.14);
+    -border-dark: rgba(255,255,255,0.22);
+
+    /* Text */
+    -text-white: white;
+    -text-light: rgba(255,255,255,0.85);
+    -text-dim: rgba(255,255,255,0.70);
+    -text-dimmer: rgba(255,255,255,0.55);
+}
+
+/* ==================== BUTTONS ==================== */
+.button {
+    -fx-cursor: hand;
+    -fx-font-weight: 700;
+}
+
+.button:hover {
+    -fx-opacity: 0.88;
+}
+
+.button:pressed {
+    -fx-opacity: 0.95;
+}
+
+/* Primary button (Red) */
+.button-primary {
+    -fx-background-color: #FF0054;
+    -fx-text-fill: white;
+    -fx-background-radius: 999px;
+    -fx-padding: 12px 24px;
+    -fx-font-weight: 900;
+    -fx-font-size: 13px;
+}
+
+/* Secondary button (Gold) */
+.button-secondary {
+    -fx-background-color: #FFBD00;
+    -fx-text-fill: #390099;
+    -fx-background-radius: 999px;
+    -fx-padding: 10px 18px;
+    -fx-font-weight: 900;
+}
+
+/* Tertiary button (Transparent) */
+.button-tertiary {
+    -fx-background-color: rgba(255,255,255,0.10);
+    -fx-text-fill: white;
+    -fx-background-radius: 999px;
+    -fx-padding: 10px 18px;
+    -fx-font-weight: 900;
+}
+
+/* Danger button (Red transparent) */
+.button-danger {
+    -fx-background-color: rgba(255,0,84,0.25);
+    -fx-text-fill: white;
+    -fx-background-radius: 999px;
+    -fx-padding: 10px 18px;
+    -fx-font-weight: 900;
+}
+
+/* ==================== TEXT FIELDS ==================== */
+.text-field, .text-area, .password-field {
+    -fx-background-color: rgba(255,255,255,0.10);
+    -fx-background-radius: 12px;
+    -fx-border-color: rgba(255,255,255,0.18);
+    -fx-border-radius: 12px;
+    -fx-border-width: 1px;
+    -fx-text-fill: white;
+    -fx-prompt-text-fill: rgba(255,255,255,0.55);
+    -fx-padding: 12px 14px;
+    -fx-font-size: 13px;
+}
+
+.text-field:focused, .text-area:focused, .password-field:focused {
+    -fx-border-color: #FFBD00;
+    -fx-border-width: 1.5px;
+    -fx-background-color: rgba(255,255,255,0.14);
+}
+
+/* ==================== COMBO BOX ==================== */
+.combo-box {
+    -fx-background-color: rgba(255,255,255,0.10);
+    -fx-background-radius: 12px;
+    -fx-border-color: rgba(255,255,255,0.18);
+    -fx-border-radius: 12px;
+}
+
+.combo-box .list-cell {
+    -fx-background-color: transparent;
+    -fx-text-fill: white;
+}
+
+.combo-box:focused {
+    -fx-border-color: #FFBD00;
+}
+
+.combo-box-popup .list-view {
+    -fx-background-color: rgba(0,0,0,0.28);
+    -fx-background-radius: 12px;
+    -fx-border-color: rgba(255,255,255,0.18);
+    -fx-border-radius: 12px;
+}
+
+.combo-box-popup .list-view .list-cell:hover {
+    -fx-background-color: rgba(255,189,0,0.12);
+}
+
+.combo-box-popup .list-view .list-cell:filled:selected {
+    -fx-background-color: rgba(255,189,0,0.28);
+    -fx-text-fill: #FFBD00;
+    -fx-font-weight: 800;
+}
+
+/* ==================== TABLE VIEW ==================== */
+.table-view {
+    -fx-background-color: rgba(0,0,0,0.28);
+    -fx-background-radius: 18px;
+    -fx-border-color: rgba(255,255,255,0.18);
+    -fx-border-radius: 18px;
+}
+
+.table-view .column-header {
+    -fx-background-color: rgba(0,0,0,0.22);
+    -fx-text-fill: rgba(255,255,255,0.85);
+    -fx-font-weight: 900;
+    -fx-font-size: 12px;
+    -fx-border-color: rgba(255,255,255,0.14);
+}
+
+.table-view .column-header:hover {
+    -fx-background-color: rgba(255,189,0,0.12);
+}
+
+.table-row-cell {
+    -fx-background-color: transparent;
+    -fx-text-fill: white;
+    -fx-border-color: transparent;
+}
+
+.table-row-cell:odd {
+    -fx-background-color: rgba(255,255,255,0.03);
+}
+
+.table-row-cell:hover {
+    -fx-background-color: rgba(255,189,0,0.12);
+}
+
+.table-row-cell:filled:selected {
+    -fx-background-color: rgba(255,189,0,0.28);
+    -fx-text-fill: #FFBD00;
+}
+
+.table-cell {
+    -fx-border-color: transparent;
+}
+
+/* ==================== SCROLL PANE ==================== */
+.scroll-pane {
+    -fx-background-color: transparent;
+    -fx-background: transparent;
+}
+
+.scroll-pane .viewport {
+    -fx-background-color: transparent;
+}
+
+.scroll-pane .scroll-bar:vertical,
+.scroll-pane .scroll-bar:horizontal {
+    -fx-background-color: transparent;
+}
+
+.scroll-pane .scroll-bar .thumb {
+    -fx-background-color: rgba(255,189,0,0.18);
+    -fx-background-radius: 8px;
+}
+
+.scroll-pane .scroll-bar .thumb:hover {
+    -fx-background-color: rgba(255,189,0,0.28);
+}
+
+/* ==================== SLIDER ==================== */
+.slider {
+    -fx-pref-height: 40px;
+}
+
+.slider .track {
+    -fx-background-color: rgba(255,255,255,0.10);
+    -fx-background-radius: 8px;
+}
+
+.slider .thumb {
+    -fx-background-color: #FFBD00;
+    -fx-background-radius: 50%;
+    -fx-pref-width: 16px;
+    -fx-pref-height: 16px;
+}
+
+.slider .thumb:hover {
+    -fx-background-color: #FFD700;
+}
+
+/* ==================== CHECK BOX ==================== */
+.check-box {
+    -fx-text-fill: rgba(255,255,255,0.85);
+    -fx-font-weight: 700;
+}
+
+.check-box .box {
+    -fx-background-color: rgba(255,255,255,0.10);
+    -fx-border-color: rgba(255,255,255,0.18);
+    -fx-border-radius: 4px;
+    -fx-background-radius: 4px;
+}
+
+.check-box:selected .box {
+    -fx-background-color: #FFBD00;
+    -fx-border-color: #FFBD00;
+}
+
+.check-box:selected .mark {
+    -fx-background-color: #390099;
+}
+
+/* ==================== TOGGLE BUTTON ==================== */
+.toggle-button {
+    -fx-background-color: rgba(255,255,255,0.10);
+    -fx-text-fill: white;
+    -fx-background-radius: 12px;
+    -fx-padding: 14px 18px;
+    -fx-font-weight: 800;
+    -fx-cursor: hand;
+}
+
+.toggle-button:hover {
+    -fx-background-color: rgba(255,255,255,0.18);
+}
+
+.toggle-button:selected {
+    -fx-background-color: rgba(255,189,0,0.28);
+    -fx-text-fill: #FFBD00;
+    -fx-font-weight: 900;
+}
+
+/* ==================== SEPARATOR ==================== */
+.separator {
+    -fx-background-color: rgba(255,255,255,0.14);
+}
+
+/* ==================== LABELS ==================== */
+.label {
+    -fx-text-fill: white;
+}
+
+.label-title {
+    -fx-text-fill: white;
+    -fx-font-size: 20px;
+    -fx-font-weight: 900;
+}
+
+.label-subtitle {
+    -fx-text-fill: rgba(255,255,255,0.70);
+    -fx-font-size: 12px;
+    -fx-font-weight: 700;
+}
+
+.label-gold {
+    -fx-text-fill: #FFBD00;
+    -fx-font-weight: 900;
+}
+
+.label-success {
+    -fx-text-fill: #00FF9D;
+    -fx-font-weight: 800;
+}
+
+.label-error {
+    -fx-text-fill: #FF0054;
+    -fx-font-weight: 800;
+}
+
+/* ==================== PRODUCT CARDS (Classes Custom) ==================== */
+.product-card {
+    -fx-background-color: rgba(0,0,0,0.28);
+    -fx-background-radius: 16px;
+    -fx-border-color: rgba(255,255,255,0.18);
+    -fx-border-radius: 16px;
+    -fx-border-width: 1px;
+    -fx-padding: 12px;
+    -fx-spacing: 10px;
+    -fx-pref-width: 220px;
+}
+
+.product-card:hover {
+    -fx-border-color: rgba(255,189,0,0.28);
+    -fx-background-color: rgba(0,0,0,0.32);
+}
+
+.product-card-title {
+    -fx-text-fill: white;
+    -fx-font-weight: 900;
+    -fx-font-size: 14px;
+}
+
+.product-card-price {
+    -fx-text-fill: #FFBD00;
+    -fx-font-weight: 900;
+    -fx-font-size: 16px;
+}
+
+.product-card-region {
+    -fx-text-fill: rgba(255,255,255,0.70);
+    -fx-font-size: 11px;
+    -fx-font-weight: 700;
+}
+
+/* ==================== BADGES ==================== */
+.badge {
+    -fx-background-color: rgba(255,189,0,0.18);
+    -fx-background-radius: 999px;
+    -fx-padding: 6px 12px;
+    -fx-border-color: rgba(255,189,0,0.22);
+    -fx-border-radius: 999px;
+    -fx-border-width: 1px;
+}
+
+.badge-label {
+    -fx-text-fill: #FFBD00;
+    -fx-font-weight: 800;
+    -fx-font-size: 11px;
+}
+
+/* ==================== INFO BANNER ==================== */
+.info-banner {
+    -fx-background-color: rgba(255,189,0,0.12);
+    -fx-background-radius: 16px;
+    -fx-border-color: rgba(255,189,0,0.28);
+    -fx-border-radius: 16px;
+    -fx-border-width: 1px;
+    -fx-padding: 14px 16px;
+}
+
+.info-banner-text {
+    -fx-text-fill: #FFBD00;
+    -fx-font-weight: 900;
+    -fx-font-size: 14px;
+}
+
+/* ==================== NAVIGATION ==================== */
+.nav-button {
+    -fx-background-color: transparent;
+    -fx-text-fill: rgba(255,255,255,0.85);
+    -fx-background-radius: 14px;
+    -fx-padding: 12px;
+    -fx-min-width: 60px;
+    -fx-cursor: hand;
+}
+
+.nav-button:hover {
+    -fx-background-color: rgba(255,255,255,0.08);
+}
+
+.nav-button-active {
+    -fx-background-color: rgba(255,189,0,0.28);
+    -fx-text-fill: #FFBD00;
+    -fx-font-weight: 900;
+}
+
+/* ==================== FILTER PANEL ==================== */
+.filter-panel {
+    -fx-background-color: rgba(0,0,0,0.28);
+    -fx-background-radius: 16px;
+    -fx-padding: 12px 14px;
+    -fx-border-color: rgba(255,255,255,0.14);
+    -fx-border-radius: 16px;
+    -fx-border-width: 1px;
+}
+
+/* ==================== ORDER STATUS ==================== */
+.status-pending {
+    -fx-text-fill: #FFD700;
+    -fx-font-weight: 800;
+}
+
+.status-delivered {
+    -fx-text-fill: #00FF9D;
+    -fx-font-weight: 800;
+}
+
+.status-cancelled {
+    -fx-text-fill: #FF0054;
+    -fx-font-weight: 800;
+}
+
+/* ==================== GLASS EFFECT ==================== */
+.glass-pane {
+    -fx-background-color: rgba(0,0,0,0.22);
+    -fx-background-radius: 26px;
+    -fx-border-color: rgba(255,255,255,0.16);
+    -fx-border-radius: 26px;
+    -fx-border-width: 1.2px;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.4), 28, 0, 0, 14);
+}
+
+.glass-pane-inner {
+    -fx-background-color: rgba(0,0,0,0.28);
+    -fx-background-radius: 22px;
+    -fx-border-color: rgba(255,255,255,0.18);
+    -fx-border-radius: 22px;
+    -fx-border-width: 1px;
+}
+
+/* ==================== UTILITIES ==================== */
+.text-center {
+    -fx-alignment: center;
+    -fx-text-alignment: center;
+}
+
+.cursor-hand {
+    -fx-cursor: hand;
+}
+
+.no-border {
+    -fx-border-color: transparent;
+}
+
+.shadow-sm {
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.2), 10, 0, 0, 4);
+}
+
+.shadow-md {
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 18, 0, 0, 10);
+}
+
+.shadow-lg {
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.4), 28, 0, 0, 14);
+}
+
+/* ==================== TUNISIAN THEME ==================== */
+.tunisian-accent {
+    -fx-background-color: linear-gradient(to right, #FF0054, #FFBD00);
+    -fx-background-radius: 4px;
+    -fx-pref-height: 4px;
+}
