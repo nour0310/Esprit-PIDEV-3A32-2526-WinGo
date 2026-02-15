@@ -469,6 +469,7 @@ public class WinGoShopController {
     // ==================== COMMERCANT MODE: TABLE VIEW ====================
     private void refreshCommercantProducts() {
         try {
+            imageCache.clear(); // ✅ AJOUTER
             List<Produit> myProducts = produitCRUD.afficherParUser(Session.getUserId());
             produitsData.setAll(myProducts);
             if (commercantProductCount != null) commercantProductCount.setText(myProducts.size() + " produits");
