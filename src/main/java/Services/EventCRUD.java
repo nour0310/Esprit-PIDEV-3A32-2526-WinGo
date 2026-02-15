@@ -35,10 +35,10 @@ public class EventCRUD {
 
             int rowsInserted = ps.executeUpdate();
             if (rowsInserted > 0) {
-                System.out.println("✅ Event added successfully!");
+                System.out.println(" Event added successfully!");
             }
         } catch (SQLException e) {
-            System.err.println("❌ Error adding event: " + e.getMessage());
+            System.err.println(" Error adding event: " + e.getMessage());
             e.printStackTrace();
         }
     }
@@ -68,9 +68,9 @@ public class EventCRUD {
 
                 list.add(e);
             }
-            System.out.println("📊 Found " + list.size() + " events");
+            System.out.println(" Found " + list.size() + " events");
         } catch (SQLException e) {
-            System.err.println("❌ Error fetching events: " + e.getMessage());
+            System.err.println(" Error fetching events: " + e.getMessage());
             e.printStackTrace();
         }
         return list;
@@ -100,7 +100,7 @@ public class EventCRUD {
                 return e;
             }
         } catch (SQLException e) {
-            System.err.println("❌ Error fetching event: " + e.getMessage());
+            System.err.println(" Error fetching event: " + e.getMessage());
         }
         return null;
     }
@@ -127,10 +127,10 @@ public class EventCRUD {
 
             int rowsUpdated = ps.executeUpdate();
             if (rowsUpdated > 0) {
-                System.out.println("✅ Event updated successfully!");
+                System.out.println("Event updated successfully!");
             }
         } catch (SQLException e) {
-            System.err.println("❌ Error updating event: " + e.getMessage());
+            System.err.println(" Error updating event: " + e.getMessage());
             e.printStackTrace();
         }
     }
@@ -144,10 +144,10 @@ public class EventCRUD {
 
             int rowsDeleted = ps.executeUpdate();
             if (rowsDeleted > 0) {
-                System.out.println("✅ Event deleted successfully!");
+                System.out.println(" Event deleted successfully!");
             }
         } catch (SQLException e) {
-            System.err.println("❌ Error deleting event: " + e.getMessage());
+            System.err.println(" Error deleting event: " + e.getMessage());
             e.printStackTrace();
         }
     }

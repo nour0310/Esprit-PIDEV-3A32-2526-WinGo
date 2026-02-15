@@ -206,12 +206,12 @@ public class EventController implements Initializable {
 
             loadEvents();
             clearEventFields();
-            showInfo("Event added successfully ✅");
+            showInfo("Event added successfully ");
 
         } catch (NumberFormatException ex) {
-            showAlert("Capacity must be a number ❌");
+            showAlert("Capacity must be a number ");
         } catch (DateTimeParseException ex) {
-            showAlert("Time must be like 22:22 ❌");
+            showAlert("Time must be like 22:22 ");
         } catch (Exception ex) {
             showAlert("Error: " + ex.getMessage());
         }
@@ -232,10 +232,10 @@ public class EventController implements Initializable {
             eventCRUD.modifier(e);
             loadEvents();
             clearEventFields();
-            showInfo("Event modified successfully ✅");
+            showInfo("Event modified successfully ");
 
         } catch (Exception ex) {
-            showAlert("Invalid input ❌");
+            showAlert("Invalid input ");
         }
     }
 
@@ -251,7 +251,7 @@ public class EventController implements Initializable {
             eventCRUD.supprimer(selected.getIdEvent());
             loadEvents();
             clearEventFields();
-            showInfo("Event deleted successfully ✅");
+            showInfo("Event deleted successfully ");
         }
     }
 
@@ -313,19 +313,19 @@ public class EventController implements Initializable {
         }
 
         if (datePicker.getValue() == null) {
-            showAlert("Please select a date ❌");
+            showAlert("Please select a date ");
             return false;
         }
 
         if (timeField.getText().trim().isEmpty()) {
-            showAlert("Time must be like 22:22 ❌");
+            showAlert("Time must be like 22:22 ");
             return false;
         }
 
         try {
             LocalTime.parse(timeField.getText().trim(), DateTimeFormatter.ofPattern("HH:mm"));
         } catch (DateTimeParseException e) {
-            showAlert("Time must be like 22:22 ❌");
+            showAlert("Time must be like 22:22 ");
             return false;
         }
 
@@ -336,7 +336,7 @@ public class EventController implements Initializable {
                 return false;
             }
         } catch (NumberFormatException e) {
-            showAlert("Capacity must be a number ❌");
+            showAlert("Capacity must be a number ");
             return false;
         }
 
@@ -379,7 +379,7 @@ public class EventController implements Initializable {
     private void loadEvents() {
         if (eventTable != null) {
             List<Event> events = eventCRUD.afficher();
-            System.out.println("📊 Loading " + events.size() + " events");
+            System.out.println(" Loading " + events.size() + " events");
             eventTable.setItems(FXCollections.observableArrayList(events));
         }
     }
@@ -483,7 +483,7 @@ public class EventController implements Initializable {
     public void setEventId(int eventId) {
         this.currentEventId = eventId;
         if (eventIdLabel != null) {
-            eventIdLabel.setText("🎯 Participation à l'événement #" + eventId);
+            eventIdLabel.setText(" Participation à l'événement #" + eventId);
         }
         loadParticipationsForEvent();
     }
@@ -518,12 +518,12 @@ public class EventController implements Initializable {
 
             refreshParticipations();
             clearParticipationFields();
-            showInfo("✅ Participation ajoutée avec succès");
+            showInfo(" Participation ajoutée avec succès");
 
         } catch (NumberFormatException e) {
-            showAlert("❌ L'ID utilisateur et le nombre de places doivent être des nombres valides");
+            showAlert(" L'ID utilisateur et le nombre de places doivent être des nombres valides");
         } catch (Exception e) {
-            showAlert("❌ Erreur: " + e.getMessage());
+            showAlert(" Erreur: " + e.getMessage());
         }
     }
 
@@ -553,10 +553,10 @@ public class EventController implements Initializable {
 
             refreshParticipations();
             clearParticipationFields();
-            showInfo("✅ Participation modifiée avec succès");
+            showInfo(" Participation modifiée avec succès");
 
         } catch (NumberFormatException e) {
-            showAlert("❌ L'ID utilisateur et le nombre de places doivent être des nombres valides");
+            showAlert("L'ID utilisateur et le nombre de places doivent être des nombres valides");
         }
     }
 
@@ -573,7 +573,7 @@ public class EventController implements Initializable {
             participationCRUD.supprimer(selected.getIdParticipation());
             refreshParticipations();
             clearParticipationFields();
-            showInfo("✅ Participation supprimée avec succès");
+            showInfo(" Participation supprimée avec succès");
         }
     }
 
@@ -633,54 +633,54 @@ public class EventController implements Initializable {
 
     private boolean validateParticipationInputs() {
         if (partDatePicker.getValue() == null) {
-            showAlert("❌ Veuillez sélectionner une date");
+            showAlert(" Veuillez sélectionner une date");
             return false;
         }
 
         if (statutBox.getValue() == null) {
-            showAlert("❌ Veuillez sélectionner un statut");
+            showAlert(" Veuillez sélectionner un statut");
             return false;
         }
 
         try {
             int userId = Integer.parseInt(userIdField.getText().trim());
             if (userId <= 0) {
-                showAlert("❌ L'ID utilisateur doit être un nombre positif");
+                showAlert(" L'ID utilisateur doit être un nombre positif");
                 return false;
             }
         } catch (NumberFormatException e) {
-            showAlert("❌ L'ID utilisateur doit être un nombre valide");
+            showAlert(" L'ID utilisateur doit être un nombre valide");
             return false;
         }
 
         if (prenomField.getText().trim().isEmpty()) {
-            showAlert("❌ Le prénom est requis");
+            showAlert(" Le prénom est requis");
             return false;
         }
 
         if (nomField.getText().trim().isEmpty()) {
-            showAlert("❌ Le nom est requis");
+            showAlert(" Le nom est requis");
             return false;
         }
 
         if (emailField.getText().trim().isEmpty()) {
-            showAlert("❌ L'email est requis");
+            showAlert(" L'email est requis");
             return false;
         }
 
         if (!emailField.getText().trim().matches("^[A-Za-z0-9+_.-]+@(.+)$")) {
-            showAlert("❌ Veuillez entrer un email valide");
+            showAlert(" Veuillez entrer un email valide");
             return false;
         }
 
         try {
             int places = Integer.parseInt(placesField.getText().trim());
             if (places <= 0) {
-                showAlert("❌ Le nombre de places doit être supérieur à 0");
+                showAlert(" Le nombre de places doit être supérieur à 0");
                 return false;
             }
         } catch (NumberFormatException e) {
-            showAlert("❌ Le nombre de places doit être un nombre valide");
+            showAlert(" Le nombre de places doit être un nombre valide");
             return false;
         }
 
@@ -759,7 +759,7 @@ public class EventController implements Initializable {
     @FXML
     private void onRefresh() {
         onClearSearch();
-        showInfo("✅ Données actualisées");
+        showInfo(" Données actualisées");
     }
 
     private void loadParticipationsByEmail(String email) {

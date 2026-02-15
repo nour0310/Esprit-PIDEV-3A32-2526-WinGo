@@ -33,10 +33,10 @@ public class ParticipationCRUD {
 
             int rowsInserted = ps.executeUpdate();
             if (rowsInserted > 0) {
-                System.out.println("✅ Participation added successfully!");
+                System.out.println(" Participation added successfully!");
             }
         } catch (SQLException e) {
-            System.err.println("❌ Error adding participation: " + e.getMessage());
+            System.err.println(" Error adding participation: " + e.getMessage());
             e.printStackTrace();
         }
     }
@@ -65,7 +65,7 @@ public class ParticipationCRUD {
                 list.add(p);
             }
         } catch (SQLException e) {
-            System.err.println("❌ Error fetching participations: " + e.getMessage());
+            System.err.println("Error fetching participations: " + e.getMessage());
         }
         return list;
     }
@@ -95,7 +95,7 @@ public class ParticipationCRUD {
                 list.add(p);
             }
         } catch (SQLException e) {
-            System.err.println("❌ Error fetching participations by event: " + e.getMessage());
+            System.err.println(" Error fetching participations by event: " + e.getMessage());
         }
         return list;
     }
@@ -125,7 +125,7 @@ public class ParticipationCRUD {
                 list.add(p);
             }
         } catch (SQLException e) {
-            System.err.println("❌ Error fetching participations by email: " + e.getMessage());
+            System.err.println(" Error fetching participations by email: " + e.getMessage());
         }
         return list;
     }
@@ -157,7 +157,7 @@ public class ParticipationCRUD {
                 list.add(p);
             }
         } catch (SQLException e) {
-            System.err.println("❌ Error fetching participations by name: " + e.getMessage());
+            System.err.println(" Error fetching participations by name: " + e.getMessage());
         }
         return list;
     }
@@ -193,7 +193,7 @@ public class ParticipationCRUD {
                 list.add(p);
             }
         } catch (SQLException e) {
-            System.err.println("❌ Error searching participations: " + e.getMessage());
+            System.err.println(" Error searching participations: " + e.getMessage());
         }
         return list;
     }
@@ -218,10 +218,10 @@ public class ParticipationCRUD {
 
             int rowsUpdated = ps.executeUpdate();
             if (rowsUpdated > 0) {
-                System.out.println("✅ Participation updated successfully!");
+                System.out.println(" Participation updated successfully!");
             }
         } catch (SQLException e) {
-            System.err.println("❌ Error updating participation: " + e.getMessage());
+            System.err.println(" Error updating participation: " + e.getMessage());
             e.printStackTrace();
         }
     }
@@ -235,7 +235,7 @@ public class ParticipationCRUD {
 
             int rowsDeleted = ps.executeUpdate();
             if (rowsDeleted > 0) {
-                System.out.println("✅ Participation deleted successfully!");
+                System.out.println(" Participation deleted successfully!");
             }
         } catch (SQLException e) {
             System.err.println("❌ Error deleting participation: " + e.getMessage());
