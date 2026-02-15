@@ -85,7 +85,7 @@ public class WinGoShopController {
     @FXML private TableColumn<Produit, String> colRegion;
     @FXML private Label statusLabel;
     @FXML private Label commercantProductCount;
-
+    @FXML private VBox cartItemsBox;
     // ==================== FORM ====================
     @FXML private TextField idProduitHidden;
     @FXML private TextField nomTextField;
@@ -570,9 +570,32 @@ public class WinGoShopController {
         if (!Session.isLoggedIn()) {
             cartData.clear();
             if (cartCountLabel != null) cartCountLabel.setText("0");
-            if (cartTotalLabel != null) cartTotalLabel.setText("Total: 0.00 TND");
+            if (cartTotalLabel != null) cartTotalLabel.setText("0.00 TND");
+            if (cartItemsBox != null) cartItemsBox.getChildren().clear();
             return;
         }
+
+        try {
+            cartData.setAll(panierCRUD.getActiveCart(Session.getUserId()));
+
+            int totalQty = cartData.stream().mapToInt(CartItem::getQty).sum();
+            double total = cartData.stream().mapToDouble(CartItem::getSubtotal).sum();
+
+            if (cartCountLabel != null) cartCountLabel.setText(String.valueOf(totalQty));
+            if (cartTotalLabel != null) cartTotalLabel.setText(String.format("%.2f TND", total));
+
+            // Build cards
+            if (cartItemsBox != null) {
+                cartItemsBox.getChildren().clear();
+                for (CartItem it : cartData) {
+                    cartItemsBox.getChildren().add(createCartCard(it));
+                }
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
 
         try {
             cartData.setAll(panierCRUD.getActiveCart(Session.getUserId()));
