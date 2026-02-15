@@ -469,7 +469,6 @@ public class WinGoShopController {
                 .filter(p -> regFilter == null || regFilter.equals("Toutes") ||
                         (p.getRegion() != null && p.getRegion().equals(regFilter)))
                 .collect(Collectors.toList());
-
         clientProductsGrid.getChildren().clear();
         for (Produit p : filtered) clientProductsGrid.getChildren().add(createProductCard(p));
     }
@@ -477,7 +476,6 @@ public class WinGoShopController {
     // ==================== COMMERCANT MODE: TABLE VIEW ====================
     private void refreshCommercantProducts() {
         try {
-            imageCache.clear(); // ✅ AJOUTER
             List<Produit> myProducts = produitCRUD.afficherParUser(Session.getUserId());
             produitsData.setAll(myProducts);
             if (commercantProductCount != null) commercantProductCount.setText(myProducts.size() + " produits");
@@ -791,26 +789,24 @@ public class WinGoShopController {
 
         try {
             String idTxt = idProduitHidden.getText() == null ? "" : idProduitHidden.getText().trim();
+
             if (idTxt.isEmpty()) {
+                // AJOUT
                 Produit p = new Produit(Session.getUserId(), nom, desc, prix, region, cat, stock, img);
                 produitCRUD.ajouter(p);
                 showAlert("✅ Ajout", "Produit ajouté.");
             } else {
+                // MODIFICATION
                 int id = Integer.parseInt(idTxt);
                 Produit p = new Produit(id, Session.getUserId(), nom, desc, prix, region, cat, stock, img);
                 produitCRUD.modifier(p);
                 showAlert("✅ Modifié", "Produit mis à jour.");
             }
 
-// ✅ IMPORTANT : refresh des 2 vues
-
-            imageCache.clear();
+            // ✅ Refresh toutes les vues (SANS imageCache.clear())
             refreshProducts();
             refreshCommercantProducts();
             refreshClientProducts();
-
-            clearForm();
-            showProducts();
 
             clearForm();
             showProducts();
