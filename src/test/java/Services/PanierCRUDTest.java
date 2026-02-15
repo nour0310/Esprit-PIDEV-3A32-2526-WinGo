@@ -1,7 +1,7 @@
 package Services;
 
-import Entites.Panier;
-import Tests.MainConnection;
+import Controlles.CartItem;
+import Utils.MyBD;
 import org.junit.jupiter.api.*;
 
 import java.sql.*;
@@ -13,14 +13,24 @@ import static org.junit.jupiter.api.Assertions.*;
 public class PanierCRUDTest {
 
     private static PanierCRUD panierCRUD;
+    private static int userId;
+    private static int produitId;
 
     @BeforeAll
-    static void setUp() {
+    static void setUp() throws SQLException {
         panierCRUD = new PanierCRUD();
+        userId = getAnyUserId();
+        produitId = getAnyProduitId();
+        panierCRUD.clear(userId); // clean start
     }
 
-    private int getAnyUserId() throws SQLException {
-        try (Connection cnx = MainConnection.getInstance().getCnx();
+    @AfterAll
+    static void tearDown() throws SQLException {
+        panierCRUD.clear(userId); // clean end
+    }
+
+    private static int getAnyUserId() throws SQLException {
+        try (Connection cnx = MyBD.getInstance().getConn();
              PreparedStatement ps = cnx.prepareStatement("SELECT id FROM utilisateur LIMIT 1");
              ResultSet rs = ps.executeQuery()) {
             if (rs.next()) return rs.getInt(1);
@@ -28,8 +38,8 @@ public class PanierCRUDTest {
         throw new SQLException("Aucun utilisateur trouvé dans la table utilisateur");
     }
 
-    private int getAnyProduitId() throws SQLException {
-        try (Connection cnx = MainConnection.getInstance().getCnx();
+    private static int getAnyProduitId() throws SQLException {
+        try (Connection cnx = MyBD.getInstance().getConn();
              PreparedStatement ps = cnx.prepareStatement("SELECT id_produit FROM produit LIMIT 1");
              ResultSet rs = ps.executeQuery()) {
             if (rs.next()) return rs.getInt(1);
@@ -37,66 +47,62 @@ public class PanierCRUDTest {
         throw new SQLException("Aucun produit trouvé dans la table produit");
     }
 
+    private static CartItem findItem(List<CartItem> items, int idProduit) {
+        return items.stream()
+                .filter(i -> i.getIdProduit() == idProduit)
+                .findFirst()
+                .orElse(null);
+    }
+
     @Test
     @Order(1)
-    void testAjouterPanier() throws SQLException {
-        int idUser = getAnyUserId();
-        int idProduit = getAnyProduitId();
+    void testAddToCartEtGetActiveCart() throws SQLException {
+        panierCRUD.clear(userId);
 
-        int quantite = 2;
-        double prixUnitaire = 9.50;
-        double total = quantite * prixUnitaire;
+        panierCRUD.addToCart(userId, produitId, 10.0, 2);
 
-        Panier p = new Panier(idUser, idProduit, quantite, prixUnitaire, total);
+        List<CartItem> items = panierCRUD.getActiveCart(userId);
+        assertFalse(items.isEmpty(), "Le panier ne doit pas être vide après addToCart");
 
-        panierCRUD.ajouter(p);
-
-        List<Panier> items = panierCRUD.afficher();
-        assertFalse(items.isEmpty());
-
-        boolean trouve = items.stream().anyMatch(x ->
-                x.getIdUser() == idUser &&
-                        x.getIdProduit() == idProduit &&
-                        x.getQuantite() == quantite
-        );
-        assertTrue(trouve, "L'item ajouté doit apparaître dans la liste");
+        CartItem item = findItem(items, produitId);
+        assertNotNull(item, "Le produit doit exister dans le panier");
+        assertEquals(2, item.getQty(), "La quantité doit être 2");
+        assertEquals(10.0, item.getPrixUnitaire(), 0.0001, "Le prix unitaire doit être 10.0");
     }
 
     @Test
     @Order(2)
-    void testModifierPanier() throws SQLException {
-        int idUser = getAnyUserId();
-        int idProduit = getAnyProduitId();
+    void testChangeQty() throws SQLException {
+        // On suppose que le produit existe déjà dans le panier après le test 1
+        panierCRUD.changeQty(userId, produitId, +3); // 2 + 3 = 5
 
-        // 1) ajouter un item à modifier
-        Panier p = new Panier(idUser, idProduit, 1, 5.0, 5.0);
-        panierCRUD.ajouter(p);
+        List<CartItem> items = panierCRUD.getActiveCart(userId);
+        CartItem item = findItem(items, produitId);
+        assertNotNull(item);
+        assertEquals(5, item.getQty(), "La quantité doit devenir 5");
+    }
 
-        // 2) récupérer l'id_panier (dernier item correspondant)
-        List<Panier> items = panierCRUD.afficher();
-        int idPanier = items.stream()
-                .filter(x -> x.getIdUser() == idUser && x.getIdProduit() == idProduit)
-                .reduce((a, b) -> b)
-                .orElseThrow(() -> new SQLException("Item panier non trouvé"))
-                .getIdPanier();
+    @Test
+    @Order(3)
+    void testRemove() throws SQLException {
+        panierCRUD.remove(userId, produitId);
 
-        // 3) modifier
-        int newQte = 4;
-        double newPrix = 12.5;
-        double newTotal = newQte * newPrix;
+        List<CartItem> items = panierCRUD.getActiveCart(userId);
+        CartItem item = findItem(items, produitId);
+        assertNull(item, "Après remove, l'item ne doit plus exister");
+    }
 
-        Panier modif = new Panier(idPanier, idUser, idProduit, newQte, newPrix, newTotal);
-        panierCRUD.modifier(modif);
+    @Test
+    @Order(4)
+    void testClear() throws SQLException {
+        // Ajouter 2 produits (le même produit 2 fois c’est ok: ton code update la quantité)
+        panierCRUD.addToCart(userId, produitId, 7.0, 1);
+        panierCRUD.addToCart(userId, produitId, 7.0, 1);
 
-        // 4) vérifier
-        items = panierCRUD.afficher();
-        boolean ok = items.stream().anyMatch(x ->
-                x.getIdPanier() == idPanier &&
-                        x.getQuantite() == newQte &&
-                        x.getPrixUnitaire() != null &&
-                        x.getPrixUnitaire() == newPrix
-        );
+        assertFalse(panierCRUD.getActiveCart(userId).isEmpty());
 
-        assertTrue(ok, "L'item modifié doit avoir la nouvelle quantité et le nouveau prix");
+        panierCRUD.clear(userId);
+
+        assertTrue(panierCRUD.getActiveCart(userId).isEmpty(), "Après clear, panier doit être vide");
     }
 }
