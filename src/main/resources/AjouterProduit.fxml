@@ -635,18 +635,18 @@
                                 <Label text="Motivation" style="-fx-text-fill: rgba(255,255,255,0.85); -fx-font-weight: 800; -fx-font-size: 12px;"/>
                                 <TextArea fx:id="becomeCommercantMotivation"
                                           promptText="Pourquoi voulez-vous vendre ?"
-                                          wrapText="true" prefRowCount="3"
-                                          style="-fx-control-inner-background: rgba(255,255,255,0.10);
-                 -fx-background-color: rgba(255,255,255,0.10);
-                 -fx-background-insets: 0;
-                 -fx-background-radius: 12;
-                 -fx-border-color: rgba(255,255,255,0.18);
-                 -fx-border-radius: 12;
-                 -fx-text-fill: white;
-                 -fx-prompt-text-fill: rgba(255,255,255,0.55);
-                 -fx-highlight-fill: rgba(255,189,0,0.35);
-                 -fx-highlight-text-fill: white;
-                 -fx-padding: 10 12;" />
+                                          wrapText="true"
+                                          prefRowCount="3"
+                                          style="-fx-font-family: 'Segoe UI';
+                     -fx-font-size: 13px;
+                     -fx-text-fill: white;
+                     -fx-padding: 12;
+                     -fx-background-color: rgba(255,255,255,0.08);
+                     -fx-border-color: rgba(255,255,255,0.18);
+                     -fx-border-radius: 12;
+                     -fx-background-radius: 12;
+                     -fx-highlight-fill: rgba(255,189,0,0.35);
+                     -fx-highlight-text-fill: white;" />
                             </VBox>
 
                             <Label fx:id="becomeCommercantStatusLabel" text=""
