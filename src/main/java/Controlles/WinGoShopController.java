@@ -329,17 +329,14 @@ public class WinGoShopController {
     public void showProducts() {
         hideAllScreens();
 
-        boolean isCommercant = Session.isLoggedIn() && Session.isCommercant();
-
-        if (isCommercant) {
-            // COMMERCANT: Show table view with only their products
+        if (isCommercantView()) {
             commercantProductsPane.setVisible(true);
             commercantProductsPane.setManaged(true);
             refreshCommercantProducts();
         } else {
-            // CLIENT: Show cards view with all products
             clientProductsPane.setVisible(true);
             clientProductsPane.setManaged(true);
+            refreshProducts();
             refreshClientProducts();
         }
     }
