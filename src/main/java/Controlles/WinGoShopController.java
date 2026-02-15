@@ -535,8 +535,7 @@ private void refreshCartUI() {
         double total = cartData.stream().mapToDouble(CartItem::getSubtotal).sum();
 
         if (cartCountLabel != null) cartCountLabel.setText(String.valueOf(totalQty));
-        if (cartTotalLabel != null) cartTotalLabel.setText(String.format("%.2f TND", total));
-
+        cartTotalLabel.setText(String.format("%.2f TND", total));
         for (CartItem it : cartData) {
             cartItemsBox.getChildren().add(createCartItemCard(it));
         }
