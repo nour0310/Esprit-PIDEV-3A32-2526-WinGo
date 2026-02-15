@@ -23,6 +23,11 @@ public class AdminDashboardController {
     }
 
     @FXML
+    public void backToShop() {
+        loadPage("/WinGoShop.fxml");
+    }
+
+    @FXML
     public void logout() {
         loadPage("/Login.fxml");
     }

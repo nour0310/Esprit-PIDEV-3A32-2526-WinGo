@@ -11,10 +11,13 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
+import javafx.scene.Parent;
 import javafx.scene.control.*;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
+import javafx.stage.Stage;
 
 import java.net.URL;
 import java.util.List;
@@ -63,6 +66,7 @@ public class WinGoShopController implements Initializable {
     @FXML private TableColumn<CartItem, Double> cartColPrix;
     @FXML private TableColumn<CartItem, Integer> cartColQty;
     @FXML private TableColumn<CartItem, Double> cartColSub;
+    @FXML private Button dashboardButton, dashboardButtonLeft, dashboardButtonBottom;
 
     private ProduitCRUD produitCRUD = new ProduitCRUD();
     private UtilisateurCRUD userCRUD = new UtilisateurCRUD();
@@ -92,8 +96,46 @@ public class WinGoShopController implements Initializable {
         cartTable.setItems(cartItems);
 
         if (searchField != null) searchField.textProperty().addListener((o, ov, nv) -> onSearch());
+        if (dashboardButton != null) dashboardButton.managedProperty().bind(dashboardButton.visibleProperty());
+        if (dashboardButtonLeft != null) dashboardButtonLeft.managedProperty().bind(dashboardButtonLeft.visibleProperty());
+        if (dashboardButtonBottom != null) dashboardButtonBottom.managedProperty().bind(dashboardButtonBottom.visibleProperty());
         loadProduits();
         showLogin();
+    }
+
+    private void updateDashboardButtonVisibility() {
+        boolean isAdmin = currentUser != null && "admin".equalsIgnoreCase(currentUser.getType());
+        if (dashboardButton != null) dashboardButton.setVisible(isAdmin);
+        if (dashboardButtonLeft != null) dashboardButtonLeft.setVisible(isAdmin);
+        if (dashboardButtonBottom != null) dashboardButtonBottom.setVisible(isAdmin);
+    }
+
+    @FXML
+    public void goToDashboard() {
+        if (currentUser == null || !"admin".equalsIgnoreCase(currentUser.getType())) {
+            loginStatusLabel.setText("Accès réservé aux administrateurs");
+            loginStatusLabel.setStyle("-fx-text-fill: #FF0054;");
+            showPane(loginPane);
+            return;
+        }
+        try {
+            Parent root = FXMLLoader.load(getClass().getResource("/AdminDashboard.fxml"));
+            Stage stage = (Stage) (dashboardButton != null ? dashboardButton : dashboardButtonLeft).getScene().getWindow();
+            stage.getScene().setRoot(root);
+        } catch (Exception e) {
+            if (statusLabel != null) statusLabel.setText("Erreur chargement Dashboard");
+        }
+    }
+
+    @FXML
+    public void goToSignup() {
+        try {
+            Parent root = FXMLLoader.load(getClass().getResource("/Signup.fxml"));
+            Stage stage = (Stage) emailField.getScene().getWindow();
+            stage.getScene().setRoot(root);
+        } catch (Exception e) {
+            if (loginStatusLabel != null) loginStatusLabel.setText("Erreur chargement inscription");
+        }
     }
 
     private void loadProduits() {
@@ -210,6 +252,7 @@ public class WinGoShopController implements Initializable {
                     currentUser = u;
                     loginStatusLabel.setText("✅ Connecté !");
                     loginStatusLabel.setStyle("-fx-text-fill: lightgreen;");
+                    updateDashboardButtonVisibility();
                     showProducts();
                     return;
                 }

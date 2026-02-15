@@ -47,6 +47,12 @@
                                    -fx-font-weight: bold;
                                    -fx-background-radius: 15;" />
 
+                <Button text="🛒 WinGo Shop (sans compte)"
+                       onAction="#goToShopWithoutAccount"
+                       style="-fx-background-color: rgba(255,255,255,0.15);
+                              -fx-text-fill: white;
+                              -fx-font-weight: bold;
+                              -fx-background-radius: 15;" />
 
                 <Label fx:id="errorLabel"
                        style="-fx-text-fill: red;" />

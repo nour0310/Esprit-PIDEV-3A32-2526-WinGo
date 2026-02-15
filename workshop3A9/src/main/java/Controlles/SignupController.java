@@ -150,7 +150,7 @@ public class SignupController implements Initializable {
     @FXML
     public void backToLogin() {
         try {
-            Parent root = FXMLLoader.load(getClass().getResource("/Login.fxml"));
+            Parent root = FXMLLoader.load(getClass().getResource("/WinGoShop.fxml"));
             Stage stage = (Stage) nomField.getScene().getWindow();
             stage.setScene(new Scene(root));
             stage.show();

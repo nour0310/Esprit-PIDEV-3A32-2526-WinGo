@@ -40,6 +40,15 @@
                                -fx-font-weight: bold;
                                -fx-background-radius: 20;" />
 
+                <Button fx:id="backToShopButton" text="🛒 WinGo Shop"
+                        onAction="#backToShop"
+                        prefWidth="180" prefHeight="100"
+                        style="-fx-background-color: linear-gradient(to right, #FFBD00, #ff9500);
+                               -fx-text-fill: #390099;
+                               -fx-font-size: 16px;
+                               -fx-font-weight: bold;
+                               -fx-background-radius: 20;" />
+
                 <Button text="🚪 Logout"
                         onAction="#logout"
                         prefWidth="150" prefHeight="100"

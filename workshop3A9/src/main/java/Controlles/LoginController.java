@@ -27,6 +27,11 @@ public class LoginController {
     private UtilisateurCRUD service = new UtilisateurCRUD();
 
     @FXML
+    public void goToShopWithoutAccount() {
+        loadPage("/WinGoShop.fxml");
+    }
+
+    @FXML
     public void goToSignup() {
         try {
             Parent root = FXMLLoader.load(getClass().getResource("/Signup.fxml"));
