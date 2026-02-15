@@ -411,7 +411,7 @@ public class WinGoShopController {
         clip.setArcHeight(16);
         imageView.setClip(clip);
 
-        Image img = getCachedImage(p.getImage(), 196, 160);
+        Image img = loadImageSmart(p.getImage());
         if (img != null) imageView.setImage(img);
 
         Label nameLabel = new Label(p.getNom());
