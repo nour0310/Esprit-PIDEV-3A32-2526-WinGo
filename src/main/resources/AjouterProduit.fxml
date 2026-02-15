@@ -547,6 +547,7 @@
                                 <TableColumn fx:id="cartColPrix" text="Prix Unit." prefWidth="120"/>
                                 <TableColumn fx:id="cartColQty" text="Quantité" prefWidth="100"/>
                                 <TableColumn fx:id="cartColSub" text="Sous-total" prefWidth="120"/>
+                                <TableColumn fx:id="cartColActions" text="Actions" prefWidth="170"/>
                             </columns>
                         </TableView>
 
