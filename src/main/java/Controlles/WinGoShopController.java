@@ -112,7 +112,7 @@ public class WinGoShopController {
     @FXML private Label dashTotalStock;
     @FXML private Label dashStockValue;
     @FXML private TableView<?> dashboardRecentTable;
- 
+
     // ==================== SERVICES ====================
     private final ProduitCRUD produitCRUD = new ProduitCRUD();
     private final PanierCRUD panierCRUD = new PanierCRUD();
@@ -901,30 +901,57 @@ public class WinGoShopController {
         }
     }
 
+
     private Image loadImageSmart(String path) {
-        if (path == null || path.isBlank()) return null;
+        if (path == null || path.isBlank()) {
+            System.out.println("⚠️ Image path is null or blank");
+            return null;
+        }
+
         String p = path.trim();
+        System.out.println("🔍 Trying to load image: " + p); // Debug
 
         try {
-            // 1) URL web
+            // 1) URL web (http/https)
             if (p.startsWith("http://") || p.startsWith("https://")) {
-                return new Image(p, true);
+                Image img = new Image(p, true); // backgroundLoading = true
+                System.out.println("✅ Loaded from URL: " + p);
+                return img;
             }
 
-            // 2) Resource JavaFX dans resources (ex: /assets/p1.png)
+            // 2) Resource JavaFX (commence par /)
             if (p.startsWith("/")) {
-                var is = getClass().getResourceAsStream(p);
-                if (is != null) return new Image(is);
+                var stream = getClass().getResourceAsStream(p);
+                if (stream != null) {
+                    Image img = new Image(stream);
+                    System.out.println("✅ Loaded from resources: " + p);
+                    return img;
+                }
             }
 
-            // 3) Fichier local
-            // si l’utilisateur met "C:\img\p1.png" => on convertit en file:/...
-            if (!p.startsWith("file:")) {
-                p = "file:/" + p.replace("\\", "/");
+            // 3) Fichier local (C:\..., file:/, etc.)
+            java.io.File file = new java.io.File(p);
+            if (file.exists() && file.isFile()) {
+                String fileUrl = file.toURI().toString();
+                Image img = new Image(fileUrl, true);
+                System.out.println("✅ Loaded from file: " + fileUrl);
+                return img;
             }
-            return new Image(p, true);
+
+            // 4) Dernier essai : forcer file:/ si ce n'est pas déjà le cas
+            if (!p.startsWith("file:")) {
+                String fileUrl = "file:///" + p.replace("\\", "/");
+                Image img = new Image(fileUrl, true);
+                System.out.println("✅ Loaded with file:/// prefix: " + fileUrl);
+                return img;
+            }
+
+            System.out.println("❌ Could not load image: " + p);
+            return null;
 
         } catch (Exception e) {
+            System.err.println("❌ Error loading image: " + p);
+            e.printStackTrace();
             return null;
         }
     }
