@@ -370,8 +370,16 @@ public class WinGoShopController {
     // ==================== CLIENT MODE: CARDS VIEW ====================
     private void refreshClientProducts() {
         if (clientProductsGrid == null) return;
+
         clientProductsGrid.getChildren().clear();
-        for (Produit p : produitsData) clientProductsGrid.getChildren().add(createProductCard(p));
+        System.out.println("🔄 Refreshing " + produitsData.size() + " product cards"); // Debug
+
+        for (Produit p : produitsData) {
+            VBox card = createProductCard(p);
+            clientProductsGrid.getChildren().add(card);
+        }
+
+        System.out.println("✅ Created " + clientProductsGrid.getChildren().size() + " cards"); // Debug
     }
 
     private VBox createProductCard(Produit p) {
