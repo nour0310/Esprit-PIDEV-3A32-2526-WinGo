@@ -15,16 +15,25 @@ public class Home extends Application {
     }
 
     @Override
-    public void start(Stage primaryStage){
+    public void start(Stage primaryStage) {
         FXMLLoader loader = new FXMLLoader(getClass().getResource("/HomeTravel.fxml"));
-        try{
-            Parent root =loader.load();
-            Scene scene=new Scene(root);
+        try {
+            Parent root = loader.load();
+            Scene scene = new Scene(root);
+
+            // ✅ AJOUT CSS ICI
+            var css = getClass().getResource("/wingo-styles.css");
+            System.out.println("CSS = " + css); // debug
+            if (css != null) {
+                scene.getStylesheets().add(css.toExternalForm());
+            }
+
             primaryStage.setScene(scene);
             primaryStage.show();
+
             Navigator.setStage(primaryStage);
             Navigator.goTo("AjouterProduit.fxml", "Ajouter Produit");
-        }catch (IOException e){
+        } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }

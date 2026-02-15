@@ -1,15 +1,4 @@
-/* ========================================
-   WinGo Travel - Module Produits Tunisiens
-   CSS Minimal (Sans pseudo-sélecteurs)
-   Version 2.2 - Février 2026
 
-   NOTE: Les styles hover/pressed/focused sont
-   déjà dans le FXML en inline style.
-   Ce fichier contient uniquement les couleurs
-   et styles de base.
-   ======================================== */
-
-/* ==================== ROOT COLORS ==================== */
 .root {
     /* Couleurs principales */
     -primary-red: #FF0054;
