@@ -397,34 +397,56 @@ public class WinGoShopController {
                         "-fx-cursor: hand;"
         );
 
-        // IMAGE
+        // IMAGE CONTAINER (StackPane pour éviter les problèmes de clip)
+        StackPane imageContainer = new StackPane();
+        imageContainer.setPrefWidth(196);
+        imageContainer.setPrefHeight(160);
+        imageContainer.setMinHeight(160);
+        imageContainer.setMaxHeight(160);
+        imageContainer.setStyle(
+                "-fx-background-color: rgba(255,189,0,0.10);" +
+                        "-fx-background-radius: 12;"
+        );
+
         ImageView imageView = new ImageView();
         imageView.setFitWidth(196);
         imageView.setFitHeight(160);
         imageView.setPreserveRatio(false);
         imageView.setSmooth(true);
 
+        // ✅ CLIP appliqué sur le CONTAINER, pas sur l'ImageView
         javafx.scene.shape.Rectangle clip = new javafx.scene.shape.Rectangle(196, 160);
         clip.setArcWidth(16);
         clip.setArcHeight(16);
-        imageView.setClip(clip);
+        imageContainer.setClip(clip);
 
-        // ✅ SOLUTION : Le 7ème paramètre = true (backgroundLoading)
+        // ✅ Chargement synchrone pour éviter les bugs de rendu
         String imageUrl = p.getImage();
         if (imageUrl != null && !imageUrl.isBlank()) {
             try {
-                // width, height, preserveRatio, smooth, backgroundLoading = TRUE
-                Image img = new Image(imageUrl.trim(), 196, 160, false, true, true);
-                imageView.setImage(img);
+                // ⚠️ backgroundLoading = FALSE pour forcer le rendu immédiat
+                // Utilise un Thread séparé si tu veux l'async
+                Image img = new Image(imageUrl.trim(), 196, 160, false, true, false);
+
+                if (!img.isError()) {
+                    imageView.setImage(img);
+                } else {
+                    // Image placeholder si erreur
+                    imageContainer.setStyle(
+                            "-fx-background-color: rgba(255,189,0,0.15);" +
+                                    "-fx-background-radius: 12;"
+                    );
+                }
             } catch (Exception e) {
-                // Placeholder en cas d'erreur
-                imageView.setStyle("-fx-background-color: rgba(255,189,0,0.15);");
+                System.err.println("❌ Error loading image for: " + p.getNom());
             }
         }
 
-        // Labels et bouton (inchangés)
+        imageContainer.getChildren().add(imageView);
+
+        // Labels
         Label nameLabel = new Label(p.getNom());
-        nameLabel.setStyle("-fx-text-fill: white; -fx-font-weight: 900; -fx-font-size: 14px; -fx-wrap-text: true;");
+        nameLabel.setStyle("-fx-text-fill: white; -fx-font-weight: 900; -fx-font-size: 14px;");
         nameLabel.setMaxWidth(196);
         nameLabel.setWrapText(true);
 
@@ -435,17 +457,20 @@ public class WinGoShopController {
         regionLabel.setStyle("-fx-text-fill: rgba(255,255,255,0.70); -fx-font-size: 11px;");
 
         Label stockLabel = new Label(p.getStock() > 0 ? "✅ En stock" : "❌ Rupture");
-        stockLabel.setStyle("-fx-text-fill: " + (p.getStock() > 0 ? "#00FF9D" : "#FF0054") + "; -fx-font-size: 10px; -fx-font-weight: 800;");
+        stockLabel.setStyle("-fx-text-fill: " + (p.getStock() > 0 ? "#00FF9D" : "#FF0054") +
+                "; -fx-font-size: 10px; -fx-font-weight: 800;");
 
         Button addBtn = new Button("🛒 Ajouter");
-        addBtn.setStyle("-fx-background-color: #FFBD00; -fx-text-fill: #390099; -fx-background-radius: 999; -fx-padding: 8 16; -fx-font-weight: 900; -fx-cursor: hand;");
+        addBtn.setStyle("-fx-background-color: #FFBD00; -fx-text-fill: #390099; " +
+                "-fx-background-radius: 999; -fx-padding: 8 16; " +
+                "-fx-font-weight: 900; -fx-cursor: hand;");
         addBtn.setMaxWidth(Double.MAX_VALUE);
         addBtn.setOnAction(e -> addProductToCart(p));
 
-        card.getChildren().addAll(imageView, nameLabel, priceLabel, regionLabel, stockLabel, addBtn);
+        card.getChildren().addAll(imageContainer, nameLabel, priceLabel, regionLabel, stockLabel, addBtn);
         return card;
     }
-
+    
     private void addProductToCart(Produit p) {
         if (!Session.isLoggedIn()) { showAlert("⚠ Connexion requise", "Connecte-toi pour ajouter au panier."); showLogin(); return; }
         if (p.getStock() <= 0) { showAlert("❌ Rupture de stock", "Ce produit n'est plus disponible."); return; }
