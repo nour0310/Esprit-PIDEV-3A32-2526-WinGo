@@ -37,6 +37,8 @@ public class WinGoShopController {
 
     // ✅ NEW: conteneur qui regroupe TOUT (search + panier + mode + profile)
     @FXML private HBox topActionsBox;
+    @FXML private VBox cartItemsBox;   // le conteneur des cartes
+    @FXML private Label cartTotalLabel;
     // ✅ NEW: user profile box (👤 + nom + ⚙)
     @FXML private HBox userBox;
 
