@@ -6,14 +6,22 @@ import java.sql.SQLException;
 
 public class MyBD {
     private Connection conn;
-
-    private static final String URL  = "jdbc:mysql://localhost:3306/wingo?useSSL=false&serverTimezone=UTC";
-    private static final String USER = "root";
-    private static final String PASS = "";
+    private final String URL = "jdbc:mysql://localhost:3306/wingo";
+    private final String USER = "root";
+    private final String PASS = "";
 
     private static MyBD instance;
 
     private MyBD() {
+        reconnect();
+    }
+
+    public static MyBD getInstance() {
+        if (instance == null) instance = new MyBD();
+        return instance;
+    }
+
+    private void reconnect() {
         try {
             conn = DriverManager.getConnection(URL, USER, PASS);
             System.out.println("Connected");
@@ -22,20 +30,16 @@ public class MyBD {
         }
     }
 
-    public static MyBD getInstance() {
-        if (instance == null) instance = new MyBD();
-        return instance;
-    }
-
     public Connection getConn() {
         try {
             if (conn == null || conn.isClosed()) {
-                conn = DriverManager.getConnection(URL, USER, PASS);
                 System.out.println("Reconnected");
+                reconnect();
             }
-            return conn;
         } catch (SQLException e) {
-            throw new RuntimeException("DB connection failed: " + e.getMessage(), e);
+            System.out.println("Reconnected (exception)");
+            reconnect();
         }
+        return conn;
     }
 }
