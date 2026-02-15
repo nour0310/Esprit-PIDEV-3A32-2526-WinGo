@@ -124,24 +124,24 @@
 
         <!-- LEFT NAV -->
         <left>
-            <VBox prefWidth="90" spacing="14"
+            <VBox fx:id="leftNav" prefWidth="90" spacing="14"
                   style="-fx-background-color: rgba(0,0,0,0.22);
-                         -fx-background-radius: 18;
-                         -fx-border-color: rgba(255,255,255,0.14);
-                         -fx-border-radius: 18;">
+                 -fx-background-radius: 18;
+                 -fx-border-color: rgba(255,255,255,0.14);
+                 -fx-border-radius: 18;">
                 <padding><Insets top="18" right="12" bottom="18" left="12"/></padding>
 
                 <!-- HOME -->
                 <VBox alignment="CENTER" spacing="4">
                     <Button fx:id="navHomeBtn" text="🏠" onAction="#showProducts"
                             style="-fx-background-color: rgba(255,189,0,0.28);
-                                   -fx-text-fill: #FFBD00;
-                                   -fx-font-size: 18px;
-                                   -fx-font-weight: 900;
-                                   -fx-background-radius: 14;
-                                   -fx-padding: 12 12;
-                                   -fx-min-width: 60;
-                                   -fx-cursor: hand;" />
+                           -fx-text-fill: #FFBD00;
+                           -fx-font-size: 18px;
+                           -fx-font-weight: 900;
+                           -fx-background-radius: 14;
+                           -fx-padding: 12 12;
+                           -fx-min-width: 60;
+                           -fx-cursor: hand;" />
                     <Label text="Produits" style="-fx-text-fill: rgba(255,255,255,0.70); -fx-font-size: 9px;"/>
                 </VBox>
 
@@ -149,12 +149,12 @@
                 <VBox fx:id="navAddBox" alignment="CENTER" spacing="4" visible="false" managed="false">
                     <Button text="➕" onAction="#showAddForm"
                             style="-fx-background-color: transparent;
-                                   -fx-text-fill: rgba(255,255,255,0.92);
-                                   -fx-font-size: 18px;
-                                   -fx-background-radius: 14;
-                                   -fx-padding: 12 12;
-                                   -fx-min-width: 60;
-                                   -fx-cursor: hand;" />
+                           -fx-text-fill: rgba(255,255,255,0.92);
+                           -fx-font-size: 18px;
+                           -fx-background-radius: 14;
+                           -fx-padding: 12 12;
+                           -fx-min-width: 60;
+                           -fx-cursor: hand;" />
                     <Label text="Ajouter" style="-fx-text-fill: rgba(255,255,255,0.70); -fx-font-size: 9px;"/>
                 </VBox>
 
@@ -162,12 +162,12 @@
                 <VBox fx:id="navDashboardBox" alignment="CENTER" spacing="4" visible="false" managed="false">
                     <Button text="📊" onAction="#showDashboard"
                             style="-fx-background-color: transparent;
-                                   -fx-text-fill: rgba(255,255,255,0.92);
-                                   -fx-font-size: 18px;
-                                   -fx-background-radius: 14;
-                                   -fx-padding: 12 12;
-                                   -fx-min-width: 60;
-                                   -fx-cursor: hand;" />
+                           -fx-text-fill: rgba(255,255,255,0.92);
+                           -fx-font-size: 18px;
+                           -fx-background-radius: 14;
+                           -fx-padding: 12 12;
+                           -fx-min-width: 60;
+                           -fx-cursor: hand;" />
                     <Label text="Stats" style="-fx-text-fill: rgba(255,255,255,0.70); -fx-font-size: 9px;"/>
                 </VBox>
 
@@ -175,12 +175,12 @@
                 <VBox fx:id="navCartBox" alignment="CENTER" spacing="4">
                     <Button text="🛒" onAction="#showCart"
                             style="-fx-background-color: transparent;
-                                   -fx-text-fill: rgba(255,255,255,0.92);
-                                   -fx-font-size: 18px;
-                                   -fx-background-radius: 14;
-                                   -fx-padding: 12 12;
-                                   -fx-min-width: 60;
-                                   -fx-cursor: hand;" />
+                           -fx-text-fill: rgba(255,255,255,0.92);
+                           -fx-font-size: 18px;
+                           -fx-background-radius: 14;
+                           -fx-padding: 12 12;
+                           -fx-min-width: 60;
+                           -fx-cursor: hand;" />
                     <Label text="Panier" style="-fx-text-fill: rgba(255,255,255,0.70); -fx-font-size: 9px;"/>
                 </VBox>
 
@@ -190,12 +190,12 @@
                 <VBox fx:id="navBecomeCommercantBox" alignment="CENTER" spacing="4">
                     <Button text="💼" onAction="#showBecomeCommercant"
                             style="-fx-background-color: rgba(255,189,0,0.15);
-                                   -fx-text-fill: #FFBD00;
-                                   -fx-font-size: 18px;
-                                   -fx-background-radius: 14;
-                                   -fx-padding: 12 12;
-                                   -fx-min-width: 60;
-                                   -fx-cursor: hand;" />
+                           -fx-text-fill: #FFBD00;
+                           -fx-font-size: 18px;
+                           -fx-background-radius: 14;
+                           -fx-padding: 12 12;
+                           -fx-min-width: 60;
+                           -fx-cursor: hand;" />
                     <Label text="Vendre" style="-fx-text-fill: rgba(255,189,0,0.90); -fx-font-size: 9px; -fx-font-weight: 800;"/>
                 </VBox>
 
@@ -203,12 +203,12 @@
                 <VBox alignment="CENTER" spacing="4">
                     <Button text="🔐" onAction="#showLogin"
                             style="-fx-background-color: transparent;
-                                   -fx-text-fill: rgba(255,255,255,0.92);
-                                   -fx-font-size: 18px;
-                                   -fx-background-radius: 14;
-                                   -fx-padding: 12 12;
-                                   -fx-min-width: 60;
-                                   -fx-cursor: hand;" />
+                           -fx-text-fill: rgba(255,255,255,0.92);
+                           -fx-font-size: 18px;
+                           -fx-background-radius: 14;
+                           -fx-padding: 12 12;
+                           -fx-min-width: 60;
+                           -fx-cursor: hand;" />
                     <Label text="Compte" style="-fx-text-fill: rgba(255,255,255,0.70); -fx-font-size: 9px;"/>
                 </VBox>
 
@@ -218,7 +218,6 @@
                 <Label text="© 2026" style="-fx-text-fill: rgba(255,255,255,0.62); -fx-font-size: 10px;" />
             </VBox>
         </left>
-
         <!-- CENTER CONTENT -->
         <center>
             <StackPane style="-fx-background-color: rgba(0,0,0,0.22);
