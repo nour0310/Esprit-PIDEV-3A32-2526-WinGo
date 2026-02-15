@@ -341,10 +341,14 @@ public class WinGoShopController {
         }
     }
 
-    @FXML public void showCart() {
+    @FXML
+    public void showCart() {
         if (!Session.isLoggedIn()) {
-            statusLabel.setText("⚠ Connecte-toi d'abord.");
             showLogin();
+            return;
+        }
+        if (isCommercantView()) {
+            showAlert("🛒 Panier", "Passe en mode Client pour accéder au panier.");
             return;
         }
         hideAllScreens();
