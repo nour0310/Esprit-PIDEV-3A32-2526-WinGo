@@ -355,6 +355,10 @@ public class WinGoShopController {
 
     @FXML
     public void showAddForm() {
+        if (!isCommercantView()) {
+            showAlert("⚠ Mode commerçant", "Passe en mode Commerçant pour ajouter.");
+            return;
+        }
         if (!Session.isLoggedIn() || !Session.isCommercant()) {
             if (statusLabel != null) statusLabel.setText("⚠ Réservé aux commerçants.");
             showLogin();
