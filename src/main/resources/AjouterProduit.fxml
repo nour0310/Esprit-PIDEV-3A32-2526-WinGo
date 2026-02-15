@@ -321,12 +321,17 @@
                         </HBox>
 
                         <!-- Products Grid (Cards) -->
-                        <ScrollPane fitToWidth="true" prefHeight="540"
+                        <ScrollPane fitToWidth="true"
+                                    VBox.vgrow="ALWAYS"
+                                    hbarPolicy="NEVER"
+                                    vbarPolicy="AS_NEEDED"
                                     style="-fx-background-color: transparent; -fx-background: transparent;">
-                            <FlowPane fx:id="clientProductsGrid" hgap="16" vgap="16"
-                                      style="-fx-background-color: transparent; -fx-padding: 8;">
-                                <!-- Product cards will be added dynamically -->
-                            </FlowPane>
+                            <content>
+                                <FlowPane fx:id="clientProductsGrid"
+                                          hgap="16" vgap="16"
+                                          prefWrapLength="900"
+                                          style="-fx-background-color: transparent; -fx-padding: 8;" />
+                            </content>
                         </ScrollPane>
                     </VBox>
 
