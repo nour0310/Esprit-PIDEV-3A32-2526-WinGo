@@ -33,9 +33,16 @@ public class WinGoShopController {
     @FXML private HBox modeSwitchBox;
     @FXML private ToggleButton modeToggle;
     @FXML private TableColumn<CartItem, Void> cartColActions;
+
     @FXML private HBox searchBox;
+
+    // ✅ NEW: conteneur qui regroupe TOUT (search + panier + mode + profile)
+    @FXML private HBox topActionsBox;
+    // ✅ NEW: user profile box (👤 + nom + ⚙)
+    @FXML private HBox userBox;
+
     // ==================== LEFT NAV ROOT ====================
-    @FXML private VBox leftNav; // <-- AJOUT IMPORTANT (fx:id="leftNav" dans FXML)
+    @FXML private VBox leftNav;
 
     // mode d'affichage (sans changer le type en DB)
     private boolean viewAsCommercant = false;
@@ -119,7 +126,6 @@ public class WinGoShopController {
     private final ObservableList<Produit> produitsData = FXCollections.observableArrayList();
     private final ObservableList<CartItem> cartData = FXCollections.observableArrayList();
 
-    // ==================== INITIALIZATION ====================
     @FXML
     public void initialize() {
         setupProductsTable();
@@ -129,7 +135,7 @@ public class WinGoShopController {
         refreshCartUI();
 
         updateUIForUserType();
-        showLogin(); // démarrage sur login
+        showLogin(); // start on login
     }
 
     // ==================== NAV ENABLE/DISABLE ====================
@@ -137,6 +143,35 @@ public class WinGoShopController {
         if (leftNav == null) return;
         leftNav.setDisable(!enabled);
         leftNav.setOpacity(enabled ? 1.0 : 0.35);
+    }
+
+    // ✅ helper: hide/show top right actions
+    private void setTopLoginMode(boolean isLogin) {
+        // on login: hide right side (search, cart, mode, profile)
+        if (topActionsBox != null) {
+            topActionsBox.setVisible(!isLogin);
+            topActionsBox.setManaged(!isLogin);
+        }
+
+        // extra safety: hide these too
+        if (searchBox != null) {
+            searchBox.setVisible(!isLogin);
+            searchBox.setManaged(!isLogin);
+        }
+        if (cartBadgeBox != null) {
+            cartBadgeBox.setVisible(!isLogin);
+            cartBadgeBox.setManaged(!isLogin);
+        }
+        if (modeSwitchBox != null) {
+            modeSwitchBox.setVisible(!isLogin && Session.isLoggedIn() && Session.isCommercant());
+            modeSwitchBox.setManaged(!isLogin && Session.isLoggedIn() && Session.isCommercant());
+        }
+        if (userBox != null) {
+            userBox.setVisible(!isLogin);
+            userBox.setManaged(!isLogin);
+        }
+
+        if (searchField != null) searchField.setDisable(isLogin);
     }
 
     // ==================== SETUP ====================
@@ -264,70 +299,47 @@ public class WinGoShopController {
         dashboardPane.setVisible(false); dashboardPane.setManaged(false);
     }
 
-    /**
-     * Règles logiques:
-     * - LOGIN SCREEN: menu désactivé + panier badge caché
-     * - VISITEUR: Produits seulement (pas panier, pas vendre)
-     * - CLIENT connecté: Produits + Panier + Vendre
-     * - COMMERCANT connecté: Ajout + Stats, panier caché, switch visible
-     */
     private void updateUIForUserType() {
         boolean logged = Session.isLoggedIn();
         boolean isCommercant = logged && Session.isCommercant();
         boolean isClient = logged && !Session.isCommercant();
-        boolean isVisitor = !logged;
 
-        // switch mode seulement pour vrai commerçant
         if (modeSwitchBox != null) {
             modeSwitchBox.setVisible(isCommercant);
             modeSwitchBox.setManaged(isCommercant);
         }
 
-        // si pas commercant => forcer client view
         if (!isCommercant) viewAsCommercant = false;
 
-        boolean commercantView = isCommercantView(); // true uniquement si commerçant + toggle ON
+        boolean commercantView = isCommercantView();
         boolean clientView = !commercantView;
 
-        // NAV:
-        // - Add + Dashboard uniquement si commerçantView
         navAddBox.setVisible(commercantView);
         navAddBox.setManaged(commercantView);
 
         navDashboardBox.setVisible(commercantView);
         navDashboardBox.setManaged(commercantView);
 
-        // - Panier seulement si client connecté ET clientView
         boolean showCart = isClient && clientView;
         navCartBox.setVisible(showCart);
         navCartBox.setManaged(showCart);
 
-        // - Vendre seulement si client connecté (pas visiteur, pas commerçant)
         navBecomeCommercantBox.setVisible(isClient);
         navBecomeCommercantBox.setManaged(isClient);
 
-        // Top cart badge uniquement si client connecté ET clientView
         if (cartBadgeBox != null) {
             cartBadgeBox.setVisible(showCart);
             cartBadgeBox.setManaged(showCart);
         }
 
-        // Search: autorisé pour tout le monde sauf quand loginPane affiché (géré dans showLogin)
-        if (searchField != null) searchField.setDisable(false);
-
-        // Top subtitle
         if (topSubtitleLabel != null) {
-            if (commercantView) topSubtitleLabel.setText("Espace Commerçant");
-            else topSubtitleLabel.setText("Produits Locaux Tunisiens");
+            topSubtitleLabel.setText(commercantView ? "Espace Commerçant" : "Produits Locaux Tunisiens");
         }
 
-        // User name
         if (userNameLabel != null) {
-            if (logged) userNameLabel.setText(getNomPrenomUtilisateur(Session.getUserId()));
-            else userNameLabel.setText("Visiteur");
+            userNameLabel.setText(logged ? getNomPrenomUtilisateur(Session.getUserId()) : "Visiteur");
         }
 
-        // Toggle text
         if (modeToggle != null && isCommercant) {
             modeToggle.setSelected(commercantView);
             modeToggle.setText(commercantView ? "Commerçant" : "Client");
@@ -341,25 +353,15 @@ public class WinGoShopController {
         loginPane.setVisible(true);
         loginPane.setManaged(true);
 
-        // 🔒 login = pas logique de naviguer
         setNavEnabled(false);
-
-        if (cartBadgeBox != null) {
-            cartBadgeBox.setVisible(false);
-            cartBadgeBox.setManaged(false);
-        }
-        if (searchField != null) searchField.setDisable(true);
-
+        setTopLoginMode(true);   // ✅ hides top actions
         updateUIForUserType();
     }
 
     @FXML
     public void showProducts() {
         setNavEnabled(true);
-
-        // ✅ ré-afficher recherche + panier badge (le badge sera ensuite géré par updateUIForUserType)
-        if (searchBox != null) { searchBox.setVisible(true); searchBox.setManaged(true); }
-        if (searchField != null) searchField.setDisable(false);
+        setTopLoginMode(false);  // ✅ show top actions again
 
         hideAllScreens();
         updateUIForUserType();
@@ -378,14 +380,8 @@ public class WinGoShopController {
 
     @FXML
     public void showCart() {
-        if (!Session.isLoggedIn()) {
-            showLogin();
-            return;
-        }
-        if (isCommercantView()) {
-            showAlert("🛒 Panier", "Passe en mode Client pour accéder au panier.");
-            return;
-        }
+        if (!Session.isLoggedIn()) { showLogin(); return; }
+        if (isCommercantView()) { showAlert("🛒 Panier", "Passe en mode Client pour accéder au panier."); return; }
 
         hideAllScreens();
         updateUIForUserType();
@@ -393,72 +389,6 @@ public class WinGoShopController {
         cartPane.setVisible(true);
         cartPane.setManaged(true);
         refreshCartUI();
-    }
-
-    @FXML
-    public void showAddForm() {
-        if (!isCommercantView()) {
-            showAlert("⚠ Mode commerçant", "Passe en mode Commerçant pour ajouter.");
-            return;
-        }
-        if (!Session.isLoggedIn() || !Session.isCommercant()) {
-            if (statusLabel != null) statusLabel.setText("⚠ Réservé aux commerçants.");
-            showLogin();
-            return;
-        }
-
-        if (welcomeLabel != null) {
-            String fullName = getNomPrenomUtilisateur(Session.getUserId());
-            welcomeLabel.setText("Bienvenue " + fullName + " 👋");
-        }
-
-        clearForm();
-        formTitleLabel.setText("➕ Ajouter Produit");
-        saveBtn.setText("✅ Enregistrer");
-
-        hideAllScreens();
-        updateUIForUserType();
-
-        formScrollPane.setVisible(true);
-        formScrollPane.setManaged(true);
-    }
-
-    @FXML
-    public void showBecomeCommercant() {
-        if (!Session.isLoggedIn()) {
-            showLogin();
-            return;
-        }
-        if (Session.isCommercant()) {
-            if (statusLabel != null) statusLabel.setText("✅ Vous êtes déjà commerçant!");
-            showProducts();
-            return;
-        }
-
-        hideAllScreens();
-        updateUIForUserType();
-
-        becomeCommercantPane.setVisible(true);
-        becomeCommercantPane.setManaged(true);
-    }
-
-    @FXML
-    public void showDashboard() {
-        if (!isCommercantView()) {
-            showAlert("⚠ Mode commerçant", "Passe en mode Commerçant pour voir le dashboard.");
-            return;
-        }
-        if (!Session.isLoggedIn() || !Session.isCommercant()) {
-            showLogin();
-            return;
-        }
-
-        hideAllScreens();
-        updateUIForUserType();
-
-        dashboardPane.setVisible(true);
-        dashboardPane.setManaged(true);
-        updateDashboardStats();
     }
 
     // ==================== LOGIN ====================
@@ -472,7 +402,6 @@ public class WinGoShopController {
             return;
         }
 
-        // TODO: Real DB authentication
         int fakeId = 1;
         String fakeType = email.toLowerCase().contains("shop") ? "COMMERCANT" : "CLIENT";
 
@@ -498,9 +427,7 @@ public class WinGoShopController {
                     return full.trim().isEmpty() ? "Utilisateur" : full.trim();
                 }
             }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        } catch (Exception e) { e.printStackTrace(); }
         return "Utilisateur";
     }
 
@@ -544,40 +471,20 @@ public class WinGoShopController {
         } catch (Exception ignored) {}
 
         Label nameLabel = new Label(p.getNom());
-        nameLabel.setStyle(
-                "-fx-text-fill: white;" +
-                        "-fx-font-weight: 900;" +
-                        "-fx-font-size: 14px;" +
-                        "-fx-wrap-text: true;"
-        );
+        nameLabel.setStyle("-fx-text-fill: white; -fx-font-weight: 900; -fx-font-size: 14px; -fx-wrap-text: true;");
         nameLabel.setMaxWidth(196);
 
         Label priceLabel = new Label(String.format("%.2f TND", p.getPrix()));
-        priceLabel.setStyle(
-                "-fx-text-fill: #FFBD00;" +
-                        "-fx-font-weight: 900;" +
-                        "-fx-font-size: 16px;"
-        );
+        priceLabel.setStyle("-fx-text-fill: #FFBD00; -fx-font-weight: 900; -fx-font-size: 16px;");
 
         Label regionLabel = new Label("📍 " + (p.getRegion() != null ? p.getRegion() : "Tunisie"));
         regionLabel.setStyle("-fx-text-fill: rgba(255,255,255,0.70); -fx-font-size: 11px;");
 
         Label stockLabel = new Label(p.getStock() > 0 ? "✅ En stock" : "❌ Rupture");
-        stockLabel.setStyle(
-                "-fx-text-fill: " + (p.getStock() > 0 ? "#00FF9D" : "#FF0054") + ";" +
-                        "-fx-font-size: 10px;" +
-                        "-fx-font-weight: 800;"
-        );
+        stockLabel.setStyle("-fx-text-fill: " + (p.getStock() > 0 ? "#00FF9D" : "#FF0054") + "; -fx-font-size: 10px; -fx-font-weight: 800;");
 
         Button addBtn = new Button("🛒 Ajouter");
-        addBtn.setStyle(
-                "-fx-background-color: #FFBD00;" +
-                        "-fx-text-fill: #390099;" +
-                        "-fx-background-radius: 999;" +
-                        "-fx-padding: 8 16;" +
-                        "-fx-font-weight: 900;" +
-                        "-fx-cursor: hand;"
-        );
+        addBtn.setStyle("-fx-background-color: #FFBD00; -fx-text-fill: #390099; -fx-background-radius: 999; -fx-padding: 8 16; -fx-font-weight: 900; -fx-cursor: hand;");
         addBtn.setMaxWidth(Double.MAX_VALUE);
         addBtn.setOnAction(e -> addProductToCart(p));
 
@@ -586,15 +493,8 @@ public class WinGoShopController {
     }
 
     private void addProductToCart(Produit p) {
-        if (!Session.isLoggedIn()) {
-            showAlert("⚠ Connexion requise", "Connecte-toi pour ajouter au panier.");
-            showLogin();
-            return;
-        }
-        if (p.getStock() <= 0) {
-            showAlert("❌ Rupture de stock", "Ce produit n'est plus disponible.");
-            return;
-        }
+        if (!Session.isLoggedIn()) { showAlert("⚠ Connexion requise", "Connecte-toi pour ajouter au panier."); showLogin(); return; }
+        if (p.getStock() <= 0) { showAlert("❌ Rupture de stock", "Ce produit n'est plus disponible."); return; }
 
         try {
             panierCRUD.addToCart(Session.getUserId(), p.getIdProduit(), p.getPrix(), 1);
@@ -642,6 +542,8 @@ public class WinGoShopController {
 
     @FXML
     public void onSearch() {
+        if (searchField == null || searchField.isDisabled()) return;
+
         String q = searchField.getText() == null ? "" : searchField.getText().trim().toLowerCase();
 
         if (q.isEmpty()) {
@@ -664,19 +566,6 @@ public class WinGoShopController {
         }
     }
 
-    @FXML
-    public void editSelectedProduct() { /* ton code inchangé */ }
-
-    @FXML
-    public void deleteSelectedProduct() { /* ton code inchangé */ }
-
-    @FXML
-    public void saveProduct() { /* ton code inchangé */ }
-
-    @FXML
-    private void clearForm() { /* ton code inchangé */ }
-
-    // ==================== CART ====================
     private void refreshCartUI() {
         if (!Session.isLoggedIn()) {
             cartData.clear();
@@ -697,20 +586,6 @@ public class WinGoShopController {
         }
     }
 
-    @FXML public void qtyPlus() { /* ton code inchangé */ }
-    @FXML public void qtyMinus() { /* ton code inchangé */ }
-    @FXML public void removeFromCart() { /* ton code inchangé */ }
-    @FXML public void clearCart() { /* ton code inchangé */ }
-    @FXML public void checkoutNow() { /* ton code inchangé */ }
-
-    // ==================== BECOME COMMERCANT ====================
-    @FXML
-    public void submitBecomeCommercant() { /* ton code inchangé */ }
-
-    // ==================== DASHBOARD ====================
-    private void updateDashboardStats() { /* ton code inchangé */ }
-
-    // ==================== HELPERS ====================
     private void showAlert(String title, String message) {
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
         alert.setTitle(title);
