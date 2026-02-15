@@ -571,8 +571,16 @@ public class WinGoShopController {
         clip.setArcHeight(14);
         iv.setClip(clip);
 
-        Image img = loadImageSmart(it.getImage());   // ✅ important
-        if (img != null) iv.setImage(img);
+        // ✅ CHANGER ICI : Utiliser le chargement async aussi
+        String imageUrl = it.getImage();
+        if (imageUrl != null && !imageUrl.isBlank()) {
+            try {
+                Image img = new Image(imageUrl.trim(), 56, 56, true, true, true);
+                iv.setImage(img);
+            } catch (Exception e) {
+                // Image par défaut si erreur
+            }
+        }
 
         // INFO
         Label name = new Label(it.getNom());
@@ -621,7 +629,7 @@ public class WinGoShopController {
 
         return row;
     }
-
+    
     private void showAlert(String title, String message) {
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
         alert.setTitle(title);
