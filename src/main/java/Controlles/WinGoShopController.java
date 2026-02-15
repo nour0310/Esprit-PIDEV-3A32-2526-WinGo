@@ -33,7 +33,7 @@ public class WinGoShopController {
     @FXML private HBox modeSwitchBox;
     @FXML private ToggleButton modeToggle;
     @FXML private TableColumn<CartItem, Void> cartColActions;
-
+    @FXML private HBox searchBox;
     // ==================== LEFT NAV ROOT ====================
     @FXML private VBox leftNav; // <-- AJOUT IMPORTANT (fx:id="leftNav" dans FXML)
 
