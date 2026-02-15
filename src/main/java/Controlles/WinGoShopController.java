@@ -519,25 +519,35 @@ public class WinGoShopController {
         }
     }
 
-    private void refreshCartUI() {
-        if (!Session.isLoggedIn()) {
-            cartData.clear();
-            if (cartCountLabel != null) cartCountLabel.setText("0");
-            if (cartTotalLabel != null) cartTotalLabel.setText("Total: 0.00 TND");
-            return;
-        }
+private void refreshCartUI() {
+    if (cartItemsBox == null) return;
 
-        try {
-            cartData.setAll(panierCRUD.getActiveCart(Session.getUserId()));
-            int totalQty = cartData.stream().mapToInt(CartItem::getQty).sum();
-            double total = cartData.stream().mapToDouble(CartItem::getSubtotal).sum();
+    cartItemsBox.getChildren().clear();
 
-            if (cartCountLabel != null) cartCountLabel.setText(String.valueOf(totalQty));
-            if (cartTotalLabel != null) cartTotalLabel.setText(String.format("Total: %.2f TND", total));
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
+    if (!Session.isLoggedIn()) {
+        cartData.clear();
+        if (cartCountLabel != null) cartCountLabel.setText("0");
+        if (cartTotalLabel != null) cartTotalLabel.setText("0.00 TND");
+        return;
     }
+
+    try {
+        cartData.setAll(panierCRUD.getActiveCart(Session.getUserId()));
+
+        int totalQty = cartData.stream().mapToInt(CartItem::getQty).sum();
+        double total = cartData.stream().mapToDouble(CartItem::getSubtotal).sum();
+
+        if (cartCountLabel != null) cartCountLabel.setText(String.valueOf(totalQty));
+        if (cartTotalLabel != null) cartTotalLabel.setText(String.format("%.2f TND", total));
+
+        for (CartItem it : cartData) {
+            cartItemsBox.getChildren().add(createCartItemCard(it));
+        }
+
+    } catch (SQLException e) {
+        e.printStackTrace();
+    }
+}
 
     private void showAlert(String title, String message) {
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
