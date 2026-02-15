@@ -422,26 +422,28 @@ public class WinGoShopController {
 
         // ✅ Chargement synchrone pour éviter les bugs de rendu
         String imageUrl = p.getImage();
+        // Chargement ASYNC avec listener correct
         if (imageUrl != null && !imageUrl.isBlank()) {
             try {
-                // ⚠️ backgroundLoading = FALSE pour forcer le rendu immédiat
-                // Utilise un Thread séparé si tu veux l'async
-                Image img = new Image(imageUrl.trim(), 196, 160, false, true, false);
+                Image img = new Image(imageUrl.trim(), 196, 160, false, true, true); // async=true
 
-                if (!img.isError()) {
+                // ✅ Listener pour appliquer l'image quand elle est prête
+                img.progressProperty().addListener((obs, oldVal, newVal) -> {
+                    if (newVal.doubleValue() >= 1.0 && !img.isError()) {
+                        javafx.application.Platform.runLater(() -> imageView.setImage(img));
+                    }
+                });
+
+                // Si déjà chargée (cache)
+                if (img.getProgress() >= 1.0 && !img.isError()) {
                     imageView.setImage(img);
-                } else {
-                    // Image placeholder si erreur
-                    imageContainer.setStyle(
-                            "-fx-background-color: rgba(255,189,0,0.15);" +
-                                    "-fx-background-radius: 12;"
-                    );
                 }
+
             } catch (Exception e) {
-                System.err.println("❌ Error loading image for: " + p.getNom());
+                System.err.println("❌ Error: " + e.getMessage());
             }
         }
-
+        
         imageContainer.getChildren().add(imageView);
 
         // Labels
@@ -470,7 +472,7 @@ public class WinGoShopController {
         card.getChildren().addAll(imageContainer, nameLabel, priceLabel, regionLabel, stockLabel, addBtn);
         return card;
     }
-    
+
     private void addProductToCart(Produit p) {
         if (!Session.isLoggedIn()) { showAlert("⚠ Connexion requise", "Connecte-toi pour ajouter au panier."); showLogin(); return; }
         if (p.getStock() <= 0) { showAlert("❌ Rupture de stock", "Ce produit n'est plus disponible."); return; }
