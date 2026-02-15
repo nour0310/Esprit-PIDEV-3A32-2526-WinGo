@@ -35,10 +35,11 @@ public class PanierCRUD {
                 while (rs.next()) {
                     int idProduit = rs.getInt("id_produit");
                     String nom = rs.getString("nom");
+                    String image = rs.getString("image");          // ✅ ICI
                     double prixUnitaire = rs.getDouble("prix_unitaire");
                     int qty = rs.getInt("quantite");
-                    String image = rs.getString("image");
-                    list.add(new CartItem(idProduit, nom, image, prixUnitaire, qty));
+
+                    list.add(new CartItem(idProduit, nom, image, prixUnitaire, qty));  // ✅ ICI
                 }
             }
         }
