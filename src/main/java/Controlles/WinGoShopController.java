@@ -61,7 +61,7 @@ public class WinGoShopController {
     @FXML private VBox commercantProductsPane;
     @FXML private ScrollPane formScrollPane;
     @FXML private VBox formPane;
-    @FXML private VBox cartPane;
+    @FXML private HBox cartPane;
     @FXML private VBox becomeCommercantPane;
     @FXML private VBox dashboardPane;
 
@@ -547,6 +547,83 @@ private void refreshCartUI() {
     } catch (SQLException e) {
         e.printStackTrace();
     }
+}
+private HBox createCartItemCard(CartItem it) {
+    HBox card = new HBox(12);
+    card.setAlignment(Pos.CENTER_LEFT);
+    card.setStyle(
+            "-fx-background-color: rgba(0,0,0,0.22);" +
+                    "-fx-background-radius: 16;" +
+                    "-fx-border-color: rgba(255,255,255,0.16);" +
+                    "-fx-border-radius: 16;" +
+                    "-fx-padding: 12;"
+    );
+
+    // (Optionnel) Image produit - si tu n’as pas l’URL dans CartItem, mets une image placeholder
+    ImageView iv = new ImageView();
+    iv.setFitWidth(56);
+    iv.setFitHeight(56);
+    iv.setPreserveRatio(true);
+    iv.setSmooth(true);
+    iv.setImage(new Image(getClass().getResource("/assets/placeholder.png").toExternalForm())); // change si besoin
+
+    VBox info = new VBox(4);
+    Label nom = new Label(it.getNom());
+    nom.setStyle("-fx-text-fill: white; -fx-font-weight: 900; -fx-font-size: 13px;");
+
+    Label prix = new Label(String.format("%.2f TND", it.getPrix()));
+    prix.setStyle("-fx-text-fill: rgba(255,255,255,0.75); -fx-font-weight: 700;");
+
+    info.getChildren().addAll(nom, prix);
+
+    Region spacer = new Region();
+    HBox.setHgrow(spacer, Priority.ALWAYS);
+
+    Label qty = new Label(String.valueOf(it.getQty()));
+    qty.setStyle("-fx-text-fill: white; -fx-font-weight: 900; -fx-font-size: 13px;");
+
+    Button minus = new Button("−");
+    Button plus = new Button("+");
+    Button del = new Button("🗑");
+
+    String base =
+            "-fx-background-radius: 999;" +
+                    "-fx-padding: 6 12;" +
+                    "-fx-font-weight: 900;" +
+                    "-fx-cursor: hand;";
+
+    minus.setStyle(base + "-fx-background-color: rgba(255,255,255,0.10); -fx-text-fill: white;");
+    plus.setStyle(base + "-fx-background-color: rgba(255,189,0,0.25); -fx-text-fill: #FFBD00;");
+    del.setStyle(base + "-fx-background-color: rgba(255,0,84,0.25); -fx-text-fill: white;");
+
+    minus.setOnAction(e -> {
+        try { panierCRUD.changeQty(Session.getUserId(), it.getIdProduit(), -1); refreshCartUI(); }
+        catch (SQLException ex) { ex.printStackTrace(); }
+    });
+
+    plus.setOnAction(e -> {
+        try { panierCRUD.changeQty(Session.getUserId(), it.getIdProduit(), +1); refreshCartUI(); }
+        catch (SQLException ex) { ex.printStackTrace(); }
+    });
+
+    del.setOnAction(e -> {
+        try { PanierCRUD.remove(Session.getUserId(), it.getIdProduit()); refreshCartUI(); }
+        catch (SQLException ex) { ex.printStackTrace(); }
+    });
+
+    VBox right = new VBox(6);
+    right.setAlignment(Pos.CENTER_RIGHT);
+
+    Label sub = new Label(String.format("%.2f TND", it.getSubtotal()));
+    sub.setStyle("-fx-text-fill: #FFBD00; -fx-font-weight: 900; -fx-font-size: 14px;");
+
+    HBox actions = new HBox(8, minus, qty, plus, del);
+    actions.setAlignment(Pos.CENTER_RIGHT);
+
+    right.getChildren().addAll(sub, actions);
+
+    card.getChildren().addAll(iv, info, spacer, right);
+    return card;
 }
 
     private void showAlert(String title, String message) {
