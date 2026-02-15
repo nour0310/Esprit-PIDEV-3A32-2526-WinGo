@@ -532,9 +532,24 @@ public class WinGoShopController {
     }
 
     private HBox createCartItemCard(CartItem it) {
-        Label icon = new Label("🛍");
-        icon.setStyle("-fx-font-size: 22px;");
 
+        // ✅ IMAGE (vient de produit.image via panierCRUD)
+        ImageView iv = new ImageView();
+        iv.setFitWidth(56);
+        iv.setFitHeight(56);
+        iv.setPreserveRatio(true);
+        iv.setSmooth(true);
+
+        // petit arrondi (optionnel)
+        javafx.scene.shape.Rectangle clip = new javafx.scene.shape.Rectangle(56, 56);
+        clip.setArcWidth(14);
+        clip.setArcHeight(14);
+        iv.setClip(clip);
+
+        Image img = loadImageSmart(it.getImage());   // ✅ important
+        if (img != null) iv.setImage(img);
+
+        // INFO
         Label name = new Label(it.getNom());
         name.setStyle("-fx-text-fill: white; -fx-font-weight: 900; -fx-font-size: 13px;");
 
@@ -546,13 +561,23 @@ public class WinGoShopController {
 
         VBox info = new VBox(4, name, price, qty);
 
+        // ACTIONS
         Button minus = new Button("➖");
         Button plus  = new Button("➕");
         Button del   = new Button("🗑");
 
-        minus.setOnAction(e -> { try { panierCRUD.changeQty(Session.getUserId(), it.getIdProduit(), -1); refreshCartUI(); } catch (Exception ignored) {} });
-        plus.setOnAction(e -> { try { panierCRUD.changeQty(Session.getUserId(), it.getIdProduit(), +1); refreshCartUI(); } catch (Exception ignored) {} });
-        del.setOnAction(e -> { try { panierCRUD.remove(Session.getUserId(), it.getIdProduit()); refreshCartUI(); } catch (Exception ignored) {} });
+        minus.setOnAction(e -> {
+            try { panierCRUD.changeQty(Session.getUserId(), it.getIdProduit(), -1); refreshCartUI(); }
+            catch (Exception ignored) {}
+        });
+        plus.setOnAction(e -> {
+            try { panierCRUD.changeQty(Session.getUserId(), it.getIdProduit(), +1); refreshCartUI(); }
+            catch (Exception ignored) {}
+        });
+        del.setOnAction(e -> {
+            try { panierCRUD.remove(Session.getUserId(), it.getIdProduit()); refreshCartUI(); }
+            catch (Exception ignored) {}
+        });
 
         HBox actions = new HBox(8, minus, plus, del);
         actions.setAlignment(Pos.CENTER_RIGHT);
@@ -565,7 +590,7 @@ public class WinGoShopController {
         Region spacer = new Region();
         HBox.setHgrow(spacer, Priority.ALWAYS);
 
-        HBox row = new HBox(12, icon, info, spacer, actions);
+        HBox row = new HBox(12, iv, info, spacer, actions);
         row.setAlignment(Pos.CENTER_LEFT);
         row.setStyle("-fx-background-color: rgba(0,0,0,0.22); -fx-background-radius: 16; -fx-padding: 10;");
 
