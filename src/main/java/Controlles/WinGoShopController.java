@@ -761,7 +761,12 @@ public class WinGoShopController {
             // si idProduitHidden vide => INSERT, sinon UPDATE
             String idTxt = idProduitHidden.getText() == null ? "" : idProduitHidden.getText().trim();
             if (idTxt.isEmpty()) {
-                Produit p = new Produit(nom, desc, prix, stock, region, cat, img, Session.getUserId());
+                Produit p = new Produit(
+                        Session.getUserId(),
+                        nom, desc, prix,
+                        region, cat,
+                        stock, img
+                );
                 produitCRUD.ajouter(p);
                 showAlert("✅ Ajout", "Produit ajouté.");
             } else {
