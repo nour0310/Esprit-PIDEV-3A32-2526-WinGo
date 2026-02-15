@@ -12,16 +12,16 @@ public class PanierCRUD {
     public List<CartItem> getActiveCart(int userId) throws SQLException {
 
         String sql = """
-        SELECT p.id_produit,
-               pr.nom,
-               pr.image,          -- ✅ AJOUTE ÇA
-               p.prix_unitaire,
-               p.quantite
-        FROM panier p
-        JOIN produit pr ON pr.id_produit = p.id_produit
-        WHERE p.id_user = ?
-        ORDER BY pr.nom
-    """;
+            SELECT p.id_produit,
+                   pr.nom,
+                   pr.image,
+                   p.prix_unitaire,
+                   p.quantite
+            FROM panier p
+            JOIN produit pr ON pr.id_produit = p.id_produit
+            WHERE p.id_user = ?
+            ORDER BY pr.nom
+        """;
 
         List<CartItem> list = new ArrayList<>();
 
@@ -34,11 +34,10 @@ public class PanierCRUD {
                 while (rs.next()) {
                     int idProduit = rs.getInt("id_produit");
                     String nom = rs.getString("nom");
-                    String image = rs.getString("image");     // ✅
+                    String image = rs.getString("image"); // ✅ récupère image produit
                     double prixUnitaire = rs.getDouble("prix_unitaire");
                     int qty = rs.getInt("quantite");
 
-                    // ✅ Ton CartItem a maintenant (id, nom, image, prix, qty)
                     list.add(new CartItem(idProduit, nom, image, prixUnitaire, qty));
                 }
             }
