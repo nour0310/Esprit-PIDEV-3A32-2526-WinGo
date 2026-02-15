@@ -126,7 +126,6 @@ public class WinGoShopController {
     @FXML
     public void initialize() {
         setupProductsTable();
-        setupCartTable();
         setupFilters();
         refreshProducts();
         refreshCartUI();
