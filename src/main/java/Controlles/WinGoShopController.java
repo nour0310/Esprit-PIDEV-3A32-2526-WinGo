@@ -798,4 +798,32 @@ public class WinGoShopController {
             dashStockValue.setText(String.format("%.2f TND", val));
         }
     }
+
+    private Image loadImageSmart(String path) {
+        if (path == null || path.isBlank()) return null;
+        String p = path.trim();
+
+        try {
+            // 1) URL web
+            if (p.startsWith("http://") || p.startsWith("https://")) {
+                return new Image(p, true);
+            }
+
+            // 2) Resource JavaFX dans resources (ex: /assets/p1.png)
+            if (p.startsWith("/")) {
+                var is = getClass().getResourceAsStream(p);
+                if (is != null) return new Image(is);
+            }
+
+            // 3) Fichier local
+            // si l’utilisateur met "C:\img\p1.png" => on convertit en file:/...
+            if (!p.startsWith("file:")) {
+                p = "file:/" + p.replace("\\", "/");
+            }
+            return new Image(p, true);
+
+        } catch (Exception e) {
+            return null;
+        }
+    }
 }
