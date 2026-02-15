@@ -32,20 +32,18 @@ public class WinGoShopController {
     @FXML private Label topSubtitleLabel;
     @FXML private HBox modeSwitchBox;
     @FXML private ToggleButton modeToggle;
-
     @FXML private HBox searchBox;
 
-    // ✅ NEW: conteneur qui regroupe TOUT (search + panier + mode + profile)
     @FXML private HBox topActionsBox;
-    @FXML private VBox cartItemsBox;   // le conteneur des cartes
-    @FXML private Label cartTotalLabel;
-    // ✅ NEW: user profile box (👤 + nom + ⚙)
     @FXML private HBox userBox;
+
+    // ==================== CART (NEW DESIGN) ====================
+    @FXML private VBox cartItemsBox;   // conteneur des cartes
+    @FXML private Label cartTotalLabel;
 
     // ==================== LEFT NAV ROOT ====================
     @FXML private VBox leftNav;
 
-    // mode d'affichage (sans changer le type en DB)
     private boolean viewAsCommercant = false;
 
     // ==================== NAVIGATION ====================
@@ -61,7 +59,7 @@ public class WinGoShopController {
     @FXML private VBox commercantProductsPane;
     @FXML private ScrollPane formScrollPane;
     @FXML private VBox formPane;
-    @FXML private HBox cartPane;
+    @FXML private HBox cartPane; // IMPORTANT: HBox (comme ton FXML)
     @FXML private VBox becomeCommercantPane;
     @FXML private VBox dashboardPane;
 
@@ -100,10 +98,6 @@ public class WinGoShopController {
     @FXML private Button saveBtn;
     @FXML private Label welcomeLabel;
 
-    // ==================== CART ====================
-
-    @FXML private Label cartTotalLabel;
-
     // ==================== BECOME COMMERCANT ====================
     @FXML private TextField becomeCommercantNom;
     @FXML private TextField becomeCommercantPhone;
@@ -120,6 +114,7 @@ public class WinGoShopController {
     // ==================== SERVICES ====================
     private final ProduitCRUD produitCRUD = new ProduitCRUD();
     private final PanierCRUD panierCRUD = new PanierCRUD();
+
     private final ObservableList<Produit> produitsData = FXCollections.observableArrayList();
     private final ObservableList<CartItem> cartData = FXCollections.observableArrayList();
 
@@ -131,7 +126,7 @@ public class WinGoShopController {
         refreshCartUI();
 
         updateUIForUserType();
-        showLogin(); // start on login
+        showLogin();
     }
 
     // ==================== NAV ENABLE/DISABLE ====================
@@ -141,15 +136,12 @@ public class WinGoShopController {
         leftNav.setOpacity(enabled ? 1.0 : 0.35);
     }
 
-    // ✅ helper: hide/show top right actions
     private void setTopLoginMode(boolean isLogin) {
-        // on login: hide right side (search, cart, mode, profile)
         if (topActionsBox != null) {
             topActionsBox.setVisible(!isLogin);
             topActionsBox.setManaged(!isLogin);
         }
 
-        // extra safety: hide these too
         if (searchBox != null) {
             searchBox.setVisible(!isLogin);
             searchBox.setManaged(!isLogin);
@@ -159,8 +151,9 @@ public class WinGoShopController {
             cartBadgeBox.setManaged(!isLogin);
         }
         if (modeSwitchBox != null) {
-            modeSwitchBox.setVisible(!isLogin && Session.isLoggedIn() && Session.isCommercant());
-            modeSwitchBox.setManaged(!isLogin && Session.isLoggedIn() && Session.isCommercant());
+            boolean showMode = !isLogin && Session.isLoggedIn() && Session.isCommercant();
+            modeSwitchBox.setVisible(showMode);
+            modeSwitchBox.setManaged(showMode);
         }
         if (userBox != null) {
             userBox.setVisible(!isLogin);
@@ -229,15 +222,6 @@ public class WinGoShopController {
         produitsTable.setItems(produitsData);
     }
 
-
-            @Override
-            protected void updateItem(Void item, boolean empty) {
-                super.updateItem(item, empty);
-                setGraphic(empty ? null : box);
-                setText(null);
-                cartTable.setItems(cartData);
-    }
-
     // ==================== NAVIGATION & UI MODE ====================
     private void hideAllScreens() {
         loginPane.setVisible(false); loginPane.setManaged(false);
@@ -304,14 +288,14 @@ public class WinGoShopController {
         loginPane.setManaged(true);
 
         setNavEnabled(false);
-        setTopLoginMode(true);   // ✅ hides top actions
+        setTopLoginMode(true);
         updateUIForUserType();
     }
 
     @FXML
     public void showProducts() {
         setNavEnabled(true);
-        setTopLoginMode(false);  // ✅ show top actions again
+        setTopLoginMode(false);
 
         hideAllScreens();
         updateUIForUserType();
@@ -345,7 +329,7 @@ public class WinGoShopController {
     @FXML
     public void doLogin() {
         String email = emailField.getText() == null ? "" : emailField.getText().trim();
-        String pass = passwordField.getText() == null ? "" : passwordField.getText().trim();
+        String pass  = passwordField.getText() == null ? "" : passwordField.getText().trim();
 
         if (email.isEmpty() || pass.isEmpty()) {
             loginStatusLabel.setText("⚠ Remplis tous les champs.");
@@ -516,46 +500,40 @@ public class WinGoShopController {
         }
     }
 
-private void refreshCartUI() {
-    if (cartItemsBox == null) return;
+    // ==================== CART UI (CARDS) ====================
+    private void refreshCartUI() {
+        if (cartItemsBox == null) return;
 
-    cartItemsBox.getChildren().clear();
+        cartItemsBox.getChildren().clear();
 
-    if (!Session.isLoggedIn()) {
-        cartData.clear();
-        if (cartCountLabel != null) cartCountLabel.setText("0");
-        if (cartTotalLabel != null) cartTotalLabel.setText("0.00 TND");
-        return;
-    }
-
-    try {
-        cartData.setAll(panierCRUD.getActiveCart(Session.getUserId()));
-
-        int totalQty = cartData.stream().mapToInt(CartItem::getQty).sum();
-        double total = cartData.stream().mapToDouble(CartItem::getSubtotal).sum();
-
-        if (cartCountLabel != null) cartCountLabel.setText(String.valueOf(totalQty));
-        cartTotalLabel.setText(String.format("%.2f TND", total));
-        for (CartItem it : cartData) {
-            cartItemsBox.getChildren().add(createCartItemCard(it));
+        if (!Session.isLoggedIn()) {
+            cartData.clear();
+            if (cartCountLabel != null) cartCountLabel.setText("0");
+            if (cartTotalLabel != null) cartTotalLabel.setText("0.00 TND");
+            return;
         }
 
-    } catch (SQLException e) {
-        e.printStackTrace();
-    }
-}
-    private HBox createCartItemCard(CartItem it) {
-        ImageView iv = new ImageView();
-        iv.setFitWidth(56);
-        iv.setFitHeight(56);
-        iv.setPreserveRatio(true);
-        iv.setSmooth(true);
-
         try {
-            if (it.getImage() != null && !it.getImage().isBlank()) {
-                iv.setImage(new Image(it.getImage().trim(), true));
+            cartData.setAll(panierCRUD.getActiveCart(Session.getUserId()));
+
+            int totalQty = cartData.stream().mapToInt(CartItem::getQty).sum();
+            double total = cartData.stream().mapToDouble(CartItem::getSubtotal).sum();
+
+            if (cartCountLabel != null) cartCountLabel.setText(String.valueOf(totalQty));
+            if (cartTotalLabel != null) cartTotalLabel.setText(String.format("%.2f TND", total));
+
+            for (CartItem it : cartData) {
+                cartItemsBox.getChildren().add(createCartItemCard(it));
             }
-        } catch (Exception ignored) {}
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private HBox createCartItemCard(CartItem it) {
+        Label icon = new Label("🛍");
+        icon.setStyle("-fx-font-size: 22px;");
 
         Label name = new Label(it.getNom());
         name.setStyle("-fx-text-fill: white; -fx-font-weight: 900; -fx-font-size: 13px;");
@@ -569,20 +547,25 @@ private void refreshCartUI() {
         VBox info = new VBox(4, name, price, qty);
 
         Button minus = new Button("➖");
-        Button plus = new Button("➕");
-        Button del = new Button("🗑");
+        Button plus  = new Button("➕");
+        Button del   = new Button("🗑");
 
-        minus.setOnAction(e -> { try { panierCRUD.changeQty(Session.getUserId(), it.getIdProduit(), -1); refreshCartUI(); } catch (Exception ex) {} });
-        plus.setOnAction(e -> { try { panierCRUD.changeQty(Session.getUserId(), it.getIdProduit(), +1); refreshCartUI(); } catch (Exception ex) {} });
-        del.setOnAction(e -> { try { panierCRUD.remove(Session.getUserId(), it.getIdProduit()); refreshCartUI(); } catch (Exception ex) {} });
+        minus.setOnAction(e -> { try { panierCRUD.changeQty(Session.getUserId(), it.getIdProduit(), -1); refreshCartUI(); } catch (Exception ignored) {} });
+        plus.setOnAction(e -> { try { panierCRUD.changeQty(Session.getUserId(), it.getIdProduit(), +1); refreshCartUI(); } catch (Exception ignored) {} });
+        del.setOnAction(e -> { try { panierCRUD.remove(Session.getUserId(), it.getIdProduit()); refreshCartUI(); } catch (Exception ignored) {} });
 
         HBox actions = new HBox(8, minus, plus, del);
         actions.setAlignment(Pos.CENTER_RIGHT);
 
+        String baseBtn = "-fx-background-radius: 999; -fx-padding: 6 10; -fx-font-weight: 900; -fx-cursor: hand;";
+        minus.setStyle(baseBtn + "-fx-background-color: rgba(255,255,255,0.10); -fx-text-fill: white;");
+        plus.setStyle(baseBtn + "-fx-background-color: rgba(255,189,0,0.25); -fx-text-fill: #FFBD00;");
+        del.setStyle(baseBtn + "-fx-background-color: rgba(255,0,84,0.25); -fx-text-fill: white;");
+
         Region spacer = new Region();
         HBox.setHgrow(spacer, Priority.ALWAYS);
 
-        HBox row = new HBox(12, iv, info, spacer, actions);
+        HBox row = new HBox(12, icon, info, spacer, actions);
         row.setAlignment(Pos.CENTER_LEFT);
         row.setStyle("-fx-background-color: rgba(0,0,0,0.22); -fx-background-radius: 16; -fx-padding: 10;");
 
@@ -612,17 +595,14 @@ private void refreshCartUI() {
         return Session.isLoggedIn() && Session.isCommercant() && viewAsCommercant;
     }
 
-    // ==================== MISSING METHODS (FIX FXML ACTIONS) ====================
-
+    // ==================== OTHER ACTIONS ====================
     @FXML
     public void showAddForm() {
-        // seulement en mode commerçant (toggle ON) + connecté
         if (!Session.isLoggedIn() || !Session.isCommercant()) {
             showAlert("⚠ Accès refusé", "Connecte-toi en tant que commerçant.");
             showLogin();
             return;
         }
-        // si commerçant mais pas encore en vue commerçant
         if (!isCommercantView()) {
             showAlert("⚠ Mode Commerçant", "Active le mode Commerçant pour ajouter.");
             return;
@@ -631,7 +611,6 @@ private void refreshCartUI() {
         hideAllScreens();
         updateUIForUserType();
 
-        // montre formulaire
         formScrollPane.setVisible(true);
         formScrollPane.setManaged(true);
 
@@ -686,24 +665,23 @@ private void refreshCartUI() {
             return;
         }
 
-        // ouvrir form en mode edit
         hideAllScreens();
         updateUIForUserType();
 
         formScrollPane.setVisible(true);
         formScrollPane.setManaged(true);
 
-        if (idProduitHidden != null) idProduitHidden.setText(String.valueOf(selected.getIdProduit()));
-        if (nomTextField != null) nomTextField.setText(selected.getNom());
-        if (prixTextField != null) prixTextField.setText(String.valueOf(selected.getPrix()));
-        if (stockField != null) stockField.setText(String.valueOf(selected.getStock()));
-        if (categorieField != null) categorieField.setText(selected.getCategorie());
-        if (regionField != null) regionField.setText(selected.getRegion());
-        if (imageField != null) imageField.setText(selected.getImage());
-        if (descriptionField != null) descriptionField.setText(selected.getDescription());
+        idProduitHidden.setText(String.valueOf(selected.getIdProduit()));
+        nomTextField.setText(selected.getNom());
+        prixTextField.setText(String.valueOf(selected.getPrix()));
+        stockField.setText(String.valueOf(selected.getStock()));
+        categorieField.setText(selected.getCategorie());
+        regionField.setText(selected.getRegion());
+        imageField.setText(selected.getImage());
+        descriptionField.setText(selected.getDescription());
 
-        if (formTitleLabel != null) formTitleLabel.setText("✏ Modifier Produit");
-        if (saveBtn != null) saveBtn.setText("💾 Mettre à jour");
+        formTitleLabel.setText("✏ Modifier Produit");
+        saveBtn.setText("💾 Mettre à jour");
     }
 
     @FXML
@@ -737,7 +715,6 @@ private void refreshCartUI() {
             return;
         }
 
-        // lecture champs
         String nom = nomTextField.getText() == null ? "" : nomTextField.getText().trim();
         String cat = categorieField.getText() == null ? "" : categorieField.getText().trim();
         String region = regionField.getText() == null ? "" : regionField.getText().trim();
@@ -761,26 +738,14 @@ private void refreshCartUI() {
         }
 
         try {
-            // si idProduitHidden vide => INSERT, sinon UPDATE
             String idTxt = idProduitHidden.getText() == null ? "" : idProduitHidden.getText().trim();
             if (idTxt.isEmpty()) {
-                Produit p = new Produit(
-                        Session.getUserId(),
-                        nom, desc, prix,
-                        region, cat,
-                        stock, img
-                );
+                Produit p = new Produit(Session.getUserId(), nom, desc, prix, region, cat, stock, img);
                 produitCRUD.ajouter(p);
                 showAlert("✅ Ajout", "Produit ajouté.");
             } else {
                 int id = Integer.parseInt(idTxt);
-                Produit p = new Produit(
-                        id,
-                        Session.getUserId(),
-                        nom, desc, prix,
-                        region, cat,
-                        stock, img
-                );
+                Produit p = new Produit(id, Session.getUserId(), nom, desc, prix, region, cat, stock, img);
                 produitCRUD.modifier(p);
                 showAlert("✅ Modifié", "Produit mis à jour.");
             }
@@ -796,14 +761,14 @@ private void refreshCartUI() {
 
     @FXML
     public void clearForm() {
-        if (idProduitHidden != null) idProduitHidden.clear();
-        if (nomTextField != null) nomTextField.clear();
-        if (descriptionField != null) descriptionField.clear();
-        if (prixTextField != null) prixTextField.clear();
-        if (stockField != null) stockField.clear();
-        if (regionField != null) regionField.clear();
-        if (categorieField != null) categorieField.clear();
-        if (imageField != null) imageField.clear();
+        idProduitHidden.clear();
+        nomTextField.clear();
+        descriptionField.clear();
+        prixTextField.clear();
+        stockField.clear();
+        regionField.clear();
+        categorieField.clear();
+        imageField.clear();
     }
 
     @FXML
@@ -817,15 +782,12 @@ private void refreshCartUI() {
         showAlert("✅ Commande", "Checkout (à implémenter).");
     }
 
-    // ==================== BECOME COMMERCANT ====================
     @FXML
     public void submitBecomeCommercant() {
         showAlert("✅ Demande envoyée", "Demande commerçant (à implémenter).");
     }
 
-    // ==================== DASHBOARD ====================
     private void updateDashboardStats() {
-        // simple placeholder pour éviter erreurs (tu complèteras plus tard)
         if (dashTotalProducts != null) dashTotalProducts.setText(String.valueOf(produitsData.size()));
         if (dashTotalStock != null) {
             int totalStock = produitsData.stream().mapToInt(Produit::getStock).sum();
