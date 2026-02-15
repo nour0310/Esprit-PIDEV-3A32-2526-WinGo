@@ -355,8 +355,10 @@ public class WinGoShopController {
 
     @FXML
     public void showProducts() {
-        // ✅ dès qu'on sort du login => menu actif
         setNavEnabled(true);
+
+        // ✅ ré-afficher recherche + panier badge (le badge sera ensuite géré par updateUIForUserType)
+        if (searchBox != null) { searchBox.setVisible(true); searchBox.setManaged(true); }
         if (searchField != null) searchField.setDisable(false);
 
         hideAllScreens();
