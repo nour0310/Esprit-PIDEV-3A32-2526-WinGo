@@ -83,6 +83,25 @@
                     <Label fx:id="cartCountLabel" text="0"
                            style="-fx-text-fill: #FFBD00; -fx-font-weight: 900; -fx-font-size: 14px;" />
                 </HBox>
+                <!-- SWITCH MODE (only for commerçant) -->
+                <HBox fx:id="modeSwitchBox" alignment="CENTER" spacing="8"
+                      style="-fx-background-color: rgba(0,0,0,0.28);
+             -fx-background-radius: 999;
+             -fx-padding: 6 10;
+             -fx-border-color: rgba(255,255,255,0.18);
+             -fx-border-radius: 999;"
+                      visible="false" managed="false">
+                    <Label text="Mode" style="-fx-text-fill: rgba(255,255,255,0.75); -fx-font-weight: 800; -fx-font-size: 11px;"/>
+                    <ToggleButton fx:id="modeToggle"
+                                  text="Client"
+                                  onAction="#toggleMode"
+                                  style="-fx-background-color: rgba(255,189,0,0.18);
+                         -fx-text-fill: #FFBD00;
+                         -fx-background-radius: 999;
+                         -fx-padding: 8 14;
+                         -fx-font-weight: 900;
+                         -fx-cursor: hand;"/>
+                </HBox>
 
                 <Region HBox.hgrow="ALWAYS"/>
 
