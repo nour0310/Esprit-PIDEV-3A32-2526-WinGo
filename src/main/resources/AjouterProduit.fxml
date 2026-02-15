@@ -4,8 +4,9 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.effect.DropShadow?>
 <?import javafx.scene.layout.*?>
+<?import javafx.scene.image.ImageView?>
 
-<StackPane prefHeight="720" prefWidth="1200"
+<StackPane prefHeight="720" prefWidth="1280"
            xmlns="http://javafx.com/javafx/25"
            xmlns:fx="http://javafx.com/fxml/1"
            fx:controller="Controlles.WinGoShopController">
@@ -18,7 +19,7 @@
                  -fx-background-size: cover;" />
     <Pane mouseTransparent="true" style="-fx-background-color: rgba(0,0,0,0.18);" />
 
-    <BorderPane maxHeight="680" maxWidth="1150"
+    <BorderPane maxHeight="700" maxWidth="1220"
                 style="-fx-background-color: rgba(0,0,0,0.22);
                        -fx-background-radius: 26;
                        -fx-border-color: rgba(255,255,255,0.16);
@@ -42,7 +43,7 @@
                     <VBox spacing="2">
                         <Label text="WinGo Travel"
                                style="-fx-text-fill: white; -fx-font-size: 18px; -fx-font-weight: 900;" />
-                        <Label text="Produits Locaux Tunisiens"
+                        <Label fx:id="topSubtitleLabel" text="Produits Locaux Tunisiens"
                                style="-fx-text-fill: rgba(255,189,0,0.90); -fx-font-size: 10px; -fx-font-weight: 700;" />
                     </VBox>
                 </HBox>
@@ -67,8 +68,8 @@
                                       -fx-pref-width: 280;" />
                 </HBox>
 
-                <!-- Cart Badge -->
-                <HBox alignment="CENTER" spacing="6"
+                <!-- Cart Badge (CLIENT mode) -->
+                <HBox fx:id="cartBadgeBox" alignment="CENTER" spacing="6"
                       style="-fx-background-color: rgba(255,189,0,0.18);
                              -fx-background-radius: 999;
                              -fx-padding: 8 14;
@@ -85,14 +86,20 @@
 
                 <Region HBox.hgrow="ALWAYS"/>
 
-                <!-- User Profile Button -->
-                <Button text="👤 Login" onAction="#showLogin"
-                        style="-fx-background-color: rgba(0,0,0,0.28);
-                               -fx-text-fill: white;
-                               -fx-background-radius: 999;
-                               -fx-padding: 8 16;
-                               -fx-font-weight: 700;
-                               -fx-cursor: hand;" />
+                <!-- User Profile -->
+                <HBox alignment="CENTER" spacing="8"
+                      style="-fx-background-color: rgba(0,0,0,0.28);
+                             -fx-background-radius: 999;
+                             -fx-padding: 8 14;">
+                    <Label text="👤" style="-fx-font-size: 16px;"/>
+                    <Label fx:id="userNameLabel" text="Visiteur"
+                           style="-fx-text-fill: white; -fx-font-weight: 700; -fx-font-size: 12px;"/>
+                    <Button text="⚙" onAction="#showLogin"
+                            style="-fx-background-color: transparent;
+                                   -fx-text-fill: rgba(255,255,255,0.70);
+                                   -fx-font-size: 14px;
+                                   -fx-cursor: hand;" />
+                </HBox>
             </HBox>
         </top>
 
@@ -105,8 +112,9 @@
                          -fx-border-radius: 18;">
                 <padding><Insets top="18" right="12" bottom="18" left="12"/></padding>
 
+                <!-- HOME -->
                 <VBox alignment="CENTER" spacing="4">
-                    <Button text="🏠" onAction="#showProducts"
+                    <Button fx:id="navHomeBtn" text="🏠" onAction="#showProducts"
                             style="-fx-background-color: rgba(255,189,0,0.28);
                                    -fx-text-fill: #FFBD00;
                                    -fx-font-size: 18px;
@@ -118,7 +126,8 @@
                     <Label text="Produits" style="-fx-text-fill: rgba(255,255,255,0.70); -fx-font-size: 9px;"/>
                 </VBox>
 
-                <VBox alignment="CENTER" spacing="4">
+                <!-- ADD (COMMERCANT only) -->
+                <VBox fx:id="navAddBox" alignment="CENTER" spacing="4" visible="false" managed="false">
                     <Button text="➕" onAction="#showAddForm"
                             style="-fx-background-color: transparent;
                                    -fx-text-fill: rgba(255,255,255,0.92);
@@ -130,7 +139,21 @@
                     <Label text="Ajouter" style="-fx-text-fill: rgba(255,255,255,0.70); -fx-font-size: 9px;"/>
                 </VBox>
 
-                <VBox alignment="CENTER" spacing="4">
+                <!-- DASHBOARD (COMMERCANT only) -->
+                <VBox fx:id="navDashboardBox" alignment="CENTER" spacing="4" visible="false" managed="false">
+                    <Button text="📊" onAction="#showDashboard"
+                            style="-fx-background-color: transparent;
+                                   -fx-text-fill: rgba(255,255,255,0.92);
+                                   -fx-font-size: 18px;
+                                   -fx-background-radius: 14;
+                                   -fx-padding: 12 12;
+                                   -fx-min-width: 60;
+                                   -fx-cursor: hand;" />
+                    <Label text="Stats" style="-fx-text-fill: rgba(255,255,255,0.70); -fx-font-size: 9px;"/>
+                </VBox>
+
+                <!-- CART (CLIENT only) -->
+                <VBox fx:id="navCartBox" alignment="CENTER" spacing="4">
                     <Button text="🛒" onAction="#showCart"
                             style="-fx-background-color: transparent;
                                    -fx-text-fill: rgba(255,255,255,0.92);
@@ -142,6 +165,22 @@
                     <Label text="Panier" style="-fx-text-fill: rgba(255,255,255,0.70); -fx-font-size: 9px;"/>
                 </VBox>
 
+                <Separator style="-fx-background-color: rgba(255,255,255,0.12);"/>
+
+                <!-- BECOME COMMERCANT (CLIENT only) -->
+                <VBox fx:id="navBecomeCommercantBox" alignment="CENTER" spacing="4">
+                    <Button text="💼" onAction="#showBecomeCommercant"
+                            style="-fx-background-color: rgba(255,189,0,0.15);
+                                   -fx-text-fill: #FFBD00;
+                                   -fx-font-size: 18px;
+                                   -fx-background-radius: 14;
+                                   -fx-padding: 12 12;
+                                   -fx-min-width: 60;
+                                   -fx-cursor: hand;" />
+                    <Label text="Vendre" style="-fx-text-fill: rgba(255,189,0,0.90); -fx-font-size: 9px; -fx-font-weight: 800;"/>
+                </VBox>
+
+                <!-- LOGIN -->
                 <VBox alignment="CENTER" spacing="4">
                     <Button text="🔐" onAction="#showLogin"
                             style="-fx-background-color: transparent;
@@ -156,13 +195,12 @@
 
                 <Region VBox.vgrow="ALWAYS" />
 
-                <!-- Tunisian Flag -->
                 <Label text="🇹🇳" style="-fx-font-size: 20px;"/>
                 <Label text="© 2026" style="-fx-text-fill: rgba(255,255,255,0.62); -fx-font-size: 10px;" />
             </VBox>
         </left>
 
-        <!-- CENTER -->
+        <!-- CENTER CONTENT -->
         <center>
             <StackPane style="-fx-background-color: rgba(0,0,0,0.22);
                               -fx-background-radius: 20;
@@ -174,23 +212,23 @@
                 <!-- SCREENS STACK -->
                 <StackPane fx:id="screens">
 
-                    <!-- 1) LOGIN SCREEN -->
+                    <!-- ==================== LOGIN SCREEN ==================== -->
                     <VBox fx:id="loginPane" spacing="14" alignment="CENTER"
                           style="-fx-background-color: rgba(0,0,0,0.28);
                                  -fx-background-radius: 22;
                                  -fx-border-color: rgba(255,255,255,0.18);
                                  -fx-border-radius: 22;"
-                          maxWidth="560" maxHeight="480">
+                          maxWidth="560" maxHeight="500">
                         <padding><Insets top="24" right="24" bottom="24" left="24"/></padding>
 
                         <Label text="🔐" style="-fx-font-size: 40px;"/>
                         <Label text="Connexion"
                                style="-fx-text-fill: white; -fx-font-size: 24px; -fx-font-weight: 900;" />
-                        <Label text="Accédez à votre espace pour gérer vos produits et commandes"
+                        <Label text="Accédez à votre espace pour acheter ou vendre des produits tunisiens"
                                style="-fx-text-fill: rgba(255,255,255,0.70); -fx-font-weight: 700; -fx-text-alignment: center;"
-                               wrapText="true" maxWidth="380"/>
+                               wrapText="true" maxWidth="400"/>
 
-                        <VBox spacing="10" maxWidth="400">
+                        <VBox spacing="10" maxWidth="420">
                             <Label text="Email" style="-fx-text-fill: rgba(255,255,255,0.80); -fx-font-weight: 800; -fx-font-size: 12px;"/>
                             <TextField fx:id="emailField" promptText="exemple@email.com"
                                        style="-fx-background-color: rgba(255,255,255,0.10);
@@ -203,7 +241,7 @@
                                               -fx-font-size: 13px;" />
                         </VBox>
 
-                        <VBox spacing="10" maxWidth="400">
+                        <VBox spacing="10" maxWidth="420">
                             <Label text="Mot de passe" style="-fx-text-fill: rgba(255,255,255,0.80); -fx-font-weight: 800; -fx-font-size: 12px;"/>
                             <PasswordField fx:id="passwordField" promptText="••••••••"
                                            style="-fx-background-color: rgba(255,255,255,0.10);
@@ -219,65 +257,95 @@
                         <Label fx:id="loginStatusLabel" text=""
                                style="-fx-text-fill: #FFBD00; -fx-font-weight: 800;" />
 
-                        <VBox spacing="10" alignment="CENTER" maxWidth="400">
+                        <VBox spacing="10" alignment="CENTER" maxWidth="420">
                             <Button text="Se connecter" onAction="#doLogin"
                                     style="-fx-background-color: #FF0054;
                                            -fx-text-fill: white;
                                            -fx-background-radius: 999;
                                            -fx-padding: 12 24;
                                            -fx-font-weight: 900;
-                                           -fx-min-width: 400;
+                                           -fx-min-width: 420;
                                            -fx-cursor: hand;" />
-                            <Button text="Continuer sans compte" onAction="#showProducts"
+                            <Button text="Continuer en tant que visiteur" onAction="#showProducts"
                                     style="-fx-background-color: rgba(255,255,255,0.10);
                                            -fx-text-fill: white;
                                            -fx-background-radius: 999;
                                            -fx-padding: 10 20;
                                            -fx-font-weight: 700;
-                                           -fx-min-width: 400;
+                                           -fx-min-width: 420;
                                            -fx-cursor: hand;" />
                         </VBox>
                     </VBox>
 
-                    <!-- 2) PRODUCTS LIST SCREEN -->
-                    <VBox fx:id="productsPane" spacing="12" style="-fx-background-color: transparent;">
+                    <!-- ==================== CLIENT: PRODUCTS GRID VIEW ==================== -->
+                    <VBox fx:id="clientProductsPane" spacing="14" style="-fx-background-color: transparent;">
                         <padding><Insets top="14" right="14" bottom="14" left="14"/></padding>
 
-                        <!-- Header -->
+                        <!-- Header with Filters -->
                         <HBox alignment="CENTER_LEFT" spacing="12">
-                            <Label text="📦 Produits Tunisiens"
+                            <Label text="🛍️ Découvrez nos Produits"
                                    style="-fx-text-fill: white; -fx-font-size: 20px; -fx-font-weight: 900;" />
+                            <Region HBox.hgrow="ALWAYS"/>
+                            <ComboBox fx:id="clientCategoryFilter" promptText="Catégorie"
+                                      onAction="#onClientFilter"
+                                      style="-fx-background-color: rgba(255,255,255,0.10);
+                                             -fx-text-fill: white;
+                                             -fx-pref-width: 140;" />
+                            <ComboBox fx:id="clientRegionFilter" promptText="Région"
+                                      onAction="#onClientFilter"
+                                      style="-fx-background-color: rgba(255,255,255,0.10);
+                                             -fx-text-fill: white;
+                                             -fx-pref-width: 140;" />
+                        </HBox>
+
+                        <!-- Products Grid (Cards) -->
+                        <ScrollPane fitToWidth="true" prefHeight="540"
+                                    style="-fx-background-color: transparent; -fx-background: transparent;">
+                            <FlowPane fx:id="clientProductsGrid" hgap="16" vgap="16"
+                                      style="-fx-background-color: transparent; -fx-padding: 8;">
+                                <!-- Product cards will be added dynamically -->
+                            </FlowPane>
+                        </ScrollPane>
+                    </VBox>
+
+                    <!-- ==================== COMMERCANT: PRODUCTS TABLE VIEW ==================== -->
+                    <VBox fx:id="commercantProductsPane" spacing="12" style="-fx-background-color: transparent;" visible="false" managed="false">
+                        <padding><Insets top="14" right="14" bottom="14" left="14"/></padding>
+
+                        <HBox alignment="CENTER_LEFT" spacing="12">
+                            <Label text="📦 Gestion Produits"
+                                   style="-fx-text-fill: white; -fx-font-size: 20px; -fx-font-weight: 900;" />
+                            <HBox spacing="6" alignment="CENTER"
+                                  style="-fx-background-color: rgba(255,189,0,0.18);
+                                         -fx-background-radius: 999;
+                                         -fx-padding: 6 12;
+                                         -fx-border-color: rgba(255,189,0,0.28);
+                                         -fx-border-radius: 999;">
+                                <Label fx:id="commercantProductCount" text="0 produits"
+                                       style="-fx-text-fill: #FFBD00; -fx-font-weight: 800; -fx-font-size: 11px;"/>
+                            </HBox>
                             <Region HBox.hgrow="ALWAYS"/>
                             <Label fx:id="statusLabel" text=""
                                    style="-fx-text-fill: #FFBD00; -fx-font-weight: 800;" />
                         </HBox>
 
-                        <!-- Products Table -->
-                        <TableView fx:id="produitsTable" prefHeight="440"
+                        <TableView fx:id="produitsTable" prefHeight="460"
                                    style="-fx-background-color: rgba(0,0,0,0.28);
                                           -fx-background-radius: 18;
                                           -fx-border-color: rgba(255,255,255,0.18);
                                           -fx-border-radius: 18;">
                             <columns>
-                                <TableColumn fx:id="colImage" text="Image" prefWidth="90"/>
-                                <TableColumn fx:id="colId" text="ID" prefWidth="60"/>
-                                <TableColumn fx:id="colNom" text="Nom du Produit" prefWidth="220"/>
-                                <TableColumn fx:id="colPrix" text="Prix (TND)" prefWidth="100"/>
-                                <TableColumn fx:id="colStock" text="Stock" prefWidth="80"/>
-                                <TableColumn fx:id="colCat" text="Catégorie" prefWidth="140"/>
-                                <TableColumn fx:id="colRegion" text="Région" prefWidth="140"/>
+                                <TableColumn fx:id="colImage" text="Image" prefWidth="80"/>
+                                <TableColumn fx:id="colId" text="ID" prefWidth="50"/>
+                                <TableColumn fx:id="colNom" text="Nom" prefWidth="200"/>
+                                <TableColumn fx:id="colPrix" text="Prix" prefWidth="90"/>
+                                <TableColumn fx:id="colStock" text="Stock" prefWidth="70"/>
+                                <TableColumn fx:id="colCat" text="Catégorie" prefWidth="130"/>
+                                <TableColumn fx:id="colRegion" text="Région" prefWidth="120"/>
                             </columns>
                         </TableView>
 
-                        <!-- Action Buttons -->
                         <HBox spacing="10" alignment="CENTER_RIGHT">
-                            <Button text="🛒 Ajouter au panier" onAction="#addSelectedToCart"
-                                    style="-fx-background-color: #FFBD00;
-                                           -fx-text-fill: #390099;
-                                           -fx-background-radius: 999;
-                                           -fx-padding: 10 18;
-                                           -fx-font-weight: 900;
-                                           -fx-cursor: hand;" />
                             <Button text="✏ Modifier" onAction="#editSelectedProduct"
                                     style="-fx-background-color: rgba(255,255,255,0.10);
                                            -fx-text-fill: white;
@@ -295,10 +363,10 @@
                         </HBox>
                     </VBox>
 
-                    <!-- 3) PRODUCT FORM SCREEN -->
+                    <!-- ==================== FORM (ADD/EDIT) - COMMERCANT ==================== -->
                     <ScrollPane fx:id="formScrollPane" fitToWidth="true"
-                                style="-fx-background-color: transparent;
-                                       -fx-background: transparent;">
+                                style="-fx-background-color: transparent; -fx-background: transparent;"
+                                visible="false" managed="false">
                         <VBox fx:id="formPane" spacing="14"
                               style="-fx-background-color: rgba(0,0,0,0.28);
                                      -fx-background-radius: 22;
@@ -307,7 +375,6 @@
                               maxWidth="900">
                             <padding><Insets top="18" right="18" bottom="18" left="18"/></padding>
 
-                            <!-- Header -->
                             <HBox alignment="CENTER_LEFT" spacing="12">
                                 <Label fx:id="formTitleLabel" text="➕ Ajouter un Produit"
                                        style="-fx-text-fill: white; -fx-font-size: 20px; -fx-font-weight: 900;" />
@@ -321,7 +388,6 @@
                                                -fx-cursor: hand;" />
                             </HBox>
 
-                            <!-- Welcome banner -->
                             <HBox alignment="CENTER_LEFT" spacing="12"
                                   style="-fx-background-color: rgba(255,189,0,0.18);
                                          -fx-background-radius: 16;
@@ -329,27 +395,22 @@
                                          -fx-border-radius: 16;
                                          -fx-padding: 14 16;">
                                 <Label text="🏪" style="-fx-font-size: 24px;" />
-                                <Label fx:id="welcomeLabel" text="Bienvenue!"
+                                <Label fx:id="welcomeLabel" text="Espace Commerçant"
                                        style="-fx-text-fill: #FFBD00; -fx-font-weight: 900; -fx-font-size: 14px;" />
                             </HBox>
 
                             <TextField fx:id="idProduitHidden" visible="false" managed="false"/>
 
-                            <!-- Form Grid -->
                             <GridPane hgap="16" vgap="16">
-
-                                <!-- Row 0: Nom + Catégorie -->
                                 <VBox spacing="8" GridPane.columnIndex="0" GridPane.rowIndex="0">
-                                    <Label text="* Nom du produit" style="-fx-text-fill: rgba(255,255,255,0.85); -fx-font-weight: 800; -fx-font-size: 12px;"/>
-                                    <TextField fx:id="nomTextField" promptText="Ex: Chéchia traditionnelle"
+                                    <Label text="* Nom" style="-fx-text-fill: rgba(255,255,255,0.85); -fx-font-weight: 800; -fx-font-size: 12px;"/>
+                                    <TextField fx:id="nomTextField" promptText="Ex: Chéchia"
                                                style="-fx-background-color: rgba(255,255,255,0.10);
                                                       -fx-background-radius: 12;
                                                       -fx-border-color: rgba(255,255,255,0.18);
                                                       -fx-border-radius: 12;
                                                       -fx-text-fill: white;
-                                                      -fx-prompt-text-fill: rgba(255,255,255,0.55);
-                                                      -fx-padding: 12 14;
-                                                      -fx-font-size: 13px;" />
+                                                      -fx-padding: 12 14;" />
                                 </VBox>
 
                                 <VBox spacing="8" GridPane.columnIndex="1" GridPane.rowIndex="0">
@@ -357,30 +418,17 @@
                                     <TextField fx:id="categorieField" promptText="Ex: Artisanat"
                                                style="-fx-background-color: rgba(255,255,255,0.10);
                                                       -fx-background-radius: 12;
-                                                      -fx-border-color: rgba(255,255,255,0.18);
-                                                      -fx-border-radius: 12;
                                                       -fx-text-fill: white;
-                                                      -fx-prompt-text-fill: rgba(255,255,255,0.55);
-                                                      -fx-padding: 12 14;
-                                                      -fx-font-size: 13px;" />
+                                                      -fx-padding: 12 14;" />
                                 </VBox>
 
-                                <!-- Row 1: Prix + Stock -->
                                 <VBox spacing="8" GridPane.columnIndex="0" GridPane.rowIndex="1">
                                     <Label text="* Prix (TND)" style="-fx-text-fill: rgba(255,255,255,0.85); -fx-font-weight: 800; -fx-font-size: 12px;"/>
-                                    <HBox spacing="8" alignment="CENTER_LEFT">
-                                        <TextField fx:id="prixTextField" promptText="0.00"
-                                                   style="-fx-background-color: rgba(255,255,255,0.10);
-                                                          -fx-background-radius: 12;
-                                                          -fx-border-color: rgba(255,255,255,0.18);
-                                                          -fx-border-radius: 12;
-                                                          -fx-text-fill: white;
-                                                          -fx-prompt-text-fill: rgba(255,255,255,0.55);
-                                                          -fx-padding: 12 14;
-                                                          -fx-font-size: 13px;
-                                                          -fx-pref-width: 320;" />
-                                        <Label text="TND" style="-fx-text-fill: #FFBD00; -fx-font-weight: 800;"/>
-                                    </HBox>
+                                    <TextField fx:id="prixTextField" promptText="0.00"
+                                               style="-fx-background-color: rgba(255,255,255,0.10);
+                                                      -fx-background-radius: 12;
+                                                      -fx-text-fill: white;
+                                                      -fx-padding: 12 14;" />
                                 </VBox>
 
                                 <VBox spacing="8" GridPane.columnIndex="1" GridPane.rowIndex="1">
@@ -388,56 +436,35 @@
                                     <TextField fx:id="stockField" promptText="0"
                                                style="-fx-background-color: rgba(255,255,255,0.10);
                                                       -fx-background-radius: 12;
-                                                      -fx-border-color: rgba(255,255,255,0.18);
-                                                      -fx-border-radius: 12;
                                                       -fx-text-fill: white;
-                                                      -fx-prompt-text-fill: rgba(255,255,255,0.55);
-                                                      -fx-padding: 12 14;
-                                                      -fx-font-size: 13px;
-                                                      -fx-font-weight: 900;" />
+                                                      -fx-padding: 12 14;" />
                                 </VBox>
 
-                                <!-- Row 2: Région -->
                                 <VBox spacing="8" GridPane.columnIndex="0" GridPane.rowIndex="2" GridPane.columnSpan="2">
-                                    <Label text="Région/Gouvernorat" style="-fx-text-fill: rgba(255,255,255,0.85); -fx-font-weight: 800; -fx-font-size: 12px;"/>
-                                    <TextField fx:id="regionField" promptText="Ex: Tunis, Nabeul, Sousse..."
+                                    <Label text="Région" style="-fx-text-fill: rgba(255,255,255,0.85); -fx-font-weight: 800; -fx-font-size: 12px;"/>
+                                    <TextField fx:id="regionField" promptText="Ex: Tunis"
                                                style="-fx-background-color: rgba(255,255,255,0.10);
                                                       -fx-background-radius: 12;
-                                                      -fx-border-color: rgba(255,255,255,0.18);
-                                                      -fx-border-radius: 12;
                                                       -fx-text-fill: white;
-                                                      -fx-prompt-text-fill: rgba(255,255,255,0.55);
-                                                      -fx-padding: 12 14;
-                                                      -fx-font-size: 13px;" />
+                                                      -fx-padding: 12 14;" />
                                 </VBox>
 
-                                <!-- Row 3: Description (TextField as in your controller) -->
                                 <VBox spacing="8" GridPane.columnIndex="0" GridPane.rowIndex="3" GridPane.columnSpan="2">
                                     <Label text="Description" style="-fx-text-fill: rgba(255,255,255,0.85); -fx-font-weight: 800; -fx-font-size: 12px;"/>
-                                    <TextField fx:id="descriptionField"
-                                               promptText="Description du produit..."
+                                    <TextField fx:id="descriptionField" promptText="Description..."
                                                style="-fx-background-color: rgba(255,255,255,0.10);
                                                       -fx-background-radius: 12;
-                                                      -fx-border-color: rgba(255,255,255,0.18);
-                                                      -fx-border-radius: 12;
                                                       -fx-text-fill: white;
-                                                      -fx-prompt-text-fill: rgba(255,255,255,0.55);
-                                                      -fx-padding: 12 14;
-                                                      -fx-font-size: 13px;" />
+                                                      -fx-padding: 12 14;" />
                                 </VBox>
 
-                                <!-- Row 4: Image URL -->
                                 <VBox spacing="8" GridPane.columnIndex="0" GridPane.rowIndex="4" GridPane.columnSpan="2">
                                     <Label text="Image (URL)" style="-fx-text-fill: rgba(255,255,255,0.85); -fx-font-weight: 800; -fx-font-size: 12px;"/>
-                                    <TextField fx:id="imageField" promptText="https://exemple.com/image.jpg"
+                                    <TextField fx:id="imageField" promptText="https://..."
                                                style="-fx-background-color: rgba(255,255,255,0.10);
                                                       -fx-background-radius: 12;
-                                                      -fx-border-color: rgba(255,255,255,0.18);
-                                                      -fx-border-radius: 12;
                                                       -fx-text-fill: white;
-                                                      -fx-prompt-text-fill: rgba(255,255,255,0.55);
-                                                      -fx-padding: 12 14;
-                                                      -fx-font-size: 13px;" />
+                                                      -fx-padding: 12 14;" />
                                 </VBox>
 
                                 <columnConstraints>
@@ -446,17 +473,6 @@
                                 </columnConstraints>
                             </GridPane>
 
-                            <!-- Required Fields Notice -->
-                            <HBox spacing="6" alignment="CENTER_LEFT"
-                                  style="-fx-background-color: rgba(255,189,0,0.12);
-                                         -fx-background-radius: 10;
-                                         -fx-padding: 8 12;">
-                                <Label text="ℹ️" style="-fx-font-size: 12px;"/>
-                                <Label text="Les champs marqués d'un * sont obligatoires"
-                                       style="-fx-text-fill: rgba(255,189,0,0.90); -fx-font-size: 11px; -fx-font-weight: 700;"/>
-                            </HBox>
-
-                            <!-- Action Buttons -->
                             <HBox spacing="12" alignment="CENTER_RIGHT">
                                 <Button text="🗑 Effacer" onAction="#clearForm"
                                         style="-fx-background-color: rgba(255,255,255,0.10);
@@ -471,22 +487,20 @@
                                                -fx-background-radius: 999;
                                                -fx-padding: 12 24;
                                                -fx-font-weight: 900;
-                                               -fx-font-size: 13px;
                                                -fx-cursor: hand;" />
                             </HBox>
                         </VBox>
                     </ScrollPane>
 
-                    <!-- 4) CART SCREEN -->
+                    <!-- ==================== CART SCREEN - CLIENT ==================== -->
                     <VBox fx:id="cartPane" spacing="14"
                           style="-fx-background-color: rgba(0,0,0,0.28);
                                  -fx-background-radius: 22;
                                  -fx-border-color: rgba(255,255,255,0.18);
                                  -fx-border-radius: 22;"
-                          maxWidth="950">
+                          maxWidth="950" visible="false" managed="false">
                         <padding><Insets top="18" right="18" bottom="18" left="18"/></padding>
 
-                        <!-- Header -->
                         <HBox alignment="CENTER_LEFT" spacing="12">
                             <Label text="🛒 Mon Panier"
                                    style="-fx-text-fill: white; -fx-font-size: 20px; -fx-font-weight: 900;" />
@@ -504,8 +518,7 @@
                                            -fx-cursor: hand;" />
                         </HBox>
 
-                        <!-- Cart Table -->
-                        <TableView fx:id="cartTable" prefHeight="380"
+                        <TableView fx:id="cartTable" prefHeight="400"
                                    style="-fx-background-color: rgba(0,0,0,0.22);
                                           -fx-background-radius: 18;
                                           -fx-border-color: rgba(255,255,255,0.18);
@@ -518,108 +531,192 @@
                             </columns>
                         </TableView>
 
-                        <!-- Cart Actions -->
                         <HBox spacing="12" alignment="CENTER">
-                            <Button text="➖ Diminuer" onAction="#qtyMinus"
+                            <Button text="➖" onAction="#qtyMinus"
                                     style="-fx-background-color: rgba(255,255,255,0.10);
                                            -fx-text-fill: white;
                                            -fx-background-radius: 999;
                                            -fx-padding: 10 18;
-                                           -fx-font-weight: 900;
                                            -fx-cursor: hand;" />
-                            <Button text="➕ Augmenter" onAction="#qtyPlus"
+                            <Button text="➕" onAction="#qtyPlus"
                                     style="-fx-background-color: rgba(255,189,0,0.25);
                                            -fx-text-fill: #FFBD00;
                                            -fx-background-radius: 999;
                                            -fx-padding: 10 18;
-                                           -fx-font-weight: 900;
                                            -fx-cursor: hand;" />
                             <Button text="🗑 Retirer" onAction="#removeFromCart"
                                     style="-fx-background-color: rgba(255,0,84,0.25);
                                            -fx-text-fill: white;
                                            -fx-background-radius: 999;
                                            -fx-padding: 10 18;
-                                           -fx-font-weight: 900;
                                            -fx-cursor: hand;" />
-                            <Button text="🗑 Vider" onAction="#clearCart"
+                            <Button text="Vider" onAction="#clearCart"
                                     style="-fx-background-color: rgba(255,0,84,0.18);
-                                           -fx-text-fill: rgba(255,255,255,0.90);
+                                           -fx-text-fill: white;
                                            -fx-background-radius: 999;
                                            -fx-padding: 10 18;
-                                           -fx-font-weight: 700;
                                            -fx-cursor: hand;" />
-
                             <Region HBox.hgrow="ALWAYS"/>
-
-                            <Button text="✅ Valider la commande" onAction="#checkoutNow"
+                            <Button text="✅ Commander" onAction="#checkoutNow"
                                     style="-fx-background-color: #FF0054;
                                            -fx-text-fill: white;
                                            -fx-background-radius: 999;
                                            -fx-padding: 12 28;
                                            -fx-font-weight: 900;
-                                           -fx-font-size: 13px;
                                            -fx-cursor: hand;" />
                         </HBox>
+                    </VBox>
+
+                    <!-- ==================== BECOME COMMERCANT FORM ==================== -->
+                    <VBox fx:id="becomeCommercantPane" spacing="16" alignment="CENTER"
+                          style="-fx-background-color: rgba(0,0,0,0.28);
+                                 -fx-background-radius: 22;
+                                 -fx-border-color: rgba(255,255,255,0.18);
+                                 -fx-border-radius: 22;"
+                          maxWidth="600" maxHeight="550" visible="false" managed="false">
+                        <padding><Insets top="24" right="24" bottom="24" left="24"/></padding>
+
+                        <Label text="💼" style="-fx-font-size: 50px;"/>
+                        <Label text="Devenez Commerçant"
+                               style="-fx-text-fill: white; -fx-font-size: 24px; -fx-font-weight: 900;" />
+                        <Label text="Vendez vos produits tunisiens authentiques sur WinGo Travel"
+                               style="-fx-text-fill: rgba(255,255,255,0.70); -fx-font-weight: 700; -fx-text-alignment: center;"
+                               wrapText="true" maxWidth="480"/>
+
+                        <VBox spacing="14" maxWidth="480">
+                            <VBox spacing="8">
+                                <Label text="* Nom complet" style="-fx-text-fill: rgba(255,255,255,0.85); -fx-font-weight: 800; -fx-font-size: 12px;"/>
+                                <TextField fx:id="becomeCommercantNom" promptText="Votre nom"
+                                           style="-fx-background-color: rgba(255,255,255,0.10);
+                                                  -fx-background-radius: 12;
+                                                  -fx-text-fill: white;
+                                                  -fx-padding: 12 14;" />
+                            </VBox>
+
+                            <VBox spacing="8">
+                                <Label text="* Téléphone" style="-fx-text-fill: rgba(255,255,255,0.85); -fx-font-weight: 800; -fx-font-size: 12px;"/>
+                                <TextField fx:id="becomeCommercantPhone" promptText="+216 XX XXX XXX"
+                                           style="-fx-background-color: rgba(255,255,255,0.10);
+                                                  -fx-background-radius: 12;
+                                                  -fx-text-fill: white;
+                                                  -fx-padding: 12 14;" />
+                            </VBox>
+
+                            <VBox spacing="8">
+                                <Label text="* Type de produits" style="-fx-text-fill: rgba(255,255,255,0.85); -fx-font-weight: 800; -fx-font-size: 12px;"/>
+                                <TextField fx:id="becomeCommercantType" promptText="Ex: Artisanat, Gastronomie..."
+                                           style="-fx-background-color: rgba(255,255,255,0.10);
+                                                  -fx-background-radius: 12;
+                                                  -fx-text-fill: white;
+                                                  -fx-padding: 12 14;" />
+                            </VBox>
+
+                            <VBox spacing="8">
+                                <Label text="Motivation" style="-fx-text-fill: rgba(255,255,255,0.85); -fx-font-weight: 800; -fx-font-size: 12px;"/>
+                                <TextArea fx:id="becomeCommercantMotivation" promptText="Pourquoi voulez-vous vendre ?"
+                                          wrapText="true" prefRowCount="3"
+                                          style="-fx-background-color: rgba(255,255,255,0.10);
+                                                 -fx-background-radius: 12;
+                                                 -fx-text-fill: white;
+                                                 -fx-padding: 12 14;" />
+                            </VBox>
+
+                            <Label fx:id="becomeCommercantStatusLabel" text=""
+                                   style="-fx-text-fill: #FFBD00; -fx-font-weight: 800;" />
+                        </VBox>
+
+                        <HBox spacing="12" alignment="CENTER">
+                            <Button text="Annuler" onAction="#showProducts"
+                                    style="-fx-background-color: rgba(255,255,255,0.10);
+                                           -fx-text-fill: white;
+                                           -fx-background-radius: 999;
+                                           -fx-padding: 10 20;
+                                           -fx-font-weight: 900;
+                                           -fx-cursor: hand;" />
+                            <Button text="✅ Envoyer ma demande" onAction="#submitBecomeCommercant"
+                                    style="-fx-background-color: #FFBD00;
+                                           -fx-text-fill: #390099;
+                                           -fx-background-radius: 999;
+                                           -fx-padding: 12 28;
+                                           -fx-font-weight: 900;
+                                           -fx-cursor: hand;" />
+                        </HBox>
+                    </VBox>
+
+                    <!-- ==================== COMMERCANT DASHBOARD ==================== -->
+                    <VBox fx:id="dashboardPane" spacing="14" style="-fx-background-color: transparent;" visible="false" managed="false">
+                        <padding><Insets top="14" right="14" bottom="14" left="14"/></padding>
+
+                        <Label text="📊 Tableau de Bord"
+                               style="-fx-text-fill: white; -fx-font-size: 22px; -fx-font-weight: 900;" />
+
+                        <!-- Stats Cards -->
+                        <GridPane hgap="14" vgap="14">
+                            <!-- Card 1: Total Produits -->
+                            <VBox spacing="8" GridPane.columnIndex="0" GridPane.rowIndex="0"
+                                  style="-fx-background-color: rgba(255,189,0,0.18);
+                                         -fx-background-radius: 16;
+                                         -fx-border-color: rgba(255,189,0,0.28);
+                                         -fx-border-radius: 16;
+                                         -fx-padding: 20;">
+                                <Label text="📦 Total Produits" style="-fx-text-fill: rgba(255,255,255,0.80); -fx-font-weight: 700;"/>
+                                <Label fx:id="dashTotalProducts" text="0"
+                                       style="-fx-text-fill: #FFBD00; -fx-font-size: 32px; -fx-font-weight: 900;"/>
+                            </VBox>
+
+                            <!-- Card 2: Stock Total -->
+                            <VBox spacing="8" GridPane.columnIndex="1" GridPane.rowIndex="0"
+                                  style="-fx-background-color: rgba(57,0,153,0.18);
+                                         -fx-background-radius: 16;
+                                         -fx-border-color: rgba(57,0,153,0.28);
+                                         -fx-border-radius: 16;
+                                         -fx-padding: 20;">
+                                <Label text="📊 Stock Total" style="-fx-text-fill: rgba(255,255,255,0.80); -fx-font-weight: 700;"/>
+                                <Label fx:id="dashTotalStock" text="0"
+                                       style="-fx-text-fill: #9D4EDD; -fx-font-size: 32px; -fx-font-weight: 900;"/>
+                            </VBox>
+
+                            <!-- Card 3: Valeur Stock -->
+                            <VBox spacing="8" GridPane.columnIndex="2" GridPane.rowIndex="0"
+                                  style="-fx-background-color: rgba(255,0,84,0.18);
+                                         -fx-background-radius: 16;
+                                         -fx-border-color: rgba(255,0,84,0.28);
+                                         -fx-border-radius: 16;
+                                         -fx-padding: 20;">
+                                <Label text="💰 Valeur Stock" style="-fx-text-fill: rgba(255,255,255,0.80); -fx-font-weight: 700;"/>
+                                <Label fx:id="dashStockValue" text="0.00 TND"
+                                       style="-fx-text-fill: #FF0054; -fx-font-size: 28px; -fx-font-weight: 900;"/>
+                            </VBox>
+
+                            <columnConstraints>
+                                <ColumnConstraints percentWidth="33.3"/>
+                                <ColumnConstraints percentWidth="33.3"/>
+                                <ColumnConstraints percentWidth="33.3"/>
+                            </columnConstraints>
+                        </GridPane>
+
+                        <!-- Recent Products -->
+                        <VBox spacing="10"
+                              style="-fx-background-color: rgba(0,0,0,0.28);
+                                     -fx-background-radius: 16;
+                                     -fx-padding: 16;">
+                            <Label text="🔥 Produits Récents"
+                                   style="-fx-text-fill: white; -fx-font-size: 16px; -fx-font-weight: 900;"/>
+                            <TableView fx:id="dashboardRecentTable" prefHeight="320"
+                                       style="-fx-background-color: transparent;">
+                                <columns>
+                                    <TableColumn text="Nom" prefWidth="250"/>
+                                    <TableColumn text="Prix" prefWidth="100"/>
+                                    <TableColumn text="Stock" prefWidth="80"/>
+                                    <TableColumn text="Catégorie" prefWidth="150"/>
+                                </columns>
+                            </TableView>
+                        </VBox>
                     </VBox>
 
                 </StackPane>
             </StackPane>
         </center>
-
-        <!-- BOTTOM NAV -->
-        <bottom>
-            <HBox alignment="CENTER" spacing="12"
-                  style="-fx-background-color: rgba(0,0,0,0.22);
-                         -fx-background-radius: 18;
-                         -fx-border-color: rgba(255,255,255,0.14);
-                         -fx-border-radius: 18;">
-                <padding><Insets top="12" right="12" bottom="12" left="12"/></padding>
-
-                <VBox alignment="CENTER" spacing="4">
-                    <Button text="🏠" onAction="#showProducts"
-                            style="-fx-background-color: rgba(255,189,0,0.28);
-                                   -fx-text-fill: #FFBD00;
-                                   -fx-background-radius: 14;
-                                   -fx-padding: 10 20;
-                                   -fx-font-size: 16px;
-                                   -fx-cursor: hand;" />
-                    <Label text="Produits" style="-fx-text-fill: rgba(255,255,255,0.70); -fx-font-size: 9px;"/>
-                </VBox>
-
-                <VBox alignment="CENTER" spacing="4">
-                    <Button text="➕" onAction="#showAddForm"
-                            style="-fx-background-color: transparent;
-                                   -fx-text-fill: rgba(255,255,255,0.92);
-                                   -fx-background-radius: 14;
-                                   -fx-padding: 10 20;
-                                   -fx-font-size: 16px;
-                                   -fx-cursor: hand;" />
-                    <Label text="Ajouter" style="-fx-text-fill: rgba(255,255,255,0.70); -fx-font-size: 9px;"/>
-                </VBox>
-
-                <VBox alignment="CENTER" spacing="4">
-                    <Button text="🛒" onAction="#showCart"
-                            style="-fx-background-color: transparent;
-                                   -fx-text-fill: rgba(255,255,255,0.92);
-                                   -fx-background-radius: 14;
-                                   -fx-padding: 10 20;
-                                   -fx-font-size: 16px;
-                                   -fx-cursor: hand;" />
-                    <Label text="Panier" style="-fx-text-fill: rgba(255,255,255,0.70); -fx-font-size: 9px;"/>
-                </VBox>
-
-                <VBox alignment="CENTER" spacing="4">
-                    <Button text="🔐" onAction="#showLogin"
-                            style="-fx-background-color: transparent;
-                                   -fx-text-fill: rgba(255,255,255,0.92);
-                                   -fx-background-radius: 14;
-                                   -fx-padding: 10 20;
-                                   -fx-font-size: 16px;
-                                   -fx-cursor: hand;" />
-                    <Label text="Compte" style="-fx-text-fill: rgba(255,255,255,0.70); -fx-font-size: 9px;"/>
-                </VBox>
-            </HBox>
-        </bottom>
 
     </BorderPane>
 </StackPane>

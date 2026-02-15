@@ -1,4 +1,3 @@
-// FILE: src/main/java/Controlles/WinGoShopController.java
 package Controlles;
 
 import Entites.Produit;
@@ -9,37 +8,64 @@ import Utils.Session;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.control.*;
-import javafx.scene.control.TableCell;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.*;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
+/**
+ * Enhanced Controller with DUAL MODE:
+ * - CLIENT MODE: Shopping cards view with filters
+ * - COMMERCANT MODE: Professional dashboard with table management
+ */
 public class WinGoShopController {
 
-    // Screens
-    @FXML private VBox loginPane;
-    @FXML private VBox productsPane;
-    @FXML private VBox formPane;
-    @FXML private VBox cartPane;
-
-    // Top
+    // ==================== TOP BAR ====================
     @FXML private TextField searchField;
     @FXML private Label cartCountLabel;
+    @FXML private HBox cartBadgeBox;
+    @FXML private Label userNameLabel;
+    @FXML private Label topSubtitleLabel;
 
-    // Login
+    // ==================== NAVIGATION ====================
+    @FXML private Button navHomeBtn;
+    @FXML private VBox navAddBox;
+    @FXML private VBox navDashboardBox;
+    @FXML private VBox navCartBox;
+    @FXML private VBox navBecomeCommercantBox;
+
+    // ==================== SCREENS ====================
+    @FXML private VBox loginPane;
+    @FXML private VBox clientProductsPane;          // CLIENT: Cards view
+    @FXML private VBox commercantProductsPane;      // COMMERCANT: Table view
+    @FXML private ScrollPane formScrollPane;
+    @FXML private VBox formPane;
+    @FXML private VBox cartPane;
+    @FXML private VBox becomeCommercantPane;
+    @FXML private VBox dashboardPane;
+
+    // ==================== LOGIN ====================
     @FXML private TextField emailField;
     @FXML private PasswordField passwordField;
     @FXML private Label loginStatusLabel;
 
-    // Products table
+    // ==================== CLIENT MODE ====================
+    @FXML private FlowPane clientProductsGrid;
+    @FXML private ComboBox<String> clientCategoryFilter;
+    @FXML private ComboBox<String> clientRegionFilter;
+
+    // ==================== COMMERCANT MODE ====================
     @FXML private TableView<Produit> produitsTable;
     @FXML private TableColumn<Produit, String> colImage;
     @FXML private TableColumn<Produit, Integer> colId;
@@ -49,11 +75,12 @@ public class WinGoShopController {
     @FXML private TableColumn<Produit, String> colCat;
     @FXML private TableColumn<Produit, String> colRegion;
     @FXML private Label statusLabel;
+    @FXML private Label commercantProductCount;
 
-    // Form fields (ADD / EDIT)
-    @FXML private TextField idProduitHidden;     // for edit (hidden)
+    // ==================== FORM ====================
+    @FXML private TextField idProduitHidden;
     @FXML private TextField nomTextField;
-    @FXML private TextField descriptionField;   // ✅ dans ton FXML tu utilises descriptionField (TextField)
+    @FXML private TextField descriptionField;
     @FXML private TextField prixTextField;
     @FXML private TextField stockField;
     @FXML private TextField regionField;
@@ -61,11 +88,9 @@ public class WinGoShopController {
     @FXML private TextField imageField;
     @FXML private Label formTitleLabel;
     @FXML private Button saveBtn;
-
-    // Welcome label (optionnel)
     @FXML private Label welcomeLabel;
 
-    // Cart
+    // ==================== CART ====================
     @FXML private TableView<CartItem> cartTable;
     @FXML private TableColumn<CartItem, String> cartColNom;
     @FXML private TableColumn<CartItem, Double> cartColPrix;
@@ -73,107 +98,60 @@ public class WinGoShopController {
     @FXML private TableColumn<CartItem, Double> cartColSub;
     @FXML private Label cartTotalLabel;
 
+    // ==================== BECOME COMMERCANT ====================
+    @FXML private TextField becomeCommercantNom;
+    @FXML private TextField becomeCommercantPhone;
+    @FXML private TextField becomeCommercantType;
+    @FXML private TextArea becomeCommercantMotivation;
+    @FXML private Label becomeCommercantStatusLabel;
+
+    // ==================== DASHBOARD ====================
+    @FXML private Label dashTotalProducts;
+    @FXML private Label dashTotalStock;
+    @FXML private Label dashStockValue;
+    @FXML private TableView<?> dashboardRecentTable;
+
+    // ==================== SERVICES ====================
     private final ProduitCRUD produitCRUD = new ProduitCRUD();
     private final PanierCRUD panierCRUD = new PanierCRUD();
-
     private final ObservableList<Produit> produitsData = FXCollections.observableArrayList();
     private final ObservableList<CartItem> cartData = FXCollections.observableArrayList();
 
+    // ==================== INITIALIZATION ====================
     @FXML
     public void initialize() {
         setupProductsTable();
         setupCartTable();
-
+        setupFilters();
         refreshProducts();
         refreshCartUI();
-
-        showProducts();
+        showLogin();
     }
 
-    // ------------------ NAVIGATION ------------------
-    private void showOnly(VBox pane) {
-        loginPane.setVisible(false);     loginPane.setManaged(false);
-        productsPane.setVisible(false);  productsPane.setManaged(false);
-        formPane.setVisible(false);      formPane.setManaged(false);
-        cartPane.setVisible(false);      cartPane.setManaged(false);
-
-        pane.setVisible(true);
-        pane.setManaged(true);
-    }
-
-    @FXML public void showLogin()    { showOnly(loginPane); }
-    @FXML public void showProducts() { showOnly(productsPane); }
-    @FXML public void showCart()     { showOnly(cartPane); refreshCartUI(); }
-
-    private boolean canManageProducts() {
-        return Session.isLoggedIn() && Session.isCommercant();
-    }
-
-    @FXML
-    public void showAddForm() {
-        if (!canManageProducts()) {
-            statusLabel.setText("⚠ Login commerçant requis pour ajouter/modifier.");
-            showLogin();
-            return;
+    // ==================== SETUP ====================
+    private void setupFilters() {
+        // Categories
+        ObservableList<String> categories = FXCollections.observableArrayList(
+                "Toutes", "Artisanat", "Gastronomie", "Textile", "Bijoux", "Art", "Souvenirs"
+        );
+        if (clientCategoryFilter != null) {
+            clientCategoryFilter.setItems(categories);
+            clientCategoryFilter.setValue("Toutes");
         }
 
-        // ✅ Welcome message
-        if (welcomeLabel != null) {
-            String fullName = getNomPrenomUtilisateur(Session.getUserId());
-            welcomeLabel.setText("Bienvenue " + fullName + " 👋  •  Tu es commerçant ✅");
+        // Regions (24 gouvernorats tunisiens)
+        ObservableList<String> regions = FXCollections.observableArrayList(
+                "Toutes", "Tunis", "Ariana", "Ben Arous", "Manouba", "Nabeul", "Zaghouan",
+                "Bizerte", "Béja", "Jendouba", "Le Kef", "Siliana", "Sousse", "Monastir",
+                "Mahdia", "Sfax", "Kairouan", "Kasserine", "Sidi Bouzid", "Gabès",
+                "Médenine", "Tataouine", "Gafsa", "Tozeur", "Kebili"
+        );
+        if (clientRegionFilter != null) {
+            clientRegionFilter.setItems(regions);
+            clientRegionFilter.setValue("Toutes");
         }
-
-        clearForm();
-        formTitleLabel.setText("➕ Ajouter Produit");
-        saveBtn.setText("✅ Enregistrer");
-        showOnly(formPane);
     }
 
-    // ------------------ LOGIN ------------------
-    @FXML
-    public void doLogin() {
-        String email = emailField.getText() == null ? "" : emailField.getText().trim();
-        String pass  = passwordField.getText() == null ? "" : passwordField.getText().trim();
-
-        if (email.isEmpty() || pass.isEmpty()) {
-            loginStatusLabel.setText("⚠ Remplis email + mot de passe.");
-            return;
-        }
-
-        // ⚠️ TEMP: tu remplaces après par vrai login DB
-        int fakeId = 1; // <-- mets un id موجود في utilisateur
-        String fakeType = email.toLowerCase().contains("shop") ? "COMMERCANT" : "CLIENT";
-
-        Session.setUser(fakeId, fakeType);
-
-        loginStatusLabel.setText("✅ Connecté (" + fakeType + ").");
-        refreshCartUI();
-        showProducts();
-    }
-
-    // ✅ IMPORTANT: ne JAMAIS fermer la connexion globale MyBD ici (sinon "connection closed")
-    private String getNomPrenomUtilisateur(int idUser) {
-        String sql = "SELECT nom, prenom FROM utilisateur WHERE id=?";
-        Connection conn = MyBD.getInstance().getConn();
-
-        try (PreparedStatement pst = conn.prepareStatement(sql)) {
-            pst.setInt(1, idUser);
-            try (ResultSet rs = pst.executeQuery()) {
-                if (rs.next()) {
-                    String nom = rs.getString("nom");
-                    String prenom = rs.getString("prenom");
-                    String full = (prenom != null ? prenom : "") + " " + (nom != null ? nom : "");
-                    full = full.trim();
-                    return full.isEmpty() ? "Utilisateur" : full;
-                }
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return "Utilisateur";
-    }
-
-    // ------------------ PRODUCTS ------------------
     private void setupProductsTable() {
         colId.setCellValueFactory(new PropertyValueFactory<>("idProduit"));
         colNom.setCellValueFactory(new PropertyValueFactory<>("nom"));
@@ -182,7 +160,6 @@ public class WinGoShopController {
         colCat.setCellValueFactory(new PropertyValueFactory<>("categorie"));
         colRegion.setCellValueFactory(new PropertyValueFactory<>("region"));
 
-        // ✅ Image column (URL -> ImageView)
         colImage.setCellValueFactory(new PropertyValueFactory<>("image"));
         colImage.setCellFactory(col -> new TableCell<>() {
             private final ImageView iv = new ImageView();
@@ -212,77 +189,413 @@ public class WinGoShopController {
         produitsTable.setItems(produitsData);
     }
 
+    private void setupCartTable() {
+        cartColNom.setCellValueFactory(new PropertyValueFactory<>("nom"));
+        cartColPrix.setCellValueFactory(new PropertyValueFactory<>("prix"));
+        cartColQty.setCellValueFactory(new PropertyValueFactory<>("qty"));
+        cartColSub.setCellValueFactory(new PropertyValueFactory<>("subtotal"));
+        cartTable.setItems(cartData);
+    }
+
+    // ==================== NAVIGATION & UI MODE ====================
+    private void hideAllScreens() {
+        loginPane.setVisible(false); loginPane.setManaged(false);
+        clientProductsPane.setVisible(false); clientProductsPane.setManaged(false);
+        commercantProductsPane.setVisible(false); commercantProductsPane.setManaged(false);
+        formScrollPane.setVisible(false); formScrollPane.setManaged(false);
+        cartPane.setVisible(false); cartPane.setManaged(false);
+        becomeCommercantPane.setVisible(false); becomeCommercantPane.setManaged(false);
+        dashboardPane.setVisible(false); dashboardPane.setManaged(false);
+    }
+
+    private void updateUIForUserType() {
+        boolean isCommercant = Session.isLoggedIn() && Session.isCommercant();
+        boolean isClient = Session.isLoggedIn() && !Session.isCommercant();
+
+        // Navigation visibility
+        navAddBox.setVisible(isCommercant);
+        navAddBox.setManaged(isCommercant);
+        navDashboardBox.setVisible(isCommercant);
+        navDashboardBox.setManaged(isCommercant);
+
+        navCartBox.setVisible(!isCommercant);
+        navCartBox.setManaged(!isCommercant);
+        navBecomeCommercantBox.setVisible(isClient);
+        navBecomeCommercantBox.setManaged(isClient);
+
+        cartBadgeBox.setVisible(!isCommercant);
+        cartBadgeBox.setManaged(!isCommercant);
+
+        // Top subtitle
+        if (topSubtitleLabel != null) {
+            if (isCommercant) {
+                topSubtitleLabel.setText("Espace Commerçant");
+            } else {
+                topSubtitleLabel.setText("Produits Locaux Tunisiens");
+            }
+        }
+
+        // User name
+        if (userNameLabel != null) {
+            if (Session.isLoggedIn()) {
+                String name = getNomPrenomUtilisateur(Session.getUserId());
+                userNameLabel.setText(name);
+            } else {
+                userNameLabel.setText("Visiteur");
+            }
+        }
+    }
+
+    @FXML public void showLogin() {
+        hideAllScreens();
+        loginPane.setVisible(true);
+        loginPane.setManaged(true);
+    }
+
+    @FXML
+    public void showProducts() {
+        hideAllScreens();
+
+        boolean isCommercant = Session.isLoggedIn() && Session.isCommercant();
+
+        if (isCommercant) {
+            // COMMERCANT: Show table view with only their products
+            commercantProductsPane.setVisible(true);
+            commercantProductsPane.setManaged(true);
+            refreshCommercantProducts();
+        } else {
+            // CLIENT: Show cards view with all products
+            clientProductsPane.setVisible(true);
+            clientProductsPane.setManaged(true);
+            refreshClientProducts();
+        }
+    }
+
+    @FXML public void showCart() {
+        if (!Session.isLoggedIn()) {
+            statusLabel.setText("⚠ Connecte-toi d'abord.");
+            showLogin();
+            return;
+        }
+        hideAllScreens();
+        cartPane.setVisible(true);
+        cartPane.setManaged(true);
+        refreshCartUI();
+    }
+
+    @FXML
+    public void showAddForm() {
+        if (!Session.isLoggedIn() || !Session.isCommercant()) {
+            if (statusLabel != null) statusLabel.setText("⚠ Réservé aux commerçants.");
+            showLogin();
+            return;
+        }
+
+        if (welcomeLabel != null) {
+            String fullName = getNomPrenomUtilisateur(Session.getUserId());
+            welcomeLabel.setText("Bienvenue " + fullName + " 👋");
+        }
+
+        clearForm();
+        formTitleLabel.setText("➕ Ajouter Produit");
+        saveBtn.setText("✅ Enregistrer");
+
+        hideAllScreens();
+        formScrollPane.setVisible(true);
+        formScrollPane.setManaged(true);
+    }
+
+    @FXML
+    public void showBecomeCommercant() {
+        if (!Session.isLoggedIn()) {
+            showLogin();
+            return;
+        }
+        if (Session.isCommercant()) {
+            if (statusLabel != null) statusLabel.setText("✅ Vous êtes déjà commerçant!");
+            showProducts();
+            return;
+        }
+        hideAllScreens();
+        becomeCommercantPane.setVisible(true);
+        becomeCommercantPane.setManaged(true);
+    }
+
+    @FXML
+    public void showDashboard() {
+        if (!Session.isLoggedIn() || !Session.isCommercant()) {
+            showLogin();
+            return;
+        }
+        hideAllScreens();
+        dashboardPane.setVisible(true);
+        dashboardPane.setManaged(true);
+        updateDashboardStats();
+    }
+
+    // ==================== LOGIN ====================
+    @FXML
+    public void doLogin() {
+        String email = emailField.getText() == null ? "" : emailField.getText().trim();
+        String pass = passwordField.getText() == null ? "" : passwordField.getText().trim();
+
+        if (email.isEmpty() || pass.isEmpty()) {
+            loginStatusLabel.setText("⚠ Remplis tous les champs.");
+            return;
+        }
+
+        // TODO: Real DB authentication
+        // For now: email with "shop" = COMMERCANT, else CLIENT
+        int fakeId = 1;
+        String fakeType = email.toLowerCase().contains("shop") ? "COMMERCANT" : "CLIENT";
+
+        Session.setUser(fakeId, fakeType);
+        loginStatusLabel.setText("✅ Connecté (" + fakeType + ").");
+
+        updateUIForUserType();
+        refreshCartUI();
+        showProducts();
+    }
+
+    private String getNomPrenomUtilisateur(int idUser) {
+        String sql = "SELECT nom, prenom FROM utilisateur WHERE id=?";
+        Connection conn = MyBD.getInstance().getConn();
+
+        try (PreparedStatement pst = conn.prepareStatement(sql)) {
+            pst.setInt(1, idUser);
+            try (ResultSet rs = pst.executeQuery()) {
+                if (rs.next()) {
+                    String nom = rs.getString("nom");
+                    String prenom = rs.getString("prenom");
+                    String full = (prenom != null ? prenom : "") + " " + (nom != null ? nom : "");
+                    return full.trim().isEmpty() ? "Utilisateur" : full.trim();
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return "Utilisateur";
+    }
+
+    // ==================== CLIENT MODE: CARDS VIEW ====================
+    private void refreshClientProducts() {
+        if (clientProductsGrid == null) return;
+
+        clientProductsGrid.getChildren().clear();
+
+        for (Produit p : produitsData) {
+            VBox card = createProductCard(p);
+            clientProductsGrid.getChildren().add(card);
+        }
+    }
+
+    private VBox createProductCard(Produit p) {
+        VBox card = new VBox(10);
+        card.setAlignment(Pos.TOP_CENTER);
+        card.setPrefWidth(220);
+        card.setStyle(
+                "-fx-background-color: rgba(0,0,0,0.28);" +
+                        "-fx-background-radius: 16;" +
+                        "-fx-border-color: rgba(255,255,255,0.18);" +
+                        "-fx-border-radius: 16;" +
+                        "-fx-padding: 12;" +
+                        "-fx-cursor: hand;"
+        );
+
+        // Image
+        ImageView imageView = new ImageView();
+        imageView.setFitWidth(196);
+        imageView.setFitHeight(196);
+        imageView.setPreserveRatio(true);
+        imageView.setStyle("-fx-background-radius: 12;");
+        try {
+            if (p.getImage() != null && !p.getImage().isBlank()) {
+                imageView.setImage(new Image(p.getImage(), true));
+            }
+        } catch (Exception e) {
+            // Placeholder
+        }
+
+        // Name
+        Label nameLabel = new Label(p.getNom());
+        nameLabel.setStyle(
+                "-fx-text-fill: white;" +
+                        "-fx-font-weight: 900;" +
+                        "-fx-font-size: 14px;" +
+                        "-fx-wrap-text: true;"
+        );
+        nameLabel.setMaxWidth(196);
+
+        // Price
+        Label priceLabel = new Label(String.format("%.2f TND", p.getPrix()));
+        priceLabel.setStyle(
+                "-fx-text-fill: #FFBD00;" +
+                        "-fx-font-weight: 900;" +
+                        "-fx-font-size: 16px;"
+        );
+
+        // Region
+        Label regionLabel = new Label("📍 " + (p.getRegion() != null ? p.getRegion() : "Tunisie"));
+        regionLabel.setStyle(
+                "-fx-text-fill: rgba(255,255,255,0.70);" +
+                        "-fx-font-size: 11px;"
+        );
+
+        // Stock indicator
+        Label stockLabel = new Label(p.getStock() > 0 ? "✅ En stock" : "❌ Rupture");
+        stockLabel.setStyle(
+                "-fx-text-fill: " + (p.getStock() > 0 ? "#00FF9D" : "#FF0054") + ";" +
+                        "-fx-font-size: 10px;" +
+                        "-fx-font-weight: 800;"
+        );
+
+        // Add to cart button
+        Button addBtn = new Button("🛒 Ajouter");
+        addBtn.setStyle(
+                "-fx-background-color: #FFBD00;" +
+                        "-fx-text-fill: #390099;" +
+                        "-fx-background-radius: 999;" +
+                        "-fx-padding: 8 16;" +
+                        "-fx-font-weight: 900;" +
+                        "-fx-cursor: hand;"
+        );
+        addBtn.setMaxWidth(Double.MAX_VALUE);
+        addBtn.setOnAction(e -> addProductToCart(p));
+
+        card.getChildren().addAll(imageView, nameLabel, priceLabel, regionLabel, stockLabel, addBtn);
+
+        return card;
+    }
+
+    private void addProductToCart(Produit p) {
+        if (!Session.isLoggedIn()) {
+            showAlert("⚠ Connexion requise", "Connecte-toi pour ajouter au panier.");
+            showLogin();
+            return;
+        }
+
+        if (p.getStock() <= 0) {
+            showAlert("❌ Rupture de stock", "Ce produit n'est plus disponible.");
+            return;
+        }
+
+        try {
+            panierCRUD.addToCart(Session.getUserId(), p.getIdProduit(), p.getPrix(), 1);
+            refreshCartUI();
+            showAlert("✅ Ajouté!", p.getNom() + " ajouté au panier.");
+        } catch (SQLException e) {
+            showAlert("❌ Erreur", "Impossible d'ajouter au panier.");
+            e.printStackTrace();
+        }
+    }
+
+    @FXML
+    private void onClientFilter() {
+        String catFilter = clientCategoryFilter.getValue();
+        String regFilter = clientRegionFilter.getValue();
+
+        List<Produit> filtered = produitsData.stream()
+                .filter(p -> catFilter == null || catFilter.equals("Toutes") ||
+                        (p.getCategorie() != null && p.getCategorie().equals(catFilter)))
+                .filter(p -> regFilter == null || regFilter.equals("Toutes") ||
+                        (p.getRegion() != null && p.getRegion().equals(regFilter)))
+                .collect(Collectors.toList());
+
+        clientProductsGrid.getChildren().clear();
+        for (Produit p : filtered) {
+            clientProductsGrid.getChildren().add(createProductCard(p));
+        }
+    }
+
+    // ==================== COMMERCANT MODE: TABLE VIEW ====================
+    private void refreshCommercantProducts() {
+        try {
+            // Show only products of current commercant
+            List<Produit> myProducts = produitCRUD.afficherParUser(Session.getUserId());
+            produitsData.setAll(myProducts);
+
+            if (commercantProductCount != null) {
+                commercantProductCount.setText(myProducts.size() + " produits");
+            }
+        } catch (SQLException e) {
+            if (statusLabel != null) statusLabel.setText("❌ Erreur DB");
+            e.printStackTrace();
+        }
+    }
+
+    // ==================== PRODUCTS CRUD ====================
     private void refreshProducts() {
         try {
             List<Produit> list = produitCRUD.afficher();
             produitsData.setAll(list);
         } catch (SQLException e) {
-            statusLabel.setText("❌ Erreur DB: " + e.getMessage());
             e.printStackTrace();
         }
     }
 
     @FXML
     public void onSearch() {
-        String q = (searchField == null || searchField.getText() == null) ? "" : searchField.getText().trim().toLowerCase();
+        String q = searchField.getText() == null ? "" : searchField.getText().trim().toLowerCase();
         if (q.isEmpty()) {
-            produitsTable.setItems(produitsData);
+            if (Session.isLoggedIn() && Session.isCommercant()) {
+                refreshCommercantProducts();
+            } else {
+                refreshProducts();
+                refreshClientProducts();
+            }
             return;
         }
 
-        ObservableList<Produit> filtered = FXCollections.observableArrayList();
-        for (Produit p : produitsData) {
-            if ((p.getNom() != null && p.getNom().toLowerCase().contains(q))
-                    || (p.getCategorie() != null && p.getCategorie().toLowerCase().contains(q))
-                    || (p.getRegion() != null && p.getRegion().toLowerCase().contains(q))) {
-                filtered.add(p);
+        List<Produit> filtered = produitsData.stream()
+                .filter(p -> (p.getNom() != null && p.getNom().toLowerCase().contains(q)) ||
+                        (p.getCategorie() != null && p.getCategorie().toLowerCase().contains(q)) ||
+                        (p.getRegion() != null && p.getRegion().toLowerCase().contains(q)))
+                .collect(Collectors.toList());
+
+        if (Session.isLoggedIn() && Session.isCommercant()) {
+            produitsTable.setItems(FXCollections.observableArrayList(filtered));
+        } else {
+            clientProductsGrid.getChildren().clear();
+            for (Produit p : filtered) {
+                clientProductsGrid.getChildren().add(createProductCard(p));
             }
         }
-        produitsTable.setItems(filtered);
     }
 
-    // ✅ AJOUT AU PANIER (DB)
     @FXML
     public void addSelectedToCart() {
         if (!Session.isLoggedIn()) {
-            statusLabel.setText("⚠ Connecte-toi pour utiliser le panier.");
+            showAlert("⚠ Connexion", "Connecte-toi d'abord.");
             showLogin();
             return;
         }
 
         Produit p = produitsTable.getSelectionModel().getSelectedItem();
-        if (p == null) { statusLabel.setText("⚠ Sélectionne un produit."); return; }
-        if (p.getStock() <= 0) { statusLabel.setText("⚠ Stock vide."); return; }
-
-        try {
-            panierCRUD.addToCart(Session.getUserId(), p.getIdProduit(), p.getPrix(), 1);
-            refreshCartUI();
-            statusLabel.setText("✅ Ajouté au panier: " + p.getNom());
-        } catch (SQLException e) {
-            statusLabel.setText("❌ Erreur panier: " + e.getMessage());
-            e.printStackTrace();
-        }
+        if (p == null) return;
+        addProductToCart(p);
     }
 
     @FXML
     public void editSelectedProduct() {
-        if (!canManageProducts()) {
-            statusLabel.setText("⚠ Login commerçant requis pour modifier.");
-            showLogin();
+        if (!Session.isLoggedIn() || !Session.isCommercant()) {
+            showAlert("⚠ Accès refusé", "Réservé aux commerçants.");
             return;
         }
 
         Produit p = produitsTable.getSelectionModel().getSelectedItem();
-        if (p == null) { statusLabel.setText("⚠ Sélectionne un produit."); return; }
+        if (p == null) {
+            if (statusLabel != null) statusLabel.setText("⚠ Sélectionne un produit.");
+            return;
+        }
 
         if (p.getIdUser() != Session.getUserId()) {
-            statusLabel.setText("⚠ Tu ne peux pas modifier le produit d’un autre vendeur.");
+            if (statusLabel != null) statusLabel.setText("⚠ Pas ton produit.");
             return;
         }
 
         idProduitHidden.setText(String.valueOf(p.getIdProduit()));
         nomTextField.setText(nullSafe(p.getNom()));
-        descriptionField.setText(nullSafe(p.getDescription())); // ✅ plus de descriptionArea
+        descriptionField.setText(nullSafe(p.getDescription()));
         prixTextField.setText(String.valueOf(p.getPrix()));
         stockField.setText(String.valueOf(p.getStock()));
         regionField.setText(nullSafe(p.getRegion()));
@@ -291,72 +604,69 @@ public class WinGoShopController {
 
         formTitleLabel.setText("✏ Modifier Produit");
         saveBtn.setText("💾 Mettre à jour");
-        showOnly(formPane);
+
+        hideAllScreens();
+        formScrollPane.setVisible(true);
+        formScrollPane.setManaged(true);
     }
 
     @FXML
     public void deleteSelectedProduct() {
-        if (!canManageProducts()) {
-            statusLabel.setText("⚠ Login commerçant requis pour supprimer.");
-            showLogin();
-            return;
-        }
+        if (!Session.isLoggedIn() || !Session.isCommercant()) return;
 
         Produit p = produitsTable.getSelectionModel().getSelectedItem();
-        if (p == null) { statusLabel.setText("⚠ Sélectionne un produit."); return; }
+        if (p == null) return;
 
         if (p.getIdUser() != Session.getUserId()) {
-            statusLabel.setText("⚠ Tu ne peux pas supprimer le produit d’un autre vendeur.");
+            if (statusLabel != null) statusLabel.setText("⚠ Pas ton produit.");
             return;
         }
 
-        Alert a = new Alert(Alert.AlertType.CONFIRMATION,
+        Alert confirm = new Alert(Alert.AlertType.CONFIRMATION,
                 "Supprimer: " + p.getNom() + " ?",
                 ButtonType.YES, ButtonType.NO);
-        a.setHeaderText(null);
-        a.showAndWait();
+        confirm.setHeaderText(null);
+        confirm.showAndWait();
 
-        if (a.getResult() != ButtonType.YES) return;
-
-        try {
-            produitCRUD.supprimer(p.getIdProduit());
-            statusLabel.setText("✅ Supprimé.");
-            refreshProducts();
-        } catch (SQLException e) {
-            statusLabel.setText("❌ Erreur DB: " + e.getMessage());
-            e.printStackTrace();
+        if (confirm.getResult() == ButtonType.YES) {
+            try {
+                produitCRUD.supprimer(p.getIdProduit());
+                if (statusLabel != null) statusLabel.setText("✅ Supprimé.");
+                refreshCommercantProducts();
+            } catch (SQLException e) {
+                if (statusLabel != null) statusLabel.setText("❌ Erreur");
+                e.printStackTrace();
+            }
         }
     }
 
-    // ------------------ SAVE (ADD / UPDATE) ------------------
     @FXML
     public void saveProduct() {
-        if (!canManageProducts()) {
-            statusLabel.setText("⚠ Login commerçant requis.");
-            showLogin();
+        if (!Session.isLoggedIn() || !Session.isCommercant()) {
+            showAlert("⚠ Accès refusé", "Réservé aux commerçants.");
             return;
         }
 
         try {
             Produit p = buildProduitFromForm();
-
             boolean isEdit = idProduitHidden.getText() != null && !idProduitHidden.getText().isBlank();
+
             if (isEdit) {
                 p.setIdProduit(Integer.parseInt(idProduitHidden.getText().trim()));
                 produitCRUD.modifier(p);
-                statusLabel.setText("✅ Produit modifié.");
+                if (statusLabel != null) statusLabel.setText("✅ Modifié.");
             } else {
                 produitCRUD.ajouter(p);
-                statusLabel.setText("✅ Produit ajouté.");
+                if (statusLabel != null) statusLabel.setText("✅ Ajouté.");
             }
 
             refreshProducts();
             showProducts();
 
         } catch (IllegalArgumentException ex) {
-            statusLabel.setText("⚠ " + ex.getMessage());
+            showAlert("⚠ Validation", ex.getMessage());
         } catch (SQLException ex) {
-            statusLabel.setText("❌ Erreur DB: " + ex.getMessage());
+            showAlert("❌ Erreur DB", ex.getMessage());
             ex.printStackTrace();
         }
     }
@@ -379,18 +689,14 @@ public class WinGoShopController {
         try { stock = Integer.parseInt(stockStr); }
         catch (NumberFormatException e) { throw new IllegalArgumentException("Stock invalide."); }
 
-        if (prix < 0) throw new IllegalArgumentException("Prix doit être >= 0.");
-        if (stock < 0) throw new IllegalArgumentException("Stock doit être >= 0.");
+        if (prix < 0) throw new IllegalArgumentException("Prix >= 0.");
+        if (stock < 0) throw new IllegalArgumentException("Stock >= 0.");
 
         Produit p = new Produit();
-
-        // ✅ ID du commerçant connecté
         p.setIdUser(Session.getUserId());
-
         p.setNom(nom);
         p.setPrix(prix);
         p.setStock(stock);
-
         p.setRegion(emptyToNull(regionField));
         p.setCategorie(emptyToNull(categorieField));
         p.setDescription(emptyToNull(descriptionField));
@@ -411,15 +717,7 @@ public class WinGoShopController {
         if (idProduitHidden != null) idProduitHidden.clear();
     }
 
-    // ------------------ CART (DB) ------------------
-    private void setupCartTable() {
-        cartColNom.setCellValueFactory(new PropertyValueFactory<>("nom"));
-        cartColPrix.setCellValueFactory(new PropertyValueFactory<>("prix"));
-        cartColQty.setCellValueFactory(new PropertyValueFactory<>("qty"));
-        cartColSub.setCellValueFactory(new PropertyValueFactory<>("subtotal"));
-        cartTable.setItems(cartData);
-    }
-
+    // ==================== CART ====================
     private void refreshCartUI() {
         if (!Session.isLoggedIn()) {
             cartData.clear();
@@ -430,14 +728,12 @@ public class WinGoShopController {
 
         try {
             cartData.setAll(panierCRUD.getActiveCart(Session.getUserId()));
-
             int totalQty = cartData.stream().mapToInt(CartItem::getQty).sum();
             double total = cartData.stream().mapToDouble(CartItem::getSubtotal).sum();
 
             cartCountLabel.setText(String.valueOf(totalQty));
             cartTotalLabel.setText(String.format("Total: %.2f TND", total));
         } catch (SQLException e) {
-            statusLabel.setText("❌ Erreur panier: " + e.getMessage());
             e.printStackTrace();
         }
     }
@@ -445,37 +741,28 @@ public class WinGoShopController {
     @FXML public void qtyPlus() {
         CartItem it = cartTable.getSelectionModel().getSelectedItem();
         if (it == null) return;
-
         try {
             panierCRUD.changeQty(Session.getUserId(), it.getIdProduit(), +1);
             refreshCartUI();
-        } catch (SQLException e) {
-            statusLabel.setText("❌ " + e.getMessage());
-        }
+        } catch (SQLException e) { e.printStackTrace(); }
     }
 
     @FXML public void qtyMinus() {
         CartItem it = cartTable.getSelectionModel().getSelectedItem();
         if (it == null) return;
-
         try {
             panierCRUD.changeQty(Session.getUserId(), it.getIdProduit(), -1);
             refreshCartUI();
-        } catch (SQLException e) {
-            statusLabel.setText("❌ " + e.getMessage());
-        }
+        } catch (SQLException e) { e.printStackTrace(); }
     }
 
     @FXML public void removeFromCart() {
         CartItem it = cartTable.getSelectionModel().getSelectedItem();
         if (it == null) return;
-
         try {
             panierCRUD.remove(Session.getUserId(), it.getIdProduit());
             refreshCartUI();
-        } catch (SQLException e) {
-            statusLabel.setText("❌ " + e.getMessage());
-        }
+        } catch (SQLException e) { e.printStackTrace(); }
     }
 
     @FXML public void clearCart() {
@@ -483,42 +770,98 @@ public class WinGoShopController {
         try {
             panierCRUD.clear(Session.getUserId());
             refreshCartUI();
-        } catch (SQLException e) {
-            statusLabel.setText("❌ " + e.getMessage());
-        }
+        } catch (SQLException e) { e.printStackTrace(); }
     }
 
     @FXML
     public void checkoutNow() {
         if (!Session.isLoggedIn()) {
-            statusLabel.setText("⚠ Connecte-toi d'abord.");
             showLogin();
             return;
         }
-
         try {
             int idCmd = panierCRUD.checkout(Session.getUserId());
-            statusLabel.setText("✅ Commande validée (#" + idCmd + ")");
+            showAlert("✅ Commande validée", "Commande #" + idCmd + " enregistrée!");
             refreshCartUI();
             showProducts();
         } catch (SQLException e) {
-            statusLabel.setText("❌ " + e.getMessage());
+            showAlert("❌ Erreur", e.getMessage());
             e.printStackTrace();
         }
     }
 
-    // ------------------ HELPERS ------------------
-    private static String nullSafe(String s) {
-        return s == null ? "" : s;
+    // ==================== BECOME COMMERCANT ====================
+    @FXML
+    public void submitBecomeCommercant() {
+        String nom = safeText(becomeCommercantNom);
+        String phone = safeText(becomeCommercantPhone);
+        String type = safeText(becomeCommercantType);
+
+        if (nom.isEmpty() || phone.isEmpty() || type.isEmpty()) {
+            becomeCommercantStatusLabel.setText("⚠ Remplis tous les champs requis.");
+            return;
+        }
+
+        // TODO: Save request to DB, send to admin for validation
+        // For demo: auto-upgrade to COMMERCANT
+
+        try {
+            // Update user type in DB
+            String sql = "UPDATE utilisateur SET type='COMMERCANT' WHERE id=?";
+            Connection conn = MyBD.getInstance().getConn();
+            try (PreparedStatement pst = conn.prepareStatement(sql)) {
+                pst.setInt(1, Session.getUserId());
+                pst.executeUpdate();
+            }
+
+            // Update session
+            Session.setUser(Session.getUserId(), "COMMERCANT");
+
+            showAlert("✅ Félicitations!", "Tu es maintenant commerçant! Tu peux commencer à vendre tes produits.");
+            updateUIForUserType();
+            showProducts();
+
+        } catch (SQLException e) {
+            becomeCommercantStatusLabel.setText("❌ Erreur lors de la mise à jour.");
+            e.printStackTrace();
+        }
     }
 
+    // ==================== DASHBOARD ====================
+    private void updateDashboardStats() {
+        try {
+            List<Produit> myProducts = produitCRUD.afficherParUser(Session.getUserId());
+
+            int totalProducts = myProducts.size();
+            int totalStock = myProducts.stream().mapToInt(Produit::getStock).sum();
+            double stockValue = myProducts.stream()
+                    .mapToDouble(p -> p.getPrix() * p.getStock())
+                    .sum();
+
+            if (dashTotalProducts != null) dashTotalProducts.setText(String.valueOf(totalProducts));
+            if (dashTotalStock != null) dashTotalStock.setText(String.valueOf(totalStock));
+            if (dashStockValue != null) dashStockValue.setText(String.format("%.2f TND", stockValue));
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    // ==================== HELPERS ====================
+    private static String nullSafe(String s) { return s == null ? "" : s; }
     private static String safeText(TextField tf) {
-        if (tf == null || tf.getText() == null) return "";
-        return tf.getText().trim();
+        return tf == null || tf.getText() == null ? "" : tf.getText().trim();
     }
-
     private static String emptyToNull(TextField tf) {
         String v = safeText(tf);
         return v.isEmpty() ? null : v;
+    }
+
+    private void showAlert(String title, String message) {
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle(title);
+        alert.setHeaderText(null);
+        alert.setContentText(message);
+        alert.showAndWait();
     }
 }
