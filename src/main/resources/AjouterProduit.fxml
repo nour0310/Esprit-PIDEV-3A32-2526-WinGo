@@ -32,12 +32,12 @@
         <top>
             <HBox alignment="CENTER_LEFT" spacing="14"
                   style="-fx-background-color: rgba(0,0,0,0.22);
-                         -fx-background-radius: 26 26 18 18;
-                         -fx-border-color: rgba(255,255,255,0.14);
-                         -fx-border-width: 0 0 1 0;">
+                 -fx-background-radius: 26 26 18 18;
+                 -fx-border-color: rgba(255,255,255,0.14);
+                 -fx-border-width: 0 0 1 0;">
                 <padding><Insets top="18" right="18" bottom="18" left="18"/></padding>
 
-                <!-- Logo + Title -->
+                <!-- Logo + Title (always visible) -->
                 <HBox alignment="CENTER_LEFT" spacing="8">
                     <Label text="🇹🇳" style="-fx-font-size: 24px;"/>
                     <VBox spacing="2">
@@ -50,78 +50,82 @@
 
                 <Region HBox.hgrow="ALWAYS"/>
 
-                <!-- Search Bar -->
-                <HBox fx:id="searchBox" alignment="CENTER_LEFT" spacing="10"
-                      style="-fx-background-color: rgba(0,0,0,0.28);
-             -fx-background-radius: 999;
-             -fx-padding: 8 14;
-             -fx-border-color: rgba(255,255,255,0.22);
-             -fx-border-radius: 999;">
-                    <Label text="🔍" style="-fx-text-fill: white; -fx-opacity: 0.95; -fx-font-size: 14px;"/>
-                    <TextField fx:id="searchField"
-                               promptText="Chercher un produit..."
-                               onKeyReleased="#onSearch"
-                               style="-fx-background-color: transparent;
-                      -fx-border-color: transparent;
-                      -fx-text-fill: white;
-                      -fx-prompt-text-fill: rgba(255,255,255,0.70);
-                      -fx-pref-width: 280;" />
-                </HBox>
+                <!-- ✅ TOP ACTIONS (will be hidden on Login) -->
+                <HBox fx:id="topActionsBox" alignment="CENTER_LEFT" spacing="14">
 
-                <!-- Cart Badge (CLIENT mode) -->
-                <HBox fx:id="cartBadgeBox" alignment="CENTER" spacing="6"
-                      style="-fx-background-color: rgba(255,189,0,0.18);
-                             -fx-background-radius: 999;
-                             -fx-padding: 8 14;
-                             -fx-border-color: rgba(255,189,0,0.35);
-                             -fx-border-radius: 999;">
-                    <Button text="🛒" onAction="#showCart"
-                            style="-fx-background-color: transparent;
-                                   -fx-text-fill: #FFBD00;
-                                   -fx-font-size: 16px;
-                                   -fx-cursor: hand;" />
-                    <Label fx:id="cartCountLabel" text="0"
-                           style="-fx-text-fill: #FFBD00; -fx-font-weight: 900; -fx-font-size: 14px;" />
-                </HBox>
-                <!-- SWITCH MODE (only for commerçant) -->
-                <HBox fx:id="modeSwitchBox" alignment="CENTER" spacing="8"
-                      style="-fx-background-color: rgba(0,0,0,0.28);
-             -fx-background-radius: 999;
-             -fx-padding: 6 10;
-             -fx-border-color: rgba(255,255,255,0.18);
-             -fx-border-radius: 999;"
-                      visible="false" managed="false">
-                    <Label text="Mode" style="-fx-text-fill: rgba(255,255,255,0.75); -fx-font-weight: 800; -fx-font-size: 11px;"/>
-                    <ToggleButton fx:id="modeToggle"
-                                  text="Client"
-                                  onAction="#toggleMode"
-                                  style="-fx-background-color: rgba(255,189,0,0.18);
-                         -fx-text-fill: #FFBD00;
+                    <!-- Search Bar -->
+                    <HBox fx:id="searchBox" alignment="CENTER_LEFT" spacing="10"
+                          style="-fx-background-color: rgba(0,0,0,0.28);
                          -fx-background-radius: 999;
                          -fx-padding: 8 14;
-                         -fx-font-weight: 900;
-                         -fx-cursor: hand;"/>
-                </HBox>
+                         -fx-border-color: rgba(255,255,255,0.22);
+                         -fx-border-radius: 999;">
+                        <Label text="🔍" style="-fx-text-fill: white; -fx-opacity: 0.95; -fx-font-size: 14px;"/>
+                        <TextField fx:id="searchField"
+                                   promptText="Chercher un produit..."
+                                   onKeyReleased="#onSearch"
+                                   style="-fx-background-color: transparent;
+                                  -fx-border-color: transparent;
+                                  -fx-text-fill: white;
+                                  -fx-prompt-text-fill: rgba(255,255,255,0.70);
+                                  -fx-pref-width: 280;" />
+                    </HBox>
 
-                <Region HBox.hgrow="ALWAYS"/>
+                    <!-- Cart Badge (CLIENT mode) -->
+                    <HBox fx:id="cartBadgeBox" alignment="CENTER" spacing="6"
+                          style="-fx-background-color: rgba(255,189,0,0.18);
+                         -fx-background-radius: 999;
+                         -fx-padding: 8 14;
+                         -fx-border-color: rgba(255,189,0,0.35);
+                         -fx-border-radius: 999;">
+                        <Button text="🛒" onAction="#showCart"
+                                style="-fx-background-color: transparent;
+                               -fx-text-fill: #FFBD00;
+                               -fx-font-size: 16px;
+                               -fx-cursor: hand;" />
+                        <Label fx:id="cartCountLabel" text="0"
+                               style="-fx-text-fill: #FFBD00; -fx-font-weight: 900; -fx-font-size: 14px;" />
+                    </HBox>
 
-                <!-- User Profile -->
-                <HBox alignment="CENTER" spacing="8"
-                      style="-fx-background-color: rgba(0,0,0,0.28);
-                             -fx-background-radius: 999;
-                             -fx-padding: 8 14;">
-                    <Label text="👤" style="-fx-font-size: 16px;"/>
-                    <Label fx:id="userNameLabel" text="Visiteur"
-                           style="-fx-text-fill: white; -fx-font-weight: 700; -fx-font-size: 12px;"/>
-                    <Button text="⚙" onAction="#showLogin"
-                            style="-fx-background-color: transparent;
-                                   -fx-text-fill: rgba(255,255,255,0.70);
-                                   -fx-font-size: 14px;
-                                   -fx-cursor: hand;" />
+                    <!-- SWITCH MODE (only for commerçant) -->
+                    <HBox fx:id="modeSwitchBox" alignment="CENTER" spacing="8"
+                          style="-fx-background-color: rgba(0,0,0,0.28);
+                         -fx-background-radius: 999;
+                         -fx-padding: 6 10;
+                         -fx-border-color: rgba(255,255,255,0.18);
+                         -fx-border-radius: 999;"
+                          visible="false" managed="false">
+                        <Label text="Mode" style="-fx-text-fill: rgba(255,255,255,0.75); -fx-font-weight: 800; -fx-font-size: 11px;"/>
+                        <ToggleButton fx:id="modeToggle"
+                                      text="Client"
+                                      onAction="#toggleMode"
+                                      style="-fx-background-color: rgba(255,189,0,0.18);
+                                     -fx-text-fill: #FFBD00;
+                                     -fx-background-radius: 999;
+                                     -fx-padding: 8 14;
+                                     -fx-font-weight: 900;
+                                     -fx-cursor: hand;"/>
+                    </HBox>
+
+                    <!-- User Profile -->
+                    <HBox fx:id="userBox" alignment="CENTER" spacing="8"
+                          style="-fx-background-color: rgba(0,0,0,0.28);
+                         -fx-background-radius: 999;
+                         -fx-padding: 8 14;">
+                        <Label text="👤" style="-fx-font-size: 16px;"/>
+                        <Label fx:id="userNameLabel" text="Visiteur"
+                               style="-fx-text-fill: white; -fx-font-weight: 700; -fx-font-size: 12px;"/>
+                        <Button text="⚙" onAction="#showLogin"
+                                style="-fx-background-color: transparent;
+                               -fx-text-fill: rgba(255,255,255,0.70);
+                               -fx-font-size: 14px;
+                               -fx-cursor: hand;" />
+                    </HBox>
+
                 </HBox>
             </HBox>
         </top>
-
+        
         <!-- LEFT NAV -->
         <left>
             <VBox fx:id="leftNav" prefWidth="90" spacing="14"
