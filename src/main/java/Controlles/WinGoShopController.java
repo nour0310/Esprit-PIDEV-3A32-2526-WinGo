@@ -168,7 +168,7 @@ public class WinGoShopController {
                     "-fx-font-weight: 800;" +
                     "-fx-padding: 2 0 0 4;";
 
-    // ==================== INITIALIZE ====================
+    //  Configure l'interface au démarrage initialisationn
     @FXML
     public void initialize() {
         setupProductsTable();
@@ -180,11 +180,7 @@ public class WinGoShopController {
         showLogin();
     }
 
-    // ==================== REAL-TIME VALIDATION SETUP ====================
-    /**
-     * Configure tous les listeners de validation instantanée.
-     * Chaque champ affiche un message rouge dès que la saisie est invalide.
-     */
+    // controle de saisie
     private void setupRealtimeValidation() {
         styleErrorLabel(errNom);
         styleErrorLabel(errCat);
@@ -430,10 +426,7 @@ public class WinGoShopController {
         lbl.setManaged(false);
     }
 
-    /**
-     * Injecte le label d'erreur juste sous le TextField dans son parent VBox.
-     * Si le parent n'est pas un VBox, on ajoute quand même (best effort).
-     */
+    // Insère automatiquement un label d'erreur juste après le TextField dans l'interface graphique.
     private void injectErrorLabel(TextField field, Label errLabel) {
         javafx.application.Platform.runLater(() -> {
             javafx.scene.Parent parent = field.getParent();
@@ -467,13 +460,13 @@ public class WinGoShopController {
         return errLabel.isVisible() && !errLabel.getText().isBlank();
     }
 
-    // ==================== NAV ENABLE/DISABLE ====================
+    // Active/désactive la barre de navigation gauche
     private void setNavEnabled(boolean enabled) {
         if (leftNav == null) return;
         leftNav.setDisable(!enabled);
         leftNav.setOpacity(enabled ? 1.0 : 0.35);
     }
-
+//Cache/affiche les éléments de la barre supérieure selon l'état de connexion
     private void setTopLoginMode(boolean isLogin) {
         if (topActionsBox != null) { topActionsBox.setVisible(!isLogin); topActionsBox.setManaged(!isLogin); }
         if (searchBox != null) { searchBox.setVisible(!isLogin); searchBox.setManaged(!isLogin); }
@@ -597,7 +590,7 @@ public class WinGoShopController {
         produitsTable.setItems(produitsData);
     }
 
-    // ==================== NAVIGATION & UI MODE ====================
+    // Cache tous les écrans de l'application pour pouvoir afficher un seul écran à la fois.
     private void hideAllScreens() {
         loginPane.setVisible(false);               loginPane.setManaged(false);
         clientProductsPane.setVisible(false);      clientProductsPane.setManaged(false);

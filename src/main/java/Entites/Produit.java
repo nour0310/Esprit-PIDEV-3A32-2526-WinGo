@@ -96,8 +96,7 @@ public class Produit {
                 ", stock=" + stock +
                 '}';
     }
-
-    // ✅ (optionnel) compatibilité temporaire si tu as encore du code ancien
+// amalna deprecated bech ay haja teb3a commercant manabkach nbadel feha w tekhdem
     @Deprecated
     public int getIdCommercant() { return idUser; }
 

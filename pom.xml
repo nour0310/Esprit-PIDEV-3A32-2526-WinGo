@@ -34,7 +34,7 @@
             <version>8.0.33</version>
         </dependency>
 
-        <!-- JUnit 5 -->
+        <!-- les tests unitaires -->
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter</artifactId>

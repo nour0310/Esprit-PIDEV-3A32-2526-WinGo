@@ -25,3 +25,5 @@ public class CartItem {
 
     public double getSubtotal() { return prix * qty; }
 }
+
+//fichier heda  howa tout simplement vue de Panier optimisée pour l'affichage nhadhrou bih cartitem w naaytoulha fi panier crud

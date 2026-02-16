@@ -21,7 +21,7 @@ public class Home extends Application {
             Parent root = loader.load();
             Scene scene = new Scene(root);
 
-            // ✅ AJOUT CSS ICI
+            // CSS ICI
             var css = getClass().getResource("/wingo-styles.css");
             System.out.println("CSS = " + css); // debug
             if (css != null) {
