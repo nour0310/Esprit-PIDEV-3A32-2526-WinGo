@@ -501,7 +501,6 @@ public class WinGoShopController {
         );
         if (clientRegionFilter != null) { clientRegionFilter.setItems(regions); clientRegionFilter.setValue("Toutes");
         }
-        // ✅ ComboBox catégorie du formulaire produit
         if (categorieCombo != null) {
             ObservableList<String> cats = FXCollections.observableArrayList(
                     "Artisanat", "Gastronomie", "Textile",
@@ -509,14 +508,66 @@ public class WinGoShopController {
             );
             categorieCombo.setItems(cats);
 
-            // Style des items de la liste déroulante
-            categorieCombo.setStyle(
-                    "-fx-background-color: rgba(255,255,255,0.10);" +
-                            "-fx-background-radius: 12;" +
-                            "-fx-border-color: rgba(255,255,255,0.18);" +
-                            "-fx-border-radius: 12;" +
-                            "-fx-text-fill: white;"
-            );
+            // ✅ Style des ITEMS dans la liste déroulante
+            categorieCombo.setCellFactory(lv -> new ListCell<>() {
+                @Override
+                protected void updateItem(String item, boolean empty) {
+                    super.updateItem(item, empty);
+                    if (empty || item == null) {
+                        setText(null);
+                        setStyle("-fx-background-color: #1a1a2e;");
+                    } else {
+                        setText(item);
+                        boolean isAutre = item.startsWith("✏");
+                        setStyle(
+                                "-fx-background-color: #1a1a2e;" +
+                                        "-fx-text-fill: " + (isAutre ? "#FFBD00" : "white") + ";" +
+                                        "-fx-font-weight: " + (isAutre ? "900" : "700") + ";" +
+                                        "-fx-font-size: 12px;" +
+                                        "-fx-padding: 10 14;"
+                        );
+                        // Hover effect
+                        setOnMouseEntered(e -> setStyle(
+                                "-fx-background-color: rgba(255,189,0,0.20);" +
+                                        "-fx-text-fill: " + (isAutre ? "#FFBD00" : "white") + ";" +
+                                        "-fx-font-weight: " + (isAutre ? "900" : "700") + ";" +
+                                        "-fx-font-size: 12px;" +
+                                        "-fx-padding: 10 14;"
+                        ));
+                        setOnMouseExited(e -> setStyle(
+                                "-fx-background-color: #1a1a2e;" +
+                                        "-fx-text-fill: " + (isAutre ? "#FFBD00" : "white") + ";" +
+                                        "-fx-font-weight: " + (isAutre ? "900" : "700") + ";" +
+                                        "-fx-font-size: 12px;" +
+                                        "-fx-padding: 10 14;"
+                        ));
+                    }
+                }
+            });
+
+            // ✅ Style de l'item SÉLECTIONNÉ (affiché dans le bouton)
+            categorieCombo.setButtonCell(new ListCell<>() {
+                @Override
+                protected void updateItem(String item, boolean empty) {
+                    super.updateItem(item, empty);
+                    if (empty || item == null) {
+                        setText("Choisir une catégorie...");
+                        setStyle(
+                                "-fx-background-color: transparent;" +
+                                        "-fx-text-fill: rgba(255,255,255,0.55);" +
+                                        "-fx-font-size: 12px;"
+                        );
+                    } else {
+                        setText(item);
+                        setStyle(
+                                "-fx-background-color: transparent;" +
+                                        "-fx-text-fill: white;" +
+                                        "-fx-font-weight: 700;" +
+                                        "-fx-font-size: 12px;"
+                        );
+                    }
+                }
+            });
         }
     }
 
