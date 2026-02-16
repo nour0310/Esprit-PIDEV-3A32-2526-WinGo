@@ -33,8 +33,9 @@ public class ReservationServicetest {
             Reservation r = new Reservation(
                     "TestUser",
                     "TestExp",
-                    new Timestamp(System.currentTimeMillis()),
-                    "EN_ATTENTE"
+                    "EN_ATTENTE",
+                    new Timestamp(System.currentTimeMillis())
+
             );
 
             service.ajouter(r);
