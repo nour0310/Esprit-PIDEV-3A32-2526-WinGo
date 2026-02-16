@@ -26,6 +26,205 @@ import java.util.ResourceBundle;
 
 public class EventController implements Initializable {
 
+    // ==================== FXML FIELDS ====================
+
+    // TabPane
+    @FXML
+    private TabPane tabPane;
+
+    // Event Form Fields
+    @FXML private TextField titleField;
+    @FXML private TextArea descriptionArea;
+    @FXML private TextField locationField;
+    @FXML private DatePicker datePicker;
+    @FXML private TextField timeField;
+    @FXML private TextField capacityField;
+    @FXML private TextField statusField;
+    @FXML private TextField imageField;
+    @FXML private ComboBox<String> seasonBox;
+    @FXML private ComboBox<String> eventTypeBox;
+
+    // Event Table
+    @FXML private TableView<Event> eventTable;
+    @FXML private TableColumn<Event, Integer> colId;
+    @FXML private TableColumn<Event, String> colTitle;
+    @FXML private TableColumn<Event, String> colLocation;
+    @FXML private TableColumn<Event, String> colDate;
+    @FXML private TableColumn<Event, String> colTime;
+    @FXML private TableColumn<Event, Integer> colCapacity;
+    @FXML private TableColumn<Event, String> colSeason;
+    @FXML private TableColumn<Event, String> colStatus;
+
+    // New Event Selection Fields
+    @FXML private Label selectedEventLabel;
+    @FXML private ComboBox<Event> eventSelectorBox;
+
+    // Participation Form Fields
+    @FXML private Label eventIdLabel;
+    @FXML private TextField userIdField;
+    @FXML private DatePicker partDatePicker;
+    @FXML private ComboBox<String> statutBox;
+    @FXML private TextField nomField;
+    @FXML private TextField prenomField;
+    @FXML private TextField emailField;
+    @FXML private TextField telephoneField;
+    @FXML private TextField placesField;
+
+    // Participation Table
+    @FXML private TableView<Participation> participationTable;
+    @FXML private TableColumn<Participation, Integer> colPartId;
+    @FXML private TableColumn<Participation, Integer> colEvent;
+    @FXML private TableColumn<Participation, String> colEventTitle;
+    @FXML private TableColumn<Participation, Date> colPartDate;
+    @FXML private TableColumn<Participation, String> colStatut;
+    @FXML private TableColumn<Participation, String> colNom;
+    @FXML private TableColumn<Participation, String> colPrenom;
+    @FXML private TableColumn<Participation, String> colEmail;
+    @FXML private TableColumn<Participation, Integer> colPlaces;
+    @FXML private TableColumn<Participation, Integer> colUserId;
+
+    // Search Components
+    @FXML private TextField searchField;
+    @FXML private TextField participationsSearchField;
+    @FXML private ComboBox<String> searchTypeBox;
+    @FXML private Label resultCountLabel;
+    @FXML private Label clientInfoLabel;
+
+    // Global Search
+    @FXML private TextField globalSearchField;
+
+    // ==================== SERVICES ====================
+
+    private final EventCRUD eventCRUD = new EventCRUD();
+    private final ParticipationCRUD participationCRUD = new ParticipationCRUD();
+    private int currentEventId = 0;
+    private String currentClientEmail = "";
+
+    // ==================== INITIALIZATION ====================
+
+    @Override
+    public void initialize(URL location, ResourceBundle resources) {
+        initializeEventSection();
+        initializeParticipationSection();
+    }
+
+    @FXML
+    public void initializeEventSection() {
+        // Initialize event table columns
+        if (colId != null) colId.setCellValueFactory(new PropertyValueFactory<>("idEvent"));
+        if (colTitle != null) colTitle.setCellValueFactory(new PropertyValueFactory<>("title"));
+        if (colLocation != null) colLocation.setCellValueFactory(new PropertyValueFactory<>("location"));
+
+        // Handle Date column
+        if (colDate != null) {
+            colDate.setCellValueFactory(cellData -> {
+                Date date = cellData.getValue().getDateEvent();
+                return new javafx.beans.property.SimpleStringProperty(
+                        date != null ? date.toString() : ""
+                );
+            });
+        }
+
+        // Handle Time column
+        if (colTime != null) {
+            colTime.setCellValueFactory(cellData -> {
+                Time time = cellData.getValue().getStartTime();
+                return new javafx.beans.property.SimpleStringProperty(
+                        time != null ? time.toString().substring(0, 5) : ""
+                );
+            });
+        }
+
+        if (colCapacity != null) colCapacity.setCellValueFactory(new PropertyValueFactory<>("capacity"));
+        if (colSeason != null) colSeason.setCellValueFactory(new PropertyValueFactory<>("season"));
+        if (colStatus != null) colStatus.setCellValueFactory(new PropertyValueFactory<>("status"));
+
+        // Initialize combo boxes
+        if (eventTypeBox != null) eventTypeBox.getItems().addAll("Cultural", "Sport", "Music", "Business");
+        if (seasonBox != null) seasonBox.getItems().addAll("Winter", "Spring", "Summer", "Autumn");
+
+        // Load events
+        loadEvents();
+
+        // Add table selection listener
+        if (eventTable != null) {
+            eventTable.getSelectionModel().selectedItemProperty().addListener(
+                    (obs, oldVal, newVal) -> {
+                        if (newVal != null) {
+                            fillEventFields(newVal);
+                            if (selectedEventLabel != null) {
+                                selectedEventLabel.setText("Sélectionné: " + newVal.getTitle());
+                            }
+                        }
+                    }
+            );
+        }
+
+        // Initialize event selector if it exists
+        if (eventSelectorBox != null) {
+            loadEventSelector();
+        }
+    }
+
+    @FXML
+    public void initializeParticipationSection() {
+        // Initialize participation table columns
+        if (colPartId != null) colPartId.setCellValueFactory(new PropertyValueFactory<>("idParticipation"));
+        if (colEvent != null) colEvent.setCellValueFactory(new PropertyValueFactory<>("idEvent"));
+        if (colEventTitle != null) colEventTitle.setCellValueFactory(new PropertyValueFactory<>("eventTitle"));
+
+        // Fix for Date column
+        if (colPartDate != null) {
+            colPartDate.setCellValueFactory(new PropertyValueFactory<>("dateParticipation"));
+            colPartDate.setCellFactory(column -> new TableCell<Participation, Date>() {
+                @Override
+                protected void updateItem(Date date, boolean empty) {
+                    super.updateItem(date, empty);
+                    if (empty || date == null) {
+                        setText(null);
+                    } else {
+                        setText(date.toString());
+                    }
+                }
+            });
+        }
+
+        // For String columns
+        if (colStatut != null) colStatut.setCellValueFactory(new PropertyValueFactory<>("statut"));
+        if (colNom != null) colNom.setCellValueFactory(new PropertyValueFactory<>("nomParticipant"));
+        if (colPrenom != null) colPrenom.setCellValueFactory(new PropertyValueFactory<>("prenomParticipant"));
+        if (colEmail != null) colEmail.setCellValueFactory(new PropertyValueFactory<>("emailParticipant"));
+
+        // For Integer columns
+        if (colPlaces != null) colPlaces.setCellValueFactory(new PropertyValueFactory<>("nombrePlaces"));
+        if (colUserId != null) colUserId.setCellValueFactory(new PropertyValueFactory<>("idUser"));
+
+        // Initialize combo boxes
+        if (statutBox != null) statutBox.getItems().addAll("Confirmé", "En attente", "Annulé");
+
+        // Initialize search
+        if (searchTypeBox != null) {
+            searchTypeBox.getItems().addAll("Par Email", "Par Nom", "Toutes");
+            searchTypeBox.setValue("Par Email");
+        }
+
+        // Set default values
+        if (partDatePicker != null) partDatePicker.setValue(LocalDate.now());
+        if (userIdField != null) userIdField.setText("1");
+
+        // Add table selection listener
+        if (participationTable != null) {
+            participationTable.getSelectionModel().selectedItemProperty().addListener(
+                    (obs, oldSelection, newSelection) -> {
+                        if (newSelection != null) fillParticipationFields(newSelection);
+                    }
+            );
+        }
+
+        // Load participations
+        loadAllParticipations();
+    }
+
     // ==================== NAVIGATION METHODS ====================
 
     @FXML
@@ -120,81 +319,7 @@ public class EventController implements Initializable {
         new Alert(Alert.AlertType.INFORMATION, "Deal reserved!").show();
     }
 
-    // ==================== EVENT MANAGEMENT ====================
-
-    // Event Form Fields
-    @FXML private TextField titleField;
-    @FXML private TextArea descriptionArea;
-    @FXML private TextField locationField;
-    @FXML private DatePicker datePicker;
-    @FXML private TextField timeField;
-    @FXML private TextField capacityField;
-    @FXML private TextField statusField;
-    @FXML private TextField imageField;
-    @FXML private ComboBox<String> seasonBox;
-    @FXML private ComboBox<String> eventTypeBox;
-
-    // Event Table
-    @FXML private TableView<Event> eventTable;
-    @FXML private TableColumn<Event, Integer> colId;
-    @FXML private TableColumn<Event, String> colTitle;
-    @FXML private TableColumn<Event, String> colLocation;
-    @FXML private TableColumn<Event, String> colDate;
-    @FXML private TableColumn<Event, String> colTime;
-    @FXML private TableColumn<Event, Integer> colCapacity;
-    @FXML private TableColumn<Event, String> colSeason;
-    @FXML private TableColumn<Event, String> colStatus;
-
-    private final EventCRUD eventCRUD = new EventCRUD();
-    private int currentEventId = 0;
-
-    @FXML
-    public void initializeEventSection() {
-        // Initialize event table columns with String converters for Date and Time
-        if (colId != null) colId.setCellValueFactory(new PropertyValueFactory<>("idEvent"));
-        if (colTitle != null) colTitle.setCellValueFactory(new PropertyValueFactory<>("title"));
-        if (colLocation != null) colLocation.setCellValueFactory(new PropertyValueFactory<>("location"));
-
-        // Handle Date column
-        if (colDate != null) {
-            colDate.setCellValueFactory(cellData -> {
-                Date date = cellData.getValue().getDateEvent();
-                return new javafx.beans.property.SimpleStringProperty(
-                        date != null ? date.toString() : ""
-                );
-            });
-        }
-
-        // Handle Time column
-        if (colTime != null) {
-            colTime.setCellValueFactory(cellData -> {
-                Time time = cellData.getValue().getStartTime();
-                return new javafx.beans.property.SimpleStringProperty(
-                        time != null ? time.toString().substring(0, 5) : ""
-                );
-            });
-        }
-
-        if (colCapacity != null) colCapacity.setCellValueFactory(new PropertyValueFactory<>("capacity"));
-        if (colSeason != null) colSeason.setCellValueFactory(new PropertyValueFactory<>("season"));
-        if (colStatus != null) colStatus.setCellValueFactory(new PropertyValueFactory<>("status"));
-
-        // Initialize combo boxes
-        if (eventTypeBox != null) eventTypeBox.getItems().addAll("Cultural", "Sport", "Music", "Business");
-        if (seasonBox != null) seasonBox.getItems().addAll("Winter", "Spring", "Summer", "Autumn");
-
-        // Load events
-        loadEvents();
-
-        // Add table selection listener
-        if (eventTable != null) {
-            eventTable.getSelectionModel().selectedItemProperty().addListener(
-                    (obs, oldVal, newVal) -> {
-                        if (newVal != null) fillEventFields(newVal);
-                    }
-            );
-        }
-    }
+    // ==================== EVENT CRUD METHODS ====================
 
     @FXML
     private void addEvent() {
@@ -206,6 +331,7 @@ public class EventController implements Initializable {
 
             loadEvents();
             clearEventFields();
+            loadEventSelector(); // Refresh event selector
             showInfo("Event added successfully ");
 
         } catch (NumberFormatException ex) {
@@ -232,6 +358,7 @@ public class EventController implements Initializable {
             eventCRUD.modifier(e);
             loadEvents();
             clearEventFields();
+            loadEventSelector(); // Refresh event selector
             showInfo("Event modified successfully ");
 
         } catch (Exception ex) {
@@ -251,6 +378,7 @@ public class EventController implements Initializable {
             eventCRUD.supprimer(selected.getIdEvent());
             loadEvents();
             clearEventFields();
+            loadEventSelector(); // Refresh event selector
             showInfo("Event deleted successfully ");
         }
     }
@@ -269,7 +397,7 @@ public class EventController implements Initializable {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/ParticipationForm.fxml"));
             Parent root = loader.load();
 
-            // Get the controller (which is also EventController)
+            // Get the controller and set the event ID
             EventController controller = loader.getController();
             controller.setEventId(selectedEvent.getIdEvent());
 
@@ -282,6 +410,48 @@ public class EventController implements Initializable {
         } catch (Exception e) {
             e.printStackTrace();
             showAlert("Error opening participation form: " + e.getMessage());
+        }
+    }
+
+    @FXML
+    private void openParticipationForSelectedEvent() {
+        Event selectedEvent = eventTable.getSelectionModel().getSelectedItem();
+        if (selectedEvent == null) {
+            showAlert("Veuillez sélectionner un événement d'abord ⚠");
+            return;
+        }
+
+        // Aller à l'onglet Participation
+        if (tabPane != null) {
+            tabPane.getSelectionModel().select(2);
+            setEventId(selectedEvent.getIdEvent());
+        } else {
+            // Si tabPane n'existe pas, utiliser l'ancienne méthode avec gestion d'erreur
+            try {
+                String fxmlPath = "/ParticipationForm.fxml";
+                java.net.URL url = getClass().getResource(fxmlPath);
+                if (url == null) {
+                    // Essayer sans le /
+                    url = getClass().getResource("ParticipationForm.fxml");
+                }
+                if (url == null) {
+                    showAlert("Fichier ParticipationForm.fxml introuvable. Vérifiez le chemin.");
+                    return;
+                }
+
+                FXMLLoader loader = new FXMLLoader(url);
+                Parent root = loader.load();
+                EventController controller = loader.getController();
+                controller.setEventId(selectedEvent.getIdEvent());
+
+                Stage stage = new Stage();
+                stage.setTitle("Participation - Event #" + selectedEvent.getIdEvent());
+                stage.setScene(new Scene(root));
+                stage.show();
+            } catch (Exception e) {
+                e.printStackTrace();
+                showAlert("Erreur: " + e.getMessage());
+            }
         }
     }
 
@@ -374,116 +544,53 @@ public class EventController implements Initializable {
         if (statusField != null) statusField.clear();
         if (imageField != null) imageField.clear();
         if (eventTable != null) eventTable.getSelectionModel().clearSelection();
+        if (selectedEventLabel != null) selectedEventLabel.setText("Aucun événement sélectionné");
     }
 
     private void loadEvents() {
         if (eventTable != null) {
             List<Event> events = eventCRUD.afficher();
-            System.out.println(" Loading " + events.size() + " events");
+            System.out.println("Loading " + events.size() + " events");
             eventTable.setItems(FXCollections.observableArrayList(events));
         }
     }
 
-    // ==================== PARTICIPATION MANAGEMENT ====================
-
-    // Participation Form Fields
-    @FXML private Label eventIdLabel;
-    @FXML private TextField userIdField;
-    @FXML private DatePicker partDatePicker;
-    @FXML private ComboBox<String> statutBox;
-    @FXML private TextField nomField;
-    @FXML private TextField prenomField;
-    @FXML private TextField emailField;
-    @FXML private TextField telephoneField;
-    @FXML private TextField placesField;
-
-    // Participation Table
-    @FXML private TableView<Participation> participationTable;
-    @FXML private TableColumn<Participation, Integer> colPartId;
-    @FXML private TableColumn<Participation, Integer> colEvent;
-    @FXML private TableColumn<Participation, String> colEventTitle;
-    @FXML private TableColumn<Participation, Date> colPartDate;
-    @FXML private TableColumn<Participation, String> colStatut;
-    @FXML private TableColumn<Participation, String> colNom;
-    @FXML private TableColumn<Participation, String> colPrenom;
-    @FXML private TableColumn<Participation, String> colEmail;
-    @FXML private TableColumn<Participation, Integer> colPlaces;
-    @FXML private TableColumn<Participation, Integer> colUserId;
-
-    // Search Components
-    @FXML private TextField searchField;
-    @FXML private ComboBox<String> searchTypeBox;
-    @FXML private Label resultCountLabel;
-    @FXML private Label clientInfoLabel;
-
-    private final ParticipationCRUD participationCRUD = new ParticipationCRUD();
-    private String currentClientEmail = "";
-
-    @FXML
-    public void initializeParticipationSection() {
-        // Initialize participation table columns with proper type handling
-
-        // For ID columns - these work fine with PropertyValueFactory
-        if (colPartId != null) colPartId.setCellValueFactory(new PropertyValueFactory<>("idParticipation"));
-        if (colEvent != null) colEvent.setCellValueFactory(new PropertyValueFactory<>("idEvent"));
-        if (colEventTitle != null) colEventTitle.setCellValueFactory(new PropertyValueFactory<>("eventTitle"));
-
-        // Fix for Date column
-        if (colPartDate != null) {
-            colPartDate.setCellValueFactory(new PropertyValueFactory<>("dateParticipation"));
-            colPartDate.setCellFactory(column -> new TableCell<Participation, Date>() {
+    private void loadEventSelector() {
+        if (eventSelectorBox != null) {
+            List<Event> events = eventCRUD.afficher();
+            eventSelectorBox.setItems(FXCollections.observableArrayList(events));
+            // Configure how events are displayed in the combobox
+            eventSelectorBox.setCellFactory(param -> new ListCell<Event>() {
                 @Override
-                protected void updateItem(Date date, boolean empty) {
-                    super.updateItem(date, empty);
-                    if (empty || date == null) {
+                protected void updateItem(Event event, boolean empty) {
+                    super.updateItem(event, empty);
+                    if (empty || event == null) {
                         setText(null);
                     } else {
-                        setText(date.toString());
+                        setText(event.getIdEvent() + " - " + event.getTitle());
+                    }
+                }
+            });
+            eventSelectorBox.setButtonCell(new ListCell<Event>() {
+                @Override
+                protected void updateItem(Event event, boolean empty) {
+                    super.updateItem(event, empty);
+                    if (empty || event == null) {
+                        setText(null);
+                    } else {
+                        setText(event.getIdEvent() + " - " + event.getTitle());
                     }
                 }
             });
         }
-
-        // For String columns
-        if (colStatut != null) colStatut.setCellValueFactory(new PropertyValueFactory<>("statut"));
-        if (colNom != null) colNom.setCellValueFactory(new PropertyValueFactory<>("nomParticipant"));
-        if (colPrenom != null) colPrenom.setCellValueFactory(new PropertyValueFactory<>("prenomParticipant"));
-        if (colEmail != null) colEmail.setCellValueFactory(new PropertyValueFactory<>("emailParticipant"));
-
-        // For Integer columns
-        if (colPlaces != null) colPlaces.setCellValueFactory(new PropertyValueFactory<>("nombrePlaces"));
-        if (colUserId != null) colUserId.setCellValueFactory(new PropertyValueFactory<>("idUser"));
-
-        // Initialize combo boxes
-        if (statutBox != null) statutBox.getItems().addAll("Confirmé", "En attente", "Annulé");
-
-        // Initialize search
-        if (searchTypeBox != null) {
-            searchTypeBox.getItems().addAll("Par Email", "Par Nom", "Toutes");
-            searchTypeBox.setValue("Par Email");
-        }
-
-        // Set default values
-        if (partDatePicker != null) partDatePicker.setValue(LocalDate.now());
-        if (userIdField != null) userIdField.setText("1");
-
-        // Add table selection listener
-        if (participationTable != null) {
-            participationTable.getSelectionModel().selectedItemProperty().addListener(
-                    (obs, oldSelection, newSelection) -> {
-                        if (newSelection != null) fillParticipationFields(newSelection);
-                    }
-            );
-        }
-
-        // Load participations
-        loadAllParticipations();
     }
+
+    // ==================== PARTICIPATION METHODS ====================
 
     public void setEventId(int eventId) {
         this.currentEventId = eventId;
         if (eventIdLabel != null) {
-            eventIdLabel.setText(" Participation à l'événement #" + eventId);
+            eventIdLabel.setText("Participation à l'événement #" + eventId);
         }
         loadParticipationsForEvent();
     }
@@ -518,12 +625,12 @@ public class EventController implements Initializable {
 
             refreshParticipations();
             clearParticipationFields();
-            showInfo(" Participation ajoutée avec succès");
+            showInfo("Participation ajoutée avec succès");
 
         } catch (NumberFormatException e) {
-            showAlert(" L'ID utilisateur et le nombre de places doivent être des nombres valides");
+            showAlert("L'ID utilisateur et le nombre de places doivent être des nombres valides");
         } catch (Exception e) {
-            showAlert(" Erreur: " + e.getMessage());
+            showAlert("Erreur: " + e.getMessage());
         }
     }
 
@@ -553,7 +660,7 @@ public class EventController implements Initializable {
 
             refreshParticipations();
             clearParticipationFields();
-            showInfo(" Participation modifiée avec succès");
+            showInfo("Participation modifiée avec succès");
 
         } catch (NumberFormatException e) {
             showAlert("L'ID utilisateur et le nombre de places doivent être des nombres valides");
@@ -573,7 +680,7 @@ public class EventController implements Initializable {
             participationCRUD.supprimer(selected.getIdParticipation());
             refreshParticipations();
             clearParticipationFields();
-            showInfo(" Participation supprimée avec succès");
+            showInfo("Participation supprimée avec succès");
         }
     }
 
@@ -617,6 +724,17 @@ public class EventController implements Initializable {
         alert.showAndWait();
     }
 
+    @FXML
+    private void loadParticipationsForSelectedEvent() {
+        Event selectedEvent = eventSelectorBox.getValue();
+        if (selectedEvent == null) {
+            showAlert("Veuillez sélectionner un événement");
+            return;
+        }
+
+        setEventId(selectedEvent.getIdEvent());
+    }
+
     private Participation buildParticipationFromForm() {
         Participation p = new Participation();
         p.setIdEvent(currentEventId);
@@ -633,54 +751,54 @@ public class EventController implements Initializable {
 
     private boolean validateParticipationInputs() {
         if (partDatePicker.getValue() == null) {
-            showAlert(" Veuillez sélectionner une date");
+            showAlert("Veuillez sélectionner une date");
             return false;
         }
 
         if (statutBox.getValue() == null) {
-            showAlert(" Veuillez sélectionner un statut");
+            showAlert("Veuillez sélectionner un statut");
             return false;
         }
 
         try {
             int userId = Integer.parseInt(userIdField.getText().trim());
             if (userId <= 0) {
-                showAlert(" L'ID utilisateur doit être un nombre positif");
+                showAlert("L'ID utilisateur doit être un nombre positif");
                 return false;
             }
         } catch (NumberFormatException e) {
-            showAlert(" L'ID utilisateur doit être un nombre valide");
+            showAlert("L'ID utilisateur doit être un nombre valide");
             return false;
         }
 
         if (prenomField.getText().trim().isEmpty()) {
-            showAlert(" Le prénom est requis");
+            showAlert("Le prénom est requis");
             return false;
         }
 
         if (nomField.getText().trim().isEmpty()) {
-            showAlert(" Le nom est requis");
+            showAlert("Le nom est requis");
             return false;
         }
 
         if (emailField.getText().trim().isEmpty()) {
-            showAlert(" L'email est requis");
+            showAlert("L'email est requis");
             return false;
         }
 
         if (!emailField.getText().trim().matches("^[A-Za-z0-9+_.-]+@(.+)$")) {
-            showAlert(" Veuillez entrer un email valide");
+            showAlert("Veuillez entrer un email valide");
             return false;
         }
 
         try {
             int places = Integer.parseInt(placesField.getText().trim());
             if (places <= 0) {
-                showAlert(" Le nombre de places doit être supérieur à 0");
+                showAlert("Le nombre de places doit être supérieur à 0");
                 return false;
             }
         } catch (NumberFormatException e) {
-            showAlert(" Le nombre de places doit être un nombre valide");
+            showAlert("Le nombre de places doit être un nombre valide");
             return false;
         }
 
@@ -711,9 +829,13 @@ public class EventController implements Initializable {
         if (participationTable != null) participationTable.getSelectionModel().clearSelection();
     }
 
+    // ==================== SEARCH METHODS ====================
+
     @FXML
     private void onSearch() {
-        String searchTerm = searchField.getText().trim();
+        String searchTerm = participationsSearchField != null ?
+                participationsSearchField.getText().trim() :
+                searchField.getText().trim();
         String searchType = searchTypeBox.getValue();
 
         if (searchTerm.isEmpty()) {
@@ -748,7 +870,12 @@ public class EventController implements Initializable {
 
     @FXML
     private void onClearSearch() {
-        searchField.clear();
+        if (participationsSearchField != null) {
+            participationsSearchField.clear();
+        } else {
+            searchField.clear();
+        }
+
         if (!currentClientEmail.isEmpty()) {
             loadParticipationsByEmail(currentClientEmail);
         } else {
@@ -759,7 +886,7 @@ public class EventController implements Initializable {
     @FXML
     private void onRefresh() {
         onClearSearch();
-        showInfo(" Données actualisées");
+        showInfo("Données actualisées");
     }
 
     private void loadParticipationsByEmail(String email) {
@@ -796,12 +923,9 @@ public class EventController implements Initializable {
 
     private void loadParticipationsForEvent() {
         if (participationTable != null && currentEventId > 0) {
-            participationTable.setItems(
-                    FXCollections.observableArrayList(
-                            participationCRUD.afficherParEvent(currentEventId)
-                    )
-            );
-            updateResultCount(participationTable.getItems().size());
+            List<Participation> participations = participationCRUD.afficherParEvent(currentEventId);
+            participationTable.setItems(FXCollections.observableArrayList(participations));
+            updateResultCount(participations.size());
         }
     }
 
@@ -822,12 +946,6 @@ public class EventController implements Initializable {
     }
 
     // ==================== UTILITY METHODS ====================
-
-    @Override
-    public void initialize(URL location, ResourceBundle resources) {
-        initializeEventSection();
-        initializeParticipationSection();
-    }
 
     private void showAlert(String msg) {
         Alert alert = new Alert(Alert.AlertType.ERROR, msg);

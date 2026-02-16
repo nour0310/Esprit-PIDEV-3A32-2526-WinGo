@@ -19,7 +19,7 @@ public class Dashboard {
     private void goAjouter() {
 
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/EventAdd.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/Event.fxml"));
             Parent root = loader.load();
 
             Stage stage = new Stage();

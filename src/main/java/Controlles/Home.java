@@ -11,7 +11,7 @@ public class Home extends Application {
     public void start(Stage stage) throws Exception {
 
         FXMLLoader loader = new FXMLLoader(
-                getClass().getResource("/HomeTravel.fxml")
+                getClass().getResource("/Event.fxml")
         );
 
         stage.setScene(new Scene(loader.load()));

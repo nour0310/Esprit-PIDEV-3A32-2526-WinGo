@@ -6,40 +6,39 @@
 <?import javafx.scene.image.Image?>
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.*?>
+<?import javafx.scene.shape.Rectangle?>
 
-<StackPane prefHeight="720" prefWidth="1280"
-           xmlns="http://javafx.com/javafx/21"
+<StackPane prefHeight="720" prefWidth="1200"
+           xmlns="http://javafx.com/javafx/17"
            xmlns:fx="http://javafx.com/fxml/1"
            fx:controller="Controlles.EventController">
 
     <!-- BACKGROUND -->
     <Pane mouseTransparent="true"
-          style="-fx-background-image: url('/assets/testt.png');
+          style="-fx-background-image: url('/assets/amaan.jpg');
                  -fx-background-repeat: no-repeat;
                  -fx-background-position: center center;
                  -fx-background-size: cover;" />
 
     <!-- SOFT OVERLAY -->
     <Pane mouseTransparent="true"
-          style="-fx-background-color: rgba(0,0,0,0.18);" />
+          style="-fx-background-color: rgba(0,0,0,0.25);" />
 
     <!-- MAIN GLASS CONTAINER -->
-    <BorderPane maxWidth="1220" maxHeight="700"
+    <BorderPane maxWidth="1100" maxHeight="650"
                 style="-fx-background-color: rgba(0,0,0,0.22);
                        -fx-background-radius: 26;
                        -fx-border-color: rgba(255,255,255,0.16);
                        -fx-border-radius: 26;
                        -fx-border-width: 1.2;">
-
         <effect>
-            <DropShadow color="#00000066" offsetY="14" radius="28"/>
+            <DropShadow color="#00000066" offsetY="14" radius="28" />
         </effect>
-
         <padding>
-            <Insets top="12" right="12" bottom="12" left="12"/>
+            <Insets top="12" right="12" bottom="12" left="12" />
         </padding>
 
-        <!-- ================= TOP BAR ================= -->
+        <!-- ================= TOP BAR (Amélioré) ================= -->
         <top>
             <HBox alignment="CENTER_LEFT" spacing="14"
                   style="-fx-background-color: rgba(0,0,0,0.22);
@@ -47,103 +46,166 @@
                          -fx-border-color: rgba(255,255,255,0.14);
                          -fx-border-width: 0 0 1 0;">
                 <padding>
-                    <Insets top="18" bottom="18" left="18" right="18"/>
+                    <Insets top="18" right="18" bottom="18" left="18" />
                 </padding>
 
                 <!-- Logo + Title -->
-                <HBox alignment="CENTER_LEFT" spacing="8">
-                    <ImageView fitHeight="35" fitWidth="35" preserveRatio="true">
-                        <Image url="/assets/logo.png" />
+                <HBox spacing="12" alignment="CENTER_LEFT">
+                    <ImageView fitHeight="40" fitWidth="40" preserveRatio="true">
+                        <Image url="assets/logo.png" />
                     </ImageView>
-                    <VBox spacing="2">
-                        <Label text="WinGo Travel"
-                               style="-fx-text-fill: white;
-                                      -fx-font-size: 18px;
-                                      -fx-font-weight: 900;"/>
-                        <Label text="Events &amp; Travel"
-                               style="-fx-text-fill: rgba(255,189,0,0.90);
-                                      -fx-font-size: 10px;
-                                      -fx-font-weight: 700;"/>
-                    </VBox>
+                    <Label text="WinGo Travel"
+                           style="-fx-text-fill: white; -fx-font-size: 18px; -fx-font-weight: 900;" />
                 </HBox>
 
-                <Region HBox.hgrow="ALWAYS"/>
+                <Region HBox.hgrow="ALWAYS" />
 
                 <!-- Navigation Icons -->
-                <HBox spacing="6" alignment="CENTER">
-                    <Button text="🏠"
-                            style="-fx-background-color: transparent;
-                                   -fx-text-fill: white;
-                                   -fx-font-size: 18px;
-                                   -fx-cursor: hand;
-                                   -fx-padding: 6 10;"/>
+                <HBox spacing="10" alignment="CENTER"
+                      style="-fx-background-color: rgba(0,0,0,0.28);
+                             -fx-background-radius: 999;
+                             -fx-padding: 6 10;
+                             -fx-border-color: rgba(255,255,255,0.22);
+                             -fx-border-radius: 999;">
+                    <Button text="🏠" onAction="#goToHome"
+                            style="-fx-background-color: rgba(255,189,0,0.28);
+                                   -fx-text-fill: #FFBD00;
+                                   -fx-font-size: 14px;
+                                   -fx-background-radius: 999;
+                                   -fx-padding: 6 10;
+                                   -fx-cursor: hand;"/>
                     <Button text="👤"
                             style="-fx-background-color: transparent;
-                                   -fx-text-fill: white;
-                                   -fx-font-size: 18px;
-                                   -fx-cursor: hand;
-                                   -fx-padding: 6 10;"/>
+                                   -fx-text-fill: rgba(255,255,255,0.92);
+                                   -fx-font-size: 14px;
+                                   -fx-background-radius: 999;
+                                   -fx-padding: 6 10;
+                                   -fx-cursor: hand;"/>
                     <Button text="🔔"
                             style="-fx-background-color: transparent;
-                                   -fx-text-fill: white;
-                                   -fx-font-size: 18px;
-                                   -fx-cursor: hand;
-                                   -fx-padding: 6 10;"/>
+                                   -fx-text-fill: rgba(255,255,255,0.92);
+                                   -fx-font-size: 14px;
+                                   -fx-background-radius: 999;
+                                   -fx-padding: 6 10;
+                                   -fx-cursor: hand;"/>
                     <Button text="⚙️"
                             style="-fx-background-color: transparent;
-                                   -fx-text-fill: white;
-                                   -fx-font-size: 18px;
-                                   -fx-cursor: hand;
-                                   -fx-padding: 6 10;"/>
+                                   -fx-text-fill: rgba(255,255,255,0.92);
+                                   -fx-font-size: 14px;
+                                   -fx-background-radius: 999;
+                                   -fx-padding: 6 10;
+                                   -fx-cursor: hand;"/>
                 </HBox>
 
-                <!-- Search and Actions -->
-                <HBox spacing="10" alignment="CENTER">
-                    <HBox alignment="CENTER_LEFT" spacing="10"
-                          style="-fx-background-color: rgba(0,0,0,0.28);
-                                 -fx-background-radius: 999;
-                                 -fx-padding: 8 14;
-                                 -fx-border-color: rgba(255,255,255,0.22);
-                                 -fx-border-radius: 999;">
-                        <Label text="🔍" style="-fx-text-fill: white; -fx-opacity: 0.95; -fx-font-size: 14px;"/>
-                        <TextField fx:id="globalSearchField"
-                                   promptText="Search product..."
-                                   style="-fx-background-color: transparent;
-                                          -fx-border-color: transparent;
-                                          -fx-text-fill: white;
-                                          -fx-prompt-text-fill: rgba(255,255,255,0.70);
-                                          -fx-pref-width: 200;"/>
-                    </HBox>
+                <Region HBox.hgrow="ALWAYS" />
 
-                    <Button text="Filter"
-                            style="-fx-background-color: rgba(255,255,255,0.10);
-                                   -fx-text-fill: white;
-                                   -fx-font-weight: 900;
-                                   -fx-background-radius: 999;
-                                   -fx-padding: 8 15;
-                                   -fx-cursor: hand;
-                                   -fx-border-color: rgba(255,255,255,0.18);
-                                   -fx-border-radius: 999;"/>
+                <!-- Search Bar -->
+                <HBox alignment="CENTER_LEFT" spacing="10"
+                      style="-fx-background-color: rgba(0,0,0,0.28);
+                             -fx-background-radius: 999;
+                             -fx-padding: 8 14;
+                             -fx-border-color: rgba(255,255,255,0.22);
+                             -fx-border-radius: 999;">
+                    <Label text="🔍" style="-fx-text-fill: white; -fx-opacity: 0.95; -fx-font-size: 14px;"/>
+                    <TextField fx:id="globalSearchField"
+                               promptText="Chercher événement..."
+                               style="-fx-background-color: transparent;
+                                      -fx-border-color: transparent;
+                                      -fx-text-fill: white;
+                                      -fx-prompt-text-fill: rgba(255,255,255,0.70);
+                                      -fx-pref-width: 200;" />
+                </HBox>
+
+                <!-- Filter Button -->
+                <HBox alignment="CENTER" spacing="6" onMouseClicked="#onFilter"
+                      style="-fx-background-color: rgba(255,189,0,0.18);
+                             -fx-background-radius: 999;
+                             -fx-padding: 8 14;
+                             -fx-border-color: rgba(255,189,0,0.35);
+                             -fx-border-radius: 999;
+                             -fx-cursor: hand;">
+                    <Label text="Filter" style="-fx-text-fill: #FFBD00; -fx-font-size: 12px; -fx-font-weight: 900;"/>
                 </HBox>
             </HBox>
         </top>
 
-        <!-- ================= CENTER CONTENT WITH TABS ================= -->
+        <!-- ================= LEFT NAV (Amélioré) ================= -->
+        <left>
+            <VBox prefWidth="86" spacing="14"
+                  style="-fx-background-color: rgba(0,0,0,0.22);
+                         -fx-background-radius: 18;
+                         -fx-border-color: rgba(255,255,255,0.14);
+                         -fx-border-radius: 18;">
+                <padding>
+                    <Insets top="18" right="12" bottom="18" left="12" />
+                </padding>
+
+                <!-- HOME -->
+                <Button text="🏠" onAction="#goToHome"
+                        style="-fx-background-color: rgba(255,189,0,0.28);
+                               -fx-text-fill: #FFBD00;
+                               -fx-font-size: 24px;
+                               -fx-font-weight: 900;
+                               -fx-background-radius: 14;
+                               -fx-padding: 12 12;
+                               -fx-cursor: hand;" />
+
+                <!-- EVENTS -->
+                <Button text="📅" onAction="#goToEvents"
+                        style="-fx-background-color: transparent;
+                               -fx-text-fill: rgba(255,255,255,0.92);
+                               -fx-font-size: 24px;
+                               -fx-background-radius: 14;
+                               -fx-padding: 12 12;
+                               -fx-cursor: hand;" />
+
+                <!-- PARTICIPATIONS -->
+                <Button text="👥" onAction="#goToParticipations"
+                        style="-fx-background-color: transparent;
+                               -fx-text-fill: rgba(255,255,255,0.92);
+                               -fx-font-size: 24px;
+                               -fx-background-radius: 14;
+                               -fx-padding: 12 12;
+                               -fx-cursor: hand;" />
+
+                <!-- MY PARTICIPATIONS -->
+                <Button text="📋" onAction="#goToMesParticipations"
+                        style="-fx-background-color: transparent;
+                               -fx-text-fill: rgba(255,255,255,0.92);
+                               -fx-font-size: 24px;
+                               -fx-background-radius: 14;
+                               -fx-padding: 12 12;
+                               -fx-cursor: hand;" />
+
+                <!-- LOGIN/ACCOUNT -->
+                <Button text="🔐"
+                        style="-fx-background-color: transparent;
+                               -fx-text-fill: rgba(255,255,255,0.92);
+                               -fx-font-size: 24px;
+                               -fx-background-radius: 14;
+                               -fx-padding: 12 12;
+                               -fx-cursor: hand;" />
+
+                <Region VBox.vgrow="ALWAYS" />
+                <Label text="© 2026" style="-fx-text-fill: rgba(255,255,255,0.62); -fx-font-size: 10px;" />
+            </VBox>
+        </left>
+
+        <!-- ================= CENTER CONTENT ================= -->
         <center>
             <StackPane style="-fx-background-color: rgba(0,0,0,0.22);
                               -fx-background-radius: 20;
                               -fx-border-color: rgba(255,255,255,0.22);
                               -fx-border-radius: 20;">
-
                 <padding>
-                    <Insets top="10" right="10" bottom="10" left="10"/>
+                    <Insets top="10" right="10" bottom="10" left="10" />
                 </padding>
-
                 <effect>
-                    <DropShadow color="#00000055" offsetY="10" radius="18"/>
+                    <DropShadow color="#00000055" offsetY="10" radius="18" />
                 </effect>
 
-                <TabPane tabClosingPolicy="UNAVAILABLE"
+                <!-- TabPane -->
+                <TabPane fx:id="tabPane" tabClosingPolicy="UNAVAILABLE"
                          style="-fx-background-color: transparent;
                                 -fx-tab-min-width: 150;">
 
@@ -151,56 +213,70 @@
                     <Tab text="🏠 Home">
                         <content>
                             <ScrollPane fitToWidth="true"
-                                        style="-fx-background-color: transparent;
-                                               -fx-background: transparent;"
+                                        style="-fx-background-color: transparent; -fx-background: transparent;"
                                         hbarPolicy="NEVER">
                                 <content>
-                                    <VBox spacing="25">
+                                    <VBox spacing="12">
                                         <padding>
-                                            <Insets top="25" right="25" bottom="25" left="25"/>
+                                            <Insets top="12" right="12" bottom="12" left="12" />
                                         </padding>
 
-                                        <!-- HERO SECTION -->
-                                        <VBox spacing="12" alignment="CENTER">
-                                            <Label text="Discover Tunisia Like Never Before ✨"
-                                                   style="-fx-text-fill: white;
-                                                          -fx-font-size: 24px;
-                                                          -fx-font-weight: 900;"/>
+                                        <!-- HERO SECTION (compacte) -->
+                                        <HBox spacing="12">
+                                            <VBox spacing="6" HBox.hgrow="ALWAYS"
+                                                  style="-fx-background-color: rgba(0,0,0,0.32);
+                                                         -fx-background-radius: 18;
+                                                         -fx-border-color: rgba(255,255,255,0.18);
+                                                         -fx-border-radius: 18;">
+                                                <padding>
+                                                    <Insets bottom="12" left="12" right="12" top="12" />
+                                                </padding>
 
-                                            <HBox spacing="20" alignment="CENTER">
-                                                <Button text="🔥 Deals"
-                                                        style="-fx-background-color: #ff9900;
-                                                               -fx-text-fill: white;
-                                                               -fx-background-radius: 999;
-                                                               -fx-padding: 10 25;
-                                                               -fx-font-weight: 900;
-                                                               -fx-cursor: hand;"/>
+                                                <Label text="Découvrez la Tunisie"
+                                                       style="-fx-text-fill: white; -fx-font-size: 20px; -fx-font-weight: 900;"/>
 
-                                                <Button text="🗺 Map"
-                                                        style="-fx-background-color: #3498db;
-                                                               -fx-text-fill: white;
-                                                               -fx-background-radius: 999;
-                                                               -fx-padding: 10 25;
-                                                               -fx-font-weight: 900;
-                                                               -fx-cursor: hand;"/>
+                                                <Label text="Explorez nos événements et participez aux meilleures expériences à travers la Tunisie."
+                                                       wrapText="true"
+                                                       style="-fx-text-fill: rgba(255,255,255,0.78); -fx-font-size: 11px; -fx-font-weight: 700;"/>
 
-                                                <Button text="✈ My Trips"
-                                                        style="-fx-background-color: #9b59b6;
-                                                               -fx-text-fill: white;
-                                                               -fx-background-radius: 999;
-                                                               -fx-padding: 10 25;
-                                                               -fx-font-weight: 900;
-                                                               -fx-cursor: hand;"/>
-                                            </HBox>
-                                        </VBox>
+                                                <HBox spacing="6">
+                                                    <Label text="🎫" style="-fx-font-size: 14px;" />
+                                                    <Label text="Événements et participations"
+                                                           style="-fx-text-fill: rgba(255,255,255,0.85); -fx-font-weight: 800;" />
+                                                </HBox>
+                                            </VBox>
 
-                                        <!-- SPECIAL DEAL CARD -->
+                                            <!-- STATS MINI CARD -->
+                                            <VBox prefWidth="200" spacing="6"
+                                                  style="-fx-background-color: rgba(0,0,0,0.30);
+                                                         -fx-background-radius: 18;
+                                                         -fx-border-color: rgba(255,255,255,0.18);
+                                                         -fx-border-radius: 18;">
+                                                <padding>
+                                                    <Insets bottom="10" left="10" right="10" top="10" />
+                                                </padding>
+
+                                                <Label text="Statistiques"
+                                                       style="-fx-text-fill: rgba(255,255,255,0.80); -fx-font-size: 12px; -fx-font-weight: 800;"/>
+                                                <Label text="🎫 Événements : "
+                                                       style="-fx-text-fill: #FFBD00; -fx-font-size: 16px; -fx-font-weight: 900;"/>
+                                                <Label fx:id="totalEventsLabel" text="0"
+                                                       style="-fx-text-fill: white; -fx-font-weight: 700;"/>
+                                                <Separator opacity="0.28" />
+                                                <Label text="👥 Participations : "
+                                                       style="-fx-text-fill: rgba(255,255,255,0.80); -fx-font-weight: 800;"/>
+                                                <Label fx:id="totalParticipationsLabel" text="0"
+                                                       style="-fx-text-fill: white; -fx-font-weight: 700;"/>
+                                            </VBox>
+                                        </HBox>
+
+                                        <!-- SPECIAL DEAL CARD améliorée -->
                                         <VBox spacing="10"
                                               style="-fx-background-color: rgba(0,0,0,0.28);
                                                      -fx-background-radius: 18;
                                                      -fx-border-color: #c49a6c;
                                                      -fx-border-radius: 18;
-                                                     -fx-padding: 20;">
+                                                     -fx-padding: 15;">
                                             <Label text="🔥 Special Deal"
                                                    style="-fx-text-fill: #FFBD00;
                                                           -fx-font-size: 18px;
@@ -209,26 +285,26 @@
                                                    style="-fx-text-fill: white;
                                                           -fx-font-size: 15px;
                                                           -fx-font-weight: 700;"/>
-                                            <Button text="Reserve Now"
+                                            <Button text="Reserve Now" onAction="#onReserveDeal"
                                                     style="-fx-background-color: #28a745;
                                                            -fx-text-fill: white;
-                                                           -fx-background-radius: 999;
+                                                           -fx-background-radius: 25;
                                                            -fx-padding: 10 25;
                                                            -fx-font-weight: 900;
                                                            -fx-cursor: hand;"/>
                                         </VBox>
 
-                                        <!-- POPULAR DESTINATIONS -->
-                                        <VBox spacing="15">
-                                            <Label text="❤️ Popular Destinations"
+                                        <!-- POPULAR DESTINATIONS améliorées -->
+                                        <VBox spacing="10">
+                                            <Label text="❤️ Destinations populaires"
                                                    style="-fx-text-fill: white;
                                                           -fx-font-size: 18px;
                                                           -fx-font-weight: 900;"/>
                                             <HBox spacing="20" alignment="CENTER">
-                                                <Button text="Sousse" style="-fx-background-color: rgba(0,0,0,0.4); -fx-text-fill: white; -fx-background-radius: 999; -fx-padding: 8 20; -fx-cursor: hand;"/>
-                                                <Button text="Tunis" style="-fx-background-color: rgba(0,0,0,0.4); -fx-text-fill: white; -fx-background-radius: 999; -fx-padding: 8 20; -fx-cursor: hand;"/>
-                                                <Button text="Tozeur" style="-fx-background-color: rgba(0,0,0,0.4); -fx-text-fill: white; -fx-background-radius: 999; -fx-padding: 8 20; -fx-cursor: hand;"/>
-                                                <Button text="Hammamet" style="-fx-background-color: rgba(0,0,0,0.4); -fx-text-fill: white; -fx-background-radius: 999; -fx-padding: 8 20; -fx-cursor: hand;"/>
+                                                <Button text="Sousse" style="-fx-background-color: rgba(0,0,0,0.4); -fx-text-fill: white; -fx-background-radius: 999; -fx-padding: 8 20; -fx-cursor: hand; -fx-border-color: rgba(255,255,255,0.2); -fx-border-radius: 999;"/>
+                                                <Button text="Tunis" style="-fx-background-color: rgba(0,0,0,0.4); -fx-text-fill: white; -fx-background-radius: 999; -fx-padding: 8 20; -fx-cursor: hand; -fx-border-color: rgba(255,255,255,0.2); -fx-border-radius: 999;"/>
+                                                <Button text="Tozeur" style="-fx-background-color: rgba(0,0,0,0.4); -fx-text-fill: white; -fx-background-radius: 999; -fx-padding: 8 20; -fx-cursor: hand; -fx-border-color: rgba(255,255,255,0.2); -fx-border-radius: 999;"/>
+                                                <Button text="Hammamet" style="-fx-background-color: rgba(0,0,0,0.4); -fx-text-fill: white; -fx-background-radius: 999; -fx-padding: 8 20; -fx-cursor: hand; -fx-border-color: rgba(255,255,255,0.2); -fx-border-radius: 999;"/>
                                             </HBox>
                                         </VBox>
                                     </VBox>
@@ -241,172 +317,251 @@
                     <Tab>
                         <graphic>
                             <HBox spacing="5" alignment="CENTER">
-                                <ImageView fitHeight="20" fitWidth="20" preserveRatio="true">
-                                    <Image url="/assets/logo.png" />
-                                </ImageView>
+                                <Label text="📅" style="-fx-text-fill: #FFBD00; -fx-font-size: 16px;"/>
                                 <Label text="Events" style="-fx-text-fill: white;"/>
                             </HBox>
                         </graphic>
                         <content>
                             <ScrollPane fitToWidth="true"
-                                        style="-fx-background-color: transparent;
-                                               -fx-background: transparent;"
+                                        style="-fx-background-color: transparent; -fx-background: transparent;"
                                         hbarPolicy="NEVER">
                                 <content>
-                                    <VBox spacing="20">
+                                    <VBox spacing="12">
                                         <padding>
-                                            <Insets top="20" right="20" bottom="20" left="20"/>
+                                            <Insets top="12" right="12" bottom="12" left="12" />
                                         </padding>
 
-                                        <Label text="📋 Create / Manage Events"
-                                               style="-fx-text-fill: white;
-                                                      -fx-font-size: 24px;
-                                                      -fx-font-weight: 900;"/>
-
-                                        <!-- EVENT FORM -->
-                                        <GridPane hgap="20" vgap="15">
-                                            <columnConstraints>
-                                                <ColumnConstraints percentWidth="30"/>
-                                                <ColumnConstraints percentWidth="70"/>
-                                            </columnConstraints>
-
-                                            <Label text="Title *" style="-fx-text-fill: rgba(255,255,255,0.85); -fx-font-weight: 800; -fx-font-size: 12px;" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
-                                            <TextField fx:id="titleField" GridPane.columnIndex="1" GridPane.rowIndex="0"
-                                                       style="-fx-background-color: rgba(255,255,255,0.10);
-                                                              -fx-background-radius: 12;
-                                                              -fx-border-color: rgba(255,255,255,0.18);
-                                                              -fx-border-radius: 12;
-                                                              -fx-text-fill: white;
-                                                              -fx-padding: 12 14;"/>
-
-                                            <Label text="Description" style="-fx-text-fill: rgba(255,255,255,0.85); -fx-font-weight: 800; -fx-font-size: 12px;" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
-                                            <TextArea fx:id="descriptionArea" prefRowCount="3" GridPane.columnIndex="1" GridPane.rowIndex="1"
-                                                      style="-fx-background-color: rgba(255,255,255,0.10);
-                                                             -fx-background-radius: 12;
-                                                             -fx-border-color: rgba(255,255,255,0.18);
-                                                             -fx-border-radius: 12;
-                                                             -fx-text-fill: white;
-                                                             -fx-padding: 12 14;"/>
-
-                                            <Label text="Location" style="-fx-text-fill: rgba(255,255,255,0.85); -fx-font-weight: 800; -fx-font-size: 12px;" GridPane.rowIndex="2" GridPane.columnIndex="0"/>
-                                            <TextField fx:id="locationField" GridPane.columnIndex="1" GridPane.rowIndex="2"
-                                                       style="-fx-background-color: rgba(255,255,255,0.10);
-                                                              -fx-background-radius: 12;
-                                                              -fx-border-color: rgba(255,255,255,0.18);
-                                                              -fx-border-radius: 12;
-                                                              -fx-text-fill: white;
-                                                              -fx-padding: 12 14;"/>
-
-                                            <Label text="Date" style="-fx-text-fill: rgba(255,255,255,0.85); -fx-font-weight: 800; -fx-font-size: 12px;" GridPane.rowIndex="3" GridPane.columnIndex="0"/>
-                                            <DatePicker fx:id="datePicker" GridPane.columnIndex="1" GridPane.rowIndex="3"
-                                                        style="-fx-background-color: rgba(255,255,255,0.10);
-                                                               -fx-background-radius: 12;
-                                                               -fx-border-color: rgba(255,255,255,0.18);
-                                                               -fx-border-radius: 12;
-                                                               -fx-text-fill: white;"/>
-
-                                            <Label text="Time (HH:mm)" style="-fx-text-fill: rgba(255,255,255,0.85); -fx-font-weight: 800; -fx-font-size: 12px;" GridPane.rowIndex="4" GridPane.columnIndex="0"/>
-                                            <TextField fx:id="timeField" GridPane.columnIndex="1" GridPane.rowIndex="4"
-                                                       style="-fx-background-color: rgba(255,255,255,0.10);
-                                                              -fx-background-radius: 12;
-                                                              -fx-border-color: rgba(255,255,255,0.18);
-                                                              -fx-border-radius: 12;
-                                                              -fx-text-fill: white;
-                                                              -fx-padding: 12 14;"/>
-
-                                            <Label text="Capacity" style="-fx-text-fill: rgba(255,255,255,0.85); -fx-font-weight: 800; -fx-font-size: 12px;" GridPane.rowIndex="5" GridPane.columnIndex="0"/>
-                                            <TextField fx:id="capacityField" GridPane.columnIndex="1" GridPane.rowIndex="5"
-                                                       style="-fx-background-color: rgba(255,255,255,0.10);
-                                                              -fx-background-radius: 12;
-                                                              -fx-border-color: rgba(255,255,255,0.18);
-                                                              -fx-border-radius: 12;
-                                                              -fx-text-fill: white;
-                                                              -fx-padding: 12 14;"/>
-
-                                            <Label text="Event Type" style="-fx-text-fill: rgba(255,255,255,0.85); -fx-font-weight: 800; -fx-font-size: 12px;" GridPane.rowIndex="6" GridPane.columnIndex="0"/>
-                                            <ComboBox fx:id="eventTypeBox" GridPane.columnIndex="1" GridPane.rowIndex="6"
-                                                      style="-fx-background-color: rgba(255,255,255,0.10);
-                                                             -fx-background-radius: 12;
-                                                             -fx-border-color: rgba(255,255,255,0.18);
-                                                             -fx-border-radius: 12;
-                                                             -fx-text-fill: white;"/>
-
-                                            <Label text="Season" style="-fx-text-fill: rgba(255,255,255,0.85); -fx-font-weight: 800; -fx-font-size: 12px;" GridPane.rowIndex="7" GridPane.columnIndex="0"/>
-                                            <ComboBox fx:id="seasonBox" GridPane.columnIndex="1" GridPane.rowIndex="7"
-                                                      style="-fx-background-color: rgba(255,255,255,0.10);
-                                                             -fx-background-radius: 12;
-                                                             -fx-border-color: rgba(255,255,255,0.18);
-                                                             -fx-border-radius: 12;
-                                                             -fx-text-fill: white;"/>
-
-                                            <Label text="Status" style="-fx-text-fill: rgba(255,255,255,0.85); -fx-font-weight: 800; -fx-font-size: 12px;" GridPane.rowIndex="8" GridPane.columnIndex="0"/>
-                                            <TextField fx:id="statusField" GridPane.columnIndex="1" GridPane.rowIndex="8"
-                                                       style="-fx-background-color: rgba(255,255,255,0.10);
-                                                              -fx-background-radius: 12;
-                                                              -fx-border-color: rgba(255,255,255,0.18);
-                                                              -fx-border-radius: 12;
-                                                              -fx-text-fill: white;
-                                                              -fx-padding: 12 14;"/>
-
-                                            <Label text="Image Path" style="-fx-text-fill: rgba(255,255,255,0.85); -fx-font-weight: 800; -fx-font-size: 12px;" GridPane.rowIndex="9" GridPane.columnIndex="0"/>
-                                            <TextField fx:id="imageField" GridPane.columnIndex="1" GridPane.rowIndex="9"
-                                                       style="-fx-background-color: rgba(255,255,255,0.10);
-                                                              -fx-background-radius: 12;
-                                                              -fx-border-color: rgba(255,255,255,0.18);
-                                                              -fx-border-radius: 12;
-                                                              -fx-text-fill: white;
-                                                              -fx-padding: 12 14;"/>
-
-                                            <rowConstraints>
-                                                <RowConstraints minHeight="40"/><RowConstraints minHeight="40"/><RowConstraints minHeight="40"/>
-                                                <RowConstraints minHeight="40"/><RowConstraints minHeight="40"/><RowConstraints minHeight="40"/>
-                                                <RowConstraints minHeight="40"/><RowConstraints minHeight="40"/><RowConstraints minHeight="40"/>
-                                                <RowConstraints minHeight="40"/>
-                                            </rowConstraints>
-                                        </GridPane>
-
-                                        <!-- EVENT BUTTONS -->
-                                        <HBox alignment="CENTER" spacing="15">
-                                            <Button onAction="#addEvent" text="➕ Add Event"
-                                                    style="-fx-background-color: #28a745;
-                                                           -fx-text-fill: white;
-                                                           -fx-background-radius: 999;
-                                                           -fx-padding: 12 25;
-                                                           -fx-font-weight: 900;
-                                                           -fx-cursor: hand;"/>
-                                            <Button onAction="#updateEvent" text="✏ Modify"
-                                                    style="-fx-background-color: #FFBD00;
-                                                           -fx-text-fill: black;
-                                                           -fx-background-radius: 999;
-                                                           -fx-padding: 12 25;
-                                                           -fx-font-weight: 900;
-                                                           -fx-cursor: hand;"/>
-                                            <Button onAction="#deleteEvent" text="🗑 Delete"
-                                                    style="-fx-background-color: #ff004f;
-                                                           -fx-text-fill: white;
-                                                           -fx-background-radius: 999;
-                                                           -fx-padding: 12 25;
-                                                           -fx-font-weight: 900;
-                                                           -fx-cursor: hand;"/>
+                                        <!-- En-tête avec statut -->
+                                        <HBox alignment="CENTER_LEFT" spacing="6"
+                                              style="-fx-background-color: rgba(0,0,0,0.28);
+                                                     -fx-background-radius: 18;
+                                                     -fx-border-color: #c49a6c;
+                                                     -fx-border-radius: 18;
+                                                     -fx-padding: 8 12;">
+                                            <Label text="📋" style="-fx-font-size: 16px;" />
+                                            <Label text="Gestion des événements"
+                                                   style="-fx-text-fill: white; -fx-font-size: 16px; -fx-font-weight: 900;" />
+                                            <Region HBox.hgrow="ALWAYS" />
+                                            <Label fx:id="eventStatusLabel" text="Prêt"
+                                                   style="-fx-text-fill: #FFBD00; -fx-font-weight: 800; -fx-font-size: 11px;" />
                                         </HBox>
 
-                                        <!-- EVENT TABLE -->
-                                        <TableView fx:id="eventTable" prefHeight="200"
-                                                   style="-fx-background-color: rgba(0,0,0,0.28);
+                                        <!-- EVENT FORM amélioré -->
+                                        <StackPane style="-fx-background-color: rgba(0,0,0,0.28);
                                                           -fx-background-radius: 18;
-                                                          -fx-border-color: rgba(255,255,255,0.18);
+                                                          -fx-border-color: #c49a6c;
                                                           -fx-border-radius: 18;">
-                                            <columns>
-                                                <TableColumn fx:id="colId" text="ID" prefWidth="50"/>
-                                                <TableColumn fx:id="colTitle" text="Title" prefWidth="120"/>
-                                                <TableColumn fx:id="colLocation" text="Location" prefWidth="100"/>
-                                                <TableColumn fx:id="colDate" text="Date" prefWidth="100"/>
-                                                <TableColumn fx:id="colTime" text="Time" prefWidth="80"/>
-                                                <TableColumn fx:id="colCapacity" text="Capacity" prefWidth="80"/>
-                                                <TableColumn fx:id="colSeason" text="Season" prefWidth="80"/>
-                                                <TableColumn fx:id="colStatus" text="Status" prefWidth="80"/>
-                                            </columns>
-                                        </TableView>
+                                            <padding>
+                                                <Insets top="12" right="12" bottom="12" left="12" />
+                                            </padding>
+                                            <effect>
+                                                <DropShadow color="#00000055" offsetY="4" radius="8" />
+                                            </effect>
+
+                                            <VBox spacing="8">
+                                                <!-- Ligne pour afficher l'événement sélectionné -->
+                                                <Label fx:id="selectedEventLabel" text="(aucun événement sélectionné)"
+                                                       style="-fx-text-fill: #FFBD00; -fx-font-size: 11px; -fx-font-weight: bold; -fx-padding: 5 0;"/>
+
+                                                <GridPane hgap="8" vgap="8">
+                                                    <columnConstraints>
+                                                        <ColumnConstraints percentWidth="50" />
+                                                        <ColumnConstraints percentWidth="50" />
+                                                    </columnConstraints>
+
+                                                    <!-- Titre -->
+                                                    <VBox spacing="4" GridPane.columnIndex="0" GridPane.rowIndex="0" GridPane.columnSpan="2">
+                                                        <Label text="Titre *" style="-fx-text-fill: rgba(255,255,255,0.80); -fx-font-size: 10px; -fx-font-weight: 800;" />
+                                                        <TextField fx:id="titleField" promptText="Titre de l'événement"
+                                                                   style="-fx-background-color: rgba(0,0,0,0.5);
+                                                                          -fx-background-radius: 8;
+                                                                          -fx-border-color: rgba(255,255,255,0.3);
+                                                                          -fx-border-radius: 8;
+                                                                          -fx-text-fill: white;
+                                                                          -fx-prompt-text-fill: rgba(255,255,255,0.7);
+                                                                          -fx-padding: 8 10;
+                                                                          -fx-font-size: 12px;" />
+                                                    </VBox>
+
+                                                    <!-- Description -->
+                                                    <VBox spacing="4" GridPane.columnIndex="0" GridPane.rowIndex="1" GridPane.columnSpan="2">
+                                                        <Label text="Description" style="-fx-text-fill: rgba(255,255,255,0.80); -fx-font-size: 10px; -fx-font-weight: 800;" />
+                                                        <TextArea fx:id="descriptionArea" promptText="Description..."
+                                                                  prefRowCount="2"
+                                                                  style="-fx-background-color: rgba(0,0,0,0.5);
+                                                                         -fx-background-radius: 8;
+                                                                         -fx-border-color: rgba(255,255,255,0.3);
+                                                                         -fx-border-radius: 8;
+                                                                         -fx-text-fill: white;
+                                                                         -fx-prompt-text-fill: rgba(255,255,255,0.7);
+                                                                         -fx-padding: 8 10;
+                                                                         -fx-font-size: 12px;
+                                                                         -fx-control-inner-background: rgba(0,0,0,0.5);" />
+                                                    </VBox>
+
+                                                    <!-- Location -->
+                                                    <VBox spacing="4" GridPane.columnIndex="0" GridPane.rowIndex="2">
+                                                        <Label text="Location *" style="-fx-text-fill: rgba(255,255,255,0.80); -fx-font-size: 10px; -fx-font-weight: 800;" />
+                                                        <TextField fx:id="locationField" promptText="Lieu"
+                                                                   style="-fx-background-color: rgba(0,0,0,0.5);
+                                                                          -fx-background-radius: 8;
+                                                                          -fx-border-color: rgba(255,255,255,0.3);
+                                                                          -fx-border-radius: 8;
+                                                                          -fx-text-fill: white;
+                                                                          -fx-prompt-text-fill: rgba(255,255,255,0.7);
+                                                                          -fx-padding: 8 10;
+                                                                          -fx-font-size: 12px;" />
+                                                    </VBox>
+
+                                                    <!-- Date -->
+                                                    <VBox spacing="4" GridPane.columnIndex="1" GridPane.rowIndex="2">
+                                                        <Label text="Date *" style="-fx-text-fill: rgba(255,255,255,0.80); -fx-font-size: 10px; -fx-font-weight: 800;" />
+                                                        <DatePicker fx:id="datePicker"
+                                                                    style="-fx-background-color: rgba(0,0,0,0.5);
+                                                                          -fx-background-radius: 8;
+                                                                          -fx-border-color: rgba(255,255,255,0.3);
+                                                                          -fx-border-radius: 8;
+                                                                          -fx-text-fill: white;
+                                                                          -fx-padding: 4 8;
+                                                                          -fx-font-size: 12px;" />
+                                                    </VBox>
+
+                                                    <!-- Time -->
+                                                    <VBox spacing="4" GridPane.columnIndex="0" GridPane.rowIndex="3">
+                                                        <Label text="Heure (HH:mm) *" style="-fx-text-fill: rgba(255,255,255,0.80); -fx-font-size: 10px; -fx-font-weight: 800;" />
+                                                        <TextField fx:id="timeField" promptText="19:30"
+                                                                   style="-fx-background-color: rgba(0,0,0,0.5);
+                                                                          -fx-background-radius: 8;
+                                                                          -fx-border-color: rgba(255,255,255,0.3);
+                                                                          -fx-border-radius: 8;
+                                                                          -fx-text-fill: white;
+                                                                          -fx-prompt-text-fill: rgba(255,255,255,0.7);
+                                                                          -fx-padding: 8 10;
+                                                                          -fx-font-size: 12px;" />
+                                                    </VBox>
+
+                                                    <!-- Capacity -->
+                                                    <VBox spacing="4" GridPane.columnIndex="1" GridPane.rowIndex="3">
+                                                        <Label text="Capacité *" style="-fx-text-fill: rgba(255,255,255,0.80); -fx-font-size: 10px; -fx-font-weight: 800;" />
+                                                        <TextField fx:id="capacityField" promptText="100"
+                                                                   style="-fx-background-color: rgba(0,0,0,0.5);
+                                                                          -fx-background-radius: 8;
+                                                                          -fx-border-color: rgba(255,255,255,0.3);
+                                                                          -fx-border-radius: 8;
+                                                                          -fx-text-fill: white;
+                                                                          -fx-prompt-text-fill: rgba(255,255,255,0.7);
+                                                                          -fx-padding: 8 10;
+                                                                          -fx-font-size: 12px;" />
+                                                    </VBox>
+
+                                                    <!-- Event Type -->
+                                                    <VBox spacing="4" GridPane.columnIndex="0" GridPane.rowIndex="4">
+                                                        <Label text="Type" style="-fx-text-fill: rgba(255,255,255,0.80); -fx-font-size: 10px; -fx-font-weight: 800;" />
+                                                        <ComboBox fx:id="eventTypeBox" promptText="Type"
+                                                                  style="-fx-background-color: rgba(0,0,0,0.5);
+                                                                         -fx-background-radius: 8;
+                                                                         -fx-border-color: rgba(255,255,255,0.3);
+                                                                         -fx-border-radius: 8;
+                                                                         -fx-text-fill: white;
+                                                                         -fx-pref-width: 130;
+                                                                         -fx-font-size: 12px;" />
+                                                    </VBox>
+
+                                                    <!-- Season -->
+                                                    <VBox spacing="4" GridPane.columnIndex="1" GridPane.rowIndex="4">
+                                                        <Label text="Saison" style="-fx-text-fill: rgba(255,255,255,0.80); -fx-font-size: 10px; -fx-font-weight: 800;" />
+                                                        <ComboBox fx:id="seasonBox" promptText="Saison"
+                                                                  style="-fx-background-color: rgba(0,0,0,0.5);
+                                                                         -fx-background-radius: 8;
+                                                                         -fx-border-color: rgba(255,255,255,0.3);
+                                                                         -fx-border-radius: 8;
+                                                                         -fx-text-fill: white;
+                                                                         -fx-pref-width: 130;
+                                                                         -fx-font-size: 12px;" />
+                                                    </VBox>
+
+                                                    <!-- Status -->
+                                                    <VBox spacing="4" GridPane.columnIndex="0" GridPane.rowIndex="5">
+                                                        <Label text="Statut" style="-fx-text-fill: rgba(255,255,255,0.80); -fx-font-size: 10px; -fx-font-weight: 800;" />
+                                                        <TextField fx:id="statusField" promptText="À venir"
+                                                                   style="-fx-background-color: rgba(0,0,0,0.5);
+                                                                          -fx-background-radius: 8;
+                                                                          -fx-border-color: rgba(255,255,255,0.3);
+                                                                          -fx-border-radius: 8;
+                                                                          -fx-text-fill: white;
+                                                                          -fx-prompt-text-fill: rgba(255,255,255,0.7);
+                                                                          -fx-padding: 8 10;
+                                                                          -fx-font-size: 12px;" />
+                                                    </VBox>
+
+                                                    <!-- Image Path + bouton -->
+                                                    <VBox spacing="4" GridPane.columnIndex="1" GridPane.rowIndex="5">
+                                                        <Label text="Image" style="-fx-text-fill: rgba(255,255,255,0.80); -fx-font-size: 10px; -fx-font-weight: 800;" />
+                                                        <TextField fx:id="imageField" promptText="URL image"
+                                                                   style="-fx-background-color: rgba(0,0,0,0.5);
+                                                                          -fx-background-radius: 8;
+                                                                          -fx-border-color: rgba(255,255,255,0.3);
+                                                                          -fx-border-radius: 8;
+                                                                          -fx-text-fill: white;
+                                                                          -fx-prompt-text-fill: rgba(255,255,255,0.7);
+                                                                          -fx-padding: 8 10;
+                                                                          -fx-font-size: 12px;" />
+                                                    </VBox>
+                                                </GridPane>
+
+                                                <!-- Boutons CRUD -->
+                                                <HBox spacing="6" alignment="CENTER" style="-fx-padding: 8 0 0 0;">
+                                                    <Button onAction="#addEvent" text="➕ Ajouter"
+                                                            style="-fx-background-color: #28a745; -fx-text-fill: white; -fx-background-radius: 999; -fx-padding: 8 16; -fx-font-weight: 900; -fx-font-size: 12px; -fx-cursor: hand;"/>
+                                                    <Button onAction="#updateEvent" text="✏️ Modifier"
+                                                            style="-fx-background-color: #ffc107; -fx-text-fill: black; -fx-background-radius: 999; -fx-padding: 8 16; -fx-font-weight: 900; -fx-font-size: 12px; -fx-cursor: hand;"/>
+                                                    <Button onAction="#deleteEvent" text="🗑️ Supprimer"
+                                                            style="-fx-background-color: #dc3545; -fx-text-fill: white; -fx-background-radius: 999; -fx-padding: 8 16; -fx-font-weight: 900; -fx-font-size: 12px; -fx-cursor: hand;"/>
+                                                    <Button onAction="#clearEventFields" text="🔄 Nouveau"
+                                                            style="-fx-background-color: rgba(255,255,255,0.10); -fx-text-fill: white; -fx-background-radius: 999; -fx-padding: 8 16; -fx-font-weight: 900; -fx-font-size: 12px; -fx-cursor: hand;"/>
+                                                </HBox>
+                                            </VBox>
+                                        </StackPane>
+
+                                        <!-- EVENT TABLE améliorée -->
+                                        <VBox spacing="8"
+                                              style="-fx-background-color: rgba(0,0,0,0.28);
+                                                     -fx-background-radius: 18;
+                                                     -fx-border-color: #c49a6c;
+                                                     -fx-border-radius: 18;
+                                                     -fx-padding: 10;">
+                                            <Label text="📋 Liste des événements"
+                                                   style="-fx-text-fill: #FFBD00; -fx-font-size: 14px; -fx-font-weight: 900;"/>
+                                            <TableView fx:id="eventTable" prefHeight="180"
+                                                       style="-fx-background-color: rgba(0,0,0,0.5);
+                                                              -fx-background-radius: 12;
+                                                              -fx-border-color: rgba(255,255,255,0.2);
+                                                              -fx-border-radius: 12;">
+                                                <columns>
+                                                    <TableColumn fx:id="colId" text="ID" prefWidth="40"/>
+                                                    <TableColumn fx:id="colTitle" text="Titre" prefWidth="120"/>
+                                                    <TableColumn fx:id="colLocation" text="Lieu" prefWidth="100"/>
+                                                    <TableColumn fx:id="colDate" text="Date" prefWidth="80"/>
+                                                    <TableColumn fx:id="colTime" text="Heure" prefWidth="70"/>
+                                                    <TableColumn fx:id="colCapacity" text="Capacité" prefWidth="70"/>
+                                                    <TableColumn fx:id="colSeason" text="Saison" prefWidth="70"/>
+                                                    <TableColumn fx:id="colStatus" text="Statut" prefWidth="70"/>
+                                                </columns>
+                                            </TableView>
+
+                                            <!-- Bouton pour participer -->
+                                            <HBox alignment="CENTER_RIGHT" spacing="10">
+                                                <Button onAction="#openParticipationForSelectedEvent"
+                                                        text="✅ Participer à cet événement"
+                                                        style="-fx-background-color: #FFBD00;
+                                                               -fx-text-fill: black;
+                                                               -fx-font-weight: 900;
+                                                               -fx-background-radius: 999;
+                                                               -fx-padding: 8 16;
+                                                               -fx-font-size: 12px;
+                                                               -fx-cursor: hand;"/>
+                                            </HBox>
+                                        </VBox>
                                     </VBox>
                                 </content>
                             </ScrollPane>
@@ -417,158 +572,217 @@
                     <Tab>
                         <graphic>
                             <HBox spacing="5" alignment="CENTER">
-                                <ImageView fitHeight="20" fitWidth="20" preserveRatio="true">
-                                    <Image url="/assets/logo.png" />
-                                </ImageView>
+                                <Label text="👥" style="-fx-text-fill: #FFBD00; -fx-font-size: 16px;"/>
                                 <Label text="Participations" style="-fx-text-fill: white;"/>
                             </HBox>
                         </graphic>
                         <content>
                             <ScrollPane fitToWidth="true"
-                                        style="-fx-background-color: transparent;
-                                               -fx-background: transparent;"
+                                        style="-fx-background-color: transparent; -fx-background: transparent;"
                                         hbarPolicy="NEVER">
                                 <content>
-                                    <VBox spacing="20">
+                                    <VBox spacing="12">
                                         <padding>
-                                            <Insets top="20" right="20" bottom="20" left="20"/>
+                                            <Insets top="12" right="12" bottom="12" left="12" />
                                         </padding>
 
-                                        <Label fx:id="eventIdLabel" text="No event selected"
-                                               style="-fx-text-fill: #FFBD00; -fx-font-size: 14px; -fx-font-weight: 800;"
-                                               alignment="CENTER" maxWidth="Infinity"/>
-
-                                        <!-- PARTICIPATION FORM -->
-                                        <GridPane hgap="20" vgap="15">
-                                            <columnConstraints>
-                                                <ColumnConstraints percentWidth="30"/>
-                                                <ColumnConstraints percentWidth="70"/>
-                                            </columnConstraints>
-
-                                            <Label text="Date *" style="-fx-text-fill: rgba(255,255,255,0.85); -fx-font-weight: 800; -fx-font-size: 12px;" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
-                                            <DatePicker fx:id="partDatePicker" GridPane.columnIndex="1" GridPane.rowIndex="0"
-                                                        style="-fx-background-color: rgba(255,255,255,0.10);
-                                                               -fx-background-radius: 12;
-                                                               -fx-border-color: rgba(255,255,255,0.18);
-                                                               -fx-border-radius: 12;
-                                                               -fx-text-fill: white;"/>
-
-                                            <Label text="User ID *" style="-fx-text-fill: rgba(255,255,255,0.85); -fx-font-weight: 800; -fx-font-size: 12px;" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
-                                            <TextField fx:id="userIdField" text="1" GridPane.columnIndex="1" GridPane.rowIndex="1"
-                                                       style="-fx-background-color: rgba(255,255,255,0.10);
-                                                              -fx-background-radius: 12;
-                                                              -fx-border-color: rgba(255,255,255,0.18);
-                                                              -fx-border-radius: 12;
-                                                              -fx-text-fill: white;
-                                                              -fx-padding: 12 14;"/>
-
-                                            <Label text="Status *" style="-fx-text-fill: rgba(255,255,255,0.85); -fx-font-weight: 800; -fx-font-size: 12px;" GridPane.rowIndex="2" GridPane.columnIndex="0"/>
-                                            <ComboBox fx:id="statutBox" GridPane.columnIndex="1" GridPane.rowIndex="2"
-                                                      style="-fx-background-color: rgba(255,255,255,0.10);
-                                                             -fx-background-radius: 12;
-                                                             -fx-border-color: rgba(255,255,255,0.18);
-                                                             -fx-border-radius: 12;
-                                                             -fx-text-fill: white;"/>
-
-                                            <Label text="First Name *" style="-fx-text-fill: rgba(255,255,255,0.85); -fx-font-weight: 800; -fx-font-size: 12px;" GridPane.rowIndex="3" GridPane.columnIndex="0"/>
-                                            <TextField fx:id="prenomField" GridPane.columnIndex="1" GridPane.rowIndex="3"
-                                                       style="-fx-background-color: rgba(255,255,255,0.10);
-                                                              -fx-background-radius: 12;
-                                                              -fx-border-color: rgba(255,255,255,0.18);
-                                                              -fx-border-radius: 12;
-                                                              -fx-text-fill: white;
-                                                              -fx-padding: 12 14;"/>
-
-                                            <Label text="Last Name *" style="-fx-text-fill: rgba(255,255,255,0.85); -fx-font-weight: 800; -fx-font-size: 12px;" GridPane.rowIndex="4" GridPane.columnIndex="0"/>
-                                            <TextField fx:id="nomField" GridPane.columnIndex="1" GridPane.rowIndex="4"
-                                                       style="-fx-background-color: rgba(255,255,255,0.10);
-                                                              -fx-background-radius: 12;
-                                                              -fx-border-color: rgba(255,255,255,0.18);
-                                                              -fx-border-radius: 12;
-                                                              -fx-text-fill: white;
-                                                              -fx-padding: 12 14;"/>
-
-                                            <Label text="Email *" style="-fx-text-fill: rgba(255,255,255,0.85); -fx-font-weight: 800; -fx-font-size: 12px;" GridPane.rowIndex="5" GridPane.columnIndex="0"/>
-                                            <TextField fx:id="emailField" GridPane.columnIndex="1" GridPane.rowIndex="5"
-                                                       style="-fx-background-color: rgba(255,255,255,0.10);
-                                                              -fx-background-radius: 12;
-                                                              -fx-border-color: rgba(255,255,255,0.18);
-                                                              -fx-border-radius: 12;
-                                                              -fx-text-fill: white;
-                                                              -fx-padding: 12 14;"/>
-
-                                            <Label text="Phone" style="-fx-text-fill: rgba(255,255,255,0.85); -fx-font-weight: 800; -fx-font-size: 12px;" GridPane.rowIndex="6" GridPane.columnIndex="0"/>
-                                            <TextField fx:id="telephoneField" GridPane.columnIndex="1" GridPane.rowIndex="6"
-                                                       style="-fx-background-color: rgba(255,255,255,0.10);
-                                                              -fx-background-radius: 12;
-                                                              -fx-border-color: rgba(255,255,255,0.18);
-                                                              -fx-border-radius: 12;
-                                                              -fx-text-fill: white;
-                                                              -fx-padding: 12 14;"/>
-
-                                            <Label text="Places *" style="-fx-text-fill: rgba(255,255,255,0.85); -fx-font-weight: 800; -fx-font-size: 12px;" GridPane.rowIndex="7" GridPane.columnIndex="0"/>
-                                            <TextField fx:id="placesField" GridPane.columnIndex="1" GridPane.rowIndex="7"
-                                                       style="-fx-background-color: rgba(255,255,255,0.10);
-                                                              -fx-background-radius: 12;
-                                                              -fx-border-color: rgba(255,255,255,0.18);
-                                                              -fx-border-radius: 12;
-                                                              -fx-text-fill: white;
-                                                              -fx-padding: 12 14;"/>
-
-                                            <rowConstraints>
-                                                <RowConstraints minHeight="40"/><RowConstraints minHeight="40"/><RowConstraints minHeight="40"/>
-                                                <RowConstraints minHeight="40"/><RowConstraints minHeight="40"/><RowConstraints minHeight="40"/>
-                                                <RowConstraints minHeight="40"/><RowConstraints minHeight="40"/>
-                                            </rowConstraints>
-                                        </GridPane>
-
-                                        <!-- PARTICIPATION BUTTONS -->
-                                        <HBox spacing="15" alignment="CENTER">
-                                            <Button text="➕ Add" onAction="#addParticipation"
-                                                    style="-fx-background-color: #FFBD00;
-                                                           -fx-text-fill: black;
-                                                           -fx-font-weight: 900;
-                                                           -fx-background-radius: 999;
-                                                           -fx-padding: 12 25;
-                                                           -fx-cursor: hand;"/>
-                                            <Button text="✏ Update" onAction="#updateParticipation"
-                                                    style="-fx-background-color: #28a745;
-                                                           -fx-text-fill: white;
-                                                           -fx-font-weight: 900;
-                                                           -fx-background-radius: 999;
-                                                           -fx-padding: 12 25;
-                                                           -fx-cursor: hand;"/>
-                                            <Button text="🗑 Delete" onAction="#deleteParticipation"
-                                                    style="-fx-background-color: #ff004f;
-                                                           -fx-text-fill: white;
-                                                           -fx-font-weight: 900;
-                                                           -fx-background-radius: 999;
-                                                           -fx-padding: 12 25;
-                                                           -fx-cursor: hand;"/>
-                                            <Button text="Clear" onAction="#clearParticipationFields"
-                                                    style="-fx-background-color: rgba(255,255,255,0.10);
-                                                           -fx-text-fill: white;
-                                                           -fx-background-radius: 999;
-                                                           -fx-padding: 12 25;
-                                                           -fx-cursor: hand;"/>
+                                        <!-- En-tête avec statut -->
+                                        <HBox alignment="CENTER_LEFT" spacing="6"
+                                              style="-fx-background-color: rgba(0,0,0,0.28);
+                                                     -fx-background-radius: 18;
+                                                     -fx-border-color: #c49a6c;
+                                                     -fx-border-radius: 18;
+                                                     -fx-padding: 8 12;">
+                                            <Label text="👥" style="-fx-font-size: 16px;" />
+                                            <Label text="Gestion des participations"
+                                                   style="-fx-text-fill: white; -fx-font-size: 16px; -fx-font-weight: 900;" />
+                                            <Region HBox.hgrow="ALWAYS" />
+                                            <Label fx:id="participationStatusLabel" text="Prêt"
+                                                   style="-fx-text-fill: #FFBD00; -fx-font-weight: 800; -fx-font-size: 11px;" />
                                         </HBox>
 
-                                        <!-- PARTICIPATION TABLE -->
-                                        <TableView fx:id="participationTable" prefHeight="200"
-                                                   style="-fx-background-color: rgba(0,0,0,0.28);
+                                        <Label fx:id="eventIdLabel" text="Aucun événement sélectionné"
+                                               style="-fx-text-fill: #FFBD00; -fx-font-size: 12px; -fx-font-weight: 800; -fx-padding: 5 0;"
+                                               alignment="CENTER" maxWidth="Infinity"/>
+
+                                        <!-- Quick event selection -->
+                                        <HBox spacing="10" alignment="CENTER">
+                                            <Label text="Sélectionner un événement:" style="-fx-text-fill: white; -fx-font-weight: 800; -fx-font-size: 12px;"/>
+                                            <ComboBox fx:id="eventSelectorBox" prefWidth="250"
+                                                      style="-fx-background-color: rgba(0,0,0,0.5); -fx-background-radius: 999; -fx-border-color: rgba(255,255,255,0.3); -fx-border-radius: 999; -fx-text-fill: white; -fx-font-size: 12px;"/>
+                                            <Button onAction="#loadParticipationsForSelectedEvent"
+                                                    text="Charger"
+                                                    style="-fx-background-color: #3498db; -fx-text-fill: white; -fx-font-weight: 900; -fx-background-radius: 999; -fx-padding: 6 16; -fx-font-size: 12px; -fx-cursor: hand;"/>
+                                        </HBox>
+
+                                        <!-- PARTICIPATION FORM amélioré -->
+                                        <StackPane style="-fx-background-color: rgba(0,0,0,0.28);
                                                           -fx-background-radius: 18;
-                                                          -fx-border-color: rgba(255,255,255,0.18);
+                                                          -fx-border-color: #c49a6c;
                                                           -fx-border-radius: 18;">
-                                            <columns>
-                                                <TableColumn fx:id="colPartId" text="ID" prefWidth="50"/>
-                                                <TableColumn fx:id="colEvent" text="Event ID" prefWidth="70"/>
-                                                <TableColumn fx:id="colPrenom" text="First Name" prefWidth="100"/>
-                                                <TableColumn fx:id="colNom" text="Last Name" prefWidth="100"/>
-                                                <TableColumn fx:id="colPartDate" text="Date" prefWidth="100"/>
-                                                <TableColumn fx:id="colStatut" text="Status" prefWidth="80"/>
-                                                <TableColumn fx:id="colPlaces" text="Places" prefWidth="70"/>
-                                            </columns>
-                                        </TableView>
+                                            <padding>
+                                                <Insets top="12" right="12" bottom="12" left="12" />
+                                            </padding>
+                                            <effect>
+                                                <DropShadow color="#00000055" offsetY="4" radius="8" />
+                                            </effect>
+
+                                            <VBox spacing="8">
+                                                <GridPane hgap="8" vgap="8">
+                                                    <columnConstraints>
+                                                        <ColumnConstraints percentWidth="50" />
+                                                        <ColumnConstraints percentWidth="50" />
+                                                    </columnConstraints>
+
+                                                    <!-- Date -->
+                                                    <VBox spacing="4" GridPane.columnIndex="0" GridPane.rowIndex="0">
+                                                        <Label text="Date *" style="-fx-text-fill: rgba(255,255,255,0.80); -fx-font-size: 10px; -fx-font-weight: 800;" />
+                                                        <DatePicker fx:id="partDatePicker"
+                                                                    style="-fx-background-color: rgba(0,0,0,0.5);
+                                                                          -fx-background-radius: 8;
+                                                                          -fx-border-color: rgba(255,255,255,0.3);
+                                                                          -fx-border-radius: 8;
+                                                                          -fx-text-fill: white;
+                                                                          -fx-padding: 4 8;
+                                                                          -fx-font-size: 12px;" />
+                                                    </VBox>
+
+                                                    <!-- User ID -->
+                                                    <VBox spacing="4" GridPane.columnIndex="1" GridPane.rowIndex="0">
+                                                        <Label text="User ID *" style="-fx-text-fill: rgba(255,255,255,0.80); -fx-font-size: 10px; -fx-font-weight: 800;" />
+                                                        <TextField fx:id="userIdField" text="1"
+                                                                   style="-fx-background-color: rgba(0,0,0,0.5);
+                                                                          -fx-background-radius: 8;
+                                                                          -fx-border-color: rgba(255,255,255,0.3);
+                                                                          -fx-border-radius: 8;
+                                                                          -fx-text-fill: white;
+                                                                          -fx-padding: 8 10;
+                                                                          -fx-font-size: 12px;" />
+                                                    </VBox>
+
+                                                    <!-- Status -->
+                                                    <VBox spacing="4" GridPane.columnIndex="0" GridPane.rowIndex="1">
+                                                        <Label text="Statut *" style="-fx-text-fill: rgba(255,255,255,0.80); -fx-font-size: 10px; -fx-font-weight: 800;" />
+                                                        <ComboBox fx:id="statutBox" promptText="Statut"
+                                                                  style="-fx-background-color: rgba(0,0,0,0.5);
+                                                                         -fx-background-radius: 8;
+                                                                         -fx-border-color: rgba(255,255,255,0.3);
+                                                                         -fx-border-radius: 8;
+                                                                         -fx-text-fill: white;
+                                                                         -fx-pref-width: 130;
+                                                                         -fx-font-size: 12px;" />
+                                                    </VBox>
+
+                                                    <!-- Places -->
+                                                    <VBox spacing="4" GridPane.columnIndex="1" GridPane.rowIndex="1">
+                                                        <Label text="Places *" style="-fx-text-fill: rgba(255,255,255,0.80); -fx-font-size: 10px; -fx-font-weight: 800;" />
+                                                        <TextField fx:id="placesField" promptText="1"
+                                                                   style="-fx-background-color: rgba(0,0,0,0.5);
+                                                                          -fx-background-radius: 8;
+                                                                          -fx-border-color: rgba(255,255,255,0.3);
+                                                                          -fx-border-radius: 8;
+                                                                          -fx-text-fill: white;
+                                                                          -fx-prompt-text-fill: rgba(255,255,255,0.7);
+                                                                          -fx-padding: 8 10;
+                                                                          -fx-font-size: 12px;" />
+                                                    </VBox>
+
+                                                    <!-- First Name -->
+                                                    <VBox spacing="4" GridPane.columnIndex="0" GridPane.rowIndex="2">
+                                                        <Label text="Prénom *" style="-fx-text-fill: rgba(255,255,255,0.80); -fx-font-size: 10px; -fx-font-weight: 800;" />
+                                                        <TextField fx:id="prenomField" promptText="Prénom"
+                                                                   style="-fx-background-color: rgba(0,0,0,0.5);
+                                                                          -fx-background-radius: 8;
+                                                                          -fx-border-color: rgba(255,255,255,0.3);
+                                                                          -fx-border-radius: 8;
+                                                                          -fx-text-fill: white;
+                                                                          -fx-prompt-text-fill: rgba(255,255,255,0.7);
+                                                                          -fx-padding: 8 10;
+                                                                          -fx-font-size: 12px;" />
+                                                    </VBox>
+
+                                                    <!-- Last Name -->
+                                                    <VBox spacing="4" GridPane.columnIndex="1" GridPane.rowIndex="2">
+                                                        <Label text="Nom *" style="-fx-text-fill: rgba(255,255,255,0.80); -fx-font-size: 10px; -fx-font-weight: 800;" />
+                                                        <TextField fx:id="nomField" promptText="Nom"
+                                                                   style="-fx-background-color: rgba(0,0,0,0.5);
+                                                                          -fx-background-radius: 8;
+                                                                          -fx-border-color: rgba(255,255,255,0.3);
+                                                                          -fx-border-radius: 8;
+                                                                          -fx-text-fill: white;
+                                                                          -fx-prompt-text-fill: rgba(255,255,255,0.7);
+                                                                          -fx-padding: 8 10;
+                                                                          -fx-font-size: 12px;" />
+                                                    </VBox>
+
+                                                    <!-- Email -->
+                                                    <VBox spacing="4" GridPane.columnIndex="0" GridPane.rowIndex="3" GridPane.columnSpan="2">
+                                                        <Label text="Email *" style="-fx-text-fill: rgba(255,255,255,0.80); -fx-font-size: 10px; -fx-font-weight: 800;" />
+                                                        <TextField fx:id="emailField" promptText="email@example.com"
+                                                                   style="-fx-background-color: rgba(0,0,0,0.5);
+                                                                          -fx-background-radius: 8;
+                                                                          -fx-border-color: rgba(255,255,255,0.3);
+                                                                          -fx-border-radius: 8;
+                                                                          -fx-text-fill: white;
+                                                                          -fx-prompt-text-fill: rgba(255,255,255,0.7);
+                                                                          -fx-padding: 8 10;
+                                                                          -fx-font-size: 12px;" />
+                                                    </VBox>
+
+                                                    <!-- Phone -->
+                                                    <VBox spacing="4" GridPane.columnIndex="0" GridPane.rowIndex="4" GridPane.columnSpan="2">
+                                                        <Label text="Téléphone" style="-fx-text-fill: rgba(255,255,255,0.80); -fx-font-size: 10px; -fx-font-weight: 800;" />
+                                                        <TextField fx:id="telephoneField" promptText="+216 XX XXX XXX"
+                                                                   style="-fx-background-color: rgba(0,0,0,0.5);
+                                                                          -fx-background-radius: 8;
+                                                                          -fx-border-color: rgba(255,255,255,0.3);
+                                                                          -fx-border-radius: 8;
+                                                                          -fx-text-fill: white;
+                                                                          -fx-prompt-text-fill: rgba(255,255,255,0.7);
+                                                                          -fx-padding: 8 10;
+                                                                          -fx-font-size: 12px;" />
+                                                    </VBox>
+                                                </GridPane>
+
+                                                <!-- Boutons CRUD -->
+                                                <HBox spacing="6" alignment="CENTER" style="-fx-padding: 8 0 0 0;">
+                                                    <Button text="➕ Ajouter" onAction="#addParticipation"
+                                                            style="-fx-background-color: #28a745; -fx-text-fill: white; -fx-background-radius: 999; -fx-padding: 8 16; -fx-font-weight: 900; -fx-font-size: 12px; -fx-cursor: hand;"/>
+                                                    <Button text="✏️ Modifier" onAction="#updateParticipation"
+                                                            style="-fx-background-color: #ffc107; -fx-text-fill: black; -fx-background-radius: 999; -fx-padding: 8 16; -fx-font-weight: 900; -fx-font-size: 12px; -fx-cursor: hand;"/>
+                                                    <Button text="🗑️ Supprimer" onAction="#deleteParticipation"
+                                                            style="-fx-background-color: #dc3545; -fx-text-fill: white; -fx-background-radius: 999; -fx-padding: 8 16; -fx-font-weight: 900; -fx-font-size: 12px; -fx-cursor: hand;"/>
+                                                    <Button text="🔄 Effacer" onAction="#clearParticipationFields"
+                                                            style="-fx-background-color: rgba(255,255,255,0.10); -fx-text-fill: white; -fx-background-radius: 999; -fx-padding: 8 16; -fx-font-weight: 900; -fx-font-size: 12px; -fx-cursor: hand;"/>
+                                                </HBox>
+                                            </VBox>
+                                        </StackPane>
+
+                                        <!-- PARTICIPATION TABLE -->
+                                        <VBox spacing="8"
+                                              style="-fx-background-color: rgba(0,0,0,0.28);
+                                                     -fx-background-radius: 18;
+                                                     -fx-border-color: #c49a6c;
+                                                     -fx-border-radius: 18;
+                                                     -fx-padding: 10;">
+                                            <Label text="📋 Liste des participations"
+                                                   style="-fx-text-fill: #FFBD00; -fx-font-size: 14px; -fx-font-weight: 900;"/>
+                                            <TableView fx:id="participationTable" prefHeight="150"
+                                                       style="-fx-background-color: rgba(0,0,0,0.5);
+                                                              -fx-background-radius: 12;
+                                                              -fx-border-color: rgba(255,255,255,0.2);
+                                                              -fx-border-radius: 12;">
+                                                <columns>
+                                                    <TableColumn fx:id="colPartId" text="ID" prefWidth="40"/>
+                                                    <TableColumn fx:id="colEvent" text="Event ID" prefWidth="60"/>
+                                                    <TableColumn fx:id="colPrenom" text="Prénom" prefWidth="80"/>
+                                                    <TableColumn fx:id="colNom" text="Nom" prefWidth="80"/>
+                                                    <TableColumn fx:id="colPartDate" text="Date" prefWidth="80"/>
+                                                    <TableColumn fx:id="colStatut" text="Statut" prefWidth="70"/>
+                                                    <TableColumn fx:id="colPlaces" text="Places" prefWidth="60"/>
+                                                </columns>
+                                            </TableView>
+                                        </VBox>
                                     </VBox>
                                 </content>
                             </ScrollPane>
@@ -579,92 +793,105 @@
                     <Tab text="📋 My Participations">
                         <content>
                             <ScrollPane fitToWidth="true"
-                                        style="-fx-background-color: transparent;
-                                               -fx-background: transparent;"
+                                        style="-fx-background-color: transparent; -fx-background: transparent;"
                                         hbarPolicy="NEVER">
                                 <content>
-                                    <VBox spacing="15">
+                                    <VBox spacing="12">
                                         <padding>
-                                            <Insets top="20" right="20" bottom="20" left="20"/>
+                                            <Insets top="12" right="12" bottom="12" left="12" />
                                         </padding>
 
-                                        <Label fx:id="clientInfoLabel" text="Client: "
-                                               style="-fx-text-fill: #FFBD00; -fx-font-size: 14px; -fx-font-weight: 800;"/>
+                                        <!-- En-tête avec info client -->
+                                        <HBox alignment="CENTER_LEFT" spacing="6"
+                                              style="-fx-background-color: rgba(0,0,0,0.28);
+                                                     -fx-background-radius: 18;
+                                                     -fx-border-color: #c49a6c;
+                                                     -fx-border-radius: 18;
+                                                     -fx-padding: 8 12;">
+                                            <Label text="📋" style="-fx-font-size: 16px;" />
+                                            <Label text="Mes participations"
+                                                   style="-fx-text-fill: white; -fx-font-size: 16px; -fx-font-weight: 900;" />
+                                            <Region HBox.hgrow="ALWAYS" />
+                                            <Label fx:id="clientInfoLabel" text="Client: "
+                                                   style="-fx-text-fill: #FFBD00; -fx-font-weight: 800; -fx-font-size: 12px;" />
+                                        </HBox>
 
-                                        <!-- SEARCH SECTION -->
-                                        <VBox spacing="10">
-                                            <Label text="🔍 Rechercher" style="-fx-text-fill: white; -fx-font-size: 16px; -fx-font-weight: 800;"/>
-                                            <HBox spacing="10" alignment="CENTER_LEFT">
-                                                <ComboBox fx:id="searchTypeBox" prefWidth="120"
-                                                          style="-fx-background-color: rgba(255,255,255,0.10);
-                                                                 -fx-background-radius: 12;
-                                                                 -fx-border-color: rgba(255,255,255,0.18);
-                                                                 -fx-border-radius: 12;
-                                                                 -fx-text-fill: white;"/>
-                                                <TextField fx:id="participationsSearchField" promptText="Entrez email, nom ou prénom..." onAction="#onSearch" HBox.hgrow="ALWAYS"
-                                                           style="-fx-background-color: rgba(255,255,255,0.10);
-                                                                  -fx-background-radius: 12;
-                                                                  -fx-border-color: rgba(255,255,255,0.18);
-                                                                  -fx-border-radius: 12;
+                                        <!-- SEARCH SECTION améliorée -->
+                                        <VBox spacing="8"
+                                              style="-fx-background-color: rgba(0,0,0,0.28);
+                                                     -fx-background-radius: 18;
+                                                     -fx-border-color: #c49a6c;
+                                                     -fx-border-radius: 18;
+                                                     -fx-padding: 10;">
+                                            <Label text="🔍 Rechercher"
+                                                   style="-fx-text-fill: white; -fx-font-size: 14px; -fx-font-weight: 800;"/>
+                                            <HBox spacing="8" alignment="CENTER_LEFT">
+                                                <ComboBox fx:id="searchTypeBox" prefWidth="100"
+                                                          style="-fx-background-color: rgba(0,0,0,0.5);
+                                                                 -fx-background-radius: 999;
+                                                                 -fx-border-color: rgba(255,255,255,0.3);
+                                                                 -fx-border-radius: 999;
+                                                                 -fx-text-fill: white;
+                                                                 -fx-font-size: 12px;"/>
+                                                <TextField fx:id="participationsSearchField"
+                                                           promptText="Email, nom ou prénom..."
+                                                           onAction="#onSearch"
+                                                           HBox.hgrow="ALWAYS"
+                                                           style="-fx-background-color: rgba(0,0,0,0.5);
+                                                                  -fx-background-radius: 999;
+                                                                  -fx-border-color: rgba(255,255,255,0.3);
+                                                                  -fx-border-radius: 999;
                                                                   -fx-text-fill: white;
-                                                                  -fx-padding: 12 14;"/>
+                                                                  -fx-prompt-text-fill: rgba(255,255,255,0.7);
+                                                                  -fx-padding: 8 12;
+                                                                  -fx-font-size: 12px;"/>
                                                 <Button text="Rechercher" onAction="#onSearch"
-                                                        style="-fx-background-color: #FFBD00;
-                                                               -fx-text-fill: black;
-                                                               -fx-font-weight: 900;
-                                                               -fx-background-radius: 999;
-                                                               -fx-padding: 10 20;
-                                                               -fx-cursor: hand;"/>
+                                                        style="-fx-background-color: #FFBD00; -fx-text-fill: black; -fx-font-weight: 900; -fx-background-radius: 999; -fx-padding: 8 16; -fx-font-size: 12px; -fx-cursor: hand;"/>
                                                 <Button text="Effacer" onAction="#onClearSearch"
-                                                        style="-fx-background-color: rgba(255,255,255,0.10);
-                                                               -fx-text-fill: white;
-                                                               -fx-background-radius: 999;
-                                                               -fx-padding: 10 20;
-                                                               -fx-cursor: hand;"/>
+                                                        style="-fx-background-color: rgba(255,255,255,0.2); -fx-text-fill: white; -fx-background-radius: 999; -fx-padding: 8 16; -fx-font-size: 12px; -fx-cursor: hand;"/>
                                                 <Button text="↻" onAction="#onRefresh"
-                                                        style="-fx-background-color: #28a745;
-                                                               -fx-text-fill: white;
-                                                               -fx-font-weight: 900;
-                                                               -fx-background-radius: 999;
-                                                               -fx-padding: 10 15;
-                                                               -fx-cursor: hand;"/>
+                                                        style="-fx-background-color: #28a745; -fx-text-fill: white; -fx-font-weight: 900; -fx-background-radius: 999; -fx-padding: 8 16; -fx-font-size: 12px; -fx-cursor: hand;"/>
+                                            </HBox>
+
+                                            <!-- RESULTS COUNT -->
+                                            <HBox alignment="CENTER_LEFT">
+                                                <Label fx:id="resultCountLabel" text="0 participation(s) trouvée(s)"
+                                                       style="-fx-text-fill: rgba(255,255,255,0.8); -fx-font-size: 11px;"/>
                                             </HBox>
                                         </VBox>
 
-                                        <!-- RESULTS COUNT -->
-                                        <HBox alignment="CENTER_LEFT">
-                                            <Label fx:id="resultCountLabel" text="0 participation(s) trouvée(s)"
-                                                   style="-fx-text-fill: rgba(255,255,255,0.8); -fx-font-size: 12px;"/>
-                                        </HBox>
+                                        <!-- PARTICIPATIONS TABLE améliorée -->
+                                        <VBox spacing="8"
+                                              style="-fx-background-color: rgba(0,0,0,0.28);
+                                                     -fx-background-radius: 18;
+                                                     -fx-border-color: #c49a6c;
+                                                     -fx-border-radius: 18;
+                                                     -fx-padding: 10;">
+                                            <Label text="📋 Liste de mes participations"
+                                                   style="-fx-text-fill: #FFBD00; -fx-font-size: 14px; -fx-font-weight: 900;"/>
+                                            <TableView fx:id="participationTable2" prefHeight="200"
+                                                       style="-fx-background-color: rgba(0,0,0,0.5);
+                                                              -fx-background-radius: 12;
+                                                              -fx-border-color: rgba(255,255,255,0.2);
+                                                              -fx-border-radius: 12;">
+                                                <columns>
+                                                    <TableColumn fx:id="colId2" text="ID" prefWidth="40"/>
+                                                    <TableColumn fx:id="colEventTitle" text="Événement" prefWidth="120"/>
+                                                    <TableColumn fx:id="colDate2" text="Date" prefWidth="80"/>
+                                                    <TableColumn fx:id="colStatut2" text="Statut" prefWidth="70"/>
+                                                    <TableColumn fx:id="colPrenom2" text="Prénom" prefWidth="80"/>
+                                                    <TableColumn fx:id="colNom2" text="Nom" prefWidth="80"/>
+                                                    <TableColumn fx:id="colEmail" text="Email" prefWidth="120"/>
+                                                    <TableColumn fx:id="colPlaces2" text="Places" prefWidth="60"/>
+                                                </columns>
+                                            </TableView>
 
-                                        <!-- PARTICIPATIONS TABLE -->
-                                        <TableView fx:id="participationTable2" prefHeight="300"
-                                                   style="-fx-background-color: rgba(0,0,0,0.28);
-                                                          -fx-background-radius: 18;
-                                                          -fx-border-color: rgba(255,255,255,0.18);
-                                                          -fx-border-radius: 18;">
-                                            <columns>
-                                                <TableColumn fx:id="colId2" text="ID" prefWidth="50"/>
-                                                <TableColumn fx:id="colEventTitle" text="Événement" prefWidth="150"/>
-                                                <TableColumn fx:id="colDate2" text="Date" prefWidth="100"/>
-                                                <TableColumn fx:id="colStatut2" text="Statut" prefWidth="80"/>
-                                                <TableColumn fx:id="colPrenom2" text="Prénom" prefWidth="100"/>
-                                                <TableColumn fx:id="colNom2" text="Nom" prefWidth="100"/>
-                                                <TableColumn fx:id="colEmail" text="Email" prefWidth="150"/>
-                                                <TableColumn fx:id="colPlaces2" text="Places" prefWidth="70"/>
-                                            </columns>
-                                        </TableView>
-
-                                        <!-- ACTION BUTTON -->
-                                        <HBox spacing="10" alignment="CENTER_RIGHT">
-                                            <Button text="Voir détails" onAction="#viewParticipationDetails"
-                                                    style="-fx-background-color: #3498db;
-                                                           -fx-text-fill: white;
-                                                           -fx-font-weight: 900;
-                                                           -fx-background-radius: 999;
-                                                           -fx-padding: 10 20;
-                                                           -fx-cursor: hand;"/>
-                                        </HBox>
+                                            <!-- ACTION BUTTON -->
+                                            <HBox spacing="10" alignment="CENTER_RIGHT">
+                                                <Button text="Voir détails" onAction="#viewParticipationDetails"
+                                                        style="-fx-background-color: #3498db; -fx-text-fill: white; -fx-font-weight: 900; -fx-background-radius: 999; -fx-padding: 8 16; -fx-font-size: 12px; -fx-cursor: hand;"/>
+                                            </HBox>
+                                        </VBox>
                                     </VBox>
                                 </content>
                             </ScrollPane>
@@ -673,5 +900,29 @@
                 </TabPane>
             </StackPane>
         </center>
+
+        <!-- BOTTOM NAV améliorée (optionnelle) -->
+        <bottom>
+            <HBox alignment="CENTER" spacing="10"
+                  style="-fx-background-color: rgba(0,0,0,0.22);
+                         -fx-background-radius: 18;
+                         -fx-border-color: rgba(255,255,255,0.14);
+                         -fx-border-radius: 18;">
+                <padding>
+                    <Insets bottom="8" left="12" right="12" top="8" />
+                </padding>
+
+                <Button text="🏠" onAction="#goToHome"
+                        style="-fx-background-color: rgba(255,189,0,0.28); -fx-text-fill: #FFBD00; -fx-background-radius: 14; -fx-padding: 6 16; -fx-font-size: 14px; -fx-cursor: hand;" />
+                <Button text="📅" onAction="#goToEvents"
+                        style="-fx-background-color: transparent; -fx-text-fill: rgba(255,255,255,0.92); -fx-background-radius: 14; -fx-padding: 6 16; -fx-font-size: 14px; -fx-cursor: hand;" />
+                <Button text="👥" onAction="#goToParticipations"
+                        style="-fx-background-color: transparent; -fx-text-fill: rgba(255,255,255,0.92); -fx-background-radius: 14; -fx-padding: 6 16; -fx-font-size: 14px; -fx-cursor: hand;" />
+                <Button text="📋" onAction="#goToMesParticipations"
+                        style="-fx-background-color: transparent; -fx-text-fill: rgba(255,255,255,0.92); -fx-background-radius: 14; -fx-padding: 6 16; -fx-font-size: 14px; -fx-cursor: hand;" />
+                <Button text="🔐"
+                        style="-fx-background-color: transparent; -fx-text-fill: rgba(255,255,255,0.92); -fx-background-radius: 14; -fx-padding: 6 16; -fx-font-size: 14px; -fx-cursor: hand;" />
+            </HBox>
+        </bottom>
     </BorderPane>
 </StackPane>

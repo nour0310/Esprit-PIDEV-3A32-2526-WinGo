@@ -24,7 +24,7 @@ public class Navigator {
 
     public static void goToParticipation(int idEvent) {
         try {
-            FXMLLoader loader = new FXMLLoader(Navigator.class.getResource("/ParticipationForm.fxml"));
+            FXMLLoader loader = new FXMLLoader(Navigator.class.getResource("/Event.fxml"));
             Parent root = loader.load();
 
             // Use EventController instead of ParticipationFormController
@@ -43,6 +43,6 @@ public class Navigator {
 
     public static void goToMesParticipations(String clientEmail) {
         // Ignorer l'email pour l'instant
-        goTo("MesParticipations.fxml", "Mes Participations");
+        goTo("Event.fxml", "Mes Participations");
     }
 }
