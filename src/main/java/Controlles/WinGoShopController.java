@@ -375,13 +375,13 @@ public class WinGoShopController {
         System.out.println("🔄 Refreshing " + produitsData.size() + " product cards"); // Debug
 
         for (Produit p : produitsData) {
+            System.out.println("🖼 Produit: " + p.getNom() + " | Image URL: [" + p.getImage() + "]");
             VBox card = createProductCard(p);
             clientProductsGrid.getChildren().add(card);
         }
 
         System.out.println("✅ Created " + clientProductsGrid.getChildren().size() + " cards"); // Debug
     }
-
     private VBox createProductCard(Produit p) {
         VBox card = new VBox(10);
         card.setAlignment(Pos.TOP_CENTER);
@@ -397,7 +397,7 @@ public class WinGoShopController {
                         "-fx-cursor: hand;"
         );
 
-        // IMAGE CONTAINER (StackPane pour éviter les problèmes de clip)
+        // ── IMAGE CONTAINER ──────────────────────────────────────
         StackPane imageContainer = new StackPane();
         imageContainer.setPrefWidth(196);
         imageContainer.setPrefHeight(160);
@@ -408,45 +408,40 @@ public class WinGoShopController {
                         "-fx-background-radius: 12;"
         );
 
-        ImageView imageView = new ImageView();
-        imageView.setFitWidth(196);
-        imageView.setFitHeight(160);
-        imageView.setPreserveRatio(false);
-        imageView.setSmooth(true);
-
-        // ✅ CLIP appliqué sur le CONTAINER, pas sur l'ImageView
+        // Clip sur le container (pas sur l'ImageView)
         javafx.scene.shape.Rectangle clip = new javafx.scene.shape.Rectangle(196, 160);
         clip.setArcWidth(16);
         clip.setArcHeight(16);
         imageContainer.setClip(clip);
 
-        // ✅ Chargement synchrone pour éviter les bugs de rendu
-        String imageUrl = p.getImage();
-        // Chargement ASYNC avec listener correct
-        if (imageUrl != null && !imageUrl.isBlank()) {
-            try {
-                Image img = new Image(imageUrl.trim(), 196, 160, false, true, true); // async=true
-
-                // ✅ Listener pour appliquer l'image quand elle est prête
-                img.progressProperty().addListener((obs, oldVal, newVal) -> {
-                    if (newVal.doubleValue() >= 1.0 && !img.isError()) {
-                        javafx.application.Platform.runLater(() -> imageView.setImage(img));
-                    }
-                });
-
-                // Si déjà chargée (cache)
-                if (img.getProgress() >= 1.0 && !img.isError()) {
-                    imageView.setImage(img);
-                }
-
-            } catch (Exception e) {
-                System.err.println("❌ Error: " + e.getMessage());
-            }
-        }
-        
+        ImageView imageView = new ImageView();
+        imageView.setFitWidth(196);
+        imageView.setFitHeight(160);
+        imageView.setPreserveRatio(false);
+        imageView.setSmooth(true);
         imageContainer.getChildren().add(imageView);
 
-        // Labels
+        // ── CHARGEMENT IMAGE : Thread séparé → Platform.runLater ──
+        String imageUrl = p.getImage();
+        if (imageUrl != null && !imageUrl.isBlank()) {
+            final String url = imageUrl.trim();
+            Thread t = new Thread(() -> {
+                try {
+                    // Chargement SYNCHRONE dans le thread (backgroundLoading=false)
+                    Image img = new Image(url, 196, 160, false, true, false);
+                    if (!img.isError()) {
+                        // Retour sur le thread JavaFX pour set l'image
+                        javafx.application.Platform.runLater(() -> imageView.setImage(img));
+                    }
+                } catch (Exception e) {
+                    System.err.println("❌ Image load error: " + url + " → " + e.getMessage());
+                }
+            });
+            t.setDaemon(true);  // Arrêt automatique à la fermeture de l'app
+            t.start();
+        }
+
+        // ── LABELS ──────────────────────────────────────────────
         Label nameLabel = new Label(p.getNom());
         nameLabel.setStyle("-fx-text-fill: white; -fx-font-weight: 900; -fx-font-size: 14px;");
         nameLabel.setMaxWidth(196);
@@ -463,8 +458,8 @@ public class WinGoShopController {
                 "; -fx-font-size: 10px; -fx-font-weight: 800;");
 
         Button addBtn = new Button("🛒 Ajouter");
-        addBtn.setStyle("-fx-background-color: #FFBD00; -fx-text-fill: #390099; " +
-                "-fx-background-radius: 999; -fx-padding: 8 16; " +
+        addBtn.setStyle("-fx-background-color: #FFBD00; -fx-text-fill: #390099;" +
+                "-fx-background-radius: 999; -fx-padding: 8 16;" +
                 "-fx-font-weight: 900; -fx-cursor: hand;");
         addBtn.setMaxWidth(Double.MAX_VALUE);
         addBtn.setOnAction(e -> addProductToCart(p));
