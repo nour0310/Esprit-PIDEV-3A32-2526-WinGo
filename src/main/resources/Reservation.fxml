@@ -5,6 +5,7 @@
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.*?>
 
+<?import javafx.scene.image.Image?>
 <StackPane prefHeight="720" prefWidth="1200"
            xmlns="http://javafx.com/javafx/17"
            xmlns:fx="http://javafx.com/fxml/1"
@@ -15,6 +16,7 @@
                  -fx-background-repeat: no-repeat;
                  -fx-background-position: center center;
                  -fx-background-size: cover;" />
+
 
     <Pane mouseTransparent="true" style="-fx-background-color: rgba(0,0,0,0.4);" />
 
@@ -29,10 +31,14 @@
 
         <top>
             <HBox alignment="CENTER_LEFT" spacing="15" style="-fx-padding: 10 20 25 20;">
+                <ImageView fitHeight="40" fitWidth="40" preserveRatio="true">
+                    <Image url="assets/logo.png" />
+                </ImageView>
                 <Label text="WinGo Travel"
                        style="-fx-text-fill: white; -fx-font-size: 24px; -fx-font-weight: 900;" />
 
                 <Region HBox.hgrow="ALWAYS"/>
+
 
                 <HBox alignment="CENTER" spacing="10"
                       style="-fx-background-color: rgba(0,0,0,0.4); -fx-background-radius: 20; -fx-padding: 8 20;">
@@ -109,7 +115,7 @@
 
                                     <VBox style="-fx-background-color: rgba(0,0,0,0.3); -fx-background-radius: 20; -fx-border-color: #c49a6c; -fx-border-radius: 20;">
                                         <HBox alignment="CENTER_LEFT" style="-fx-padding: 12 20;">
-                                            <Label text="📰 Reservation récents" style="-fx-text-fill: #FFBD00; -fx-font-weight: bold; -fx-font-size: 15px;" />
+                                            <Label text="📰 Transport récents" style="-fx-text-fill: #FFBD00; -fx-font-weight: bold; -fx-font-size: 15px;" />
                                         </HBox>
 
                                         <ScrollPane fitToWidth="true" prefHeight="250" style="-fx-background: transparent; -fx-background-color: transparent;">

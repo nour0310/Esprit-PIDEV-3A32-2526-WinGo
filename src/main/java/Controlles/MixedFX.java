@@ -178,13 +178,17 @@ public class MixedFX {
     private void handleAdd() {
         try {
             if (showingReservations) {
+                if (!validateReservation()) return;
+
                 Reservation r = new Reservation();
                 r.setUser(resUserField.getText());
                 r.setExp(resExpField.getText());
                 r.setStatut(resStatutField.getText());
                 r.setDate(java.sql.Timestamp.valueOf(resDateField.getValue().atStartOfDay()));
                 reservationService.ajouter(r);
+                showAlert("Succès", "Réservation ajoutée avec succès !", Alert.AlertType.INFORMATION);
             } else {
+                if (!validateTransport()) return;
                 Transport t = new Transport();
                 t.setType(trTypeField.getText());
                 t.setCapacite(trCapField.getText());
@@ -193,18 +197,77 @@ public class MixedFX {
                 t.setArrivee(trArriveeField.getText());
                 t.setDateDepart(trDateField.getValue().atStartOfDay());
                 transportService.ajouter(t);
+                showAlert("Succès", "Transport ajouté avec succès !", Alert.AlertType.INFORMATION);
             }
         } catch (SQLException e) {
+            showAlert("Erreur Base de Données", "Erreur lors de l'ajout !", Alert.AlertType.ERROR);
             e.printStackTrace();
         }
         reloadCurrent();
     }
+    // 🔎 Validation for Reservation
+    private boolean validateReservation() {
+
+        if (resUserField.getText().isEmpty() ||
+                resExpField.getText().isEmpty() ||
+                resStatutField.getText().isEmpty() ||
+                resDateField.getValue() == null) {
+
+            showAlert("Erreur", "Tous les champs de Réservation doivent être remplis !", Alert.AlertType.ERROR);
+            return false;
+        }
+
+        if (resUserField.getText().length() < 3) {
+            showAlert("Erreur", "Le User doit contenir au moins 3 caractères !", Alert.AlertType.ERROR);
+            return false;
+        }
+
+        return true;
+    }
+
+
+    // 🔎 Validation for Transport
+    private boolean validateTransport() {
+
+        if (trTypeField.getText().isEmpty() ||
+                trCapField.getText().isEmpty() ||
+                trTarifField.getText().isEmpty() ||
+                trDepartField.getText().isEmpty() ||
+                trArriveeField.getText().isEmpty() ||
+                trDateField.getValue() == null) {
+
+            showAlert("Erreur", "Tous les champs de Transport doivent être remplis !", Alert.AlertType.ERROR);
+            return false;
+        }
+
+        // Check if tarif is numeric
+        try {
+            Float.parseFloat(trTarifField.getText());
+        } catch (NumberFormatException e) {
+            showAlert("Erreur", "Le Tarif doit être un nombre valide !", Alert.AlertType.ERROR);
+            return false;
+        }
+
+        return true;
+    }
+
+    private void showAlert(String title, String message, Alert.AlertType type) {
+        Alert alert = new Alert(type);
+        alert.setTitle(title);
+        alert.setHeaderText(null);
+        alert.setContentText(message);
+        alert.showAndWait();
+    }
 
     @FXML
     private void handleEdit() {
-        if (selectedItem == null) return;
+        if (selectedItem == null) {
+            showAlert("Erreur", "Veuillez sélectionner un élément !", Alert.AlertType.ERROR);
+            return;
+        }
         try {
             if (showingReservations) {
+                if (!validateReservation()) return;
                 Reservation r = (Reservation) selectedItem;
                 r.setUser(resUserField.getText());
                 r.setExp(resExpField.getText());
@@ -212,6 +275,8 @@ public class MixedFX {
                 r.setDate(java.sql.Timestamp.valueOf(resDateField.getValue().atStartOfDay()));
                 reservationService.modifier(r);
             } else {
+                if (!validateTransport()) return;
+
                 Transport t = (Transport) selectedItem;
                 t.setType(trTypeField.getText());
                 t.setCapacite(trCapField.getText());
@@ -221,7 +286,9 @@ public class MixedFX {
                 t.setDateDepart(trDateField.getValue().atStartOfDay());
                 transportService.modifier(t);
             }
+            showAlert("Succès", "Modification effectuée !", Alert.AlertType.INFORMATION);
         } catch (SQLException e) {
+            showAlert("Erreur Base de Données", "Erreur lors de la modification !", Alert.AlertType.ERROR);
             e.printStackTrace();
         }
         reloadCurrent();
