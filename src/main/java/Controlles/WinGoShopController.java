@@ -37,7 +37,8 @@ public class WinGoShopController {
     @FXML private HBox searchBox;
     @FXML private HBox topActionsBox;
     @FXML private HBox userBox;
-
+    @FXML private ComboBox<String> categorieCombo;
+    @FXML private TextField categorieAutreField;
     // ==================== CART ====================
     @FXML private VBox cartItemsBox;
     @FXML private Label cartTotalLabel;
@@ -205,6 +206,12 @@ public class WinGoShopController {
             nomTextField.textProperty().addListener((obs, old, val) -> {
                 if (val.isBlank()) {
                     showInlineError(nomTextField, errNom, "⚡ Le nom est obligatoire");
+                } else if (!val.trim().matches("^[a-zA-ZÀ-ÿ0-9\\s\\-'()]+$")) {
+                    // ✅ Bloque les caractères spéciaux type @, #, $, !, etc.
+                    showInlineError(nomTextField, errNom, "⚡ Caractères spéciaux non autorisés (@, #, $...)");
+                } else if (val.trim().matches("^\\d+$")) {
+                    // ✅ Bloque les noms 100% numériques (ex: "123", "456")
+                    showInlineError(nomTextField, errNom, "⚡ Le nom ne peut pas être uniquement des chiffres");
                 } else if (val.trim().length() < 2) {
                     showInlineError(nomTextField, errNom, "⚡ Minimum 2 caractères");
                 } else if (val.trim().length() > 100) {
@@ -226,6 +233,22 @@ public class WinGoShopController {
                     showInlineError(categorieField, errCat, "⚡ Valeurs: Artisanat, Gastronomie, Textile, Bijoux, Art, Souvenirs");
                 } else {
                     clearInlineError(categorieField, errCat);
+                }
+            });
+        }
+
+        // ── CATEGORIE AUTRE (champ libre) ──────────────────────────────
+        if (categorieAutreField != null) {
+            injectErrorLabel(categorieAutreField, errCat);
+            categorieAutreField.textProperty().addListener((obs, old, val) -> {
+                if (val.isBlank()) {
+                    showInlineError(categorieAutreField, errCat, "⚡ Précisez votre catégorie");
+                } else if (val.trim().length() < 2) {
+                    showInlineError(categorieAutreField, errCat, "⚡ Minimum 2 caractères");
+                } else if (!val.trim().matches("^[a-zA-ZÀ-ÿ\\s\\-']+$")) {
+                    showInlineError(categorieAutreField, errCat, "⚡ Lettres uniquement");
+                } else {
+                    clearInlineError(categorieAutreField, errCat);
                 }
             });
         }
@@ -331,8 +354,13 @@ public class WinGoShopController {
             becomeCommercantNom.textProperty().addListener((obs, old, val) -> {
                 if (val.isBlank()) {
                     clearInlineError(becomeCommercantNom, errBcNom);
+                } else if (!val.trim().matches("^[a-zA-ZÀ-ÿ\\s\\-']+$")) {
+                    // ✅ Bloque les chiffres et caractères spéciaux
+                    showInlineError(becomeCommercantNom, errBcNom, "⚡ Lettres uniquement (pas de chiffres)");
                 } else if (val.trim().length() < 3) {
                     showInlineError(becomeCommercantNom, errBcNom, "⚡ Minimum 3 caractères");
+                } else if (val.trim().length() > 60) {
+                    showInlineError(becomeCommercantNom, errBcNom, "⚡ Maximum 60 caractères");
                 } else {
                     clearInlineError(becomeCommercantNom, errBcNom);
                 }
@@ -471,7 +499,25 @@ public class WinGoShopController {
                 "Mahdia","Sfax","Kairouan","Kasserine","Sidi Bouzid","Gabès",
                 "Médenine","Tataouine","Gafsa","Tozeur","Kebili"
         );
-        if (clientRegionFilter != null) { clientRegionFilter.setItems(regions); clientRegionFilter.setValue("Toutes"); }
+        if (clientRegionFilter != null) { clientRegionFilter.setItems(regions); clientRegionFilter.setValue("Toutes");
+        }
+        // ✅ ComboBox catégorie du formulaire produit
+        if (categorieCombo != null) {
+            ObservableList<String> cats = FXCollections.observableArrayList(
+                    "Artisanat", "Gastronomie", "Textile",
+                    "Bijoux", "Art", "Souvenirs", "✏ Autre..."
+            );
+            categorieCombo.setItems(cats);
+
+            // Style des items de la liste déroulante
+            categorieCombo.setStyle(
+                    "-fx-background-color: rgba(255,255,255,0.10);" +
+                            "-fx-background-radius: 12;" +
+                            "-fx-border-color: rgba(255,255,255,0.18);" +
+                            "-fx-border-radius: 12;" +
+                            "-fx-text-fill: white;"
+            );
+        }
     }
 
     private void setupProductsTable() {
@@ -570,7 +616,32 @@ public class WinGoShopController {
         cartPane.setVisible(true); cartPane.setManaged(true);
         refreshCartUI();
     }
+    @FXML
+    private void onCategorieChanged() {
+        if (categorieCombo == null) return;
 
+        String selected = categorieCombo.getValue();
+        boolean isAutre = "✏ Autre...".equals(selected);
+
+        // Afficher/masquer le champ "Autre"
+        categorieAutreField.setVisible(isAutre);
+        categorieAutreField.setManaged(isAutre);
+
+        if (isAutre) {
+            // Focus automatique sur le champ libre
+            categorieAutreField.requestFocus();
+            categorieAutreField.setPromptText("✏ Ex: Poterie, Parfums, Épices...");
+            errCat.setText("");
+            errCat.setVisible(false);
+            errCat.setManaged(false);
+        } else if (selected != null && !selected.isBlank()) {
+            // Sync avec categorieField caché
+            categorieField.setText(selected);
+            errCat.setText("");
+            errCat.setVisible(false);
+            errCat.setManaged(false);
+        }
+    }
     // ==================== LOGIN ====================
     @FXML
     public void doLogin() {
@@ -978,7 +1049,31 @@ public class WinGoShopController {
         }
 
         String nom   = nomTextField.getText()    == null ? "" : nomTextField.getText().trim();
-        String cat   = categorieField.getText()  == null ? "" : categorieField.getText().trim();
+// ✅ Récupère la catégorie : combo ou champ libre "Autre"
+        String selectedCat = categorieCombo != null ? categorieCombo.getValue() : "";
+        String cat;
+        if ("✏ Autre...".equals(selectedCat)) {
+            cat = categorieAutreField.getText() == null ? "" : categorieAutreField.getText().trim();
+            if (cat.isEmpty()) {
+                showInlineError(categorieAutreField, errCat, "⚡ Précisez votre catégorie");
+                return;
+            }
+        } else {
+            cat = selectedCat == null ? "" : selectedCat.trim();
+            if (cat.isEmpty()) {
+                errCat.setText("⚡ Choisissez une catégorie");
+                errCat.setVisible(true);
+                errCat.setManaged(true);
+                categorieCombo.setStyle(
+                        "-fx-background-color: rgba(255,0,84,0.13);" +
+                                "-fx-background-radius: 12;" +
+                                "-fx-border-color: #FF0054;" +
+                                "-fx-border-width: 1.5;" +
+                                "-fx-border-radius: 12;"
+                );
+                return;
+            }
+        }
         String region= regionField.getText()     == null ? "" : regionField.getText().trim();
         String img   = imageField.getText()      == null ? "" : imageField.getText().trim();
         String desc  = descriptionField.getText()== null ? "" : descriptionField.getText().trim();
@@ -1079,14 +1174,22 @@ public class WinGoShopController {
         prixTextField.clear();
         stockField.clear();
         regionField.clear();
-        categorieField.clear();
         imageField.clear();
-        // Reset styles
-        for (TextField f : new TextField[]{nomTextField, descriptionField, prixTextField,
-                stockField, regionField, categorieField, imageField}) {
+
+        // ✅ Reset ComboBox catégorie
+        if (categorieCombo != null) categorieCombo.setValue(null);
+        if (categorieAutreField != null) {
+            categorieAutreField.clear();
+            categorieAutreField.setVisible(false);
+            categorieAutreField.setManaged(false);
+        }
+        if (categorieField != null) categorieField.clear();
+
+        // Reset styles...
+        for (TextField f : new TextField[]{nomTextField, descriptionField,
+                prixTextField, stockField, regionField, imageField}) {
             if (f != null) f.setStyle(STYLE_FIELD_OK);
         }
-        // Masquer tous les labels d'erreur du formulaire
         for (Label l : new Label[]{errNom, errCat, errPrix, errStock, errImage, errRegion, errDesc}) {
             l.setVisible(false); l.setManaged(false); l.setText("");
         }
@@ -1118,6 +1221,9 @@ public class WinGoShopController {
 
         if (nom.isEmpty()) {
             showInlineError(becomeCommercantNom, errBcNom, "⚡ Le nom complet est obligatoire"); valid = false;
+        } else if (!nom.matches("^[a-zA-ZÀ-ÿ\\s\\-']+$")) {
+            // ✅ Bloque les chiffres à la soumission aussi
+            showInlineError(becomeCommercantNom, errBcNom, "⚡ Lettres uniquement (pas de chiffres)"); valid = false;
         } else if (nom.length() < 3) {
             showInlineError(becomeCommercantNom, errBcNom, "⚡ Minimum 3 caractères"); valid = false;
         } else {

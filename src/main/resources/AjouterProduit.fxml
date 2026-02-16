@@ -441,14 +441,35 @@
                                 </VBox>
 
                                 <VBox spacing="8" GridPane.columnIndex="1" GridPane.rowIndex="0">
-                                    <Label text="* Catégorie" style="-fx-text-fill: rgba(255,255,255,0.85); -fx-font-weight: 800; -fx-font-size: 12px;"/>
-                                    <TextField fx:id="categorieField" promptText="Ex: Artisanat"
-                                               style="-fx-background-color: rgba(255,255,255,0.10);
-                                                      -fx-background-radius: 12;
-                                                      -fx-text-fill: white;
-                                                      -fx-padding: 12 14;" />
-                                </VBox>
+                                    <Label text="* Catégorie"
+                                           style="-fx-text-fill: rgba(255,255,255,0.85); -fx-font-weight: 800; -fx-font-size: 12px;"/>
 
+                                    <!-- ComboBox catégorie -->
+                                    <ComboBox fx:id="categorieCombo"
+                                              promptText="Choisir une catégorie..."
+                                              onAction="#onCategorieChanged"
+                                              style="-fx-background-color: rgba(255,255,255,0.10);
+                     -fx-background-radius: 12;
+                     -fx-border-color: rgba(255,255,255,0.18);
+                     -fx-border-radius: 12;
+                     -fx-text-fill: white;
+                     -fx-pref-width: 999;" />
+
+                                    <!-- Champ "Autre" conditionnel -->
+                                    <TextField fx:id="categorieAutreField"
+                                               promptText="✏ Précisez votre catégorie..."
+                                               visible="false" managed="false"
+                                               style="-fx-background-color: rgba(255,255,255,0.10);
+                      -fx-background-radius: 12;
+                      -fx-border-color: rgba(255,189,0,0.50);
+                      -fx-border-radius: 12;
+                      -fx-text-fill: white;
+                      -fx-prompt-text-fill: rgba(255,255,255,0.55);
+                      -fx-padding: 12 14;" />
+
+                                    <!-- Garde l'ancien field caché pour compatibilité -->
+                                    <TextField fx:id="categorieField" visible="false" managed="false"/>
+                                </VBox>
                                 <VBox spacing="8" GridPane.columnIndex="0" GridPane.rowIndex="1">
                                     <Label text="* Prix (TND)" style="-fx-text-fill: rgba(255,255,255,0.85); -fx-font-weight: 800; -fx-font-size: 12px;"/>
                                     <TextField fx:id="prixTextField" promptText="0.00"
