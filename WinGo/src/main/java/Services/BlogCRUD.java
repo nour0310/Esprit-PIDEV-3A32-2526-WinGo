@@ -1,12 +1,15 @@
 package Services;
 
 import Entites.Blog;
+import Entites.Tag;
 import Utils.MyBD;
 
 import java.sql.*;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class BlogCRUD {
 
@@ -18,7 +21,7 @@ public class BlogCRUD {
 
     public void ajouter(Blog blog) throws SQLException {
         String req = "INSERT INTO article (titre, contenu, date_publication, auteur, image, region, categorie) VALUES (?, ?, ?, ?, ?, ?, ?)";
-        try (PreparedStatement pst = conn.prepareStatement(req)) {
+        try (PreparedStatement pst = conn.prepareStatement(req, Statement.RETURN_GENERATED_KEYS)) {
             pst.setString(1, blog.getTitre());
             pst.setString(2, blog.getContenu());
             pst.setTimestamp(3, Timestamp.valueOf(LocalDateTime.now()));
@@ -27,8 +30,14 @@ public class BlogCRUD {
             pst.setString(6, blog.getRegion());
             pst.setString(7, blog.getCategorie());
             pst.executeUpdate();
+
+            try (ResultSet generatedKeys = pst.getGeneratedKeys()) {
+                if (generatedKeys.next()) {
+                    blog.setId(generatedKeys.getInt(1));
+                }
+            }
         }
-        System.out.println("Blog ajouté !");
+        System.out.println("Blog ajouté avec ID : " + blog.getId());
     }
 
     public void modifier(Blog blog) throws SQLException {
@@ -56,11 +65,12 @@ public class BlogCRUD {
     }
 
     public List<Blog> afficher() throws SQLException {
-        // Jointure avec utilisateur pour récupérer le prénom et le nom
-        String req = "SELECT a.*, u.nom, u.prenom FROM article a LEFT JOIN utilisateur u ON a.auteur = u.id ORDER BY a.date_publication DESC";
-        List<Blog> list = new ArrayList<>();
+        String reqArticles = "SELECT a.*, u.nom, u.prenom FROM article a LEFT JOIN utilisateur u ON a.auteur = u.id ORDER BY a.date_publication DESC";
+        List<Blog> articles = new ArrayList<>();
+        Map<Integer, Blog> mapArticles = new HashMap<>();
+
         try (Statement st = conn.createStatement();
-             ResultSet rs = st.executeQuery(req)) {
+             ResultSet rs = st.executeQuery(reqArticles)) {
             while (rs.next()) {
                 Blog b = new Blog();
                 b.setId(rs.getInt("id"));
@@ -72,7 +82,6 @@ public class BlogCRUD {
                 b.setRegion(rs.getString("region"));
                 b.setCategorie(rs.getString("categorie"));
 
-                // Construction du nom complet de l'auteur
                 String nom = rs.getString("nom");
                 String prenom = rs.getString("prenom");
                 String auteurNom;
@@ -83,13 +92,47 @@ public class BlogCRUD {
                 } else if (nom != null) {
                     auteurNom = nom;
                 } else {
-                    auteurNom = "Utilisateur " + rs.getInt("auteur"); // fallback
+                    auteurNom = "Utilisateur " + rs.getInt("auteur");
                 }
                 b.setAuteurNom(auteurNom);
-                list.add(b);
+
+                articles.add(b);
+                mapArticles.put(b.getId(), b);
             }
         }
-        return list;
+
+        if (!articles.isEmpty()) {
+            String reqTags = "SELECT at.article_id, t.id, t.nom FROM article_tag at JOIN tag t ON at.tag_id = t.id WHERE at.article_id IN (";
+            StringBuilder sb = new StringBuilder();
+            for (int i = 0; i < articles.size(); i++) {
+                if (i > 0) sb.append(",");
+                sb.append("?");
+            }
+            reqTags += sb.toString() + ")";
+
+            try (PreparedStatement pst = conn.prepareStatement(reqTags)) {
+                int index = 1;
+                for (Blog b : articles) {
+                    pst.setInt(index++, b.getId());
+                }
+                try (ResultSet rs = pst.executeQuery()) {
+                    while (rs.next()) {
+                        int articleId = rs.getInt("article_id");
+                        Tag tag = new Tag();
+                        tag.setId(rs.getInt("id"));
+                        tag.setNom(rs.getString("nom"));
+                        Blog b = mapArticles.get(articleId);
+                        if (b != null) {
+                            b.getTags().add(tag);
+                        }
+                    }
+                }
+            } catch (SQLException e) {
+                System.err.println("Note : table article_tag peut-être absente, aucun tag chargé.");
+            }
+        }
+
+        return articles;
     }
 
     public Blog getById(int id) throws SQLException {
