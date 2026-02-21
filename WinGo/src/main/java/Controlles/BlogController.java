@@ -2,6 +2,7 @@ package Controlles;
 
 import Entites.Blog;
 import Entites.Commentaire;
+import Entites.Favori;
 import Entites.Like;
 import Entites.Notification;
 import Entites.Rating;
@@ -9,6 +10,7 @@ import Entites.Tag;
 import Entites.Utilisateur;
 import Services.BlogCRUD;
 import Services.CommentaireCRUD;
+import Services.FavoriCRUD;
 import Services.LikeCRUD;
 import Services.NotificationCRUD;
 import Services.RatingCRUD;
@@ -25,12 +27,12 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
 import javafx.scene.layout.*;
+import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
-import javafx.scene.paint.Color;
 import javafx.stage.FileChooser;
 import javafx.stage.Popup;
 
@@ -45,6 +47,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 public class BlogController implements Initializable {
 
@@ -56,6 +59,7 @@ public class BlogController implements Initializable {
     private final RatingCRUD ratingCRUD = new RatingCRUD();
     private final TagCRUD tagCRUD = new TagCRUD();
     private final NotificationCRUD notificationCRUD = new NotificationCRUD();
+    private final FavoriCRUD favoriCRUD = new FavoriCRUD(); // NOUVEAU
 
     // Données observables
     private ObservableList<Blog> blogList = FXCollections.observableArrayList();
@@ -74,6 +78,10 @@ public class BlogController implements Initializable {
     private Map<Integer, Double> ratingAverages = new HashMap<>();
     private Map<Integer, Integer> voteCounts = new HashMap<>();
     private Map<Integer, Integer> userRatings = new HashMap<>();
+
+    // Données pour les favoris (NOUVEAU)
+    private Set<Integer> favorisUtilisateur = new HashSet<>();
+    private boolean modeFavoris = false;
 
     // Images pour les cœurs
     private Image heartEmptyImage;
@@ -132,6 +140,7 @@ public class BlogController implements Initializable {
     @FXML private HBox detailStarsBox;
     @FXML private Label detailAvgLabel;
     @FXML private HBox detailShareBox;
+    @FXML private Button detailFavButton; // NOUVEAU
 
     // Notifications
     @FXML private Button notificationButton;
@@ -227,6 +236,7 @@ public class BlogController implements Initializable {
                 connectedUserLabel.setText(nomComplet);
                 detailConnectedUserLabel.setText(nomComplet);
                 loadNotifications();
+                loadFavoris(); // NOUVEAU
             } else {
                 auteurLabel.setText("Utilisateur inconnu");
                 connectedUserLabel.setText("Utilisateur inconnu");
@@ -251,6 +261,15 @@ public class BlogController implements Initializable {
         } catch (SQLException e) {
             e.printStackTrace();
         }
+    }
+
+    // NOUVEAU : charger les favoris
+    private void loadFavoris() throws SQLException {
+        if (currentUser == null) return;
+        favorisUtilisateur.clear();
+        List<Integer> ids = favoriCRUD.getFavorisByUser(currentUser.getId());
+        favorisUtilisateur.addAll(ids);
+        System.out.println("Favoris chargés : " + favorisUtilisateur.size());
     }
 
     private void attachListeners() {
@@ -315,6 +334,13 @@ public class BlogController implements Initializable {
         } catch (SQLException e) {
             e.printStackTrace();
         }
+    }
+
+    // NOUVEAU : basculer l'affichage des favoris
+    @FXML
+    private void afficherFavoris() {
+        modeFavoris = !modeFavoris;
+        filterArticles(); // réapplique le filtre avec le nouveau mode
     }
 
     // ========== VALIDATION EN TEMPS RÉEL ==========
@@ -442,6 +468,7 @@ public class BlogController implements Initializable {
             loadAllComments();
             loadLikes();
             loadRatings();
+            loadFavoris(); // NOUVEAU
             loadBlogs();
             updateStats();
             statusLabel.setText("✅ Prêt, " + blogList.size() + " articles chargés.");
@@ -453,10 +480,8 @@ public class BlogController implements Initializable {
     private void loadBlogs() throws SQLException {
         blogList.clear();
         List<Blog> blogs = blogCRUD.afficher();
-        // Charger les tags pour chaque article (si non inclus dans afficher)
         for (Blog b : blogs) {
             b.setTags(tagCRUD.getTagsByArticle(b.getId()));
-            System.out.println("Article " + b.getId() + " a " + b.getTags().size() + " tags");
         }
         blogList.addAll(blogs);
         displayBlogs(blogList);
@@ -645,6 +670,15 @@ public class BlogController implements Initializable {
         likeButton.setOnAction(e -> toggleLike(blog, likeButton, likeCountLabel));
         // --- FIN LIKES ---
 
+        // --- FAVORI (NOUVEAU) ---
+        Button favButton = new Button();
+        favButton.setStyle("-fx-background-color: transparent; -fx-cursor: hand; -fx-font-size: 18px;");
+        boolean estFavori = favorisUtilisateur.contains(blog.getId());
+        favButton.setText(estFavori ? "★" : "☆");
+        favButton.setTextFill(estFavori ? Color.GOLD : Color.GRAY);
+        favButton.setOnAction(e -> toggleFavori(blog, favButton));
+        // --- FIN FAVORI ---
+
         // --- ÉTOILES (notation) ---
         double avg = ratingAverages.getOrDefault(blog.getId(), 0.0);
         int userNote = userRatings.getOrDefault(blog.getId(), 0);
@@ -765,7 +799,7 @@ public class BlogController implements Initializable {
         }
 
         // Ajout des éléments au contenu
-        content.getChildren().addAll(auteur, date, categorie, extraitLabel, commentCount, likeBox, ratingBox);
+        content.getChildren().addAll(auteur, date, categorie, extraitLabel, commentCount, likeBox, favButton, ratingBox);
         if (tagsBox != null) content.getChildren().add(tagsBox);
         content.getChildren().add(actions);
 
@@ -831,6 +865,12 @@ public class BlogController implements Initializable {
         int likes = likeCounts.getOrDefault(blog.getId(), 0);
         detailLikeCountLabel.setText(likes + (likes > 1 ? " likes" : " like"));
         detailLikeButton.setOnAction(e -> toggleLikeDetail(blog));
+
+        // Mise à jour du favori (NOUVEAU)
+        boolean estFavori = favorisUtilisateur.contains(blog.getId());
+        detailFavButton.setText(estFavori ? "★" : "☆");
+        detailFavButton.setStyle("-fx-background-color: transparent; -fx-cursor: hand; -fx-font-size: 24px; -fx-text-fill: " + (estFavori ? "gold" : "gray") + ";");
+        detailFavButton.setOnAction(e -> toggleFavori(blog, detailFavButton));
 
         // Mise à jour des étoiles
         updateDetailStars();
@@ -1294,7 +1334,6 @@ public class BlogController implements Initializable {
 
         detailNewCommentField.textProperty().addListener((obs, oldText, newText) -> {
             int caretPos = detailNewCommentField.getCaretPosition();
-            // Sécurité : vérifier que caretPos est compris entre 1 et la longueur du texte
             if (caretPos > 0 && caretPos <= newText.length()) {
                 char prevChar = newText.charAt(caretPos - 1);
                 if (prevChar == '@') {
@@ -1416,6 +1455,42 @@ public class BlogController implements Initializable {
         }
     }
 
+    // ========== GESTION DES FAVORIS (NOUVEAU) ==========
+    private void toggleFavori(Blog blog, Button favButton) {
+        if (currentUser == null) {
+            showWarning("Connectez-vous pour ajouter aux favoris.");
+            return;
+        }
+        int articleId = blog.getId();
+        boolean actuellementFavori = favorisUtilisateur.contains(articleId);
+
+        try {
+            if (actuellementFavori) {
+                favoriCRUD.supprimer(currentUser.getId(), articleId);
+                favorisUtilisateur.remove(articleId);
+                showInfo("Article retiré des favoris.");
+            } else {
+                Favori f = new Favori(currentUser.getId(), articleId);
+                favoriCRUD.ajouter(f);
+                favorisUtilisateur.add(articleId);
+                showInfo("Article ajouté aux favoris.");
+            }
+            // Mettre à jour le bouton
+            boolean nouveauState = favorisUtilisateur.contains(articleId);
+            favButton.setText(nouveauState ? "★" : "☆");
+            favButton.setTextFill(nouveauState ? Color.GOLD : Color.GRAY);
+            // Mettre à jour la vue détail si ouverte
+            if (displayedDetailBlog != null && displayedDetailBlog.getId() == articleId) {
+                detailFavButton.setText(nouveauState ? "★" : "☆");
+                detailFavButton.setTextFill(nouveauState ? Color.GOLD : Color.GRAY);
+            }
+            // Mettre à jour la carte correspondante (on rafraîchit tout)
+            refreshAllCards();
+        } catch (SQLException e) {
+            showError("Erreur lors de la gestion des favoris", e.getMessage());
+        }
+    }
+
     // ========== CRUD BLOG ==========
     private void supprimerBlog(Blog blog) {
         if (currentUser == null || blog.getAuteur() != currentUser.getId()) {
@@ -1494,11 +1569,8 @@ public class BlogController implements Initializable {
             System.out.println("✅ Article ajouté avec ID : " + b.getId());
 
             String tagsInput = tagsField.getText();
-            System.out.println("Tags saisis : " + tagsInput);
             if (tagsInput != null && !tagsInput.trim().isEmpty()) {
                 traiterTags(b.getId(), tagsInput);
-            } else {
-                System.out.println("Aucun tag saisi.");
             }
 
             refreshData();
@@ -1623,7 +1695,7 @@ public class BlogController implements Initializable {
             detailNewCommentField.clear();
             afficherCommentairesDetail();
             detailStatusLabel.setText("✅ Commentaire ajouté.");
-            loadNotifications(); // Mettre à jour le badge de notifications
+            loadNotifications();
         } catch (SQLException e) {
             detailStatusLabel.setText("❌ Erreur : " + e.getMessage());
             e.printStackTrace();
@@ -1662,7 +1734,13 @@ public class BlogController implements Initializable {
                         (b.getAuteurNom() != null && b.getAuteurNom().toLowerCase().contains(search))))
                 .filter(b -> "Toutes".equals(region) || (b.getRegion() != null && b.getRegion().equals(region)))
                 .filter(b -> "Toutes".equals(cat) || (b.getCategorie() != null && b.getCategorie().equals(cat)))
-                .toList();
+                .collect(Collectors.toList());
+
+        if (modeFavoris) {
+            filtered = filtered.stream()
+                    .filter(b -> favorisUtilisateur.contains(b.getId()))
+                    .collect(Collectors.toList());
+        }
         displayBlogs(filtered);
     }
 
@@ -1671,6 +1749,7 @@ public class BlogController implements Initializable {
         loadAllComments();
         loadLikes();
         loadRatings();
+        loadFavoris(); // NOUVEAU
         filterArticles();
         if (selectedBlog != null) {
             blogList.stream()
