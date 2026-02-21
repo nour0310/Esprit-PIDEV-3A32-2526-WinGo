@@ -34,6 +34,9 @@ public class BlogCRUD {
             try (ResultSet generatedKeys = pst.getGeneratedKeys()) {
                 if (generatedKeys.next()) {
                     blog.setId(generatedKeys.getInt(1));
+                    System.out.println("ID généré pour l'article : " + blog.getId());
+                } else {
+                    throw new SQLException("Création d'article échouée, aucun ID obtenu.");
                 }
             }
         }
