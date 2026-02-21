@@ -124,6 +124,15 @@
                                -fx-padding: 12 12;
                                -fx-cursor: hand;" />
 
+                <!-- BOUTON FAVORIS (NOUVEAU) -->
+                <Button text="⭐" onAction="#afficherFavoris"
+                        style="-fx-background-color: transparent;
+                               -fx-text-fill: rgba(255,255,255,0.92);
+                               -fx-font-size: 24px;
+                               -fx-background-radius: 14;
+                               -fx-padding: 12 12;
+                               -fx-cursor: hand;" />
+
                 <Button text="🔔" onAction="#goSettings"
                         style="-fx-background-color: transparent;
                                -fx-text-fill: rgba(255,255,255,0.92);
@@ -477,6 +486,9 @@
                                 </Button>
                                 <Label fx:id="detailLikeCountLabel" text="0 like"
                                        style="-fx-font-size: 18px; -fx-text-fill: white; -fx-font-weight: bold;"/>
+                                <!-- BOUTON FAVORI (NOUVEAU) -->
+                                <Button fx:id="detailFavButton" text="☆"
+                                        style="-fx-background-color: transparent; -fx-cursor: hand; -fx-font-size: 24px; -fx-text-fill: gray;" />
                             </HBox>
 
                             <HBox spacing="10" alignment="CENTER" style="-fx-padding: 0 20;">
