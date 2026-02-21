@@ -15,7 +15,12 @@ public class TagCRUD {
         conn = MyBD.getInstance().getConn();
     }
 
-    // Ajouter un tag s'il n'existe pas déjà, retourne l'ID
+    /**
+     * Ajoute un tag s'il n'existe pas déjà, retourne son ID.
+     * @param nom le nom du tag (unique)
+     * @return l'ID du tag (nouvel ID si insertion, ID existant si déjà présent)
+     * @throws SQLException
+     */
     public int ajouterOuRecuperer(String nom) throws SQLException {
         // Vérifier si le tag existe déjà
         String select = "SELECT id FROM tag WHERE nom = ?";
@@ -43,7 +48,12 @@ public class TagCRUD {
         }
     }
 
-    // Associer un tag à un article
+    /**
+     * Associe un tag à un article.
+     * @param articleId l'ID de l'article
+     * @param tagId l'ID du tag
+     * @throws SQLException
+     */
     public void associerTagArticle(int articleId, int tagId) throws SQLException {
         String req = "INSERT INTO article_tag (article_id, tag_id) VALUES (?, ?)";
         try (PreparedStatement pst = conn.prepareStatement(req)) {
@@ -53,7 +63,11 @@ public class TagCRUD {
         }
     }
 
-    // Supprimer toutes les associations d'un article (utile avant mise à jour)
+    /**
+     * Supprime toutes les associations de tags pour un article donné.
+     * @param articleId l'ID de l'article
+     * @throws SQLException
+     */
     public void supprimerAssociationsArticle(int articleId) throws SQLException {
         String req = "DELETE FROM article_tag WHERE article_id = ?";
         try (PreparedStatement pst = conn.prepareStatement(req)) {
@@ -62,10 +76,15 @@ public class TagCRUD {
         }
     }
 
-    // Récupérer les tags d'un article
+    /**
+     * Récupère la liste des tags associés à un article.
+     * @param articleId l'ID de l'article
+     * @return liste de tags
+     * @throws SQLException
+     */
     public List<Tag> getTagsByArticle(int articleId) throws SQLException {
         List<Tag> tags = new ArrayList<>();
-        String req = "SELECT t.* FROM tag t JOIN article_tag at ON t.id = at.tag_id WHERE at.article_id = ?";
+        String req = "SELECT t.* FROM tag t JOIN article_tag at ON t.id = at.tag_id WHERE at.article_id = ? ORDER BY t.nom";
         try (PreparedStatement pst = conn.prepareStatement(req)) {
             pst.setInt(1, articleId);
             try (ResultSet rs = pst.executeQuery()) {
@@ -80,7 +99,11 @@ public class TagCRUD {
         return tags;
     }
 
-    // Récupérer tous les tags (pour l'auto-complétion)
+    /**
+     * Récupère tous les tags existants dans la base (pour l'auto-complétion, par exemple).
+     * @return liste de tous les tags, triés par nom
+     * @throws SQLException
+     */
     public List<Tag> getAllTags() throws SQLException {
         List<Tag> tags = new ArrayList<>();
         String req = "SELECT * FROM tag ORDER BY nom";
@@ -94,5 +117,33 @@ public class TagCRUD {
             }
         }
         return tags;
+    }
+
+    /**
+     * Supprime un tag par son ID (les associations seront supprimées par CASCADE).
+     * @param tagId l'ID du tag
+     * @throws SQLException
+     */
+    public void supprimerTag(int tagId) throws SQLException {
+        String req = "DELETE FROM tag WHERE id = ?";
+        try (PreparedStatement pst = conn.prepareStatement(req)) {
+            pst.setInt(1, tagId);
+            pst.executeUpdate();
+        }
+    }
+
+    /**
+     * Met à jour le nom d'un tag.
+     * @param tagId l'ID du tag
+     * @param nouveauNom le nouveau nom (doit être unique)
+     * @throws SQLException (si le nom existe déjà)
+     */
+    public void modifierTag(int tagId, String nouveauNom) throws SQLException {
+        String req = "UPDATE tag SET nom = ? WHERE id = ?";
+        try (PreparedStatement pst = conn.prepareStatement(req)) {
+            pst.setString(1, nouveauNom);
+            pst.setInt(2, tagId);
+            pst.executeUpdate();
+        }
     }
 }
