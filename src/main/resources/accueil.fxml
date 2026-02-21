@@ -10,7 +10,7 @@
       xmlns="http://javafx.com/javafx/17"
       xmlns:fx="http://javafx.com/fxml/1">
 
-    <VBox prefWidth="50" spacing="5" style="-fx-background-color: #FFFFFF; -fx-padding: 30 0;">
+    <VBox prefWidth="250" spacing="5" style="-fx-background-color: #FFFFFF; -fx-padding: 30 0;">
         <effect>
             <DropShadow color="#0000001A" radius="15" offsetX="4" />
         </effect>
