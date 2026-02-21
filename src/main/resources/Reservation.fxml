@@ -4,140 +4,133 @@
 <?import javafx.scene.effect.DropShadow?>
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.*?>
-
 <?import javafx.scene.image.Image?>
+
 <StackPane prefHeight="720" prefWidth="1200"
            xmlns="http://javafx.com/javafx/17"
            xmlns:fx="http://javafx.com/fxml/1"
            fx:controller="Controlles.MixedFX">
 
     <Pane mouseTransparent="true"
-          style="-fx-background-image: url('/assets/testt.jpg');
-                 -fx-background-repeat: no-repeat;
-                 -fx-background-position: center center;
-                 -fx-background-size: cover;" />
+          style="-fx-background-color: #F4F7FB;" />
 
-
-    <Pane mouseTransparent="true" style="-fx-background-color: rgba(0,0,0,0.4);" />
-
-    <BorderPane maxHeight="680" maxWidth="1150"
-                style="-fx-background-color: rgba(255,255,255,0.05);
-                       -fx-background-radius: 30;
-                       -fx-border-color: rgba(255,255,255,0.15);
-                       -fx-border-radius: 30;
-                       -fx-border-width: 1.5;">
-        <effect><DropShadow color="#00000088" offsetY="15" radius="30" /></effect>
-        <padding><Insets bottom="15" left="15" right="15" top="15" /></padding>
+    <BorderPane maxHeight="700" maxWidth="1180"
+                style="-fx-background-color: transparent;">
 
         <top>
-            <HBox alignment="CENTER_LEFT" spacing="15" style="-fx-padding: 10 20 25 20;">
-                <ImageView fitHeight="40" fitWidth="40" preserveRatio="true">
-                    <Image url="assets/logo.png" />
-                </ImageView>
-                <Label text="WinGo Travel"
-                       style="-fx-text-fill: white; -fx-font-size: 24px; -fx-font-weight: 900;" />
+            <HBox alignment="CENTER_LEFT" spacing="25" style="-fx-padding: 10 30 20 30;">
+                <HBox alignment="CENTER_LEFT" spacing="15">
+                    <ImageView fitHeight="45" fitWidth="45" preserveRatio="true">
+                        <Image url="assets/logo.png" />
+                    </ImageView>
+                    <Label text="WinGo" style="-fx-text-fill: #1E293B; -fx-font-size: 22px; -fx-font-weight: 900; -fx-font-family: 'Arial';" />
+                </HBox>
 
-                <Region HBox.hgrow="ALWAYS"/>
-
-
-                <HBox alignment="CENTER" spacing="10"
-                      style="-fx-background-color: rgba(0,0,0,0.4); -fx-background-radius: 20; -fx-padding: 8 20;">
-                    <Label text="🔍" style="-fx-text-fill: rgba(255,255,255,0.6);" />
-                    <TextField promptText="Rechercher une reservation ..."
-                               style="-fx-background-color: transparent; -fx-text-fill: white; -fx-prompt-text-fill: rgba(255,255,255,0.6); -fx-pref-width: 200;"/>
+                <HBox spacing="30" alignment="CENTER" style="-fx-padding: 0 0 0 40;">
+                    <Label text="Home" style="-fx-text-fill: #1E293B; -fx-font-weight: bold; -fx-font-size: 14px;" />
+                    <Label text="Explore" style="-fx-text-fill: #64748B; -fx-font-size: 14px; -fx-cursor: hand;" />
+                    <Label text="Estate" style="-fx-text-fill: #64748B; -fx-font-size: 14px; -fx-cursor: hand;" />
+                    <Label text="Contact Us" style="-fx-text-fill: #64748B; -fx-font-size: 14px; -fx-cursor: hand;" />
                 </HBox>
 
                 <Region HBox.hgrow="ALWAYS"/>
 
-                <Button text="⚙"
-                        style="-fx-background-color: #FFBD00; -fx-text-fill: black; -fx-font-weight: bold; -fx-background-radius: 15; -fx-padding: 8 12; -fx-font-size: 14px;" />
-                <Button text="🔔"
-                        style="-fx-background-color: transparent; -fx-text-fill: white; -fx-font-size: 16px;" />
-                <Button text="👤"
-                        style="-fx-background-color: transparent; -fx-text-fill: white; -fx-font-size: 16px;" />
+                <HBox alignment="CENTER" spacing="10"
+                      style="-fx-background-color: #FFFFFF; -fx-background-radius: 50; -fx-padding: 10 25;">
+                    <effect><DropShadow color="#0000000A" offsetY="5" radius="15" /></effect>
+                    <Label text="🔍" style="-fx-text-fill: #A3B1FF;" />
+                    <TextField fx:id="searchField"
+                               promptText="Write destination..."
+                               style="-fx-background-color: transparent; -fx-text-fill: #1E293B; -fx-prompt-text-fill: #94A3B8; -fx-pref-width: 180;"/>
+                </HBox>
+
+                <Button text="Get Started"
+                        style="-fx-background-color: #A3B1FF; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 50; -fx-padding: 10 24; -fx-font-size: 14px;" />
             </HBox>
         </top>
 
         <left>
-            <VBox prefWidth="80" spacing="20" alignment="TOP_CENTER"
-                  style="-fx-background-color: rgba(255,255,255,0.08);
-                         -fx-background-radius: 20;
-                         -fx-border-color: rgba(255,255,255,0.1);
-                         -fx-border-radius: 20;
-                         -fx-padding: 20 10;">
+            <VBox prefWidth="80" spacing="25" alignment="TOP_CENTER"
+                  style="-fx-background-color: #FFFFFF;
+                         -fx-background-radius: 30;
+                         -fx-padding: 30 10;">
+                <BorderPane.margin>
+                    <Insets top="10" left="20" bottom="20" right="20"/>
+                </BorderPane.margin>
+                <effect><DropShadow color="#0000000E" offsetY="10" radius="25" /></effect>
 
                 <Button fx:id="reservationToggleBtn" text="🏠" onAction="#showReservations"
-                        style="-fx-background-color: #c49a6c; -fx-text-fill: white; -fx-font-size: 18px; -fx-background-radius: 12; -fx-padding: 12 15;" />
-
+                        style="-fx-background-color: #A3B1FF; -fx-text-fill: white; -fx-font-size: 20px; -fx-background-radius: 20; -fx-padding: 15 15;" />
                 <Button fx:id="transportToggleBtn" text="📝" onAction="#showTransports"
-                        style="-fx-background-color: transparent; -fx-text-fill: rgba(255,255,255,0.8); -fx-font-size: 18px;" />
-
-                <Button text="💬" style="-fx-background-color: transparent; -fx-text-fill: rgba(255,255,255,0.8); -fx-font-size: 18px;" />
-                <Button text="⚙" style="-fx-background-color: transparent; -fx-text-fill: rgba(255,255,255,0.8); -fx-font-size: 18px;" />
+                        style="-fx-background-color: transparent; -fx-text-fill: #94A3B8; -fx-font-size: 20px;" />
+                <Button text="💬" style="-fx-background-color: transparent; -fx-text-fill: #94A3B8; -fx-font-size: 20px;" />
+                <Button text="⚙" style="-fx-background-color: transparent; -fx-text-fill: #94A3B8; -fx-font-size: 20px;" />
 
                 <Region VBox.vgrow="ALWAYS" />
-                <Label text="© 2026" style="-fx-text-fill: rgba(255,255,255,0.5); -fx-font-size: 10px;" />
+                <Label text="©" style="-fx-text-fill: #CBD5E1; -fx-font-size: 14px;" />
             </VBox>
         </left>
 
         <center>
-            <HBox spacing="20" style="-fx-padding: 0 0 0 20;">
+            <HBox spacing="40" style="-fx-padding: 0 20 20 10;">
 
-                <VBox HBox.hgrow="ALWAYS" spacing="15">
-                    <VBox spacing="5">
-                        <Label text="Réserver le voyage de vos reves  ✍️" style="-fx-text-fill: white; -fx-font-size: 26px; -fx-font-weight: bold;" />
-                        <Label text="Créez, modifiez ou supprimez vos reservation" style="-fx-text-fill: rgba(255,255,255,0.7); -fx-font-size: 14px;" />
-                        <HBox alignment="CENTER_LEFT" spacing="8" style="-fx-padding: 10 0 0 0;">
-                            <Label text="📁" style="-fx-text-fill: white;" />
-                            <Label text="Reservation et Transport" style="-fx-text-fill: white; -fx-font-size: 14px; -fx-font-weight: bold;" />
-                        </HBox>
+                <VBox HBox.hgrow="ALWAYS" spacing="30">
+
+                    <VBox spacing="10" style="-fx-padding: 10 0 0 0;">
+                        <Label text="Explore The world&#10;With US"
+                               style="-fx-text-fill: #1E293B; -fx-font-size: 38px; -fx-font-weight: 900; -fx-line-spacing: -5px;" />
+                        <Label text="Lorem ipsum dolor sit amet, consectetur adipiscing elit. Mi senectus at."
+                               style="-fx-text-fill: #64748B; -fx-font-size: 15px; -fx-wrap-text: true; -fx-max-width: 400;" />
                     </VBox>
 
                     <StackPane VBox.vgrow="ALWAYS">
 
                         <ScrollPane fx:id="listScroll" fitToWidth="true" style="-fx-background: transparent; -fx-background-color: transparent; -fx-padding: 0;">
                             <content>
-                                <VBox fx:id="listContainer" spacing="20" style="-fx-background-color: transparent;">
-                                    <padding><Insets top="5" right="10" bottom="10" left="0"/></padding>
+                                <VBox fx:id="listContainer" spacing="30" style="-fx-background-color: transparent;">
+                                    <padding><Insets top="5" right="15" bottom="15" left="0"/></padding>
 
-                                    <HBox spacing="15" alignment="CENTER_LEFT"
-                                          style="-fx-background-color: rgba(0,0,0,0.3);
-                                                 -fx-background-radius: 20;
-                                                 -fx-border-color: #c49a6c;
-                                                 -fx-border-radius: 20;
-                                                 -fx-padding: 8 20;">
-                                        <Label text="Filtrer par :" style="-fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 13px;"/>
-                                        <ComboBox fx:id="filter1" promptText="Toutes"
-                                                  style="-fx-background-color: transparent; -fx-border-color: rgba(255,255,255,0.2); -fx-border-radius: 8; -fx-text-fill: white; -fx-pref-width: 130;" />
-                                        <ComboBox fx:id="filter2" promptText="Toutes"
-                                                  style="-fx-background-color: transparent; -fx-border-color: rgba(255,255,255,0.2); -fx-border-radius: 8; -fx-text-fill: white; -fx-pref-width: 130;" />
+                                    <HBox spacing="15" alignment="CENTER_LEFT">
+                                        <HBox alignment="CENTER" style="-fx-background-color: #FFFFFF; -fx-background-radius: 50; -fx-padding: 8 20;">
+                                            <effect><DropShadow color="#00000008" offsetY="4" radius="10" /></effect>
+                                            <Label text="Filtrer par :" style="-fx-text-fill: #64748B; -fx-font-weight: bold; -fx-font-size: 13px; -fx-padding: 0 10 0 0;"/>
+                                            <ComboBox fx:id="filter1" promptText="Destination..."
+                                                      style="-fx-background-color: #F8FAFC; -fx-background-radius: 50; -fx-pref-width: 140;" />
+                                        </HBox>
+                                        <HBox alignment="CENTER" style="-fx-background-color: #FFFFFF; -fx-background-radius: 50; -fx-padding: 8 20;">
+                                            <effect><DropShadow color="#00000008" offsetY="4" radius="10" /></effect>
+                                            <ComboBox fx:id="filter2" promptText="Type..."
+                                                      style="-fx-background-color: #F8FAFC; -fx-background-radius: 50; -fx-pref-width: 140;" />
+                                        </HBox>
                                     </HBox>
 
-                                    <VBox style="-fx-background-color: rgba(0,0,0,0.3); -fx-background-radius: 20; -fx-border-color: #c49a6c; -fx-border-radius: 20;">
-                                        <HBox alignment="CENTER_LEFT" style="-fx-padding: 12 20;">
-                                            <Label text="📰 Transport récents" style="-fx-text-fill: #FFBD00; -fx-font-weight: bold; -fx-font-size: 15px;" />
-                                        </HBox>
-
-                                        <ScrollPane fitToWidth="true" prefHeight="250" style="-fx-background: transparent; -fx-background-color: transparent;">
-                                            <FlowPane fx:id="itemsFlowPane" hgap="15" vgap="15" style="-fx-background-color: transparent; -fx-padding: 0 20 20 20;" />
+                                    <VBox spacing="15" style="-fx-background-color: transparent;">
+                                        <Label text="Entire city of choice" style="-fx-text-fill: #1E293B; -fx-font-weight: 900; -fx-font-size: 22px;" />
+                                        <ScrollPane fitToWidth="true" prefHeight="240" style="-fx-background: transparent; -fx-background-color: transparent;">
+                                            <FlowPane fx:id="itemsFlowPane" hgap="25" vgap="25" style="-fx-background-color: transparent; -fx-padding: 5 5 15 5;" />
                                         </ScrollPane>
                                     </VBox>
 
-                                    <VBox style="-fx-background-color: rgba(0,0,0,0.3); -fx-background-radius: 20; -fx-border-color: #c49a6c; -fx-border-radius: 20; -fx-padding: 20;">
-                                        <Label fx:id="formTitle" text="Formulaire" style="-fx-text-fill: white; -fx-font-size: 16px; -fx-font-weight: bold; -fx-padding: 0 0 15 0;" />
+                                    <VBox style="-fx-background-color: #FFFFFF; -fx-background-radius: 30; -fx-padding: 30;">
+                                        <effect><DropShadow color="#0000000C" offsetY="10" radius="25" /></effect>
 
-                                        <GridPane fx:id="formGrid" hgap="10" vgap="10">
+                                        <HBox alignment="CENTER_LEFT" spacing="10" style="-fx-padding: 0 0 25 0;">
+                                            <Label text="✍️" style="-fx-font-size: 18px;" />
+                                            <Label fx:id="formTitle" text="Gérer Réservation" style="-fx-text-fill: #1E293B; -fx-font-size: 20px; -fx-font-weight: 900;" />
+                                        </HBox>
+
+                                        <GridPane fx:id="formGrid" hgap="20" vgap="20">
                                         </GridPane>
 
-                                        <HBox spacing="10" alignment="CENTER" style="-fx-padding: 15 0 0 0;">
+                                        <HBox spacing="15" alignment="CENTER" style="-fx-padding: 30 0 0 0;">
                                             <Button fx:id="addBtn" text="➕ Ajouter" onAction="#handleAdd"
-                                                    style="-fx-background-color: #28a745; -fx-text-fill: white; -fx-background-radius: 20; -fx-padding: 8 15; -fx-font-weight: bold;"/>
+                                                    style="-fx-background-color: #A3B1FF; -fx-text-fill: white; -fx-background-radius: 50; -fx-padding: 12 25; -fx-font-weight: bold; -fx-font-size: 13px;"/>
                                             <Button fx:id="editBtn" text="✏️ Modifier" onAction="#handleEdit"
-                                                    style="-fx-background-color: #ffc107; -fx-text-fill: black; -fx-background-radius: 20; -fx-padding: 8 15; -fx-font-weight: bold;"/>
+                                                    style="-fx-background-color: #FCD34D; -fx-text-fill: #1E293B; -fx-background-radius: 50; -fx-padding: 12 25; -fx-font-weight: bold; -fx-font-size: 13px;"/>
                                             <Button fx:id="deleteBtn" text="🗑️ Supprimer" onAction="#handleDelete"
-                                                    style="-fx-background-color: #dc3545; -fx-text-fill: white; -fx-background-radius: 20; -fx-padding: 8 15; -fx-font-weight: bold;"/>
+                                                    style="-fx-background-color: #FDA4AF; -fx-text-fill: white; -fx-background-radius: 50; -fx-padding: 12 25; -fx-font-weight: bold; -fx-font-size: 13px;"/>
                                             <Button fx:id="clearBtn" text="🔄 Nouveau" onAction="#clearForm"
-                                                    style="-fx-background-color: rgba(255,255,255,0.15); -fx-text-fill: white; -fx-background-radius: 20; -fx-padding: 8 15; -fx-font-weight: bold;"/>
+                                                    style="-fx-background-color: #F1F5F9; -fx-text-fill: #64748B; -fx-background-radius: 50; -fx-padding: 12 25; -fx-font-weight: bold; -fx-font-size: 13px;"/>
                                         </HBox>
                                     </VBox>
                                 </VBox>
@@ -146,10 +139,11 @@
 
                         <ScrollPane fx:id="detailScroll" fitToWidth="true" visible="false" managed="false" style="-fx-background: transparent; -fx-background-color: transparent;">
                             <content>
-                                <VBox fx:id="detailContainer" spacing="15" style="-fx-background-color: rgba(0,0,0,0.5); -fx-background-radius: 20; -fx-padding: 20;">
+                                <VBox fx:id="detailContainer" spacing="25" style="-fx-background-color: #FFFFFF; -fx-background-radius: 30; -fx-padding: 35;">
+                                    <effect><DropShadow color="#0000000C" offsetY="10" radius="25" /></effect>
                                     <Button fx:id="backBtn" text="← Retour" onAction="#backToList"
-                                            style="-fx-background-color: #c49a6c; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 8 15; -fx-background-radius: 10;" />
-                                    <GridPane fx:id="detailGrid" hgap="10" vgap="10">
+                                            style="-fx-background-color: #F1F5F9; -fx-text-fill: #64748B; -fx-font-weight: bold; -fx-padding: 10 25; -fx-background-radius: 50;" />
+                                    <GridPane fx:id="detailGrid" hgap="20" vgap="20">
                                     </GridPane>
                                 </VBox>
                             </content>
@@ -157,37 +151,35 @@
                     </StackPane>
                 </VBox>
 
-                <VBox prefWidth="180" spacing="20" style="-fx-padding: 0 10 0 0;">
-                    <Label text="Statistiques" style="-fx-text-fill: white; -fx-font-size: 15px; -fx-font-weight: bold;" />
+                <VBox prefWidth="300" spacing="50" alignment="TOP_CENTER" style="-fx-padding: 10 20 0 0;">
 
-                    <VBox spacing="5">
-                        <Label text="📰 Reservation :" style="-fx-text-fill: #FFBD00; -fx-font-weight: bold; -fx-font-size: 14px;" />
-                        <Label text="2" style="-fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 22px;" />
-                    </VBox>
+                    <Pane prefWidth="280" prefHeight="280" maxWidth="280" maxHeight="280"
+                          style="-fx-background-image: url('/assets/testt.jpg');
+                                 -fx-background-size: cover;
+                                 -fx-background-position: center;
+                                 -fx-background-radius: 300;">
+                        <effect><DropShadow color="#0000001A" offsetY="15" radius="30" /></effect>
+                    </Pane>
 
-                    <VBox spacing="5">
-                        <Label text="💬 Commentaires :" style="-fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 14px;" />
-                        <Label text="4" style="-fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 22px;" />
-                    </VBox>
+                    <HBox spacing="35" alignment="CENTER" style="-fx-background-color: #FFFFFF; -fx-background-radius: 30; -fx-padding: 20 10;">
+                        <effect><DropShadow color="#0000000A" offsetY="8" radius="20" /></effect>
+
+                        <VBox alignment="CENTER" spacing="5">
+                            <Label text="48+" style="-fx-text-fill: #1E293B; -fx-font-weight: 900; -fx-font-size: 28px;" />
+                            <Label text="Destination" style="-fx-text-fill: #94A3B8; -fx-font-size: 13px; -fx-font-weight: bold;" />
+                        </VBox>
+
+                        <Separator orientation="VERTICAL" style="-fx-opacity: 0.3;" />
+
+                        <VBox alignment="CENTER" spacing="5">
+                            <Label fx:id="totalCountLabel" text="0" style="-fx-text-fill: #1E293B; -fx-font-weight: 900; -fx-font-size: 28px;" />
+                            <Label text="Transports" style="-fx-text-fill: #94A3B8; -fx-font-size: 13px; -fx-font-weight: bold;" />
+                        </VBox>
+                    </HBox>
                 </VBox>
+
             </HBox>
         </center>
-
-        <bottom>
-            <HBox alignment="CENTER" style="-fx-padding: 10 0 0 0;">
-                <HBox spacing="15"
-                      style="-fx-background-color: rgba(255,255,255,0.08);
-                             -fx-background-radius: 30;
-                             -fx-border-color: rgba(255,255,255,0.1);
-                             -fx-border-radius: 30;
-                             -fx-padding: 8 20;">
-                    <Button text="🏠" style="-fx-background-color: #c49a6c; -fx-text-fill: white; -fx-background-radius: 12; -fx-padding: 6 15; -fx-font-size: 16px;" />
-                    <Button text="🏰" style="-fx-background-color: transparent; -fx-text-fill: rgba(255,255,255,0.7); -fx-font-size: 16px; -fx-padding: 6 15;" />
-                    <Button text="💬" style="-fx-background-color: transparent; -fx-text-fill: rgba(255,255,255,0.7); -fx-font-size: 16px; -fx-padding: 6 15;" />
-                    <Button text="👤" style="-fx-background-color: transparent; -fx-text-fill: rgba(255,255,255,0.7); -fx-font-size: 16px; -fx-padding: 6 15;" />
-                </HBox>
-            </HBox>
-        </bottom>
 
     </BorderPane>
 </StackPane>
