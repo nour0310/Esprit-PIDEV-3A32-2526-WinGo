@@ -57,4 +57,12 @@ public class NotificationCRUD {
             pst.executeUpdate();
         }
     }
+
+    public void marquerToutLu(int userId) throws SQLException {
+        String req = "UPDATE notification SET lu = 1 WHERE utilisateur_id = ?";
+        try (PreparedStatement pst = conn.prepareStatement(req)) {
+            pst.setInt(1, userId);
+            pst.executeUpdate();
+        }
+    }
 }
