@@ -144,7 +144,7 @@ public class BlogController implements Initializable {
         try (InputStream emptyStream = getClass().getResourceAsStream(emptyPath);
              InputStream fullStream = getClass().getResourceAsStream(fullPath)) {
             if (emptyStream == null || fullStream == null) {
-                System.err.println("⚠ Images non trouvées. Utilisation des émojis en fallback.");
+                System.err.println(" Images non trouvées. Utilisation des émojis en fallback.");
                 heartEmptyImage = null;
                 heartFullImage = null;
             } else {
@@ -335,9 +335,11 @@ public class BlogController implements Initializable {
 
     private void loadInitialData() {
         try {
+            // Charger d'abord les likes (pour que les compteurs soient disponibles)
+            loadLikes();
+            // Puis charger les blogs (les cartes utiliseront les likes déjà chargés)
             loadBlogs();
             loadAllComments();
-            loadLikes();
             updateStats();
             statusLabel.setText("✅ Prêt, " + blogList.size() + " articles chargés.");
         } catch (SQLException e) {
@@ -359,13 +361,12 @@ public class BlogController implements Initializable {
     }
 
     private void loadLikes() throws SQLException {
-        if (currentUser == null) return;
         List<Like> allLikes = likeCRUD.afficherTous();
         likeCounts.clear();
         likedByCurrentUser.clear();
         for (Like l : allLikes) {
             likeCounts.merge(l.getArticleId(), 1, Integer::sum);
-            if (l.getUtilisateurId() == currentUser.getId()) {
+            if (currentUser != null && l.getUtilisateurId() == currentUser.getId()) {
                 likedByCurrentUser.add(l.getArticleId());
             }
         }
@@ -507,9 +508,9 @@ public class BlogController implements Initializable {
             likeButton.setStyle(likeButton.getStyle() + " -fx-font-size: 16px;");
         }
 
-        // Compteur avec texte "like" ou "likes"
+        // Compteur avec texte "like" ou "likes" (couleur sombre pour fond blanc)
         Label likeCountLabel = new Label(likes + (likes > 1 ? " likes" : " like"));
-        likeCountLabel.setStyle("-fx-text-fill: white; -fx-font-size: 13px;");
+        likeCountLabel.setStyle("-fx-text-fill: #34495e; -fx-font-size: 13px;");
 
         HBox likeBox = new HBox(5, likeButton, likeCountLabel);
         likeBox.setAlignment(Pos.CENTER_LEFT);
