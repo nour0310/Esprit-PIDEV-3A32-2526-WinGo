@@ -10,53 +10,62 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 public class LibreTranslateService {
 
-    // Utilisation d'une instance publique alternative plus stable
-    private static final String API_URL = "https://translate.argosopentech.com/translate";
+    // Liste d'instances publiques de LibreTranslate (à tester)
+    private static final List<String> API_URLS = Arrays.asList(
+            "https://libretranslate.de/translate",
+            "https://translate.terraprint.co/translate",
+            "https://lt.vern.cc/translate"
+    );
+
     private static final Gson gson = new Gson();
 
     public static CompletableFuture<String> translateAsync(String text, String sourceLang, String targetLang) {
         return CompletableFuture.supplyAsync(() -> {
-            // Vérifier que le texte n'est pas vide
             if (text == null || text.trim().isEmpty()) {
                 return text;
             }
 
-            try (CloseableHttpClient client = HttpClients.createDefault()) {
-                HttpPost post = new HttpPost(API_URL);
-                post.setHeader("Content-Type", "application/json");
+            // Essayer chaque URL jusqu'à ce qu'une fonctionne
+            for (String apiUrl : API_URLS) {
+                try (CloseableHttpClient client = HttpClients.createDefault()) {
+                    HttpPost post = new HttpPost(apiUrl);
+                    post.setHeader("Content-Type", "application/json");
 
-                JsonObject json = new JsonObject();
-                json.addProperty("q", text);
-                json.addProperty("source", sourceLang);
-                json.addProperty("target", targetLang);
-                json.addProperty("format", "text");
+                    JsonObject json = new JsonObject();
+                    json.addProperty("q", text);
+                    json.addProperty("source", sourceLang);
+                    json.addProperty("target", targetLang);
+                    json.addProperty("format", "text");
 
-                post.setEntity(new StringEntity(gson.toJson(json), "UTF-8"));
+                    post.setEntity(new StringEntity(gson.toJson(json), "UTF-8"));
 
-                // Log pour déboguer (optionnel)
-                System.out.println("Envoi requête de traduction...");
+                    System.out.println("Tentative de traduction avec : " + apiUrl);
 
-                try (CloseableHttpResponse response = client.execute(post)) {
-                    int statusCode = response.getStatusLine().getStatusCode();
-                    String responseBody = EntityUtils.toString(response.getEntity(), "UTF-8");
+                    try (CloseableHttpResponse response = client.execute(post)) {
+                        int statusCode = response.getStatusLine().getStatusCode();
+                        String responseBody = EntityUtils.toString(response.getEntity(), "UTF-8");
 
-                    if (statusCode != 200) {
-                        System.err.println("Erreur API (code " + statusCode + ") : " + responseBody);
-                        return text; // retourne le texte original en cas d'erreur
+                        if (statusCode == 200) {
+                            JsonObject responseJson = JsonParser.parseString(responseBody).getAsJsonObject();
+                            return responseJson.get("translatedText").getAsString();
+                        } else {
+                            System.err.println("Erreur API " + apiUrl + " (code " + statusCode + ") : " + responseBody);
+                        }
                     }
-
-                    JsonObject responseJson = JsonParser.parseString(responseBody).getAsJsonObject();
-                    return responseJson.get("translatedText").getAsString();
+                } catch (Exception e) {
+                    System.err.println("Exception avec l'URL " + apiUrl + " : " + e.getMessage());
                 }
-            } catch (Exception e) {
-                System.err.println("Exception lors de la traduction : " + e.getMessage());
-                e.printStackTrace();
-                return text;
             }
+
+            // Si toutes les instances échouent, retourner le texte original
+            System.err.println("Toutes les instances de traduction ont échoué. Texte original conservé.");
+            return text;
         });
     }
 }
