@@ -1,59 +1,66 @@
 package Services.External;
 
-import com.google.cloud.translate.v3.LocationName;
-import com.google.cloud.translate.v3.TranslateTextRequest;
-import com.google.cloud.translate.v3.TranslateTextResponse;
-import com.google.cloud.translate.v3.Translation;
-import com.google.cloud.translate.v3.TranslationServiceClient;
-import java.io.IOException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.StringEntity;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
+import org.apache.http.util.EntityUtils;
 
-public class TranslationService {
+import java.util.concurrent.CompletableFuture;
 
-    // Remplacez par votre ID de projet Google Cloud
-    private static final String PROJECT_ID = "votre-projet-id";
-    private static final String LOCATION = "global"; // ou "us-central1" selon votre configuration
+public class LibreTranslateService {
+
+    private static final String API_URL = "https://libretranslate.de/translate";
+    private static final ObjectMapper objectMapper = new ObjectMapper();
 
     /**
-     * Traduit un texte dans la langue cible.
-     *
-     * @param text           Le texte à traduire
-     * @param targetLanguage Code de la langue cible (ex: "fr", "en", "es", "ar")
-     * @return Le texte traduit, ou le texte original en cas d'erreur
+     * Traduit un texte de manière asynchrone (ne bloque pas le thread JavaFX).
+     * @param text Le texte à traduire.
+     * @param sourceLang Code de la langue source (ex: "fr", "en", "auto" pour détection auto).
+     * @param targetLang Code de la langue cible (ex: "en", "es", "ar").
+     * @return Un CompletableFuture qui contiendra le texte traduit.
      */
-    public static String translateText(String text, String targetLanguage) {
-        if (text == null || text.trim().isEmpty()) {
-            return text;
-        }
+    public static CompletableFuture<String> translateAsync(String text, String sourceLang, String targetLang) {
+        return CompletableFuture.supplyAsync(() -> {
+            try (CloseableHttpClient client = HttpClients.createDefault()) {
+                HttpPost post = new HttpPost(API_URL);
+                post.setHeader("Content-Type", "application/json");
 
-        // Note : L'authentification se fait automatiquement via la variable d'environnement
-        // GOOGLE_APPLICATION_CREDENTIALS pointant vers le fichier JSON de votre compte de service.
-        try (TranslationServiceClient client = TranslationServiceClient.create()) {
-            LocationName parent = LocationName.of(PROJECT_ID, LOCATION);
+                // Construire le corps de la requête JSON
+                String jsonBody = String.format(
+                        "{\"q\":\"%s\", \"source\":\"%s\", \"target\":\"%s\", \"format\":\"text\"}",
+                        escapeJson(text), sourceLang, targetLang
+                );
+                post.setEntity(new StringEntity(jsonBody, "UTF-8"));
 
-            TranslateTextRequest request = TranslateTextRequest.newBuilder()
-                    .setParent(parent.toString())
-                    .setMimeType("text/plain") // ou "text/html" si vous avez du HTML
-                    .setTargetLanguageCode(targetLanguage)
-                    .addContents(text)
-                    .build();
-
-            TranslateTextResponse response = client.translateText(request);
-            if (response.getTranslationsCount() > 0) {
-                Translation translation = response.getTranslations(0);
-                return translation.getTranslatedText();
+                // Exécuter la requête
+                try (CloseableHttpResponse response = client.execute(post)) {
+                    String responseBody = EntityUtils.toString(response.getEntity(), "UTF-8");
+                    JsonNode root = objectMapper.readTree(responseBody);
+                    return root.get("translatedText").asText();
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+                return text; // En cas d'erreur, retourner le texte original
             }
-        } catch (IOException e) {
-            System.err.println("Erreur lors de la traduction : " + e.getMessage());
-            e.printStackTrace();
-        }
-        return text; // fallback
+        });
     }
 
-    // Exemple d'utilisation simple (pour test)
-    public static void main(String[] args) {
-        String texte = "Bonjour le monde";
-        String traduit = translateText(texte, "en");
-        System.out.println("Original : " + texte);
-        System.out.println("Traduit  : " + traduit);
+    // Méthode utilitaire simple pour échapper les guillemets dans le JSON
+    private static String escapeJson(String s) {
+        return s.replace("\\", "\\\\").replace("\"", "\\\"");
+    }
+
+    // Version synchrone simple pour les tests
+    public static String translate(String text, String sourceLang, String targetLang) {
+        try {
+            return translateAsync(text, sourceLang, targetLang).get();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return text;
+        }
     }
 }
