@@ -16,7 +16,7 @@ import Services.NotificationCRUD;
 import Services.RatingCRUD;
 import Services.TagCRUD;
 import Services.UtilisateurCRUD;
-import Services.External.MyMemoryService; // <-- Service de traduction
+import Services.External.MyMemoryService;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -356,7 +356,7 @@ public class BlogController implements Initializable {
         filterArticles();
     }
 
-    // ========== TRADUCTION AVEC MYMEMORY ==========
+    // ========== TRADUCTION AVEC MYMEMORY (CORRIGÉE) ==========
     private void traduireArticle() {
         if (displayedDetailBlog == null) {
             detailStatusLabel.setText("❌ Aucun article sélectionné");
@@ -376,13 +376,14 @@ public class BlogController implements Initializable {
             default -> "en";
         };
 
-        String texteOriginal = detailContenuLabel.getText();
-        String titreOriginal = detailTitreLabel.getText();
+        // Toujours utiliser le contenu original de l'article (pas le texte déjà traduit)
+        String texteOriginal = displayedDetailBlog.getContenu();
+        String titreOriginal = displayedDetailBlog.getTitre();
 
         detailStatusLabel.setText("⏳ Traduction en cours...");
 
-        // Traduction du contenu avec MyMemory
-        MyMemoryService.translateAsync(texteOriginal, "fr", codeLangue)
+        // Traduction du contenu avec détection automatique de la langue source
+        MyMemoryService.translateAsync(texteOriginal, "auto", codeLangue)
                 .thenAccept(texteTraduit -> {
                     javafx.application.Platform.runLater(() -> {
                         detailContenuLabel.setText(texteTraduit);
@@ -397,7 +398,7 @@ public class BlogController implements Initializable {
                 });
 
         // Traduction optionnelle du titre
-        MyMemoryService.translateAsync(titreOriginal, "fr", codeLangue)
+        MyMemoryService.translateAsync(titreOriginal, "auto", codeLangue)
                 .thenAccept(titreTraduit ->
                         javafx.application.Platform.runLater(() -> detailTitreLabel.setText(titreTraduit))
                 );
