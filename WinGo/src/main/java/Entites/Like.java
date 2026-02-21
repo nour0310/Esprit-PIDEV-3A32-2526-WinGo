@@ -16,15 +16,45 @@ public class Like {
     }
 
     // Getters et Setters
-    public int getId() { return id; }
-    public void setId(int id) { this.id = id; }
+    public int getId() {
+        return id;
+    }
 
-    public int getUtilisateurId() { return utilisateurId; }
-    public void setUtilisateurId(int utilisateurId) { this.utilisateurId = utilisateurId; }
+    public void setId(int id) {
+        this.id = id;
+    }
 
-    public int getArticleId() { return articleId; }
-    public void setArticleId(int articleId) { this.articleId = articleId; }
+    public int getUtilisateurId() {
+        return utilisateurId;
+    }
 
-    public LocalDateTime getDateLike() { return dateLike; }
-    public void setDateLike(LocalDateTime dateLike) { this.dateLike = dateLike; }
+    public void setUtilisateurId(int utilisateurId) {
+        this.utilisateurId = utilisateurId;
+    }
+
+    public int getArticleId() {
+        return articleId;
+    }
+
+    public void setArticleId(int articleId) {
+        this.articleId = articleId;
+    }
+
+    public LocalDateTime getDateLike() {
+        return dateLike;
+    }
+
+    public void setDateLike(LocalDateTime dateLike) {
+        this.dateLike = dateLike;
+    }
+
+    @Override
+    public String toString() {
+        return "Like{" +
+                "id=" + id +
+                ", utilisateurId=" + utilisateurId +
+                ", articleId=" + articleId +
+                ", dateLike=" + dateLike +
+                '}';
+    }
 }
