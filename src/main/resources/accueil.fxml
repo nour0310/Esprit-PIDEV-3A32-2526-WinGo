@@ -18,7 +18,7 @@
         <HBox alignment="CENTER_LEFT" spacing="15" style="-fx-padding: 0 0 40 30;">
             <Label style="-fx-font-size: 32px; -fx-text-fill: #5B4EFA;" text="⛰️" />
             <VBox alignment="CENTER_LEFT">
-                <Label style="-fx-text-fill: #5B4EFA; -fx-font-size: 22px; -fx-font-weight: 900;" text="TripLove" />
+                <Label style="-fx-text-fill: #5B4EFA; -fx-font-size: 22px; -fx-font-weight: 900;" text="WinGO" />
                 <Label style="-fx-text-fill: #A0AEC0; -fx-font-size: 10px; -fx-font-weight: bold;" text="Travel Agency" />
             </VBox>
         </HBox>
