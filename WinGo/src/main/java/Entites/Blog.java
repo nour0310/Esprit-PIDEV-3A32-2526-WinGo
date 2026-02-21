@@ -14,7 +14,7 @@ public class Blog {
     private String image;
     private String region;
     private String categorie;
-    private List<Tag> tags = new ArrayList<>(); // liste des tags associés
+    private List<Tag> tags = new ArrayList<>();
 
     public Blog() {}
 
