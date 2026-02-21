@@ -45,7 +45,7 @@ public class Notification {
 
     public boolean isLu() { return lu; }
     public void setLu(boolean lu) { this.lu = lu; }
-
+hhhhhhhhhhhhhhhhhhhhhhhhhhhh
     public LocalDateTime getDateCreation() { return dateCreation; }
     public void setDateCreation(LocalDateTime dateCreation) { this.dateCreation = dateCreation; }
 }
