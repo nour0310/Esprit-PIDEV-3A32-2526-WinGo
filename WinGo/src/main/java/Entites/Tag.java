@@ -1,24 +1,44 @@
-// Entité Tag.java
+package Entites;
+
+import java.util.Objects;
+
 public class Tag {
     private int id;
     private String nom;
-    // getters/setters
-}
 
-// Dans Blog.java, ajouter
-private List<Tag> tags = new ArrayList<>();
+    public Tag() {}
 
-// Dans BlogController, ajouter un champ pour les tags
-@FXML private TextField tagsField;
+    public Tag(String nom) {
+        this.nom = nom;
+    }
 
-// Méthode pour ajouter des tags à un article
-private void ajouterTags(Blog blog, String tagsString) {
-    String[] tagNames = tagsString.split(",");
-    for (String tagName : tagNames) {
-        tagName = tagName.trim();
-        if (!tagName.isEmpty()) {
-            Tag tag = tagCRUD.findOrCreateByName(tagName);
-            tagCRUD.associerTagArticle(blog.getId(), tag.getId());
-        }
+    public Tag(int id, String nom) {
+        this.id = id;
+        this.nom = nom;
+    }
+
+    // Getters et Setters
+    public int getId() { return id; }
+    public void setId(int id) { this.id = id; }
+
+    public String getNom() { return nom; }
+    public void setNom(String nom) { this.nom = nom; }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Tag tag = (Tag) o;
+        return id == tag.id || Objects.equals(nom, tag.nom);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, nom);
+    }
+
+    @Override
+    public String toString() {
+        return "#" + nom;
     }
 }
