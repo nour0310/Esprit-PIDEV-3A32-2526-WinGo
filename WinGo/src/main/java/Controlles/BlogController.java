@@ -16,7 +16,7 @@ import Services.NotificationCRUD;
 import Services.RatingCRUD;
 import Services.TagCRUD;
 import Services.UtilisateurCRUD;
-import Services.External.LibreTranslateService;
+import Services.External.MyMemoryService; // <-- NOUVEAU SERVICE
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -356,7 +356,7 @@ public class BlogController implements Initializable {
         filterArticles();
     }
 
-    // ========== TRADUCTION ==========
+    // ========== TRADUCTION AVEC MYMEMORY ==========
     private void traduireArticle() {
         if (displayedDetailBlog == null) {
             detailStatusLabel.setText("❌ Aucun article sélectionné");
@@ -381,8 +381,8 @@ public class BlogController implements Initializable {
 
         detailStatusLabel.setText("⏳ Traduction en cours...");
 
-        // Traduction du contenu
-        LibreTranslateService.translateAsync(texteOriginal, "fr", codeLangue)
+        // Traduction du contenu avec MyMemory
+        MyMemoryService.translateAsync(texteOriginal, "fr", codeLangue)
                 .thenAccept(texteTraduit -> {
                     javafx.application.Platform.runLater(() -> {
                         detailContenuLabel.setText(texteTraduit);
@@ -396,8 +396,8 @@ public class BlogController implements Initializable {
                     return null;
                 });
 
-        // Optionnel : traduire aussi le titre
-        LibreTranslateService.translateAsync(titreOriginal, "fr", codeLangue)
+        // Traduction optionnelle du titre
+        MyMemoryService.translateAsync(titreOriginal, "fr", codeLangue)
                 .thenAccept(titreTraduit ->
                         javafx.application.Platform.runLater(() -> detailTitreLabel.setText(titreTraduit))
                 );
