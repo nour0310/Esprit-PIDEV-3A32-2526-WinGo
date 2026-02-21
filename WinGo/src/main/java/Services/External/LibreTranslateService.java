@@ -16,11 +16,12 @@ import java.util.concurrent.CompletableFuture;
 
 public class LibreTranslateService {
 
-    // Liste d'instances publiques de LibreTranslate (à tester)
+    // Liste d'instances : locale en premier, puis publiques
     private static final List<String> API_URLS = Arrays.asList(
-            "https://libretranslate.de/translate",          // Instance officielle
-            "https://translate.terraprint.co/translate",    // Instance miroir
-            "https://lt.vern.cc/translate"                   // Autre miroir
+            "http://localhost:5000/translate",
+            "https://libretranslate.de/translate",
+            "https://translate.terraprint.co/translate",
+            "https://lt.vern.cc/translate"
     );
 
     private static final Gson gson = new Gson();
@@ -31,7 +32,6 @@ public class LibreTranslateService {
                 return text;
             }
 
-            // Essayer chaque URL jusqu'à ce qu'une fonctionne
             for (String apiUrl : API_URLS) {
                 try (CloseableHttpClient client = HttpClients.createDefault()) {
                     HttpPost post = new HttpPost(apiUrl);
@@ -63,7 +63,6 @@ public class LibreTranslateService {
                 }
             }
 
-            // Si toutes les instances échouent, retourner le texte original
             System.err.println("Toutes les instances de traduction ont échoué. Texte original conservé.");
             return text;
         });
