@@ -209,7 +209,7 @@ public class BlogController implements Initializable {
         detailAddCommentBtn.setOnAction(e -> ajouterCommentaireDetail());
     }
 
-    // ========== VALIDATION ==========
+    // ========== VALIDATION EN TEMPS RÉEL ==========
     private void setupValidationListeners() {
         titreField.textProperty().addListener((obs, oldVal, newVal) -> validateTitre());
         contenuField.textProperty().addListener((obs, oldVal, newVal) -> validateContenu());
@@ -479,7 +479,6 @@ public class BlogController implements Initializable {
         Label commentCount = new Label("Commentaires: " + nbComments);
         commentCount.setStyle("-fx-text-fill: #27ae60; -fx-font-size: 13px;");
 
-        // --- LIKES ---
         int likes = likeCounts.getOrDefault(blog.getId(), 0);
         boolean isLiked = likedByCurrentUser.contains(blog.getId());
 
@@ -504,7 +503,6 @@ public class BlogController implements Initializable {
         likeBox.setAlignment(Pos.CENTER_LEFT);
 
         likeButton.setOnAction(e -> toggleLike(blog, likeButton, likeCountLabel));
-        // --- FIN LIKES ---
 
         HBox actions = new HBox(8);
         actions.setAlignment(Pos.CENTER);
@@ -572,7 +570,9 @@ public class BlogController implements Initializable {
                 String url = file.toURI().toString();
                 return new Image(url, true);
             }
-        } catch (Exception e) {}
+        } catch (Exception e) {
+            // Ignorer
+        }
         return null;
     }
 
@@ -626,39 +626,32 @@ public class BlogController implements Initializable {
         displayedDetailBlog = null;
     }
 
-    // ========== GESTION DES COMMENTAIRES AVEC RÉPONSES ==========
+    // ========== GESTION DES COMMENTAIRES (VUE DÉTAIL) ==========
     private void afficherCommentairesDetail() {
         if (displayedDetailBlog == null) return;
         detailCommentairesPane.getChildren().clear();
         try {
-            List<Commentaire> racines = commentaireCRUD.getCommentairesArborescents(displayedDetailBlog.getId());
-            for (Commentaire c : racines) {
-                detailCommentairesPane.getChildren().add(createCommentCard(c, 0));
+            List<Commentaire> roots = commentaireCRUD.getHierarchicalComments(displayedDetailBlog.getId());
+            for (Commentaire root : roots) {
+                VBox commentCard = createCommentCard(root, 0);
+                detailCommentairesPane.getChildren().add(commentCard);
             }
         } catch (SQLException e) {
-            e.printStackTrace();
-            detailStatusLabel.setText("Erreur chargement commentaires");
+            detailStatusLabel.setText("❌ Erreur chargement commentaires");
         }
     }
 
-    private VBox createCommentCard(Commentaire commentaire, int niveau) {
+    private VBox createCommentCard(Commentaire commentaire, int level) {
         VBox card = new VBox(8);
         card.setPadding(new Insets(12));
         card.setStyle("-fx-background-color: rgba(255,255,255,0.15); -fx-background-radius: 20; -fx-border-color: rgba(255,255,255,0.3); -fx-border-radius: 20; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.2), 10, 0.3, 0, 5);");
-        card.setPrefWidth(250);
-        card.setMaxWidth(250);
+        card.setPrefWidth(250 + level * 20);
+        card.setMaxWidth(250 + level * 20);
 
-        // Indentation selon le niveau
-        if (niveau > 0) {
-            card.setStyle(card.getStyle() + "; -fx-margin-left: " + (niveau * 20) + "px;");
-        }
-
-        // Contenu
         Label contenuLabel = new Label(commentaire.getContenu() != null ? commentaire.getContenu() : "");
         contenuLabel.setWrapText(true);
         contenuLabel.setStyle("-fx-font-size: 14px; -fx-text-fill: white; -fx-padding: 5;");
 
-        // Auteur et date
         HBox meta = new HBox(10);
         meta.setAlignment(Pos.CENTER_LEFT);
 
@@ -694,23 +687,20 @@ public class BlogController implements Initializable {
 
         meta.getChildren().addAll(auteurBox, spacer, dateBox);
 
-        // Boutons d'action
         HBox actions = new HBox(10);
         actions.setAlignment(Pos.CENTER_RIGHT);
 
-        // Bouton Répondre pour tous les utilisateurs connectés
         if (currentUser != null) {
-            Button replyBtn = new Button("💬 Répondre");
-            replyBtn.setStyle("-fx-background-color: #3498db; -fx-text-fill: white; -fx-background-radius: 20; -fx-cursor: hand; -fx-padding: 5 12; -fx-font-size: 11px;");
-            replyBtn.setOnAction(e -> showReplyField(commentaire, card));
+            Button replyBtn = new Button("↩️ Répondre");
+            replyBtn.setStyle("-fx-background-color: #17a2b8; -fx-text-fill: white; -fx-background-radius: 20; -fx-cursor: hand; -fx-padding: 5 12; -fx-font-size: 11px;");
+            replyBtn.setOnAction(e -> showReplyField(commentaire, card, level));
             actions.getChildren().add(replyBtn);
         }
 
-        // Boutons Modifier/Supprimer pour le propriétaire
         if (currentUser != null && commentaire.getUtilisateur() == currentUser.getId()) {
             Button editBtn = new Button("✏️");
             editBtn.setStyle("-fx-background-color: #f39c12; -fx-text-fill: white; -fx-background-radius: 20; -fx-cursor: hand; -fx-padding: 5 12; -fx-border-color: rgba(255,255,255,0.4); -fx-border-radius: 20;");
-            editBtn.setOnAction(e -> showEditComment(commentaire, card, contenuLabel, meta, actions));
+            editBtn.setOnAction(e -> showEditComment(commentaire, card, contenuLabel, meta, actions, level));
 
             Button deleteBtn = new Button("🗑️");
             deleteBtn.setStyle("-fx-background-color: #e74c3c; -fx-text-fill: white; -fx-background-radius: 20; -fx-cursor: hand; -fx-padding: 5 12; -fx-border-color: rgba(255,255,255,0.4); -fx-border-radius: 20;");
@@ -719,64 +709,66 @@ public class BlogController implements Initializable {
             actions.getChildren().addAll(editBtn, deleteBtn);
         }
 
-        // Conteneur pour les réponses
-        VBox reponsesBox = new VBox(8);
-        reponsesBox.setPadding(new Insets(8, 0, 0, niveau * 20));
+        card.getChildren().addAll(contenuLabel, meta, actions);
 
-        if (!commentaire.getReponses().isEmpty()) {
-            for (Commentaire rep : commentaire.getReponses()) {
-                reponsesBox.getChildren().add(createCommentCard(rep, niveau + 1));
+        if (!commentaire.getReplies().isEmpty()) {
+            VBox repliesBox = new VBox(8);
+            repliesBox.setPadding(new Insets(10, 0, 0, 20));
+            for (Commentaire reply : commentaire.getReplies()) {
+                repliesBox.getChildren().add(createCommentCard(reply, level + 1));
             }
+            card.getChildren().add(repliesBox);
         }
 
-        card.getChildren().addAll(contenuLabel, meta, actions, reponsesBox);
         return card;
     }
 
-    private void showReplyField(Commentaire parentComment, VBox parentCard) {
+    private void showReplyField(Commentaire parentComment, VBox parentCard, int level) {
+        if (currentUser == null) {
+            detailStatusLabel.setText("❌ Connectez-vous pour répondre.");
+            return;
+        }
+
         TextField replyField = new TextField();
         replyField.setPromptText("Écrire une réponse...");
         replyField.setStyle("-fx-background-color: rgba(255,255,255,0.2); -fx-text-fill: white; -fx-prompt-text-fill: rgba(255,255,255,0.7); -fx-background-radius: 15; -fx-border-color: rgba(255,255,255,0.4); -fx-border-radius: 15; -fx-padding: 8;");
 
         Button sendReplyBtn = new Button("Envoyer");
-        sendReplyBtn.setStyle("-fx-background-color: #27ae60; -fx-text-fill: white; -fx-background-radius: 20; -fx-cursor: hand; -fx-padding: 6 15; -fx-font-size: 12px;");
+        sendReplyBtn.setStyle("-fx-background-color: #28a745; -fx-text-fill: white; -fx-background-radius: 20; -fx-cursor: hand; -fx-padding: 6 15; -fx-font-size: 12px;");
+        Button cancelReplyBtn = new Button("Annuler");
+        cancelReplyBtn.setStyle("-fx-background-color: #6c757d; -fx-text-fill: white; -fx-background-radius: 20; -fx-cursor: hand; -fx-padding: 6 15; -fx-font-size: 12px;");
 
-        HBox replyBox = new HBox(10, replyField, sendReplyBtn);
-        replyBox.setAlignment(Pos.CENTER_LEFT);
-        replyBox.setPadding(new Insets(5, 0, 0, 0));
+        HBox replyInputBox = new HBox(10, replyField, sendReplyBtn, cancelReplyBtn);
+        replyInputBox.setAlignment(Pos.CENTER_LEFT);
+        replyInputBox.setPadding(new Insets(5, 0, 5, 20));
 
-        parentCard.getChildren().add(replyBox);
+        parentCard.getChildren().add(replyInputBox);
 
         sendReplyBtn.setOnAction(e -> {
-            String contenu = replyField.getText().trim();
-            if (!contenu.isEmpty()) {
-                ajouterReponse(parentComment, contenu);
-                parentCard.getChildren().remove(replyBox);
+            String replyText = replyField.getText().trim();
+            if (replyText.isEmpty()) {
+                detailStatusLabel.setText("❌ La réponse ne peut pas être vide.");
+                return;
+            }
+            try {
+                Commentaire reply = new Commentaire();
+                reply.setContenu(replyText);
+                reply.setUtilisateur(currentUser.getId());
+                reply.setArticleId(parentComment.getArticleId());
+                reply.setParentId(parentComment.getId());
+                commentaireCRUD.ajouter(reply);
+
+                afficherCommentairesDetail();
+                detailStatusLabel.setText("✅ Réponse ajoutée.");
+            } catch (SQLException ex) {
+                detailStatusLabel.setText("❌ Erreur : " + ex.getMessage());
             }
         });
+
+        cancelReplyBtn.setOnAction(e -> parentCard.getChildren().remove(replyInputBox));
     }
 
-    private void ajouterReponse(Commentaire parentComment, String contenu) {
-        if (currentUser == null) {
-            detailStatusLabel.setText("❌ Vous devez être connecté.");
-            return;
-        }
-        Commentaire reponse = new Commentaire();
-        reponse.setContenu(contenu);
-        reponse.setUtilisateur(currentUser.getId());
-        reponse.setArticleId(parentComment.getArticleId());
-        reponse.setParentId(parentComment.getId());
-
-        try {
-            commentaireCRUD.ajouter(reponse);
-            afficherCommentairesDetail();
-            detailStatusLabel.setText("✅ Réponse ajoutée.");
-        } catch (SQLException ex) {
-            detailStatusLabel.setText("❌ Erreur : " + ex.getMessage());
-        }
-    }
-
-    private void showEditComment(Commentaire commentaire, VBox card, Label contenuLabel, HBox meta, HBox actions) {
+    private void showEditComment(Commentaire commentaire, VBox card, Label contenuLabel, HBox meta, HBox actions, int level) {
         card.getChildren().clear();
 
         TextField editField = new TextField(commentaire.getContenu());
@@ -810,7 +802,7 @@ public class BlogController implements Initializable {
     }
 
     private void supprimerCommentaireDetail(Commentaire commentaire) {
-        Alert confirm = new Alert(Alert.AlertType.CONFIRMATION, "Supprimer ce commentaire ?", ButtonType.YES, ButtonType.NO);
+        Alert confirm = new Alert(Alert.AlertType.CONFIRMATION, "Supprimer ce commentaire ? Toutes ses réponses seront également supprimées.", ButtonType.YES, ButtonType.NO);
         confirm.showAndWait().ifPresent(r -> {
             if (r == ButtonType.YES) {
                 try {
@@ -839,8 +831,7 @@ public class BlogController implements Initializable {
         c.setContenu(contenu.trim());
         c.setUtilisateur(currentUser.getId());
         c.setArticleId(displayedDetailBlog.getId());
-        c.setParentId(null); // commentaire racine
-
+        // parentId reste null pour un commentaire racine
         try {
             commentaireCRUD.ajouter(c);
             detailNewCommentField.clear();
@@ -940,7 +931,7 @@ public class BlogController implements Initializable {
         displayBlogs(blogList);
     }
 
-    // ========== CRUD BLOG ==========
+    // ========== CRUD BLOG AVEC VALIDATION ==========
     private void supprimerBlog(Blog blog) {
         if (currentUser == null || blog.getAuteur() != currentUser.getId()) {
             showWarning("Vous ne pouvez supprimer que vos propres articles.");
@@ -1070,8 +1061,6 @@ public class BlogController implements Initializable {
         c.setContenu(contenu.trim());
         c.setUtilisateur(currentUser.getId());
         c.setArticleId(selectedBlog.getId());
-        c.setParentId(null); // racine
-
         try {
             commentaireCRUD.ajouter(c);
             newCommentField.clear();
@@ -1153,6 +1142,7 @@ public class BlogController implements Initializable {
         supprimerBtn.setManaged(isEditing);
     }
 
+    // Navigation
     @FXML private void goDashboard() { System.out.println("Dashboard"); }
     @FXML private void goBlog() { showListView(); }
     @FXML private void goCommentaires() { System.out.println("Commentaires"); }
