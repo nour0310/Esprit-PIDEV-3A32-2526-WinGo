@@ -109,7 +109,7 @@
                                         </VBox>
                                     </StackPane>
 
-                                    <StackPane VBox.vgrow="ALWAYS" style="-fx-background-color: #E2E8F0; -fx-background-radius: 25; -fx-background-image: url('/assets/tunisia-food.jpg'); -fx-background-size: cover; -fx-background-position: center; -fx-cursor: hand;">
+                                    <StackPane VBox.vgrow="ALWAYS" style="-fx-background-color: #E2E8F0; -fx-background-radius: 25; -fx-background-image: url('/assets/sidibou.jpg'); -fx-background-size: cover; -fx-background-position: center; -fx-cursor: hand;">
                                         <effect><DropShadow color="#00000015" offsetY="8" radius="15" /></effect>
                                         <Pane style="-fx-background-color: linear-gradient(to top, #00000099, transparent); -fx-background-radius: 25;" />
                                         <VBox alignment="BOTTOM_LEFT" spacing="2" style="-fx-padding: 20;">
@@ -148,7 +148,7 @@
 
                                 <VBox prefWidth="300" style="-fx-background-color: #FFFFFF; -fx-background-radius: 25;">
                                     <effect><DropShadow color="#00000010" offsetY="10" radius="25" /></effect>
-                                    <Pane prefHeight="180" style="-fx-background-image: url('/assets/transport-image.jpg'); -fx-background-size: cover; -fx-background-position: center; -fx-background-radius: 25 25 0 0;" />
+                                    <Pane prefHeight="180" style="-fx-background-image: url('/assets/nega.jpg'); -fx-background-size: cover; -fx-background-position: center; -fx-background-radius: 25 25 0 0;" />
                                     <VBox spacing="15" style="-fx-padding: 25;">
                                         <VBox spacing="5">
                                             <Label text="Transports" style="-fx-text-fill: #1E293B; -fx-font-weight: 900; -fx-font-size: 20px;" />
@@ -160,7 +160,7 @@
 
                                 <VBox prefWidth="300" style="-fx-background-color: #FFFFFF; -fx-background-radius: 25;">
                                     <effect><DropShadow color="#00000010" offsetY="10" radius="25" /></effect>
-                                    <Pane prefHeight="180" style="-fx-background-image: url('/assets/destinations-image.jpg'); -fx-background-size: cover; -fx-background-position: center; -fx-background-radius: 25 25 0 0;" />
+                                    <Pane prefHeight="180" style="-fx-background-image: url('/assets/9dim.jpg'); -fx-background-size: cover; -fx-background-position: center; -fx-background-radius: 25 25 0 0;" />
                                     <VBox spacing="15" style="-fx-padding: 25;">
                                         <VBox spacing="5">
                                             <Label text="Destinations" style="-fx-text-fill: #1E293B; -fx-font-weight: 900; -fx-font-size: 20px;" />
