@@ -15,9 +15,22 @@
         <maven.compiler.source>17</maven.compiler.source>
         <maven.compiler.target>17</maven.compiler.target>
         <javafx.version>17.0.18</javafx.version>
-        <!-- Version de Google Cloud Translation -->
-        <google.cloud.translate.version>2.1.0</google.cloud.translate.version>
+        <!-- Version du BOM Google Cloud -->
+        <google.cloud.bom.version>26.59.0</google.cloud.bom.version>
     </properties>
+
+    <!-- Gestion des dépendances pour Google Cloud BOM -->
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>com.google.cloud</groupId>
+                <artifactId>libraries-bom</artifactId>
+                <version>${google.cloud.bom.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
 
     <dependencies>
         <!-- MySQL JDBC -->
@@ -27,11 +40,10 @@
             <version>8.0.33</version>
         </dependency>
 
-        <!-- Google Cloud Translation API -->
+        <!-- Google Cloud Translation API (version gérée par le BOM) -->
         <dependency>
             <groupId>com.google.cloud</groupId>
             <artifactId>google-cloud-translate</artifactId>
-            <version>${google.cloud.translate.version}</version>
         </dependency>
 
         <!-- JavaFX Controls -->
