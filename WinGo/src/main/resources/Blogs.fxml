@@ -464,11 +464,17 @@
                                 <Button fx:id="detailLikeButton"
                                         style="-fx-background-color: transparent; -fx-cursor: hand;">
                                     <graphic>
-                                        <ImageView fx:id="detailLikeImageView" fitHeight="40" fitWidth="40" preserveRatio="true"/>
+                                        <ImageView fx:id="detailLikeImageView" fitHeight="24" fitWidth="24" preserveRatio="true"/>
                                     </graphic>
                                 </Button>
-                                <Label fx:id="detailLikeCountLabel" text="0"
+                                <Label fx:id="detailLikeCountLabel" text="0 like"
                                        style="-fx-font-size: 18px; -fx-text-fill: white; -fx-font-weight: bold;"/>
+                            </HBox>
+
+                            <!-- NOUVEAU : Ligne des étoiles -->
+                            <HBox spacing="10" alignment="CENTER" style="-fx-padding: 0 20;">
+                                <HBox fx:id="detailStarsBox" spacing="2" alignment="CENTER"/>
+                                <Label fx:id="detailAvgLabel" text="0.0 (0 votes)" style="-fx-font-size: 14px; -fx-text-fill: white;"/>
                             </HBox>
 
                             <!-- Contenu dans une carte stylisée -->
