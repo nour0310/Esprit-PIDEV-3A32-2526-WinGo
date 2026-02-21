@@ -1655,7 +1655,7 @@ public class BlogController implements Initializable {
             showError("Erreur de partage", e.getMessage());
         }
     }
-
+yyy
     // Navigation
     @FXML private void goDashboard() { System.out.println("Dashboard"); }
     @FXML private void goBlog() { showListView(); }
