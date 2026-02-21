@@ -50,7 +50,7 @@
         </HBox>
 
         <HBox alignment="CENTER_LEFT" minHeight="50" spacing="15" style="-fx-padding: 0 30; -fx-cursor: hand;">
-            <Label style="-fx-text-fill: #8B5CF6; -fx-font-size: 18px;" text="❓" />
+            <Label style="-fx-text-fill: #87CEEB; -fx-font-size: 18px;" text="❓" />
             <Label style="-fx-text-fill: #64748B; -fx-font-weight: bold; -fx-font-size: 15px;" text="Support" />
         </HBox>
 
@@ -85,7 +85,7 @@
                 <TextField promptText="Search destination..." style="-fx-background-color: transparent; -fx-text-fill: #1E293B; -fx-font-size: 14px; -fx-prompt-text-fill: #94A3B8;" HBox.hgrow="ALWAYS" />
             </HBox>
 
-            <Button style="-fx-background-color: #8B5CF6; -fx-text-fill: white; -fx-background-radius: 10; -fx-padding: 12 16; -fx-font-size: 16px; -fx-cursor: hand;" text="⚲">
+            <Button style="-fx-background-color: #87CEEB; -fx-text-fill: white; -fx-background-radius: 10; -fx-padding: 12 16; -fx-font-size: 16px; -fx-cursor: hand;" text="⚲">
                 <effect><DropShadow color="#6366F140" offsetY="5" radius="10" /></effect>
             </Button>
 
@@ -193,7 +193,7 @@
                             <Label style="-fx-text-fill: #3B82F6; -fx-font-weight: bold; -fx-font-size: 13px;" text="⛅ 24° C" />
                         </HBox>
 
-                        <Button style="-fx-background-color: #8B5CF6; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 10; -fx-padding: 12 30; -fx-cursor: hand;" text="Book Now">
+                        <Button style="-fx-background-color: #87CEEB; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 10; -fx-padding: 12 30; -fx-cursor: hand;" text="Book Now">
                             <effect><DropShadow color="#6366F140" offsetY="5" radius="10" /></effect>
                         </Button>
                     </VBox>
