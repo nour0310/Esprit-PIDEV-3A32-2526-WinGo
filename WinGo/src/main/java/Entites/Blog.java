@@ -1,6 +1,8 @@
 package Entites;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 public class Blog {
     private int id;
@@ -12,6 +14,7 @@ public class Blog {
     private String image;
     private String region;
     private String categorie;
+    private List<Tag> tags = new ArrayList<>(); // liste des tags associés
 
     public Blog() {}
 
@@ -62,6 +65,9 @@ public class Blog {
 
     public String getCategorie() { return categorie; }
     public void setCategorie(String categorie) { this.categorie = categorie; }
+
+    public List<Tag> getTags() { return tags; }
+    public void setTags(List<Tag> tags) { this.tags = tags; }
 
     @Override
     public String toString() {
