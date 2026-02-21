@@ -23,9 +23,13 @@ public class MyMemoryService {
             }
 
             try (CloseableHttpClient client = HttpClients.createDefault()) {
+                // Encodage du texte
                 String encodedText = URLEncoder.encode(text, StandardCharsets.UTF_8);
-                String url = String.format("%s?q=%s&langpair=%s|%s",
-                        API_URL, encodedText, sourceLang, targetLang);
+                // Encodage de la paire de langues (important : le pipe '|' devient %7C)
+                String langpair = sourceLang + "|" + targetLang;
+                String encodedLangpair = URLEncoder.encode(langpair, StandardCharsets.UTF_8);
+
+                String url = String.format("%s?q=%s&langpair=%s", API_URL, encodedText, encodedLangpair);
 
                 HttpGet request = new HttpGet(url);
                 request.setHeader("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36");
