@@ -16,63 +16,63 @@
         <effect><DropShadow color="#00000012" offsetX="3" radius="25" /></effect>
 
         <HBox alignment="CENTER_LEFT" spacing="15" style="-fx-padding: 0 0 40 30;">
-            <Label style="-fx-font-size: 32px; -fx-text-fill: #5B4EFA;" text="⛰️" />
+            <Label style="-fx-font-size: 32px; -fx-text-fill: #6366F1;" text="⛰️" />
             <VBox alignment="CENTER_LEFT">
-                <Label style="-fx-text-fill: #5B4EFA; -fx-font-size: 22px; -fx-font-weight: 900;" text="WinGO" />
-                <Label style="-fx-text-fill: #A0AEC0; -fx-font-size: 10px; -fx-font-weight: bold;" text="Travel Agency" />
+                <Label style="-fx-text-fill: #6366F1; -fx-font-size: 22px; -fx-font-weight: 900;" text="WinGO" />
+                <Label style="-fx-text-fill: #94A3B8; -fx-font-size: 10px; -fx-font-weight: bold;" text="Travel Agency" />
             </VBox>
         </HBox>
 
-        <HBox alignment="CENTER_LEFT" minHeight="50" spacing="15" style="-fx-padding: 0 0 0 30; -fx-background-color: #F3F2FF;">
-            <Label style="-fx-text-fill: #5B4EFA; -fx-font-size: 18px;" text="🏠" />
-            <Label style="-fx-text-fill: #5B4EFA; -fx-font-weight: bold; -fx-font-size: 15px;" text="Home" />
+        <HBox alignment="CENTER_LEFT" minHeight="50" spacing="15" style="-fx-padding: 0 0 0 30; -fx-background-color: #EEF2FF;">
+            <Label style="-fx-text-fill: #6366F1; -fx-font-size: 18px;" text="🏠" />
+            <Label style="-fx-text-fill: #6366F1; -fx-font-weight: bold; -fx-font-size: 15px;" text="Home" />
             <Region HBox.hgrow="ALWAYS" />
-            <Pane prefHeight="25" prefWidth="4" style="-fx-background-color: #5B4EFA; -fx-background-radius: 5 0 0 5;" />
+            <Pane prefHeight="25" prefWidth="4" style="-fx-background-color: #6366F1; -fx-background-radius: 5 0 0 5;" />
         </HBox>
 
         <HBox alignment="CENTER_LEFT" minHeight="50" spacing="15" style="-fx-padding: 0 30; -fx-cursor: hand;">
-            <Label style="-fx-text-fill: #A0AEC0; -fx-font-size: 18px;" text="🎫" />
-            <Label style="-fx-text-fill: #718096; -fx-font-weight: bold; -fx-font-size: 15px;" text="Booking" />
+            <Label style="-fx-text-fill: #F59E0B; -fx-font-size: 18px;" text="🎫" />
+            <Label style="-fx-text-fill: #64748B; -fx-font-weight: bold; -fx-font-size: 15px;" text="Booking" />
             <Region HBox.hgrow="ALWAYS" />
-            <Circle fill="#E53E3E" radius="4" />
+            <Circle fill="#EF4444" radius="4" />
         </HBox>
 
         <HBox alignment="CENTER_LEFT" minHeight="50" spacing="15" style="-fx-padding: 0 30; -fx-cursor: hand;">
-            <Label style="-fx-text-fill: #A0AEC0; -fx-font-size: 18px;" text="🌍" />
-            <Label style="-fx-text-fill: #718096; -fx-font-weight: bold; -fx-font-size: 15px;" text="Explore" />
+            <Label style="-fx-text-fill: #10B981; -fx-font-size: 18px;" text="🌍" />
+            <Label style="-fx-text-fill: #64748B; -fx-font-weight: bold; -fx-font-size: 15px;" text="Explore" />
         </HBox>
 
-        <HBox alignment="CENTER_LEFT" minHeight="50" prefHeight="50.0" prefWidth="200.0" spacing="15" style="-fx-padding: 0 30; -fx-cursor: hand;">
-            <Label style="-fx-text-fill: #A0AEC0; -fx-font-size: 18px;" text="💬" />
-            <Label style="-fx-text-fill: #718096; -fx-font-weight: bold; -fx-font-size: 15px;" text="Message" />
+        <HBox alignment="CENTER_LEFT" minHeight="50" spacing="15" style="-fx-padding: 0 30; -fx-cursor: hand;">
+            <Label style="-fx-text-fill: #3B82F6; -fx-font-size: 18px;" text="💬" />
+            <Label style="-fx-text-fill: #64748B; -fx-font-weight: bold; -fx-font-size: 15px;" text="Message" />
             <Region HBox.hgrow="ALWAYS" />
-            <Circle fill="#E53E3E" radius="4" />
+            <Circle fill="#EF4444" radius="4" />
         </HBox>
 
         <HBox alignment="CENTER_LEFT" minHeight="50" spacing="15" style="-fx-padding: 0 30; -fx-cursor: hand;">
-            <Label style="-fx-text-fill: #A0AEC0; -fx-font-size: 18px;" text="❓" />
-            <Label style="-fx-text-fill: #718096; -fx-font-weight: bold; -fx-font-size: 15px;" text="Support" />
+            <Label style="-fx-text-fill: #8B5CF6; -fx-font-size: 18px;" text="❓" />
+            <Label style="-fx-text-fill: #64748B; -fx-font-weight: bold; -fx-font-size: 15px;" text="Support" />
         </HBox>
 
         <HBox alignment="CENTER_LEFT" minHeight="50" spacing="15" style="-fx-padding: 0 30; -fx-cursor: hand;">
-            <Label style="-fx-text-fill: #A0AEC0; -fx-font-size: 18px;" text="⚙️" />
-            <Label style="-fx-text-fill: #718096; -fx-font-weight: bold; -fx-font-size: 15px;" text="Setting" />
+            <Label style="-fx-text-fill: #EC4899; -fx-font-size: 18px;" text="⚙️" />
+            <Label style="-fx-text-fill: #64748B; -fx-font-weight: bold; -fx-font-size: 15px;" text="Setting" />
         </HBox>
 
-        <Region prefHeight="256.0" prefWidth="200.0" VBox.vgrow="ALWAYS" />
+        <Region VBox.vgrow="ALWAYS" />
 
         <HBox alignment="CENTER_LEFT" minHeight="50" spacing="15" style="-fx-padding: 0 30; -fx-cursor: hand;">
-            <Label style="-fx-text-fill: #A0AEC0; -fx-font-size: 18px;" text="🌙" />
-            <Label style="-fx-text-fill: #718096; -fx-font-weight: bold; -fx-font-size: 14px;" text="Dark mode" />
+            <Label style="-fx-text-fill: #6366F1; -fx-font-size: 18px;" text="🌙" />
+            <Label style="-fx-text-fill: #64748B; -fx-font-weight: bold; -fx-font-size: 14px;" text="Dark mode" />
             <Region HBox.hgrow="ALWAYS" />
-            <Pane prefHeight="18" prefWidth="35" style="-fx-background-color: #E2E8F0; -fx-background-radius: 10;">
+            <Pane prefHeight="18" prefWidth="35" style="-fx-background-color: #6366F1; -fx-background-radius: 10;">
                 <Circle fill="#FFFFFF" radius="7" translateX="3" translateY="2" />
             </Pane>
         </HBox>
 
         <HBox alignment="CENTER_LEFT" minHeight="50" spacing="15" style="-fx-padding: 0 30; -fx-cursor: hand;">
-            <Label style="-fx-text-fill: #E53E3E; -fx-font-size: 18px;" text="🚪" />
-            <Label style="-fx-text-fill: #E53E3E; -fx-font-weight: bold; -fx-font-size: 14px;" text="Logout" />
+            <Label style="-fx-text-fill: #EF4444; -fx-font-size: 18px;" text="🚪" />
+            <Label style="-fx-text-fill: #EF4444; -fx-font-weight: bold; -fx-font-size: 14px;" text="Logout" />
         </HBox>
     </VBox>
 
@@ -81,27 +81,26 @@
         <HBox alignment="CENTER_LEFT" spacing="20">
             <HBox alignment="CENTER_LEFT" prefWidth="500" spacing="10" style="-fx-background-color: #FFFFFF; -fx-background-radius: 15; -fx-padding: 10 20;">
                 <effect><DropShadow color="#00000008" offsetY="5" radius="10" /></effect>
-                <Label style="-fx-text-fill: #A0AEC0;" text="🔍" />
-                <TextField promptText="Search destination..." style="-fx-background-color: transparent; -fx-text-fill: #2D3748; -fx-font-size: 14px; -fx-prompt-text-fill: #A0AEC0;" HBox.hgrow="ALWAYS" />
+                <Label style="-fx-text-fill: #94A3B8;" text="🔍" />
+                <TextField promptText="Search destination..." style="-fx-background-color: transparent; -fx-text-fill: #1E293B; -fx-font-size: 14px; -fx-prompt-text-fill: #94A3B8;" HBox.hgrow="ALWAYS" />
             </HBox>
 
-            <Button style="-fx-background-color: #5B4EFA; -fx-text-fill: white; -fx-background-radius: 10; -fx-padding: 12 16; -fx-font-size: 16px; -fx-cursor: hand;" text="⚲">
-                <effect><DropShadow color="#5B4EFA40" offsetY="5" radius="10" /></effect>
+            <Button style="-fx-background-color: #6366F1; -fx-text-fill: white; -fx-background-radius: 10; -fx-padding: 12 16; -fx-font-size: 16px; -fx-cursor: hand;" text="⚲">
+                <effect><DropShadow color="#6366F140" offsetY="5" radius="10" /></effect>
             </Button>
 
-            <Button style="-fx-background-color: #5B4EFA; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 10; -fx-padding: 12 30; -fx-font-size: 14px; -fx-cursor: hand;" text="Search">
-                <effect><DropShadow color="#5B4EFA40" offsetY="5" radius="10" /></effect>
+            <Button style="-fx-background-color: #10B981; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 10; -fx-padding: 12 30; -fx-font-size: 14px; -fx-cursor: hand;" text="Search">
+                <effect><DropShadow color="#10B98140" offsetY="5" radius="10" /></effect>
             </Button>
 
             <Region HBox.hgrow="ALWAYS" />
 
             <HBox alignment="CENTER_RIGHT" spacing="15">
-                <Circle fill="#E2E8F0" radius="22" />
+                <Circle fill="#F59E0B" radius="22" />
                 <VBox alignment="CENTER_LEFT">
-                    <Label style="-fx-text-fill: #2D3748; -fx-font-weight: 900; -fx-font-size: 14px;" text="Norman haires" />
-                    <Label style="-fx-text-fill: #A0AEC0; -fx-font-size: 12px;" text="SuperAdmin" />
+                    <Label style="-fx-text-fill: #1E293B; -fx-font-weight: 900; -fx-font-size: 14px;" text="Norman Haires" />
+                    <Label style="-fx-text-fill: #6366F1; -fx-font-size: 12px; -fx-font-weight: bold;" text="SuperAdmin" />
                 </VBox>
-                <Label style="-fx-text-fill: #A0AEC0; -fx-font-size: 10px;" text="▼" />
             </HBox>
         </HBox>
 
@@ -110,15 +109,15 @@
 
             <VBox spacing="20" HBox.hgrow="ALWAYS">
 
-                <Label style="-fx-text-fill: #5B4EFA; -fx-font-size: 24px; -fx-font-weight: 900;" text="Discover World" />
+                <Label style="-fx-text-fill: #1E293B; -fx-font-size: 26px; -fx-font-weight: 900;" text="Discover World" />
 
                 <HBox spacing="30">
                     <VBox alignment="CENTER" spacing="5">
-                        <Label style="-fx-text-fill: #5B4EFA; -fx-font-weight: bold; -fx-font-size: 14px; -fx-cursor: hand;" text="Popular Place" />
-                        <Pane prefHeight="3" prefWidth="30" style="-fx-background-color: #5B4EFA; -fx-background-radius: 5;" />
+                        <Label style="-fx-text-fill: #6366F1; -fx-font-weight: bold; -fx-font-size: 14px; -fx-cursor: hand;" text="Popular Place" />
+                        <Pane prefHeight="3" prefWidth="30" style="-fx-background-color: #6366F1; -fx-background-radius: 5;" />
                     </VBox>
-                    <Label style="-fx-text-fill: #A0AEC0; -fx-font-weight: bold; -fx-font-size: 14px; -fx-cursor: hand;" text="Recommended" />
-                    <Label style="-fx-text-fill: #A0AEC0; -fx-font-weight: bold; -fx-font-size: 14px; -fx-cursor: hand;" text="Near me" />
+                    <Label style="-fx-text-fill: #94A3B8; -fx-font-weight: bold; -fx-font-size: 14px; -fx-cursor: hand;" text="Recommended" />
+                    <Label style="-fx-text-fill: #94A3B8; -fx-font-weight: bold; -fx-font-size: 14px; -fx-cursor: hand;" text="Near me" />
                 </HBox>
 
                 <HBox spacing="20">
@@ -126,12 +125,12 @@
                         <effect><DropShadow color="#0000000A" offsetY="5" radius="15" /></effect>
                         <Pane prefHeight="140" style="-fx-background-image: url('/assets/kahf.jpg'); -fx-background-size: cover; -fx-background-radius: 15;" />
                         <VBox spacing="5" style="-fx-padding: 15 5 5 5;">
-                            <Label style="-fx-text-fill: #2D3748; -fx-font-weight: bold; -fx-font-size: 16px;" text="The Grand Palace" />
+                            <Label style="-fx-text-fill: #1E293B; -fx-font-weight: bold; -fx-font-size: 16px;" text="The Grand Palace" />
                             <HBox alignment="CENTER_LEFT" spacing="5">
-                                <Label style="-fx-text-fill: #A0AEC0; -fx-font-size: 12px;" text="📍" />
-                                <Label style="-fx-text-fill: #718096; -fx-font-size: 13px;" text="Bangkok" />
+                                <Label style="-fx-text-fill: #3B82F6; -fx-font-size: 12px;" text="📍" />
+                                <Label style="-fx-text-fill: #64748B; -fx-font-size: 13px;" text="Bangkok" />
                                 <Region HBox.hgrow="ALWAYS" />
-                                <Label style="-fx-text-fill: #2D3748; -fx-font-weight: bold; -fx-font-size: 12px;" text="⭐ 4.8" />
+                                <Label style="-fx-text-fill: #F59E0B; -fx-font-weight: bold; -fx-font-size: 12px;" text="⭐ 4.8" />
                             </HBox>
                         </VBox>
                     </VBox>
@@ -140,12 +139,12 @@
                         <effect><DropShadow color="#0000000A" offsetY="5" radius="15" /></effect>
                         <Pane prefHeight="140" style="-fx-background-image: url('/assets/9dim.jpg'); -fx-background-size: cover; -fx-background-radius: 15;" />
                         <VBox spacing="5" style="-fx-padding: 15 5 5 5;">
-                            <Label style="-fx-text-fill: #2D3748; -fx-font-weight: bold; -fx-font-size: 16px;" text="Tokyo DisneySea" />
+                            <Label style="-fx-text-fill: #1E293B; -fx-font-weight: bold; -fx-font-size: 16px;" text="Tokyo DisneySea" />
                             <HBox alignment="CENTER_LEFT" spacing="5">
-                                <Label style="-fx-text-fill: #A0AEC0; -fx-font-size: 12px;" text="📍" />
-                                <Label style="-fx-text-fill: #718096; -fx-font-size: 13px;" text="Tokyo" />
+                                <Label style="-fx-text-fill: #3B82F6; -fx-font-size: 12px;" text="📍" />
+                                <Label style="-fx-text-fill: #64748B; -fx-font-size: 13px;" text="Tokyo" />
                                 <Region HBox.hgrow="ALWAYS" />
-                                <Label style="-fx-text-fill: #2D3748; -fx-font-weight: bold; -fx-font-size: 12px;" text="⭐ 4.7" />
+                                <Label style="-fx-text-fill: #F59E0B; -fx-font-weight: bold; -fx-font-size: 12px;" text="⭐ 4.7" />
                             </HBox>
                         </VBox>
                     </VBox>
@@ -154,12 +153,12 @@
                         <effect><DropShadow color="#0000000A" offsetY="5" radius="15" /></effect>
                         <Pane prefHeight="140" style="-fx-background-image: url('/assets/sidibou.jpg'); -fx-background-size: cover; -fx-background-radius: 15;" />
                         <VBox spacing="5" style="-fx-padding: 15 5 5 5;">
-                            <Label style="-fx-text-fill: #2D3748; -fx-font-weight: bold; -fx-font-size: 16px;" text="Shilin Night Market" />
+                            <Label style="-fx-text-fill: #1E293B; -fx-font-weight: bold; -fx-font-size: 16px;" text="Shilin Night Market" />
                             <HBox alignment="CENTER_LEFT" spacing="5">
-                                <Label style="-fx-text-fill: #A0AEC0; -fx-font-size: 12px;" text="📍" />
-                                <Label style="-fx-text-fill: #718096; -fx-font-size: 13px;" text="Taipei" />
+                                <Label style="-fx-text-fill: #3B82F6; -fx-font-size: 12px;" text="📍" />
+                                <Label style="-fx-text-fill: #64748B; -fx-font-size: 13px;" text="Taipei" />
                                 <Region HBox.hgrow="ALWAYS" />
-                                <Label style="-fx-text-fill: #2D3748; -fx-font-weight: bold; -fx-font-size: 12px;" text="⭐ 4.8" />
+                                <Label style="-fx-text-fill: #F59E0B; -fx-font-weight: bold; -fx-font-size: 12px;" text="⭐ 4.8" />
                             </HBox>
                         </VBox>
                     </VBox>
@@ -174,28 +173,28 @@
 
                     <VBox alignment="CENTER_LEFT" spacing="15" style="-fx-padding: 10 10 10 0;" HBox.hgrow="ALWAYS">
                         <VBox spacing="5">
-                            <Label style="-fx-text-fill: #5B4EFA; -fx-font-weight: 900; -fx-font-size: 22px;" text="Nusa Penida Island" />
+                            <Label style="-fx-text-fill: #6366F1; -fx-font-weight: 900; -fx-font-size: 24px;" text="Nusa Penida Island" />
                             <HBox alignment="CENTER_LEFT" spacing="5">
-                                <Label style="-fx-text-fill: #A0AEC0;" text="📍" />
-                                <Label style="-fx-text-fill: #718096; -fx-font-weight: bold; -fx-font-size: 14px;" text="South East Asia" />
+                                <Label style="-fx-text-fill: #3B82F6;" text="📍" />
+                                <Label style="-fx-text-fill: #64748B; -fx-font-weight: bold; -fx-font-size: 14px;" text="South East Asia" />
                             </HBox>
                         </VBox>
 
-                        <HBox alignment="CENTER_LEFT" spacing="10" style="-fx-background-color: #FFF5F5; -fx-background-radius: 10; -fx-padding: 8 15; -fx-max-width: 150;">
-                            <Label style="-fx-text-fill: #ED8936;" text="🎫" />
-                            <Label style="-fx-text-fill: #2D3748; -fx-font-weight: 900; -fx-font-size: 18px;" text="\$ 1205" />
+                        <HBox alignment="CENTER_LEFT" spacing="10" style="-fx-background-color: #FFF7ED; -fx-background-radius: 10; -fx-padding: 8 15; -fx-max-width: 150;">
+                            <Label style="-fx-text-fill: #F59E0B;" text="🎫" />
+                            <Label style="-fx-text-fill: #C2410C; -fx-font-weight: 900; -fx-font-size: 18px;" text="\$ 1205" />
                         </HBox>
 
-                        <Label style="-fx-text-fill: #718096; -fx-font-size: 13px; -fx-wrap-text: true;" text="Take a speed boat from Sanur to one of Bali's most enchanting locations. This spectacular island is outlined by towering limestone cliffs and surrounded by azure waters." />
+                        <Label style="-fx-text-fill: #475569; -fx-font-size: 13px; -fx-wrap-text: true;" text="Take a speed boat from Sanur to one of Bali's most enchanting locations. This spectacular island is outlined by towering limestone cliffs." />
 
                         <HBox spacing="20">
-                            <Label style="-fx-text-fill: #5B4EFA; -fx-font-weight: bold; -fx-font-size: 13px;" text="⏱ 6 Days" />
-                            <Label style="-fx-text-fill: #38A169; -fx-font-weight: bold; -fx-font-size: 13px;" text="🚗 1200 KM" />
-                            <Label style="-fx-text-fill: #3182CE; -fx-font-weight: bold; -fx-font-size: 13px;" text="⛅ 24° C" />
+                            <Label style="-fx-text-fill: #6366F1; -fx-font-weight: bold; -fx-font-size: 13px;" text="⏱ 6 Days" />
+                            <Label style="-fx-text-fill: #10B981; -fx-font-weight: bold; -fx-font-size: 13px;" text="🚗 1200 KM" />
+                            <Label style="-fx-text-fill: #3B82F6; -fx-font-weight: bold; -fx-font-size: 13px;" text="⛅ 24° C" />
                         </HBox>
 
-                        <Button style="-fx-background-color: #5B4EFA; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 10; -fx-padding: 12 30; -fx-cursor: hand;" text="Book Now">
-                            <effect><DropShadow color="#5B4EFA40" offsetY="5" radius="10" /></effect>
+                        <Button style="-fx-background-color: #6366F1; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 10; -fx-padding: 12 30; -fx-cursor: hand;" text="Book Now">
+                            <effect><DropShadow color="#6366F140" offsetY="5" radius="10" /></effect>
                         </Button>
                     </VBox>
                 </HBox>
@@ -207,75 +206,50 @@
                 <VBox spacing="15" style="-fx-background-color: #FFFFFF; -fx-background-radius: 20; -fx-padding: 20;">
                     <effect><DropShadow color="#0000000A" offsetY="5" radius="15" /></effect>
                     <HBox alignment="CENTER" spacing="20">
-                        <Label style="-fx-text-fill: #A0AEC0; -fx-font-weight: bold; -fx-cursor: hand;" text="&lt;" />
-                        <Label style="-fx-text-fill: #2D3748; -fx-font-weight: 900; -fx-font-size: 16px;" text="March 2024" />
-                        <Label style="-fx-text-fill: #5B4EFA; -fx-font-weight: bold; -fx-cursor: hand;" text="&gt;" />
+                        <Label style="-fx-text-fill: #6366F1; -fx-font-weight: bold; -fx-cursor: hand;" text="&lt;" />
+                        <Label style="-fx-text-fill: #1E293B; -fx-font-weight: 900; -fx-font-size: 16px;" text="March 2024" />
+                        <Label style="-fx-text-fill: #6366F1; -fx-font-weight: bold; -fx-cursor: hand;" text="&gt;" />
                     </HBox>
                     <HBox alignment="CENTER" spacing="10">
                         <VBox alignment="CENTER" spacing="5">
-                            <Label style="-fx-text-fill: #A0AEC0; -fx-font-size: 12px;" text="Mon" />
-                            <Label style="-fx-text-fill: #2D3748; -fx-font-weight: bold;" text="22" />
+                            <Label style="-fx-text-fill: #94A3B8; -fx-font-size: 12px;" text="Mon" />
+                            <Label style="-fx-text-fill: #1E293B; -fx-font-weight: bold;" text="22" />
                         </VBox>
-                        <VBox alignment="CENTER" spacing="5">
-                            <Label style="-fx-text-fill: #A0AEC0; -fx-font-size: 12px;" text="Tue" />
-                            <Label style="-fx-text-fill: #2D3748; -fx-font-weight: bold;" text="23" />
-                        </VBox>
-                        <VBox alignment="CENTER" spacing="5" style="-fx-background-color: #5B4EFA; -fx-background-radius: 10; -fx-padding: 8 12;">
-                            <effect><DropShadow color="#5B4EFA40" offsetY="5" radius="10" /></effect>
+                        <VBox alignment="CENTER" spacing="5" style="-fx-background-color: #6366F1; -fx-background-radius: 10; -fx-padding: 8 12;">
+                            <effect><DropShadow color="#6366F140" offsetY="5" radius="10" /></effect>
                             <Label style="-fx-text-fill: white; -fx-font-size: 12px;" text="Wed" />
                             <Label style="-fx-text-fill: white; -fx-font-weight: bold;" text="24" />
                         </VBox>
                         <VBox alignment="CENTER" spacing="5">
-                            <Label style="-fx-text-fill: #A0AEC0; -fx-font-size: 12px;" text="Thu" />
-                            <Label style="-fx-text-fill: #2D3748; -fx-font-weight: bold;" text="25" />
-                        </VBox>
-                        <VBox alignment="CENTER" spacing="5">
-                            <Label style="-fx-text-fill: #A0AEC0; -fx-font-size: 12px;" text="Fri" />
-                            <Label style="-fx-text-fill: #2D3748; -fx-font-weight: bold;" text="26" />
+                            <Label style="-fx-text-fill: #94A3B8; -fx-font-size: 12px;" text="Thu" />
+                            <Label style="-fx-text-fill: #1E293B; -fx-font-weight: bold;" text="25" />
                         </VBox>
                     </HBox>
                 </VBox>
 
                 <VBox spacing="15" style="-fx-background-color: #FFFFFF; -fx-background-radius: 20; -fx-padding: 20;">
                     <effect><DropShadow color="#0000000A" offsetY="5" radius="15" /></effect>
-                    <Label style="-fx-text-fill: #2D3748; -fx-font-weight: 900; -fx-font-size: 15px;" text="Transportation" />
+                    <Label style="-fx-text-fill: #1E293B; -fx-font-weight: 900; -fx-font-size: 15px;" text="Transportation" />
                     <HBox alignment="CENTER_LEFT" spacing="15">
-                        <Button style="-fx-background-color: #F0EDFF; -fx-text-fill: #5B4EFA; -fx-background-radius: 10; -fx-padding: 10 15; -fx-font-size: 16px;" text="✈️" />
-                        <Button style="-fx-background-color: transparent; -fx-text-fill: #A0AEC0; -fx-border-color: #E2E8F0; -fx-border-radius: 10; -fx-padding: 10 15; -fx-font-size: 16px;" text="🚌" />
-                        <Button style="-fx-background-color: transparent; -fx-text-fill: #A0AEC0; -fx-border-color: #E2E8F0; -fx-border-radius: 10; -fx-padding: 10 15; -fx-font-size: 16px;" text="🚆" />
-                        <Button style="-fx-background-color: transparent; -fx-text-fill: #A0AEC0; -fx-border-color: #E2E8F0; -fx-border-radius: 10; -fx-padding: 10 15; -fx-font-size: 16px;" text="⛴️" />
+                        <Button style="-fx-background-color: #EEF2FF; -fx-text-fill: #6366F1; -fx-background-radius: 10; -fx-padding: 10 15; -fx-font-size: 16px;" text="✈️" />
+                        <Button style="-fx-background-color: transparent; -fx-text-fill: #94A3B8; -fx-border-color: #E2E8F0; -fx-border-radius: 10; -fx-padding: 10 15; -fx-font-size: 16px;" text="🚌" />
                     </HBox>
-                    <Button maxWidth="Infinity" style="-fx-background-color: transparent; -fx-border-color: #E2E8F0; -fx-border-radius: 10; -fx-text-fill: #A0AEC0; -fx-font-size: 18px; -fx-padding: 5;" text="+" />
                 </VBox>
 
                 <VBox spacing="15" style="-fx-background-color: #FFFFFF; -fx-background-radius: 20; -fx-padding: 30;" VBox.vgrow="ALWAYS">
                     <effect><DropShadow color="#0000000A" offsetY="5" radius="15" /></effect>
                     <HBox alignment="CENTER_LEFT">
-                        <Label style="-fx-text-fill: #2D3748; -fx-font-weight: 900; -fx-font-size: 15px;" text="My Schedule" />
+                        <Label style="-fx-text-fill: #1E293B; -fx-font-weight: 900; -fx-font-size: 15px;" text="My Schedule" />
                         <Region HBox.hgrow="ALWAYS" />
-                        <Label style="-fx-text-fill: #5B4EFA; -fx-font-weight: bold; -fx-font-size: 12px; -fx-cursor: hand;" text="See all" />
+                        <Label style="-fx-text-fill: #6366F1; -fx-font-weight: bold; -fx-font-size: 12px; -fx-cursor: hand;" text="See all" />
                     </HBox>
 
                     <VBox spacing="15">
                         <HBox alignment="CENTER_LEFT" spacing="15">
-                            <Pane prefHeight="50" prefWidth="50" style="-fx-background-image: url('/assets/nega.jpg'); -fx-background-size: cover; -fx-background-radius: 10;" />
+                            <Pane prefHeight="50" prefWidth="50" style="-fx-background-color: #6366F1; -fx-background-radius: 10;" />
                             <VBox alignment="CENTER_LEFT" spacing="2">
-                                <Label style="-fx-text-fill: #2D3748; -fx-font-weight: bold; -fx-font-size: 14px;" text="Bangkok" />
-                                <Label style="-fx-text-fill: #A0AEC0; -fx-font-size: 12px;" text="15 April - 20 April" />
-                            </VBox>
-                        </HBox>
-                        <HBox alignment="CENTER_LEFT" spacing="15">
-                            <Pane prefHeight="50" prefWidth="50" style="-fx-background-image: url('/assets/nega.jpg'); -fx-background-size: cover; -fx-background-radius: 10;" />
-                            <VBox alignment="CENTER_LEFT" spacing="2">
-                                <Label style="-fx-text-fill: #2D3748; -fx-font-weight: bold; -fx-font-size: 14px;" text="India" />
-                                <Label style="-fx-text-fill: #A0AEC0; -fx-font-size: 12px;" text="25 May - 30 May" />
-                            </VBox>
-                        </HBox>
-                        <HBox alignment="CENTER_LEFT" spacing="15">
-                            <Pane prefHeight="50" prefWidth="50" style="-fx-background-image: url('/assets/nega.jpg'); -fx-background-size: cover; -fx-background-radius: 10;" />
-                            <VBox alignment="CENTER_LEFT" spacing="2">
-                                <Label style="-fx-text-fill: #2D3748; -fx-font-weight: bold; -fx-font-size: 14px;" text="Mexico" />
-                                <Label style="-fx-text-fill: #A0AEC0; -fx-font-size: 12px;" text="20 June - 25 June" />
+                                <Label style="-fx-text-fill: #1E293B; -fx-font-weight: bold; -fx-font-size: 14px;" text="Bangkok" />
+                                <Label style="-fx-text-fill: #6366F1; -fx-font-size: 12px; -fx-font-weight: bold;" text="15 April - 20 April" />
                             </VBox>
                         </HBox>
                     </VBox>
