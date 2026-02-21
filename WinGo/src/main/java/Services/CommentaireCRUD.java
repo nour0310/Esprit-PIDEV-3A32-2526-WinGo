@@ -72,7 +72,6 @@ public class CommentaireCRUD {
     }
 
     // Récupérer tous les commentaires d'un article (sans hiérarchie)
-    // (gardé pour compatibilité, mais on utilisera plutôt getHierarchicalComments)
     public List<Commentaire> getCommentsByArticle(int articleId) throws SQLException {
         String req = "SELECT c.*, u.nom, u.prenom FROM commentaire c LEFT JOIN utilisateur u ON c.utilisateur = u.id WHERE c.article_id=? ORDER BY c.date_commentaire DESC";
         try (PreparedStatement pst = conn.prepareStatement(req)) {
@@ -80,17 +79,16 @@ public class CommentaireCRUD {
             try (ResultSet rs = pst.executeQuery()) {
                 List<Commentaire> liste = new ArrayList<>();
                 while (rs.next()) {
-                    Commentaire c = mapResultSetToCommentaire(rs);
-                    liste.add(c);
+                    liste.add(mapResultSetToCommentaire(rs));
                 }
                 return liste;
             }
         }
     }
 
-    // Récupérer les commentaires d'un article de manière hiérarchique
+    // Récupérer les commentaires d'un article de manière hiérarchique (racines + réponses)
     public List<Commentaire> getHierarchicalComments(int articleId) throws SQLException {
-        // 1. Récupérer tous les commentaires de l'article
+        // 1. Récupérer tous les commentaires de l'article triés par date croissante
         List<Commentaire> allComments = new ArrayList<>();
         String req = "SELECT c.*, u.nom, u.prenom FROM commentaire c LEFT JOIN utilisateur u ON c.utilisateur = u.id WHERE c.article_id=? ORDER BY c.date_commentaire ASC";
         try (PreparedStatement pst = conn.prepareStatement(req)) {
@@ -129,6 +127,19 @@ public class CommentaireCRUD {
         return roots;
     }
 
+    // Récupérer tous les commentaires (pour l'affichage global)
+    public List<Commentaire> afficher() throws SQLException {
+        String req = "SELECT c.*, u.nom, u.prenom FROM commentaire c LEFT JOIN utilisateur u ON c.utilisateur = u.id ORDER BY c.date_commentaire DESC";
+        List<Commentaire> liste = new ArrayList<>();
+        try (Statement st = conn.createStatement();
+             ResultSet rs = st.executeQuery(req)) {
+            while (rs.next()) {
+                liste.add(mapResultSetToCommentaire(rs));
+            }
+        }
+        return liste;
+    }
+
     // Méthode utilitaire pour mapper un ResultSet à un objet Commentaire
     private Commentaire mapResultSetToCommentaire(ResultSet rs) throws SQLException {
         Commentaire c = new Commentaire();
@@ -159,21 +170,5 @@ public class CommentaireCRUD {
         c.setUtilisateurNom(utilisateurNom);
 
         return c;
-    }
-
-    // Méthode afficher() pour la compatibilité avec IntrefaceCRUD
-    public List<Commentaire> afficher() throws SQLException {
-        String req = "SELECT c.*, u.nom, u.prenom FROM commentaire c LEFT JOIN utilisateur u ON c.utilisateur = u.id ORDER BY c.date_commentaire DESC";
-        List<Commentaire> liste = new ArrayList<>();
-        try (Statement st = conn.createStatement();
-             ResultSet rs = st.executeQuery(req)) {
-            while (rs.next()) {
-                liste.add(mapResultSetToCommentaire(rs));
-            }
-        }
-        return liste;
-    }
-
-    public List<Commentaire> getCommentairesArborescents(int id) {
     }
 }
