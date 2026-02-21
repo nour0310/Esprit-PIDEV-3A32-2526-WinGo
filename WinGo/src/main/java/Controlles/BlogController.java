@@ -50,7 +50,7 @@ public class BlogController implements Initializable {
     private Map<Integer, Integer> likeCounts = new HashMap<>();
     private Set<Integer> likedByCurrentUser = new HashSet<>();
 
-    // Images pour les cœurs (peuvent être null si non trouvées)
+    // Images pour les cœurs
     private Image heartEmptyImage;
     private Image heartFullImage;
 
@@ -133,14 +133,18 @@ public class BlogController implements Initializable {
     }
 
     private void loadImages() {
-        // Essaye de charger les images depuis le dossier /image/ (à ajuster selon votre structure)
+        // Chemin vers les images dans resources (dossier /images/)
         String emptyPath = "/images/heart.png";
         String fullPath = "/images/heartRed.png";
+
+        // Debug : afficher les URLs pour vérifier
+        System.out.println("Chargement de " + emptyPath + " : " + getClass().getResource(emptyPath));
+        System.out.println("Chargement de " + fullPath + " : " + getClass().getResource(fullPath));
+
         try (InputStream emptyStream = getClass().getResourceAsStream(emptyPath);
              InputStream fullStream = getClass().getResourceAsStream(fullPath)) {
             if (emptyStream == null || fullStream == null) {
-                System.err.println("⚠ Images non trouvées : " + emptyPath + " ou " + fullPath);
-                System.err.println("Placez les fichiers dans src/main/resources/image/ ou modifiez le chemin.");
+                System.err.println("⚠ Images non trouvées. Utilisation des émojis en fallback.");
                 heartEmptyImage = null;
                 heartFullImage = null;
             } else {
@@ -484,7 +488,7 @@ public class BlogController implements Initializable {
         Label commentCount = new Label("Commentaires: " + nbComments);
         commentCount.setStyle("-fx-text-fill: #27ae60; -fx-font-size: 13px;");
 
-        // --- LIKES : bouton cœur (image ou émoji) ---
+        // --- LIKES : bouton cœur avec images et compteur textuel ---
         int likes = likeCounts.getOrDefault(blog.getId(), 0);
         boolean isLiked = likedByCurrentUser.contains(blog.getId());
 
@@ -493,8 +497,8 @@ public class BlogController implements Initializable {
 
         if (heartEmptyImage != null && heartFullImage != null) {
             ImageView heartView = new ImageView();
-            heartView.setFitWidth(20);
-            heartView.setFitHeight(20);
+            heartView.setFitWidth(40);
+            heartView.setFitHeight(40);
             heartView.setImage(isLiked ? heartFullImage : heartEmptyImage);
             likeButton.setGraphic(heartView);
         } else {
@@ -503,13 +507,13 @@ public class BlogController implements Initializable {
             likeButton.setStyle(likeButton.getStyle() + " -fx-font-size: 16px;");
         }
 
-        Label likeCountLabel = new Label(String.valueOf(likes));
+        // Compteur avec texte "like" ou "likes"
+        Label likeCountLabel = new Label(likes + (likes > 1 ? " likes" : " like"));
         likeCountLabel.setStyle("-fx-text-fill: white; -fx-font-size: 13px;");
 
         HBox likeBox = new HBox(5, likeButton, likeCountLabel);
         likeBox.setAlignment(Pos.CENTER_LEFT);
 
-        // On passe le bouton et le label à toggleLike (qui gérera la mise à jour)
         likeButton.setOnAction(e -> toggleLike(blog, likeButton, likeCountLabel));
         // --- FIN LIKES ---
 
@@ -612,16 +616,15 @@ public class BlogController implements Initializable {
         boolean isLiked = likedByCurrentUser.contains(blog.getId());
         if (heartFullImage != null && heartEmptyImage != null) {
             detailLikeImageView.setImage(isLiked ? heartFullImage : heartEmptyImage);
-            // S'assurer que le bouton n'a pas de texte
-            detailLikeButton.setText("");
+            detailLikeButton.setText(""); // pas de texte
         } else {
             // Fallback texte
             detailLikeButton.setText(isLiked ? "❤️" : "🤍");
             detailLikeButton.setStyle("-fx-background-color: transparent; -fx-font-size: 24px; -fx-cursor: hand;");
-            // Cacher l'ImageView si elle existe
-            detailLikeImageView.setVisible(false);
+            detailLikeImageView.setVisible(false); // cacher l'ImageView si elle existe
         }
-        detailLikeCountLabel.setText(String.valueOf(likeCounts.getOrDefault(blog.getId(), 0)));
+        int likes = likeCounts.getOrDefault(blog.getId(), 0);
+        detailLikeCountLabel.setText(likes + (likes > 1 ? " likes" : " like"));
         detailLikeButton.setOnAction(e -> toggleLikeDetail(blog));
 
         afficherCommentairesDetail();
@@ -658,12 +661,10 @@ public class BlogController implements Initializable {
         card.setPrefWidth(250);
         card.setMaxWidth(250);
 
-        // Contenu
         Label contenuLabel = new Label(commentaire.getContenu() != null ? commentaire.getContenu() : "");
         contenuLabel.setWrapText(true);
         contenuLabel.setStyle("-fx-font-size: 14px; -fx-text-fill: white; -fx-padding: 5;");
 
-        // Auteur et date avec icônes stylisées
         HBox meta = new HBox(10);
         meta.setAlignment(Pos.CENTER_LEFT);
 
@@ -699,7 +700,6 @@ public class BlogController implements Initializable {
 
         meta.getChildren().addAll(auteurBox, spacer, dateBox);
 
-        // Boutons d'action
         HBox actions = new HBox(10);
         actions.setAlignment(Pos.CENTER_RIGHT);
         if (currentUser != null && commentaire.getUtilisateur() == currentUser.getId()) {
@@ -817,6 +817,7 @@ public class BlogController implements Initializable {
                 likeCounts.put(articleId, likeCounts.getOrDefault(articleId, 0) + 1);
             }
             // Mettre à jour l'affichage du bouton
+            int newLikes = likeCounts.getOrDefault(articleId, 0);
             boolean newLikedState = likedByCurrentUser.contains(articleId);
             if (heartEmptyImage != null && heartFullImage != null) {
                 ImageView iv = (ImageView) heartButton.getGraphic();
@@ -824,7 +825,7 @@ public class BlogController implements Initializable {
             } else {
                 heartButton.setText(newLikedState ? "❤️" : "🤍");
             }
-            countLabel.setText(String.valueOf(likeCounts.getOrDefault(articleId, 0)));
+            countLabel.setText(newLikes + (newLikes > 1 ? " likes" : " like"));
 
             // Mettre à jour la vue détail si elle est ouverte sur le même article
             if (displayedDetailBlog != null && displayedDetailBlog.getId() == articleId) {
@@ -856,13 +857,14 @@ public class BlogController implements Initializable {
                 likeCounts.put(articleId, likeCounts.getOrDefault(articleId, 0) + 1);
             }
             // Mettre à jour la vue détail
+            int newLikes = likeCounts.getOrDefault(articleId, 0);
             boolean newLikedState = likedByCurrentUser.contains(articleId);
             if (heartFullImage != null && heartEmptyImage != null) {
                 detailLikeImageView.setImage(newLikedState ? heartFullImage : heartEmptyImage);
             } else {
                 detailLikeButton.setText(newLikedState ? "❤️" : "🤍");
             }
-            detailLikeCountLabel.setText(String.valueOf(likeCounts.getOrDefault(articleId, 0)));
+            detailLikeCountLabel.setText(newLikes + (newLikes > 1 ? " likes" : " like"));
 
             // Mettre à jour la carte correspondante en rafraîchissant l'affichage
             refreshAllCards();
@@ -875,12 +877,13 @@ public class BlogController implements Initializable {
     private void updateDetailLikeButton() {
         if (displayedDetailBlog != null) {
             boolean isLiked = likedByCurrentUser.contains(displayedDetailBlog.getId());
+            int likes = likeCounts.getOrDefault(displayedDetailBlog.getId(), 0);
             if (heartFullImage != null && heartEmptyImage != null) {
                 detailLikeImageView.setImage(isLiked ? heartFullImage : heartEmptyImage);
             } else {
                 detailLikeButton.setText(isLiked ? "❤️" : "🤍");
             }
-            detailLikeCountLabel.setText(String.valueOf(likeCounts.getOrDefault(displayedDetailBlog.getId(), 0)));
+            detailLikeCountLabel.setText(likes + (likes > 1 ? " likes" : " like"));
         }
     }
 

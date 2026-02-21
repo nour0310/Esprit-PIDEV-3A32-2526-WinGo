@@ -464,7 +464,7 @@
                                 <Button fx:id="detailLikeButton"
                                         style="-fx-background-color: transparent; -fx-cursor: hand;">
                                     <graphic>
-                                        <ImageView fx:id="detailLikeImageView" fitHeight="24" fitWidth="24" preserveRatio="true"/>
+                                        <ImageView fx:id="detailLikeImageView" fitHeight="40" fitWidth="40" preserveRatio="true"/>
                                     </graphic>
                                 </Button>
                                 <Label fx:id="detailLikeCountLabel" text="0"
