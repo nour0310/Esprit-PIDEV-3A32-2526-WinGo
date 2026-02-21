@@ -18,9 +18,9 @@ public class LibreTranslateService {
 
     // Liste d'instances publiques de LibreTranslate (à tester)
     private static final List<String> API_URLS = Arrays.asList(
-            "https://libretranslate.de/translate",
-            "https://translate.terraprint.co/translate",
-            "https://lt.vern.cc/translate"
+            "https://libretranslate.de/translate",          // Instance officielle
+            "https://translate.terraprint.co/translate",    // Instance miroir
+            "https://lt.vern.cc/translate"                   // Autre miroir
     );
 
     private static final Gson gson = new Gson();
