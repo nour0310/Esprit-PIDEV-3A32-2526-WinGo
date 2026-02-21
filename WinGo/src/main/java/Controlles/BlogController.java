@@ -383,7 +383,8 @@ public class BlogController implements Initializable {
         detailStatusLabel.setText("⏳ Traduction en cours...");
 
         // Traduction du contenu avec détection automatique de la langue source
-        MyMemoryService.translateAsync(texteOriginal, "auto", codeLangue)
+        MyMemoryService.translateAsync(texteOriginal, "fr", codeLangue)
+
                 .thenAccept(texteTraduit -> {
                     javafx.application.Platform.runLater(() -> {
                         detailContenuLabel.setText(texteTraduit);
@@ -398,7 +399,7 @@ public class BlogController implements Initializable {
                 });
 
         // Traduction optionnelle du titre
-        MyMemoryService.translateAsync(titreOriginal, "auto", codeLangue)
+        MyMemoryService.translateAsync(titreOriginal, "fr", codeLangue)
                 .thenAccept(titreTraduit ->
                         javafx.application.Platform.runLater(() -> detailTitreLabel.setText(titreTraduit))
                 );
