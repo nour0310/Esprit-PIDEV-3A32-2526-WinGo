@@ -10,36 +10,33 @@
       xmlns="http://javafx.com/javafx/17"
       xmlns:fx="http://javafx.com/fxml/1">
 
-    <VBox prefWidth="250" spacing="5" style="-fx-background-color: #FFFFFF; -fx-padding: 30 0;">
-        <effect>
-            <DropShadow color="#0000001A" radius="15" offsetX="4" />
-        </effect>
+    <VBox prefWidth="250" style="-fx-background-color: #FFFFFF; -fx-padding: 30 0;" spacing="5">
+        <effect><DropShadow color="#0000000A" radius="20" offsetX="2" /></effect>
 
-        <HBox alignment="CENTER" spacing="12" style="-fx-padding: 0 0 40 0;">
-            <Label text="⛰️" style="-fx-font-size: 12px;" />
+        <HBox alignment="CENTER_LEFT" spacing="15" style="-fx-padding: 0 0 40 30;">
+            <Label text="⛰️" style="-fx-font-size: 32px; -fx-text-fill: #5B4EFA;" />
             <VBox alignment="CENTER_LEFT">
                 <Label text="TripLove" style="-fx-text-fill: #5B4EFA; -fx-font-size: 22px; -fx-font-weight: 900;" />
                 <Label text="Travel Agency" style="-fx-text-fill: #A0AEC0; -fx-font-size: 10px; -fx-font-weight: bold;" />
             </VBox>
         </HBox>
 
-        <HBox alignment="CENTER_LEFT" spacing="15" style="-fx-padding: 12 30; -fx-background-color: #F0EDFF; -fx-background-radius: 0 25 25 0;">
-            <children>
-                <Pane prefWidth="4" prefHeight="20" style="-fx-background-color: #5B4EFA; -fx-background-radius: 5;" translateX="-30"/>
-                <Label text="🏠" style="-fx-text-fill: #5B4EFA; -fx-font-size: 12px;" />
-                <Label text="Home" style="-fx-text-fill: #5B4EFA; -fx-font-weight: bold; -fx-font-size: 15px;" />
-            </children>
+        <HBox alignment="CENTER_LEFT" spacing="15" style="-fx-padding: 12 30; -fx-background-color: #F3F2FF;">
+            <Label text="🏠" style="-fx-text-fill: #5B4EFA; -fx-font-size: 18px;" />
+            <Label text="Home" style="-fx-text-fill: #5B4EFA; -fx-font-weight: bold; -fx-font-size: 15px;" />
+            <Region HBox.hgrow="ALWAYS" />
+            <Pane prefWidth="4" prefHeight="25" style="-fx-background-color: #5B4EFA; -fx-background-radius: 5;" />
         </HBox>
 
         <HBox alignment="CENTER_LEFT" spacing="15" style="-fx-padding: 12 30; -fx-cursor: hand;">
-            <Label text="🎫" style="-fx-text-fill: #A0AEC0; -fx-font-size: 12px;" />
+            <Label text="🎫" style="-fx-text-fill: #A0AEC0; -fx-font-size: 18px;" />
             <Label text="Booking" style="-fx-text-fill: #718096; -fx-font-weight: bold; -fx-font-size: 15px;" />
             <Region HBox.hgrow="ALWAYS" />
             <Circle radius="4" fill="#E53E3E" />
         </HBox>
 
         <HBox alignment="CENTER_LEFT" spacing="15" style="-fx-padding: 12 30; -fx-cursor: hand;">
-            <Label text="🌍" style="-fx-text-fill: #A0AEC0; -fx-font-size: 12px;" />
+            <Label text="🌍" style="-fx-text-fill: #A0AEC0; -fx-font-size: 18px;" />
             <Label text="Explore" style="-fx-text-fill: #718096; -fx-font-weight: bold; -fx-font-size: 15px;" />
         </HBox>
 
@@ -62,21 +59,19 @@
 
         <Region VBox.vgrow="ALWAYS" />
 
-        <VBox spacing="5" style="-fx-padding: 0 0 20 0;">
-            <HBox alignment="CENTER_LEFT" spacing="15" style="-fx-padding: 12 30; -fx-cursor: hand;">
-                <Label text="🌙" style="-fx-text-fill: #A0AEC0; -fx-font-size: 18px;" />
-                <Label text="Dark mode" style="-fx-text-fill: #718096; -fx-font-weight: bold; -fx-font-size: 14px;" />
-                <Region HBox.hgrow="ALWAYS" />
-                <Pane prefWidth="34" prefHeight="18" style="-fx-background-color: #E2E8F0; -fx-background-radius: 10;">
-                    <Circle radius="6" fill="#FFFFFF" translateX="4" translateY="3" />
-                </Pane>
-            </HBox>
+        <HBox alignment="CENTER_LEFT" spacing="15" style="-fx-padding: 12 30; -fx-cursor: hand;">
+            <Label text="🌙" style="-fx-text-fill: #A0AEC0; -fx-font-size: 18px;" />
+            <Label text="Dark mode" style="-fx-text-fill: #718096; -fx-font-weight: bold; -fx-font-size: 14px;" />
+            <Region HBox.hgrow="ALWAYS" />
+            <Pane prefWidth="35" prefHeight="18" style="-fx-background-color: #E2E8F0; -fx-background-radius: 10;">
+                <Circle radius="7" fill="#FFFFFF" translateX="3" translateY="2" />
+            </Pane>
+        </HBox>
 
-            <HBox alignment="CENTER_LEFT" spacing="15" style="-fx-padding: 12 30; -fx-cursor: hand;">
-                <Label text="🚪" style="-fx-text-fill: #E53E3E; -fx-font-size: 18px;" />
-                <Label text="Logout" style="-fx-text-fill: #E53E3E; -fx-font-weight: bold; -fx-font-size: 14px;" />
-            </HBox>
-        </VBox>
+        <HBox alignment="CENTER_LEFT" spacing="15" style="-fx-padding: 12 30; -fx-cursor: hand;">
+            <Label text="🚪" style="-fx-text-fill: #E53E3E; -fx-font-size: 18px;" />
+            <Label text="Logout" style="-fx-text-fill: #E53E3E; -fx-font-weight: bold; -fx-font-size: 14px;" />
+        </HBox>
     </VBox>
 
     <VBox HBox.hgrow="ALWAYS" style="-fx-padding: 30 40;" spacing="30">
