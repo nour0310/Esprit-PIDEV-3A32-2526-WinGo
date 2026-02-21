@@ -22,6 +22,7 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 import javafx.scene.shape.Rectangle;
 import javafx.stage.FileChooser;
+import javafx.stage.Popup;
 
 import java.io.File;
 import java.io.InputStream;
@@ -36,30 +37,36 @@ import java.util.regex.Pattern;
 
 public class BlogController implements Initializable {
 
-    // Services (inchangés)
+    // Services
     private final BlogCRUD blogCRUD = new BlogCRUD();
     private final CommentaireCRUD commentaireCRUD = new CommentaireCRUD();
     private final UtilisateurCRUD utilisateurCRUD = new UtilisateurCRUD();
     private final LikeCRUD likeCRUD = new LikeCRUD();
     private final RatingCRUD ratingCRUD = new RatingCRUD();
 
-    // Données (inchangées)
+    // Données observables
     private ObservableList<Blog> blogList = FXCollections.observableArrayList();
     private ObservableList<Commentaire> commentaireList = FXCollections.observableArrayList();
     private Blog selectedBlog = null;
     private Blog displayedDetailBlog = null;
+
+    // Utilisateur connecté
     private Utilisateur currentUser;
 
+    // Données pour les likes
     private Map<Integer, Integer> likeCounts = new HashMap<>();
     private Set<Integer> likedByCurrentUser = new HashSet<>();
+
+    // Données pour les notes (étoiles)
     private Map<Integer, Double> ratingAverages = new HashMap<>();
     private Map<Integer, Integer> voteCounts = new HashMap<>();
     private Map<Integer, Integer> userRatings = new HashMap<>();
 
+    // Images pour les cœurs
     private Image heartEmptyImage;
     private Image heartFullImage;
 
-    // Composants FXML (inchangés, mais on ajoute detailShareBox)
+    // Composants FXML de la vue liste
     @FXML private TextField searchField;
     @FXML private Button searchBtn;
     @FXML private Label totalBlogsLabel;
@@ -83,12 +90,14 @@ public class BlogController implements Initializable {
     @FXML private Label statusLabel;
     @FXML private Label connectedUserLabel;
 
+    // Labels d'erreur pour la validation
     @FXML private Label titreError;
     @FXML private Label contenuError;
     @FXML private Label regionError;
     @FXML private Label categorieError;
     @FXML private Label imageError;
 
+    // Composants FXML de la vue détail
     @FXML private VBox listView;
     @FXML private VBox detailView;
     @FXML private Button backToListBtn;
@@ -108,17 +117,20 @@ public class BlogController implements Initializable {
     @FXML private Label detailLikeCountLabel;
     @FXML private HBox detailStarsBox;
     @FXML private Label detailAvgLabel;
-    @FXML private HBox detailShareBox;  // NOUVEAU
+    @FXML private HBox detailShareBox;  // Conteneur pour les boutons de partage
 
+    // Filtres
     @FXML private ComboBox<String> regionFilterCombo;
     @FXML private ComboBox<String> categorieFilterCombo;
 
+    // ScrollPanes
     @FXML private ScrollPane listViewScroll;
     @FXML private ScrollPane detailViewScroll;
 
     private final DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
     private final DateTimeFormatter dateShortFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
+    // Patterns de validation
     private static final Pattern TITLE_PATTERN = Pattern.compile("^[a-zA-ZÀ-ÿ\\s\\-']{3,50}$");
     private static final Pattern CONTENT_PATTERN = Pattern.compile("^[\\w\\s\\p{Punct}À-ÿ]{10,500}$");
 
@@ -138,8 +150,10 @@ public class BlogController implements Initializable {
     private void loadImages() {
         String emptyPath = "/images/heart.png";
         String fullPath = "/images/heartRed.png";
+
         System.out.println("Chargement de " + emptyPath + " : " + getClass().getResource(emptyPath));
         System.out.println("Chargement de " + fullPath + " : " + getClass().getResource(fullPath));
+
         try (InputStream emptyStream = getClass().getResourceAsStream(emptyPath);
              InputStream fullStream = getClass().getResourceAsStream(fullPath)) {
             if (emptyStream == null || fullStream == null) {
@@ -210,7 +224,7 @@ public class BlogController implements Initializable {
         detailAddCommentBtn.setOnAction(e -> ajouterCommentaireDetail());
     }
 
-    // ========== VALIDATION ==========
+    // ========== VALIDATION EN TEMPS RÉEL ==========
     private void setupValidationListeners() {
         titreField.textProperty().addListener((obs, oldVal, newVal) -> validateTitre());
         contenuField.textProperty().addListener((obs, oldVal, newVal) -> validateContenu());
@@ -476,6 +490,7 @@ public class BlogController implements Initializable {
         VBox content = new VBox(8);
         content.setPadding(new Insets(15, 15, 15, 15));
 
+        // Affichage du nom de l'auteur (prénom + nom)
         String auteurNom = blog.getAuteurNom() != null ? blog.getAuteurNom() : "Inconnu";
         Label auteur = new Label("Auteur: " + auteurNom);
         auteur.setStyle("-fx-text-fill: #b7472a; -fx-font-weight: bold; -fx-font-size: 13px;");
@@ -531,7 +546,7 @@ public class BlogController implements Initializable {
         likeButton.setOnAction(e -> toggleLike(blog, likeButton, likeCountLabel));
         // --- FIN LIKES ---
 
-        // --- ÉTOILES ---
+        // --- ÉTOILES (notation) ---
         double avg = ratingAverages.getOrDefault(blog.getId(), 0.0);
         int userNote = userRatings.getOrDefault(blog.getId(), 0);
         int voteCount = voteCounts.getOrDefault(blog.getId(), 0);
@@ -595,7 +610,7 @@ public class BlogController implements Initializable {
         voirBtn.setOnAction(e -> showDetailView(blog));
         actions.getChildren().add(voirBtn);
 
-        // Bouton Partager avec menu stylisé (ici on appelle la boîte de dialogue)
+        // Bouton Partager avec popup contextuel
         Button shareBtn = new Button("📤 Partager");
         shareBtn.setStyle(
                 "-fx-background-color: #9b59b6;" +
@@ -606,7 +621,7 @@ public class BlogController implements Initializable {
                         "-fx-font-size: 12px;" +
                         "-fx-cursor: hand;"
         );
-        shareBtn.setOnAction(e -> showShareDialog(blog)); // nouvelle méthode
+        shareBtn.setOnAction(e -> showSharePopup(shareBtn, blog));
         actions.getChildren().add(shareBtn);
 
         if (currentUser != null && blog.getAuteur() == currentUser.getId()) {
@@ -704,12 +719,16 @@ public class BlogController implements Initializable {
         // Mise à jour des étoiles
         updateDetailStars();
 
-        // Mise à jour du bouton partager
+        // Mise à jour des boutons de partage (affichés directement)
         detailShareBox.getChildren().clear();
-        Button shareBtn = new Button("Partager");
-        shareBtn.setStyle("-fx-background-color: #9b59b6; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 30; -fx-padding: 8 20; -fx-cursor: hand;");
-        shareBtn.setOnAction(e -> showShareDialog(blog));
-        detailShareBox.getChildren().add(shareBtn);
+        Button whatsappBtn = createShareButton("WhatsApp", "/images/whatsapp.png", "#25D366", blog);
+        Button facebookBtn = createShareButton("Facebook", "/images/facebook.png", "#4267B2", blog);
+        Button instagramBtn = createShareButton("Instagram", "/images/instagram.png", "#C13584", blog);
+        // Redéfinir l'action pour fermer le popup (ici pas de popup)
+        whatsappBtn.setOnAction(e -> share("WhatsApp", blog));
+        facebookBtn.setOnAction(e -> share("Facebook", blog));
+        instagramBtn.setOnAction(e -> share("Instagram", blog));
+        detailShareBox.getChildren().addAll(whatsappBtn, facebookBtn, instagramBtn);
 
         afficherCommentairesDetail();
         listViewScroll.setVisible(false);
@@ -1267,6 +1286,15 @@ public class BlogController implements Initializable {
             afficherCommentairesDetail();
             updateDetailLikeButton();
             updateDetailStars();
+            // Re-créer les boutons de partage (au cas où les données changent)
+            detailShareBox.getChildren().clear();
+            Button whatsappBtn = createShareButton("WhatsApp", "/images/whatsapp.png", "#25D366", displayedDetailBlog);
+            Button facebookBtn = createShareButton("Facebook", "/images/facebook.png", "#4267B2", displayedDetailBlog);
+            Button instagramBtn = createShareButton("Instagram", "/images/instagram.png", "#C13584", displayedDetailBlog);
+            whatsappBtn.setOnAction(e -> share("WhatsApp", displayedDetailBlog));
+            facebookBtn.setOnAction(e -> share("Facebook", displayedDetailBlog));
+            instagramBtn.setOnAction(e -> share("Instagram", displayedDetailBlog));
+            detailShareBox.getChildren().addAll(whatsappBtn, facebookBtn, instagramBtn);
         }
     }
 
@@ -1289,44 +1317,46 @@ public class BlogController implements Initializable {
         supprimerBtn.setManaged(isEditing);
     }
 
-    // ========== PARTAGE AMÉLIORÉ ==========
-    private void showShareDialog(Blog blog) {
-        Dialog<Void> dialog = new Dialog<>();
-        dialog.setTitle("Partager l'article");
-        dialog.setHeaderText("Choisissez une plateforme de partage");
+    // ========== PARTAGE CRÉATIF ==========
 
-        // Style de la boîte de dialogue
-        DialogPane dialogPane = dialog.getDialogPane();
-        dialogPane.setStyle("-fx-background-color: rgba(30,30,30,0.95); -fx-background-radius: 20; -fx-border-color: rgba(255,255,255,0.3); -fx-border-radius: 20;");
-        dialogPane.setHeaderText(null); // on enlève l'en-tête par défaut
-        Label header = new Label("Partager sur");
-        header.setStyle("-fx-text-fill: white; -fx-font-size: 18px; -fx-font-weight: bold;");
+    /**
+     * Affiche un popup contextuel avec les options de partage sous le bouton.
+     */
+    private void showSharePopup(Button anchor, Blog blog) {
+        Popup popup = new Popup();
+        popup.setAutoHide(true);
+        popup.setHideOnEscape(true);
 
-        // Création des boutons
-        Button whatsappBtn = createShareButton("WhatsApp", "/images/whatsapp.png", "#25D366");
-        Button facebookBtn = createShareButton("Facebook", "/images/facebook.png", "#4267B2");
-        Button instagramBtn = createShareButton("Instagram", "/images/instagram.png", "#C13584");
-
-        whatsappBtn.setOnAction(e -> { share("WhatsApp", blog); dialog.close(); });
-        facebookBtn.setOnAction(e -> { share("Facebook", blog); dialog.close(); });
-        instagramBtn.setOnAction(e -> { share("Instagram", blog); dialog.close(); });
-
-        // Disposition
-        VBox content = new VBox(20, header, whatsappBtn, facebookBtn, instagramBtn);
+        VBox content = new VBox(10);
+        content.setStyle("-fx-background-color: rgba(30,30,30,0.95); -fx-background-radius: 15; -fx-border-color: rgba(255,255,255,0.3); -fx-border-radius: 15; -fx-padding: 15;");
         content.setAlignment(Pos.CENTER);
-        content.setPadding(new Insets(20));
-        dialogPane.setContent(content);
 
-        // Bouton Annuler
-        ButtonType cancel = new ButtonType("Annuler", ButtonBar.ButtonData.CANCEL_CLOSE);
-        dialogPane.getButtonTypes().add(cancel);
+        Label title = new Label("Partager sur");
+        title.setStyle("-fx-text-fill: white; -fx-font-size: 14px; -fx-font-weight: bold;");
 
-        dialog.showAndWait();
+        Button whatsappBtn = createShareButton("WhatsApp", "/images/whatsapp.png", "#25D366", blog, popup);
+        Button facebookBtn = createShareButton("Facebook", "/images/facebook.png", "#4267B2", blog, popup);
+        Button instagramBtn = createShareButton("Instagram", "/images/instagram.png", "#C13584", blog, popup);
+
+        content.getChildren().addAll(title, whatsappBtn, facebookBtn, instagramBtn);
+
+        popup.getContent().add(content);
+
+        // Positionner le popup sous le bouton
+        popup.show(anchor, anchor.localToScreen(0, anchor.getHeight()).getX(), anchor.localToScreen(0, anchor.getHeight()).getY());
     }
 
-    private Button createShareButton(String name, String iconPath, String color) {
+    /**
+     * Crée un bouton de partage stylisé avec icône.
+     * @param name Nom de la plateforme
+     * @param iconPath Chemin vers l'icône dans les ressources
+     * @param color Couleur de fond
+     * @param blog Article à partager
+     * @param popup Popup à fermer après action (peut être null)
+     */
+    private Button createShareButton(String name, String iconPath, String color, Blog blog, Popup popup) {
         Button btn = new Button(name);
-        btn.setStyle("-fx-background-color: " + color + "; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 30; -fx-padding: 12 25; -fx-cursor: hand; -fx-font-size: 14px;");
+        btn.setStyle("-fx-background-color: " + color + "; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 20; -fx-padding: 8 15; -fx-cursor: hand; -fx-font-size: 12px;");
         btn.setMaxWidth(Double.MAX_VALUE);
 
         // Charger l'icône si disponible
@@ -1335,8 +1365,8 @@ public class BlogController implements Initializable {
             if (is != null) {
                 Image icon = new Image(is);
                 ImageView iv = new ImageView(icon);
-                iv.setFitHeight(24);
-                iv.setFitWidth(24);
+                iv.setFitHeight(20);
+                iv.setFitWidth(20);
                 btn.setGraphic(iv);
                 btn.setContentDisplay(ContentDisplay.LEFT);
             } else {
@@ -1351,13 +1381,29 @@ public class BlogController implements Initializable {
             // Fallback texte simple
             btn.setText(name);
         }
+
+        btn.setOnAction(e -> {
+            share(name, blog);
+            if (popup != null) popup.hide();
+        });
+
         return btn;
     }
 
+    /**
+     * Version simplifiée pour les boutons sans popup (vue détail).
+     */
+    private Button createShareButton(String name, String iconPath, String color, Blog blog) {
+        return createShareButton(name, iconPath, color, blog, null);
+    }
+
+    /**
+     * Effectue le partage vers la plateforme choisie.
+     */
     private void share(String platform, Blog blog) {
         String titre = blog.getTitre();
         String contenu = blog.getContenu();
-        String articleUrl = "http://wingo.tn/article/" + blog.getId();
+        String articleUrl = "http://wingo.tn/article/" + blog.getId(); // URL fictive
         String shareText = titre + " - " + contenu + " " + articleUrl;
         String link = "";
 
@@ -1370,6 +1416,7 @@ public class BlogController implements Initializable {
                     link = "https://www.facebook.com/sharer/sharer.php?u=" + URLEncoder.encode(articleUrl, StandardCharsets.UTF_8);
                     break;
                 case "Instagram":
+                    // Instagram n'a pas d'API de partage direct, on copie le texte dans le presse-papier
                     java.awt.Toolkit.getDefaultToolkit().getSystemClipboard().setContents(new java.awt.datatransfer.StringSelection(shareText), null);
                     showInfo("Texte copié dans le presse-papier pour Instagram");
                     return;
