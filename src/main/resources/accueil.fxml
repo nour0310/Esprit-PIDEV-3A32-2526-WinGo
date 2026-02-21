@@ -249,7 +249,7 @@
                     <Button text="+" maxWidth="Infinity" style="-fx-background-color: transparent; -fx-border-color: #E2E8F0; -fx-border-radius: 10; -fx-text-fill: #A0AEC0; -fx-font-size: 18px; -fx-padding: 5;" />
                 </VBox>
 
-                <VBox style="-fx-background-color: #FFFFFF; -fx-background-radius: 20; -fx-padding: 20;" spacing="15" VBox.vgrow="ALWAYS">
+                <VBox style="-fx-background-color: #FFFFFF; -fx-background-radius: 20; -fx-padding: 30;" spacing="15" VBox.vgrow="ALWAYS">
                     <effect><DropShadow color="#0000000A" radius="15" offsetY="5" /></effect>
                     <HBox alignment="CENTER_LEFT">
                         <Label text="My Schedule" style="-fx-text-fill: #2D3748; -fx-font-weight: 900; -fx-font-size: 15px;" />
