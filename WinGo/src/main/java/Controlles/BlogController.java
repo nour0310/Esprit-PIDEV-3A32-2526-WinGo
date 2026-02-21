@@ -1880,4 +1880,4 @@ public class BlogController implements Initializable {
     @FXML private void goBlog() { showListView(); }
     @FXML private void goCommentaires() { System.out.println("Commentaires"); }
     @FXML private void goSettings() { System.out.println("Settings"); }
-}
+}hhhh
