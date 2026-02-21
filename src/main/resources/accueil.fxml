@@ -26,20 +26,20 @@
         <HBox alignment="CENTER_LEFT" spacing="15" style="-fx-padding: 12 30; -fx-background-color: #F0EDFF; -fx-background-radius: 0 25 25 0;">
             <children>
                 <Pane prefWidth="4" prefHeight="20" style="-fx-background-color: #5B4EFA; -fx-background-radius: 5;" translateX="-30"/>
-                <Label text="🏠" style="-fx-text-fill: #5B4EFA; -fx-font-size: 18px;" />
+                <Label text="🏠" style="-fx-text-fill: #5B4EFA; -fx-font-size: 12px;" />
                 <Label text="Home" style="-fx-text-fill: #5B4EFA; -fx-font-weight: bold; -fx-font-size: 15px;" />
             </children>
         </HBox>
 
         <HBox alignment="CENTER_LEFT" spacing="15" style="-fx-padding: 12 30; -fx-cursor: hand;">
-            <Label text="🎫" style="-fx-text-fill: #A0AEC0; -fx-font-size: 18px;" />
+            <Label text="🎫" style="-fx-text-fill: #A0AEC0; -fx-font-size: 12px;" />
             <Label text="Booking" style="-fx-text-fill: #718096; -fx-font-weight: bold; -fx-font-size: 15px;" />
             <Region HBox.hgrow="ALWAYS" />
             <Circle radius="4" fill="#E53E3E" />
         </HBox>
 
         <HBox alignment="CENTER_LEFT" spacing="15" style="-fx-padding: 12 30; -fx-cursor: hand;">
-            <Label text="🌍" style="-fx-text-fill: #A0AEC0; -fx-font-size: 18px;" />
+            <Label text="🌍" style="-fx-text-fill: #A0AEC0; -fx-font-size: 12px;" />
             <Label text="Explore" style="-fx-text-fill: #718096; -fx-font-weight: bold; -fx-font-size: 15px;" />
         </HBox>
 
