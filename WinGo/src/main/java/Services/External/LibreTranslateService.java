@@ -1,30 +1,20 @@
 package Services.External;
 
-import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.entity.StringEntity;
+import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
 
-import java.util.Arrays;
-import java.util.List;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.concurrent.CompletableFuture;
 
-public class LibreTranslateService {
+public class MyMemoryService {
 
-    // Nouvelle instance fiable en tête de liste
-    private static final List<String> API_URLS = Arrays.asList(
-            "https://fr.libretranslate.com/translate",
-            "https://libretranslate.de/translate",
-            "https://translate.terraprint.co/translate",
-            "https://lt.vern.cc/translate"
-    );
-
-    private static final Gson gson = new Gson();
+    private static final String API_URL = "https://api.mymemory.translated.net/get";
 
     public static CompletableFuture<String> translateAsync(String text, String sourceLang, String targetLang) {
         return CompletableFuture.supplyAsync(() -> {
@@ -32,40 +22,22 @@ public class LibreTranslateService {
                 return text;
             }
 
-            for (String apiUrl : API_URLS) {
-                try (CloseableHttpClient client = HttpClients.createDefault()) {
-                    HttpPost post = new HttpPost(apiUrl);
-                    post.setHeader("Content-Type", "application/json");
+            try (CloseableHttpClient client = HttpClients.createDefault()) {
+                String encodedText = URLEncoder.encode(text, StandardCharsets.UTF_8);
+                String url = String.format("%s?q=%s&langpair=%s|%s", API_URL, encodedText, sourceLang, targetLang);
 
-                    JsonObject json = new JsonObject();
-                    json.addProperty("q", text);
-                    json.addProperty("source", sourceLang);
-                    json.addProperty("target", targetLang);
-                    json.addProperty("format", "text");
-                    // L'API supporte aussi le paramètre "alternatives" si vous voulez
+                HttpGet request = new HttpGet(url);
+                request.setHeader("User-Agent", "Mozilla/5.0");
 
-                    post.setEntity(new StringEntity(gson.toJson(json), "UTF-8"));
-
-                    System.out.println("Tentative de traduction avec : " + apiUrl);
-
-                    try (CloseableHttpResponse response = client.execute(post)) {
-                        int statusCode = response.getStatusLine().getStatusCode();
-                        String responseBody = EntityUtils.toString(response.getEntity(), "UTF-8");
-
-                        if (statusCode == 200) {
-                            JsonObject responseJson = JsonParser.parseString(responseBody).getAsJsonObject();
-                            return responseJson.get("translatedText").getAsString();
-                        } else {
-                            System.err.println("Erreur API " + apiUrl + " (code " + statusCode + ") : " + responseBody);
-                        }
-                    }
-                } catch (Exception e) {
-                    System.err.println("Exception avec l'URL " + apiUrl + " : " + e.getMessage());
+                try (CloseableHttpResponse response = client.execute(request)) {
+                    String responseBody = EntityUtils.toString(response.getEntity(), "UTF-8");
+                    JsonObject json = JsonParser.parseString(responseBody).getAsJsonObject();
+                    return json.getAsJsonObject("responseData").get("translatedText").getAsString();
                 }
+            } catch (Exception e) {
+                e.printStackTrace();
+                return text;
             }
-
-            System.err.println("Toutes les instances de traduction ont échoué. Texte original conservé.");
-            return text;
         });
     }
 }
