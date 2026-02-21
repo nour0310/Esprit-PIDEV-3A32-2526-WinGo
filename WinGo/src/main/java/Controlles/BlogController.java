@@ -335,11 +335,10 @@ public class BlogController implements Initializable {
 
     private void loadInitialData() {
         try {
-            // Charger d'abord les likes (pour que les compteurs soient disponibles)
-            loadLikes();
-            // Puis charger les blogs (les cartes utiliseront les likes déjà chargés)
-            loadBlogs();
+            // Charger d'abord les commentaires et les likes, puis les blogs
             loadAllComments();
+            loadLikes();
+            loadBlogs();
             updateStats();
             statusLabel.setText("✅ Prêt, " + blogList.size() + " articles chargés.");
         } catch (SQLException e) {
@@ -361,6 +360,7 @@ public class BlogController implements Initializable {
     }
 
     private void loadLikes() throws SQLException {
+        // Charger tous les likes pour les compteurs, même si l'utilisateur n'est pas connecté
         List<Like> allLikes = likeCRUD.afficherTous();
         likeCounts.clear();
         likedByCurrentUser.clear();
@@ -485,6 +485,7 @@ public class BlogController implements Initializable {
         extraitLabel.setStyle("-fx-text-fill: #34495e; -fx-font-size: 13px; -fx-wrap-text: true;");
         extraitLabel.setWrapText(true);
 
+        // Utiliser commentaireList déjà chargée
         long nbComments = commentaireList.stream().filter(c -> c.getArticleId() == blog.getId()).count();
         Label commentCount = new Label("Commentaires: " + nbComments);
         commentCount.setStyle("-fx-text-fill: #27ae60; -fx-font-size: 13px;");
