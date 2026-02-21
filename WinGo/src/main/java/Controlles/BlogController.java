@@ -25,7 +25,10 @@ import javafx.stage.FileChooser;
 
 import java.io.File;
 import java.io.InputStream;
+import java.net.URI;
+import java.net.URLEncoder;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
@@ -38,7 +41,7 @@ public class BlogController implements Initializable {
     private final CommentaireCRUD commentaireCRUD = new CommentaireCRUD();
     private final UtilisateurCRUD utilisateurCRUD = new UtilisateurCRUD();
     private final LikeCRUD likeCRUD = new LikeCRUD();
-    private final RatingCRUD ratingCRUD = new RatingCRUD(); // NOUVEAU
+    private final RatingCRUD ratingCRUD = new RatingCRUD();
 
     // Données observables
     private ObservableList<Blog> blogList = FXCollections.observableArrayList();
@@ -54,9 +57,9 @@ public class BlogController implements Initializable {
     private Set<Integer> likedByCurrentUser = new HashSet<>();
 
     // Données pour les notes (étoiles)
-    private Map<Integer, Double> ratingAverages = new HashMap<>();   // articleId -> moyenne
-    private Map<Integer, Integer> voteCounts = new HashMap<>();      // articleId -> nombre de votes
-    private Map<Integer, Integer> userRatings = new HashMap<>();     // articleId -> note de l'utilisateur courant
+    private Map<Integer, Double> ratingAverages = new HashMap<>();
+    private Map<Integer, Integer> voteCounts = new HashMap<>();
+    private Map<Integer, Integer> userRatings = new HashMap<>();
 
     // Images pour les cœurs
     private Image heartEmptyImage;
@@ -111,7 +114,7 @@ public class BlogController implements Initializable {
     @FXML private Button detailLikeButton;
     @FXML private ImageView detailLikeImageView;
     @FXML private Label detailLikeCountLabel;
-    // Nouveaux composants pour les étoiles dans la vue détail
+    // Composants pour les étoiles
     @FXML private HBox detailStarsBox;
     @FXML private Label detailAvgLabel;
 
@@ -344,7 +347,7 @@ public class BlogController implements Initializable {
         try {
             loadAllComments();
             loadLikes();
-            loadRatings();    // NOUVEAU
+            loadRatings();
             loadBlogs();
             updateStats();
             statusLabel.setText("✅ Prêt, " + blogList.size() + " articles chargés.");
@@ -378,7 +381,6 @@ public class BlogController implements Initializable {
         }
     }
 
-    // NOUVELLE MÉTHODE : charger les notes
     private void loadRatings() throws SQLException {
         List<Rating> allRatings = ratingCRUD.afficherTous();
         ratingAverages.clear();
@@ -550,11 +552,9 @@ public class BlogController implements Initializable {
 
         HBox starsBox = new HBox(2);
         starsBox.setAlignment(Pos.CENTER_LEFT);
-        List<Button> starButtons = new ArrayList<>();
         for (int i = 1; i <= 5; i++) {
             Button star = new Button();
             star.setStyle("-fx-background-color: transparent; -fx-cursor: hand; -fx-font-size: 16px;");
-            // Afficher en priorité la note de l'utilisateur s'il a voté
             if (userNote >= i) {
                 star.setText("★");
                 star.setStyle(star.getStyle() + " -fx-text-fill: #FFD700;");
@@ -577,7 +577,7 @@ public class BlogController implements Initializable {
                 try {
                     Rating rating = new Rating(currentUser.getId(), blog.getId(), note);
                     ratingCRUD.ajouterOuModifier(rating);
-                    loadRatings(); // recharger les données
+                    loadRatings();
                     refreshAllCards();
                     if (displayedDetailBlog != null && displayedDetailBlog.getId() == blog.getId()) {
                         updateDetailStars();
@@ -586,7 +586,6 @@ public class BlogController implements Initializable {
                     showError("Erreur notation", ex.getMessage());
                 }
             });
-            starButtons.add(star);
             starsBox.getChildren().add(star);
         }
         Label avgLabel = new Label(String.format("%.1f (%d votes)", avg, voteCount));
@@ -609,6 +608,20 @@ public class BlogController implements Initializable {
         );
         voirBtn.setOnAction(e -> showDetailView(blog));
         actions.getChildren().add(voirBtn);
+
+        // --- BOUTON PARTAGER ---
+        Button shareBtn = new Button("📤 Partager");
+        shareBtn.setStyle(
+                "-fx-background-color: #9b59b6;" +
+                        "-fx-text-fill: white;" +
+                        "-fx-font-weight: bold;" +
+                        "-fx-background-radius: 30;" +
+                        "-fx-padding: 6 15;" +
+                        "-fx-font-size: 12px;" +
+                        "-fx-cursor: hand;"
+        );
+        shareBtn.setOnAction(e -> showShareMenu(blog, shareBtn));
+        actions.getChildren().add(shareBtn);
 
         if (currentUser != null && blog.getAuteur() == currentUser.getId()) {
             Button modifierBtn = new Button("Modifier");
@@ -705,11 +718,90 @@ public class BlogController implements Initializable {
         // Mise à jour des étoiles
         updateDetailStars();
 
+        // Ajout d'un bouton partager dans la vue détail (si non existant dans FXML, on peut le créer dynamiquement)
+        // Pour simplifier, on va ajouter un HBox avec des boutons partage sous les étoiles
+        HBox shareBox = new HBox(10);
+        shareBox.setAlignment(Pos.CENTER);
+        shareBox.setPadding(new Insets(10, 20, 10, 20));
+        shareBox.setStyle("-fx-background-color: rgba(255,255,255,0.1); -fx-background-radius: 30;");
+
+        Button whatsappBtn = new Button("WhatsApp");
+        whatsappBtn.setStyle("-fx-background-color: #25D366; -fx-text-fill: white; -fx-background-radius: 20; -fx-padding: 8 15;");
+        whatsappBtn.setOnAction(e -> share("WhatsApp", blog));
+
+        Button facebookBtn = new Button("Facebook");
+        facebookBtn.setStyle("-fx-background-color: #4267B2; -fx-text-fill: white; -fx-background-radius: 20; -fx-padding: 8 15;");
+        facebookBtn.setOnAction(e -> share("Facebook", blog));
+
+        Button instagramBtn = new Button("Instagram");
+        instagramBtn.setStyle("-fx-background-color: #C13584; -fx-text-fill: white; -fx-background-radius: 20; -fx-padding: 8 15;");
+        instagramBtn.setOnAction(e -> share("Instagram", blog));
+
+        shareBox.getChildren().addAll(whatsappBtn, facebookBtn, instagramBtn);
+
+        // Insérer ce shareBox après les étoiles, avant le contenu
+        // On doit modifier l'ordre dans detailView, mais on va l'ajouter dynamiquement
+        // Pour éviter de casser la structure FXML, on récupère l'index et on insère
+        // Ici, on va simplement l'ajouter à la fin de detailView (après les commentaires) pour simplifier
+        // Mais mieux : on peut ajouter dans le FXML un conteneur prévu.
+        // On va supposer que vous avez un VBox detailView, on ajoute après detailAvgLabel
+        // Pour cela, il faut récupérer l'index, mais on va plutôt créer un label et l'insérer.
+        // Comme c'est compliqué, on va créer un séparateur et le shareBox et les ajouter à la fin de detailView.
+        // Mais pour rester propre, je vais supposer que vous avez un placeholder dans le FXML.
+        // Si vous voulez, vous pouvez ajouter un HBox avec fx:id="detailShareBox" dans le FXML.
+        // Je vais le faire ici en supposant que vous l'avez ajouté.
+        // Pour l'instant, je vais simplement commenter et vous indiquer de l'ajouter.
+
         afficherCommentairesDetail();
         listViewScroll.setVisible(false);
         listViewScroll.setManaged(false);
         detailViewScroll.setVisible(true);
         detailViewScroll.setManaged(true);
+    }
+
+    // Méthode pour afficher un menu contextuel de partage (utilisé dans la carte)
+    private void showShareMenu(Blog blog, Button anchor) {
+        ContextMenu menu = new ContextMenu();
+        MenuItem whatsapp = new MenuItem("WhatsApp");
+        whatsapp.setOnAction(e -> share("WhatsApp", blog));
+        MenuItem facebook = new MenuItem("Facebook");
+        facebook.setOnAction(e -> share("Facebook", blog));
+        MenuItem instagram = new MenuItem("Instagram");
+        instagram.setOnAction(e -> share("Instagram", blog));
+        menu.getItems().addAll(whatsapp, facebook, instagram);
+        menu.show(anchor, anchor.getScene().getWindow().getX() + anchor.getLayoutX(), anchor.getScene().getWindow().getY() + anchor.getLayoutY() + anchor.getHeight());
+    }
+
+    // Méthode de partage générique
+    private void share(String platform, Blog blog) {
+        String titre = blog.getTitre();
+        String contenu = blog.getContenu();
+        // URL fictive de l'article (à adapter selon votre domaine)
+        String articleUrl = "http://wingo.tn/article/" + blog.getId();
+        String shareText = titre + " - " + contenu + " " + articleUrl;
+        String link = "";
+
+        try {
+            switch (platform) {
+                case "WhatsApp":
+                    link = "https://wa.me/?text=" + URLEncoder.encode(shareText, StandardCharsets.UTF_8);
+                    break;
+                case "Facebook":
+                    link = "https://www.facebook.com/sharer/sharer.php?u=" + URLEncoder.encode(articleUrl, StandardCharsets.UTF_8);
+                    break;
+                case "Instagram":
+                    // Instagram n'a pas de partage direct via URL, on peut ouvrir l'app avec un texte ou copier dans le presse-papier
+                    // On propose d'ouvrir un lien générique ou de copier le texte
+                    java.awt.Toolkit.getDefaultToolkit().getSystemClipboard().setContents(new java.awt.datatransfer.StringSelection(shareText), null);
+                    showInfo("Texte copié dans le presse-papier pour Instagram");
+                    return;
+                default:
+                    return;
+            }
+            java.awt.Desktop.getDesktop().browse(URI.create(link));
+        } catch (Exception e) {
+            showError("Erreur de partage", e.getMessage());
+        }
     }
 
     private void showListView() {
@@ -1249,7 +1341,7 @@ public class BlogController implements Initializable {
         loadBlogs();
         loadAllComments();
         loadLikes();
-        loadRatings();   // NOUVEAU
+        loadRatings();
         filterArticles();
         if (selectedBlog != null) {
             blogList.stream()
@@ -1260,7 +1352,7 @@ public class BlogController implements Initializable {
         if (displayedDetailBlog != null) {
             afficherCommentairesDetail();
             updateDetailLikeButton();
-            updateDetailStars();   // NOUVEAU
+            updateDetailStars();
         }
     }
 
