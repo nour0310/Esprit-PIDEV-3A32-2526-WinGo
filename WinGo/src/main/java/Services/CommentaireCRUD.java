@@ -173,4 +173,7 @@ public class CommentaireCRUD {
         }
         return liste;
     }
+
+    public List<Commentaire> getCommentairesArborescents(int id) {
+    }
 }
