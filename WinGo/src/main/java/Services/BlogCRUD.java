@@ -56,6 +56,7 @@ public class BlogCRUD {
     }
 
     public List<Blog> afficher() throws SQLException {
+        // Jointure avec utilisateur pour récupérer le prénom et le nom
         String req = "SELECT a.*, u.nom, u.prenom FROM article a LEFT JOIN utilisateur u ON a.auteur = u.id ORDER BY a.date_publication DESC";
         List<Blog> list = new ArrayList<>();
         try (Statement st = conn.createStatement();
@@ -70,7 +71,20 @@ public class BlogCRUD {
                 b.setImage(rs.getString("image"));
                 b.setRegion(rs.getString("region"));
                 b.setCategorie(rs.getString("categorie"));
-                String auteurNom = rs.getString("nom") + " " + rs.getString("prenom");
+
+                // Construction du nom complet de l'auteur
+                String nom = rs.getString("nom");
+                String prenom = rs.getString("prenom");
+                String auteurNom;
+                if (prenom != null && nom != null) {
+                    auteurNom = prenom + " " + nom;
+                } else if (prenom != null) {
+                    auteurNom = prenom;
+                } else if (nom != null) {
+                    auteurNom = nom;
+                } else {
+                    auteurNom = "Utilisateur " + rs.getInt("auteur"); // fallback
+                }
                 b.setAuteurNom(auteurNom);
                 list.add(b);
             }
@@ -78,7 +92,6 @@ public class BlogCRUD {
         return list;
     }
 
-    // Méthode utilitaire pour récupérer un blog par son ID
     public Blog getById(int id) throws SQLException {
         String req = "SELECT * FROM article WHERE id=?";
         try (PreparedStatement pst = conn.prepareStatement(req)) {

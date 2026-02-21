@@ -26,6 +26,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
 import java.util.ResourceBundle;
+import java.util.regex.Pattern;
 
 public class BlogController implements Initializable {
 
@@ -67,6 +68,13 @@ public class BlogController implements Initializable {
     @FXML private Label statusLabel;
     @FXML private Label connectedUserLabel;
 
+    // Labels d'erreur pour la validation
+    @FXML private Label titreError;
+    @FXML private Label contenuError;
+    @FXML private Label regionError;
+    @FXML private Label categorieError;
+    @FXML private Label imageError;
+
     // Composants FXML de la vue détail
     @FXML private VBox listView;
     @FXML private VBox detailView;
@@ -94,14 +102,20 @@ public class BlogController implements Initializable {
     private final DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
     private final DateTimeFormatter dateShortFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
+    // Patterns de validation
+    private static final Pattern TITLE_PATTERN = Pattern.compile("^[a-zA-ZÀ-ÿ\\s\\-']{3,50}$");
+    private static final Pattern CONTENT_PATTERN = Pattern.compile("^[\\w\\s\\p{Punct}À-ÿ]{10,500}$");
+
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         initComboBoxes();
         loadUtilisateurs();
         attachListeners();
+        setupValidationListeners();
         loadInitialData();
         showListView();
         updateFormButtons();
+        clearAllErrors();
     }
 
     private void initComboBoxes() {
@@ -130,11 +144,14 @@ public class BlogController implements Initializable {
     private void loadUtilisateurs() {
         try {
             ObservableList<Utilisateur> users = FXCollections.observableArrayList(utilisateurCRUD.afficher());
+            // Ici, vous devez définir l'utilisateur connecté (par exemple celui dont l'id est 1)
+            // Adaptez cette ligne selon votre système d'authentification
             currentUser = users.stream().filter(u -> u.getId() == 1).findFirst().orElse(null);
             if (currentUser != null) {
-                auteurLabel.setText(currentUser.getPrenom() + " " + currentUser.getNom());
-                connectedUserLabel.setText(currentUser.getPrenom() + " " + currentUser.getNom());
-                detailConnectedUserLabel.setText(currentUser.getPrenom() + " " + currentUser.getNom());
+                String nomComplet = currentUser.getPrenom() + " " + currentUser.getNom();
+                auteurLabel.setText(nomComplet);
+                connectedUserLabel.setText(nomComplet);
+                detailConnectedUserLabel.setText(nomComplet);
             } else {
                 auteurLabel.setText("Utilisateur inconnu");
                 connectedUserLabel.setText("Utilisateur inconnu");
@@ -155,6 +172,114 @@ public class BlogController implements Initializable {
         }
         detailAddCommentBtn.setOnAction(e -> ajouterCommentaireDetail());
     }
+
+    // ========== VALIDATION EN TEMPS RÉEL ==========
+    private void setupValidationListeners() {
+        titreField.textProperty().addListener((obs, oldVal, newVal) -> validateTitre());
+        contenuField.textProperty().addListener((obs, oldVal, newVal) -> validateContenu());
+        regionField.valueProperty().addListener((obs, oldVal, newVal) -> validateRegion());
+        categorieField.valueProperty().addListener((obs, oldVal, newVal) -> validateCategorie());
+        imageField.textProperty().addListener((obs, oldVal, newVal) -> validateImage());
+    }
+
+    private boolean validateTitre() {
+        String titre = titreField.getText();
+        if (titre == null || titre.trim().isEmpty()) {
+            showError(titreError, "Le titre ne peut pas être vide.");
+            return false;
+        } else if (!TITLE_PATTERN.matcher(titre).matches()) {
+            showError(titreError, "Le titre doit contenir uniquement des lettres, espaces, tirets ou apostrophes (3-50 caractères).");
+            return false;
+        } else {
+            clearError(titreError);
+            return true;
+        }
+    }
+
+    private boolean validateContenu() {
+        String contenu = contenuField.getText();
+        if (contenu == null || contenu.trim().isEmpty()) {
+            showError(contenuError, "Le contenu ne peut pas être vide.");
+            return false;
+        } else if (!CONTENT_PATTERN.matcher(contenu).matches()) {
+            showError(contenuError, "Le contenu doit faire entre 10 et 500 caractères.");
+            return false;
+        } else {
+            clearError(contenuError);
+            return true;
+        }
+    }
+
+    private boolean validateRegion() {
+        if (regionField.getValue() == null || regionField.getValue().isEmpty()) {
+            showError(regionError, "Veuillez sélectionner une région.");
+            return false;
+        } else {
+            clearError(regionError);
+            return true;
+        }
+    }
+
+    private boolean validateCategorie() {
+        if (categorieField.getValue() == null || categorieField.getValue().isEmpty()) {
+            showError(categorieError, "Veuillez sélectionner une catégorie.");
+            return false;
+        } else {
+            clearError(categorieError);
+            return true;
+        }
+    }
+
+    private boolean validateImage() {
+        String imagePath = imageField.getText();
+        if (imagePath == null || imagePath.trim().isEmpty()) {
+            showError(imageError, "L'image est obligatoire.");
+            return false;
+        } else {
+            File f = new File(imagePath);
+            if (!f.exists()) {
+                showError(imageError, "Le fichier image n'existe pas.");
+                return false;
+            } else {
+                clearError(imageError);
+                return true;
+            }
+        }
+    }
+
+    private boolean validateBlogForm() {
+        boolean valid = true;
+        valid &= validateTitre();
+        valid &= validateContenu();
+        valid &= validateRegion();
+        valid &= validateCategorie();
+        valid &= validateImage();
+        return valid;
+    }
+
+    private void showError(Label errorLabel, String message) {
+        if (errorLabel != null) {
+            errorLabel.setText("⚠ " + message);
+            errorLabel.setVisible(true);
+            errorLabel.setManaged(true);
+        }
+    }
+
+    private void clearError(Label errorLabel) {
+        if (errorLabel != null) {
+            errorLabel.setVisible(false);
+            errorLabel.setManaged(false);
+        }
+    }
+
+    private void clearAllErrors() {
+        clearError(titreError);
+        clearError(contenuError);
+        clearError(regionError);
+        clearError(categorieError);
+        clearError(imageError);
+    }
+    // ========== FIN VALIDATION ==========
 
     private void choisirImage() {
         FileChooser fileChooser = new FileChooser();
@@ -212,7 +337,6 @@ public class BlogController implements Initializable {
         card.setMaxWidth(280);
         card.setPadding(Insets.EMPTY);
 
-        // Conteneur de l'image avec clip
         StackPane imageContainer = new StackPane();
         imageContainer.setPrefHeight(180);
         imageContainer.setStyle("-fx-background-color: #f0f0f0; -fx-background-radius: 20 20 0 0;");
@@ -281,6 +405,7 @@ public class BlogController implements Initializable {
         VBox content = new VBox(8);
         content.setPadding(new Insets(15, 15, 15, 15));
 
+        // Affichage du nom de l'auteur (prénom + nom) au lieu de l'ID
         String auteurNom = blog.getAuteurNom() != null ? blog.getAuteurNom() : "Inconnu";
         Label auteur = new Label("Auteur: " + auteurNom);
         auteur.setStyle("-fx-text-fill: #b7472a; -fx-font-weight: bold; -fx-font-size: 13px;");
@@ -386,6 +511,7 @@ public class BlogController implements Initializable {
     private void showDetailView(Blog blog) {
         displayedDetailBlog = blog;
         detailTitreLabel.setText(blog.getTitre() != null ? blog.getTitre() : "");
+        // Affichage du nom de l'auteur (prénom + nom)
         detailAuteurLabel.setText(blog.getAuteurNom() != null ? blog.getAuteurNom() : "Inconnu");
         detailDateLabel.setText(blog.getDatePublication() != null ? blog.getDatePublication().format(dateShortFormatter) : "");
         detailContenuLabel.setText(blog.getContenu() != null ? blog.getContenu() : "");
@@ -444,27 +570,53 @@ public class BlogController implements Initializable {
         contenuLabel.setWrapText(true);
         contenuLabel.setStyle("-fx-font-size: 14px; -fx-text-fill: white; -fx-padding: 5;");
 
-        // Auteur et date
+        // Auteur et date avec icônes stylisées
         HBox meta = new HBox(10);
         meta.setAlignment(Pos.CENTER_LEFT);
-        Label auteurLabel = new Label("👤 " + (commentaire.getUtilisateurNom() != null ? commentaire.getUtilisateurNom() : "Utilisateur " + commentaire.getUtilisateur()));
+
+        // Conteneur pour l'icône utilisateur avec fond
+        StackPane userIconContainer = new StackPane();
+        userIconContainer.setPrefSize(24, 24);
+        userIconContainer.setStyle("-fx-background-color: #FFBD00; -fx-background-radius: 12;");
+        Label userIcon = new Label("👤");
+        userIcon.setStyle("-fx-font-size: 14px; -fx-text-fill: #390099;");
+        userIconContainer.getChildren().add(userIcon);
+
+        // Affichage du nom de l'utilisateur (prénom + nom)
+        String utilisateurNom = commentaire.getUtilisateurNom() != null ? commentaire.getUtilisateurNom() : "Utilisateur " + commentaire.getUtilisateur();
+        Label auteurLabel = new Label(utilisateurNom);
         auteurLabel.setStyle("-fx-text-fill: #FFBD00; -fx-font-size: 12px; -fx-font-weight: bold;");
-        Label dateLabel = new Label("📅 " + (commentaire.getDateCommentaire() != null ? commentaire.getDateCommentaire().format(dateFormatter) : ""));
+
+        HBox auteurBox = new HBox(5, userIconContainer, auteurLabel);
+        auteurBox.setAlignment(Pos.CENTER_LEFT);
+
+        // Conteneur pour l'icône calendrier avec fond
+        StackPane dateIconContainer = new StackPane();
+        dateIconContainer.setPrefSize(24, 24);
+        dateIconContainer.setStyle("-fx-background-color: rgba(255,255,255,0.2); -fx-background-radius: 12;");
+        Label dateIcon = new Label("📅");
+        dateIcon.setStyle("-fx-font-size: 14px; -fx-text-fill: white;");
+        dateIconContainer.getChildren().add(dateIcon);
+
+        Label dateLabel = new Label(commentaire.getDateCommentaire() != null ? commentaire.getDateCommentaire().format(dateFormatter) : "");
         dateLabel.setStyle("-fx-text-fill: rgba(255,255,255,0.7); -fx-font-size: 11px;");
+
+        HBox dateBox = new HBox(5, dateIconContainer, dateLabel);
+        dateBox.setAlignment(Pos.CENTER_LEFT);
+
         Region spacer = new Region();
         HBox.setHgrow(spacer, Priority.ALWAYS);
-        meta.getChildren().addAll(auteurLabel, spacer, dateLabel);
+
+        meta.getChildren().addAll(auteurBox, spacer, dateBox);
 
         // Boutons d'action
         HBox actions = new HBox(10);
         actions.setAlignment(Pos.CENTER_RIGHT);
         if (currentUser != null && commentaire.getUtilisateur() == currentUser.getId()) {
-            // Bouton Modifier (orange)
             Button editBtn = new Button("✏️");
             editBtn.setStyle("-fx-background-color: #f39c12; -fx-text-fill: white; -fx-background-radius: 20; -fx-cursor: hand; -fx-padding: 5 12; -fx-border-color: rgba(255,255,255,0.4); -fx-border-radius: 20;");
             editBtn.setOnAction(e -> showEditComment(commentaire, card, contenuLabel, meta, actions));
 
-            // Bouton Supprimer (rouge)
             Button deleteBtn = new Button("🗑️");
             deleteBtn.setStyle("-fx-background-color: #e74c3c; -fx-text-fill: white; -fx-background-radius: 20; -fx-cursor: hand; -fx-padding: 5 12; -fx-border-color: rgba(255,255,255,0.4); -fx-border-radius: 20;");
             deleteBtn.setOnAction(e -> supprimerCommentaireDetail(commentaire));
@@ -552,7 +704,7 @@ public class BlogController implements Initializable {
         }
     }
 
-    // ========== CRUD BLOG ==========
+    // ========== CRUD BLOG AVEC VALIDATION ==========
 
     private void supprimerBlog(Blog blog) {
         if (currentUser == null || blog.getAuteur() != currentUser.getId()) {
@@ -594,9 +746,11 @@ public class BlogController implements Initializable {
         imageField.setText(blog.getImage() != null ? blog.getImage() : "");
         regionField.setValue(blog.getRegion());
         categorieField.setValue(blog.getCategorie());
+        // Affichage du nom de l'auteur (prénom + nom)
         auteurLabel.setText(blog.getAuteurNom() != null ? blog.getAuteurNom() : "Inconnu");
         selectedArticleLabel.setText("Article sélectionné : " + (blog.getTitre() != null ? blog.getTitre() : ""));
         updateFormButtons();
+        clearAllErrors();
     }
 
     @FXML
@@ -708,6 +862,7 @@ public class BlogController implements Initializable {
         }
         selectedArticleLabel.setText("(aucun article sélectionné)");
         updateFormButtons();
+        clearAllErrors();
     }
 
     private void filterArticles() {
@@ -745,18 +900,6 @@ public class BlogController implements Initializable {
     private void updateStats() {
         totalBlogsLabel.setText(String.valueOf(blogList.size()));
         totalCommentsLabel.setText(String.valueOf(commentaireList.size()));
-    }
-
-    private boolean validateBlogForm() {
-        if (titreField.getText().trim().isEmpty()) {
-            showWarning("Titre requis.");
-            return false;
-        }
-        if (contenuField.getText().trim().isEmpty()) {
-            showWarning("Contenu requis.");
-            return false;
-        }
-        return true;
     }
 
     private void showInfo(String msg) { statusLabel.setText("✅ " + msg); }

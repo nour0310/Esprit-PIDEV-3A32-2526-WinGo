@@ -40,11 +40,18 @@
             <version>${javafx.version}</version>
             <classifier>win</classifier>
         </dependency>
+
+        <!-- JUnit 5 pour les tests unitaires -->
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <version>5.10.1</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <build>
         <plugins>
-
             <!-- Compiler plugin pour Java 17 -->
             <plugin>
                 <artifactId>maven-compiler-plugin</artifactId>
@@ -63,13 +70,10 @@
                     <mainClass>GUI.MainFX</mainClass>
                     <executable>C:\Users\MSI-THIN\.jdks\jbr-17.0.14\bin\java.exe</executable>
                     <options>
-                        <!-- Options Java si besoin -->
                         <option>-Xmx512m</option>
                     </options>
                 </configuration>
             </plugin>
-
         </plugins>
     </build>
-
 </project>
