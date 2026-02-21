@@ -16,6 +16,7 @@ import Services.NotificationCRUD;
 import Services.RatingCRUD;
 import Services.TagCRUD;
 import Services.UtilisateurCRUD;
+import Services.External.LibreTranslateService;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -142,6 +143,10 @@ public class BlogController implements Initializable {
     @FXML private HBox detailShareBox;
     @FXML private Button detailFavButton; // FAVORI
 
+    // Composants pour la traduction
+    @FXML private ComboBox<String> langueCombo;
+    @FXML private Button traduireBtn;
+
     // Notifications
     @FXML private Button notificationButton;
     @FXML private Label notificationBadge;
@@ -169,6 +174,7 @@ public class BlogController implements Initializable {
     public void initialize(URL location, ResourceBundle resources) {
         loadImages();
         initComboBoxes();
+        initLangues(); // Initialiser la liste des langues pour la traduction
         loadUtilisateurs();
         attachListeners();
         setupValidationListeners();
@@ -226,6 +232,14 @@ public class BlogController implements Initializable {
         categorieFilterCombo.setValue("Toutes");
     }
 
+    private void initLangues() {
+        ObservableList<String> langues = FXCollections.observableArrayList(
+                "Anglais", "Espagnol", "Allemand", "Arabe", "Italien", "Portugais"
+        );
+        langueCombo.setItems(langues);
+        langueCombo.setValue("Anglais"); // valeur par défaut
+    }
+
     private void loadUtilisateurs() {
         try {
             ObservableList<Utilisateur> users = FXCollections.observableArrayList(utilisateurCRUD.afficher());
@@ -281,6 +295,7 @@ public class BlogController implements Initializable {
         }
         detailAddCommentBtn.setOnAction(e -> ajouterCommentaireDetail());
         notificationButton.setOnAction(e -> afficherNotifications());
+        traduireBtn.setOnAction(e -> traduireArticle()); // Traduction
     }
 
     private void afficherNotifications() {
@@ -340,6 +355,54 @@ public class BlogController implements Initializable {
         modeFavoris = !modeFavoris;
         filterArticles();
     }
+
+    // ========== TRADUCTION ==========
+    private void traduireArticle() {
+        if (displayedDetailBlog == null) {
+            detailStatusLabel.setText("❌ Aucun article sélectionné");
+            return;
+        }
+
+        String langueChoisie = langueCombo.getValue();
+        if (langueChoisie == null) return;
+
+        String codeLangue = switch (langueChoisie) {
+            case "Anglais" -> "en";
+            case "Espagnol" -> "es";
+            case "Allemand" -> "de";
+            case "Arabe" -> "ar";
+            case "Italien" -> "it";
+            case "Portugais" -> "pt";
+            default -> "en";
+        };
+
+        String texteOriginal = detailContenuLabel.getText();
+        String titreOriginal = detailTitreLabel.getText();
+
+        detailStatusLabel.setText("⏳ Traduction en cours...");
+
+        // Traduction du contenu
+        LibreTranslateService.translateAsync(texteOriginal, "fr", codeLangue)
+                .thenAccept(texteTraduit -> {
+                    javafx.application.Platform.runLater(() -> {
+                        detailContenuLabel.setText(texteTraduit);
+                        detailStatusLabel.setText("✅ Traduit en " + langueChoisie);
+                    });
+                })
+                .exceptionally(ex -> {
+                    javafx.application.Platform.runLater(() ->
+                            detailStatusLabel.setText("❌ Erreur de traduction")
+                    );
+                    return null;
+                });
+
+        // Optionnel : traduire aussi le titre
+        LibreTranslateService.translateAsync(titreOriginal, "fr", codeLangue)
+                .thenAccept(titreTraduit ->
+                        javafx.application.Platform.runLater(() -> detailTitreLabel.setText(titreTraduit))
+                );
+    }
+    // ========== FIN TRADUCTION ==========
 
     // ========== VALIDATION EN TEMPS RÉEL ==========
     private void setupValidationListeners() {
