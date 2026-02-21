@@ -6,15 +6,38 @@
 
 <StackPane prefHeight="760" prefWidth="1280"
            xmlns="http://javafx.com/javafx/17"
-           xmlns:fx="http://javafx.com/fxml/1">
+           xmlns:fx="http://javafx.com/fxml/1"
+           fx:controller="Controlles.AccueilController">
 
-    <Pane style="-fx-background-color: #F4F7FB;" />
+    <VBox fx:id="sideBar" maxWidth="250" spacing="15"
+          style="-fx-background-color: #1E293B; -fx-padding: 40 20;"
+          StackPane.alignment="CENTER_LEFT">
 
-    <BorderPane style="-fx-background-color: transparent;">
+        <HBox alignment="CENTER_LEFT" spacing="10" style="-fx-padding: 0 0 30 0;">
+            <Label text="✈️" style="-fx-font-size: 24px;" />
+            <Label text="WinGo" style="-fx-text-fill: white; -fx-font-size: 22px; -fx-font-weight: 900;" />
+        </HBox>
+
+        <Label text="MENU PRINCIPAL" style="-fx-text-fill: #64748B; -fx-font-size: 12px; -fx-font-weight: bold; -fx-padding: 0 0 10 5;" />
+
+        <Button text="🏠  Accueil" alignment="BASELINE_LEFT" prefWidth="210" style="-fx-background-color: #334155; -fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 14px; -fx-padding: 12 15; -fx-background-radius: 10; -fx-cursor: hand;" />
+        <Button text="🛏️  Réservations" alignment="BASELINE_LEFT" prefWidth="210" style="-fx-background-color: transparent; -fx-text-fill: #94A3B8; -fx-font-weight: bold; -fx-font-size: 14px; -fx-padding: 12 15; -fx-background-radius: 10; -fx-cursor: hand;" />
+        <Button text="🚌  Transports" alignment="BASELINE_LEFT" prefWidth="210" style="-fx-background-color: transparent; -fx-text-fill: #94A3B8; -fx-font-weight: bold; -fx-font-size: 14px; -fx-padding: 12 15; -fx-background-radius: 10; -fx-cursor: hand;" />
+        <Button text="🌍  Destinations" alignment="BASELINE_LEFT" prefWidth="210" style="-fx-background-color: transparent; -fx-text-fill: #94A3B8; -fx-font-weight: bold; -fx-font-size: 14px; -fx-padding: 12 15; -fx-background-radius: 10; -fx-cursor: hand;" />
+        <Button text="🎁  Offres" alignment="BASELINE_LEFT" prefWidth="210" style="-fx-background-color: transparent; -fx-text-fill: #94A3B8; -fx-font-weight: bold; -fx-font-size: 14px; -fx-padding: 12 15; -fx-background-radius: 10; -fx-cursor: hand;" />
+
+        <Region VBox.vgrow="ALWAYS" />
+
+        <Button text="ℹ️  À Propos" alignment="BASELINE_LEFT" prefWidth="210" style="-fx-background-color: transparent; -fx-text-fill: #94A3B8; -fx-font-weight: bold; -fx-font-size: 14px; -fx-padding: 12 15; -fx-background-radius: 10; -fx-cursor: hand;" />
+    </VBox>
+
+
+    <BorderPane fx:id="mainContent" style="-fx-background-color: #F4F7FB;">
+        <effect><DropShadow color="#00000040" radius="30" offsetX="-5" /></effect>
 
         <top>
-            <HBox alignment="CENTER" spacing="30" style="-fx-padding: 20 50; -fx-background-color: #F4F7FB80;">
-
+            <HBox alignment="CENTER" spacing="20" style="-fx-padding: 20 50; -fx-background-color: #F4F7FB80;">
+                <Button fx:id="menuToggleBtn" text="☰" style="-fx-background-color: transparent; -fx-text-fill: #1E293B; -fx-font-size: 24px; -fx-cursor: hand; -fx-padding: 0 10 0 0;" />
                 <HBox alignment="CENTER_LEFT" spacing="10">
                     <Label text="✈️" style="-fx-font-size: 28px;" />
                     <Label text="WinGo" style="-fx-text-fill: #1E293B; -fx-font-size: 24px; -fx-font-weight: 900; -fx-font-family: 'Arial';" />
@@ -24,8 +47,8 @@
 
                 <HBox alignment="CENTER" spacing="40">
                     <Label text="Accueil" style="-fx-text-fill: #A3B1FF; -fx-font-weight: 900; -fx-font-size: 15px; -fx-cursor: hand;" />
+                    <Label text="Produits Locaux" style="-fx-text-fill: #64748B; -fx-font-weight: bold; -fx-font-size: 15px; -fx-cursor: hand;" />
                     <Label text="Destinations" style="-fx-text-fill: #64748B; -fx-font-weight: bold; -fx-font-size: 15px; -fx-cursor: hand;" />
-                    <Label text="Offres" style="-fx-text-fill: #64748B; -fx-font-weight: bold; -fx-font-size: 15px; -fx-cursor: hand;" />
                     <Label text="Contact" style="-fx-text-fill: #64748B; -fx-font-weight: bold; -fx-font-size: 15px; -fx-cursor: hand;" />
                 </HBox>
 
@@ -43,82 +66,67 @@
         <center>
             <ScrollPane fitToWidth="true" style="-fx-background: transparent; -fx-background-color: transparent; -fx-padding: 0;">
                 <content>
-                    <VBox spacing="60" style="-fx-padding: 20 50 80 50;">
+                    <VBox spacing="50" style="-fx-padding: 20 50 80 50;">
 
-                        <HBox alignment="CENTER" spacing="50">
-                            <VBox alignment="CENTER_LEFT" spacing="30" HBox.hgrow="ALWAYS" maxWidth="550">
+                        <VBox spacing="25">
 
-                                <HBox alignment="CENTER_LEFT" maxWidth="220" style="-fx-background-color: #EEF2FF; -fx-background-radius: 50; -fx-padding: 8 15;">
-                                    <Label text="✨ Explorez le monde" style="-fx-text-fill: #A3B1FF; -fx-font-weight: 900; -fx-font-size: 13px;" />
+                            <HBox alignment="CENTER_LEFT" spacing="20">
+                                <VBox spacing="5">
+                                    <Label text="Plongez au Cœur de la Tunisie" style="-fx-text-fill: #1E293B; -fx-font-size: 38px; -fx-font-weight: 900;" />
+                                    <Label text="Découvrez notre culture, nos paysages et nos produits artisanaux." style="-fx-text-fill: #64748B; -fx-font-size: 16px;" />
+                                </VBox>
+                                <Region HBox.hgrow="ALWAYS" />
+                                <HBox alignment="CENTER_LEFT" spacing="10" style="-fx-background-color: #FFFFFF; -fx-background-radius: 50; -fx-padding: 5 5 5 20;">
+                                    <effect><DropShadow color="#00000010" offsetY="5" radius="15" /></effect>
+                                    <Label text="🔍" style="-fx-font-size: 16px;" />
+                                    <TextField promptText="Chercher un produit ou lieu..." style="-fx-background-color: transparent; -fx-font-size: 14px; -fx-pref-width: 220; -fx-text-fill: #1E293B; -fx-prompt-text-fill: #94A3B8;" />
+                                    <Button text="Chercher" style="-fx-background-color: #FFBD00; -fx-text-fill: #1E293B; -fx-font-weight: 900; -fx-background-radius: 50; -fx-padding: 10 20; -fx-cursor: hand;" />
                                 </HBox>
+                            </HBox>
 
-                                <Label text="Découvrez Votre&#10;Prochaine Aventure" style="-fx-text-fill: #1E293B; -fx-font-size: 55px; -fx-font-weight: 900; -fx-line-spacing: -10px;" />
+                            <HBox spacing="20" prefHeight="400">
 
-                                <Label text="Trouvez les meilleures offres sur les transports et les réservations. Voyagez en toute sécurité avec WinGo."
-                                       style="-fx-text-fill: #64748B; -fx-font-size: 16px; -fx-wrap-text: true;" />
+                                <StackPane HBox.hgrow="ALWAYS" style="-fx-background-color: #E2E8F0; -fx-background-radius: 25; -fx-background-image: url('/assets/tunisia-main.jpg'); -fx-background-size: cover; -fx-background-position: center; -fx-cursor: hand;">
+                                    <effect><DropShadow color="#00000020" offsetY="10" radius="20" /></effect>
 
-                                <HBox alignment="CENTER_LEFT" spacing="10"
-                                      style="-fx-background-color: #FFFFFF; -fx-background-radius: 50; -fx-padding: 10 10 10 25;">
-                                    <effect><DropShadow color="#00000015" offsetY="10" radius="25" /></effect>
+                                    <Pane style="-fx-background-color: linear-gradient(to top, #000000B3, transparent); -fx-background-radius: 25;" />
 
-                                    <Label text="📍" style="-fx-font-size: 18px;" />
-                                    <TextField promptText="Où voulez-vous aller ?"
-                                               style="-fx-background-color: transparent; -fx-font-size: 15px; -fx-pref-width: 250; -fx-text-fill: #1E293B; -fx-prompt-text-fill: #94A3B8;" />
-
-                                    <Button text="Rechercher"
-                                            style="-fx-background-color: #FFBD00; -fx-text-fill: #1E293B; -fx-font-weight: 900; -fx-background-radius: 50; -fx-padding: 15 30; -fx-font-size: 14px; -fx-cursor: hand;">
-                                        <effect><DropShadow color="#FFBD0040" offsetY="5" radius="15" /></effect>
-                                    </Button>
-                                </HBox>
-
-                                <HBox spacing="40" style="-fx-padding: 20 0 0 0;">
-                                    <VBox>
-                                        <Label text="120K+" style="-fx-text-fill: #1E293B; -fx-font-weight: 900; -fx-font-size: 24px;" />
-                                        <Label text="Voyageurs" style="-fx-text-fill: #94A3B8; -fx-font-weight: bold; -fx-font-size: 13px;" />
+                                    <VBox alignment="BOTTOM_LEFT" spacing="5" style="-fx-padding: 30;">
+                                        <Label text="DESTINATION PHARE" style="-fx-text-fill: #A3B1FF; -fx-font-weight: 900; -fx-font-size: 13px; -fx-background-color: #00000066; -fx-padding: 5 10; -fx-background-radius: 10;" />
+                                        <Label text="Sidi Bou Said" style="-fx-text-fill: white; -fx-font-size: 32px; -fx-font-weight: 900;" />
+                                        <Label text="La perle bleue de la Méditerranée. Explorez ses ruelles et son histoire." style="-fx-text-fill: #E2E8F0; -fx-font-size: 15px;" />
                                     </VBox>
-                                    <Separator orientation="VERTICAL" style="-fx-opacity: 0.2;" />
-                                    <VBox>
-                                        <Label text="500+" style="-fx-text-fill: #1E293B; -fx-font-weight: 900; -fx-font-size: 24px;" />
-                                        <Label text="Destinations" style="-fx-text-fill: #94A3B8; -fx-font-weight: bold; -fx-font-size: 13px;" />
-                                    </VBox>
-                                </HBox>
-                            </VBox>
+                                </StackPane>
 
-                            <StackPane HBox.hgrow="ALWAYS" alignment="CENTER_RIGHT">
-                                <Pane maxWidth="450" maxHeight="550"
-                                      style="-fx-background-color: #E2E8F0;
-                                             -fx-background-radius: 40 40 200 40;
-                                             -fx-background-image: url('/assets/testt.jpg');
-                                             -fx-background-size: cover;
-                                             -fx-background-position: center;">
-                                    <effect><DropShadow color="#00000020" offsetY="20" radius="40" /></effect>
-                                </Pane>
+                                <VBox spacing="20" prefWidth="400">
 
-                                <HBox alignment="CENTER" spacing="15" maxWidth="200" maxHeight="80"
-                                      style="-fx-background-color: #FFFFFF; -fx-background-radius: 20; -fx-padding: 15 20;"
-                                      StackPane.alignment="BOTTOM_LEFT" translateX="-30" translateY="-40">
-                                    <effect><DropShadow color="#0000001A" offsetY="10" radius="20" /></effect>
-                                    <Label text="⭐" style="-fx-font-size: 24px;" />
-                                    <VBox alignment="CENTER_LEFT">
-                                        <Label text="Top Note" style="-fx-text-fill: #94A3B8; -fx-font-weight: bold; -fx-font-size: 12px;" />
-                                        <Label text="4.9 / 5.0" style="-fx-text-fill: #1E293B; -fx-font-weight: 900; -fx-font-size: 16px;" />
-                                    </VBox>
-                                </HBox>
+                                    <StackPane VBox.vgrow="ALWAYS" style="-fx-background-color: #E2E8F0; -fx-background-radius: 25; -fx-background-image: url('/assets/tunisia-crafts.jpg'); -fx-background-size: cover; -fx-background-position: center; -fx-cursor: hand;">
+                                        <effect><DropShadow color="#00000015" offsetY="8" radius="15" /></effect>
+                                        <Pane style="-fx-background-color: linear-gradient(to top, #00000099, transparent); -fx-background-radius: 25;" />
+                                        <VBox alignment="BOTTOM_LEFT" spacing="2" style="-fx-padding: 20;">
+                                            <Label text="PRODUITS LOCAUX" style="-fx-text-fill: #FFBD00; -fx-font-weight: 900; -fx-font-size: 11px;" />
+                                            <Label text="Artisanat &amp; Céramique" style="-fx-text-fill: white; -fx-font-size: 20px; -fx-font-weight: bold;" />
+                                        </VBox>
+                                    </StackPane>
 
-                                <HBox alignment="CENTER" spacing="10" maxWidth="160" maxHeight="50"
-                                      style="-fx-background-color: #A3B1FF; -fx-background-radius: 50; -fx-padding: 10 20;"
-                                      StackPane.alignment="TOP_RIGHT" translateX="20" translateY="50">
-                                    <effect><DropShadow color="#A3B1FF66" offsetY="8" radius="15" /></effect>
-                                    <Label text="✈️" style="-fx-font-size: 16px;" />
-                                    <Label text="Vols Rapides" style="-fx-text-fill: white; -fx-font-weight: 900; -fx-font-size: 13px;" />
-                                </HBox>
-                            </StackPane>
-                        </HBox>
+                                    <StackPane VBox.vgrow="ALWAYS" style="-fx-background-color: #E2E8F0; -fx-background-radius: 25; -fx-background-image: url('/assets/tunisia-food.jpg'); -fx-background-size: cover; -fx-background-position: center; -fx-cursor: hand;">
+                                        <effect><DropShadow color="#00000015" offsetY="8" radius="15" /></effect>
+                                        <Pane style="-fx-background-color: linear-gradient(to top, #00000099, transparent); -fx-background-radius: 25;" />
+                                        <VBox alignment="BOTTOM_LEFT" spacing="2" style="-fx-padding: 20;">
+                                            <Label text="GASTRONOMIE" style="-fx-text-fill: #4ADE80; -fx-font-weight: 900; -fx-font-size: 11px;" />
+                                            <Label text="Saveurs Authentiques" style="-fx-text-fill: white; -fx-font-size: 20px; -fx-font-weight: bold;" />
+                                        </VBox>
+                                    </StackPane>
+
+                                </VBox>
+                            </HBox>
+                        </VBox>
+
 
                         <VBox spacing="30">
                             <HBox alignment="CENTER_LEFT">
                                 <VBox spacing="5">
-                                    <Label text="Nos Suggestions" style="-fx-text-fill: #1E293B; -fx-font-size: 32px; -fx-font-weight: 900;"/>
+                                    <Label text="Gérer Votre Voyage" style="-fx-text-fill: #1E293B; -fx-font-size: 32px; -fx-font-weight: 900;"/>
                                     <Label text="Accédez rapidement à nos modules les plus populaires" style="-fx-text-fill: #64748B; -fx-font-size: 15px;"/>
                                 </VBox>
                                 <Region HBox.hgrow="ALWAYS" />
@@ -126,46 +134,41 @@
                             </HBox>
 
                             <HBox spacing="35" alignment="CENTER_LEFT">
-
                                 <VBox prefWidth="300" style="-fx-background-color: #FFFFFF; -fx-background-radius: 25;">
                                     <effect><DropShadow color="#00000010" offsetY="10" radius="25" /></effect>
                                     <Pane prefHeight="180" style="-fx-background-image: url('/assets/testt.jpg'); -fx-background-size: cover; -fx-background-position: center; -fx-background-radius: 25 25 0 0;" />
                                     <VBox spacing="15" style="-fx-padding: 25;">
                                         <VBox spacing="5">
                                             <Label text="Réservations" style="-fx-text-fill: #1E293B; -fx-font-weight: 900; -fx-font-size: 20px;" />
-                                            <Label text="Gérez vos hôtels et séjours de rêve en un seul endroit." style="-fx-text-fill: #64748B; -fx-font-size: 13px; -fx-wrap-text: true;" />
+                                            <Label text="Gérez vos hôtels et séjours de rêve." style="-fx-text-fill: #64748B; -fx-font-size: 13px; -fx-wrap-text: true;" />
                                         </VBox>
-                                        <Button fx:id="btnGoReservations" text="Gérer Réservations"
-                                                style="-fx-background-color: #EEF2FF; -fx-text-fill: #A3B1FF; -fx-font-weight: bold; -fx-background-radius: 50; -fx-padding: 10 20; -fx-cursor: hand;" />
+                                        <Button fx:id="btnGoReservations" text="Gérer Réservations" style="-fx-background-color: #EEF2FF; -fx-text-fill: #A3B1FF; -fx-font-weight: bold; -fx-background-radius: 50; -fx-padding: 10 20; -fx-cursor: hand;" />
                                     </VBox>
                                 </VBox>
 
                                 <VBox prefWidth="300" style="-fx-background-color: #FFFFFF; -fx-background-radius: 25;">
                                     <effect><DropShadow color="#00000010" offsetY="10" radius="25" /></effect>
-                                    <Pane prefHeight="180" style="-fx-background-image: url('/assets/testt.jpg'); -fx-background-size: cover; -fx-background-position: center; -fx-background-radius: 25 25 0 0;" />
+                                    <Pane prefHeight="180" style="-fx-background-image: url('/assets/transport-image.jpg'); -fx-background-size: cover; -fx-background-position: center; -fx-background-radius: 25 25 0 0;" />
                                     <VBox spacing="15" style="-fx-padding: 25;">
                                         <VBox spacing="5">
                                             <Label text="Transports" style="-fx-text-fill: #1E293B; -fx-font-weight: 900; -fx-font-size: 20px;" />
-                                            <Label text="Réservez vos vols et trajets routiers au meilleur prix." style="-fx-text-fill: #64748B; -fx-font-size: 13px; -fx-wrap-text: true;" />
+                                            <Label text="Réservez vos vols au meilleur prix." style="-fx-text-fill: #64748B; -fx-font-size: 13px; -fx-wrap-text: true;" />
                                         </VBox>
-                                        <Button fx:id="btnGoTransports" text="Gérer Transports"
-                                                style="-fx-background-color: #FFFBEB; -fx-text-fill: #FFBD00; -fx-font-weight: bold; -fx-background-radius: 50; -fx-padding: 10 20; -fx-cursor: hand;" />
+                                        <Button fx:id="btnGoTransports" text="Gérer Transports" style="-fx-background-color: #FFFBEB; -fx-text-fill: #FFBD00; -fx-font-weight: bold; -fx-background-radius: 50; -fx-padding: 10 20; -fx-cursor: hand;" />
                                     </VBox>
                                 </VBox>
 
                                 <VBox prefWidth="300" style="-fx-background-color: #FFFFFF; -fx-background-radius: 25;">
                                     <effect><DropShadow color="#00000010" offsetY="10" radius="25" /></effect>
-                                    <Pane prefHeight="180" style="-fx-background-image: url('/assets/testt.jpg'); -fx-background-size: cover; -fx-background-position: center; -fx-background-radius: 25 25 0 0;" />
+                                    <Pane prefHeight="180" style="-fx-background-image: url('/assets/destinations-image.jpg'); -fx-background-size: cover; -fx-background-position: center; -fx-background-radius: 25 25 0 0;" />
                                     <VBox spacing="15" style="-fx-padding: 25;">
                                         <VBox spacing="5">
                                             <Label text="Destinations" style="-fx-text-fill: #1E293B; -fx-font-weight: 900; -fx-font-size: 20px;" />
-                                            <Label text="Découvrez nos lieux les mieux notés du monde entier." style="-fx-text-fill: #64748B; -fx-font-size: 13px; -fx-wrap-text: true;" />
+                                            <Label text="Découvrez nos lieux les mieux notés." style="-fx-text-fill: #64748B; -fx-font-size: 13px; -fx-wrap-text: true;" />
                                         </VBox>
-                                        <Button fx:id="btnGoDestinations" text="Explorer Lieux"
-                                                style="-fx-background-color: #F1F5F9; -fx-text-fill: #64748B; -fx-font-weight: bold; -fx-background-radius: 50; -fx-padding: 10 20; -fx-cursor: hand;" />
+                                        <Button fx:id="btnGoDestinations" text="Explorer Lieux" style="-fx-background-color: #F1F5F9; -fx-text-fill: #64748B; -fx-font-weight: bold; -fx-background-radius: 50; -fx-padding: 10 20; -fx-cursor: hand;" />
                                     </VBox>
                                 </VBox>
-
                             </HBox>
                         </VBox>
 
