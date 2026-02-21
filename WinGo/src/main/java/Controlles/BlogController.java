@@ -3,10 +3,12 @@ package Controlles;
 import Entites.Blog;
 import Entites.Commentaire;
 import Entites.Like;
+import Entites.Rating;
 import Entites.Utilisateur;
 import Services.BlogCRUD;
 import Services.CommentaireCRUD;
 import Services.LikeCRUD;
+import Services.RatingCRUD;
 import Services.UtilisateurCRUD;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -36,6 +38,7 @@ public class BlogController implements Initializable {
     private final CommentaireCRUD commentaireCRUD = new CommentaireCRUD();
     private final UtilisateurCRUD utilisateurCRUD = new UtilisateurCRUD();
     private final LikeCRUD likeCRUD = new LikeCRUD();
+    private final RatingCRUD ratingCRUD = new RatingCRUD(); // NOUVEAU
 
     // Données observables
     private ObservableList<Blog> blogList = FXCollections.observableArrayList();
@@ -49,6 +52,11 @@ public class BlogController implements Initializable {
     // Données pour les likes
     private Map<Integer, Integer> likeCounts = new HashMap<>();
     private Set<Integer> likedByCurrentUser = new HashSet<>();
+
+    // Données pour les notes (étoiles)
+    private Map<Integer, Double> ratingAverages = new HashMap<>();   // articleId -> moyenne
+    private Map<Integer, Integer> voteCounts = new HashMap<>();      // articleId -> nombre de votes
+    private Map<Integer, Integer> userRatings = new HashMap<>();     // articleId -> note de l'utilisateur courant
 
     // Images pour les cœurs
     private Image heartEmptyImage;
@@ -103,6 +111,9 @@ public class BlogController implements Initializable {
     @FXML private Button detailLikeButton;
     @FXML private ImageView detailLikeImageView;
     @FXML private Label detailLikeCountLabel;
+    // Nouveaux composants pour les étoiles dans la vue détail
+    @FXML private HBox detailStarsBox;
+    @FXML private Label detailAvgLabel;
 
     // Filtres
     @FXML private ComboBox<String> regionFilterCombo;
@@ -333,6 +344,7 @@ public class BlogController implements Initializable {
         try {
             loadAllComments();
             loadLikes();
+            loadRatings();    // NOUVEAU
             loadBlogs();
             updateStats();
             statusLabel.setText("✅ Prêt, " + blogList.size() + " articles chargés.");
@@ -363,6 +375,27 @@ public class BlogController implements Initializable {
             if (currentUser != null && l.getUtilisateurId() == currentUser.getId()) {
                 likedByCurrentUser.add(l.getArticleId());
             }
+        }
+    }
+
+    // NOUVELLE MÉTHODE : charger les notes
+    private void loadRatings() throws SQLException {
+        List<Rating> allRatings = ratingCRUD.afficherTous();
+        ratingAverages.clear();
+        voteCounts.clear();
+        userRatings.clear();
+
+        Map<Integer, List<Integer>> votes = new HashMap<>();
+        for (Rating r : allRatings) {
+            votes.computeIfAbsent(r.getArticleId(), k -> new ArrayList<>()).add(r.getNote());
+            if (currentUser != null && r.getUtilisateurId() == currentUser.getId()) {
+                userRatings.put(r.getArticleId(), r.getNote());
+            }
+        }
+        for (Map.Entry<Integer, List<Integer>> entry : votes.entrySet()) {
+            double avg = entry.getValue().stream().mapToInt(Integer::intValue).average().orElse(0.0);
+            ratingAverages.put(entry.getKey(), avg);
+            voteCounts.put(entry.getKey(), entry.getValue().size());
         }
     }
 
@@ -416,6 +449,7 @@ public class BlogController implements Initializable {
 
         imageContainer.getChildren().add(imageView);
 
+        // Titre superposé
         String titre = blog.getTitre() != null ? blog.getTitre() : "Sans titre";
         Label titleOverlay = new Label(titre);
         titleOverlay.setStyle(
@@ -433,6 +467,7 @@ public class BlogController implements Initializable {
         StackPane.setMargin(titleOverlay, new Insets(0, 0, 15, 15));
         imageContainer.getChildren().add(titleOverlay);
 
+        // Badge région
         if (blog.getRegion() != null && !blog.getRegion().isEmpty()) {
             Label regionBadge = new Label(blog.getRegion());
             regionBadge.setStyle(
@@ -448,9 +483,11 @@ public class BlogController implements Initializable {
             imageContainer.getChildren().add(regionBadge);
         }
 
+        // Contenu texte
         VBox content = new VBox(8);
         content.setPadding(new Insets(15, 15, 15, 15));
 
+        // Affichage du nom de l'auteur (prénom + nom)
         String auteurNom = blog.getAuteurNom() != null ? blog.getAuteurNom() : "Inconnu";
         Label auteur = new Label("Auteur: " + auteurNom);
         auteur.setStyle("-fx-text-fill: #b7472a; -fx-font-weight: bold; -fx-font-size: 13px;");
@@ -479,6 +516,7 @@ public class BlogController implements Initializable {
         Label commentCount = new Label("Commentaires: " + nbComments);
         commentCount.setStyle("-fx-text-fill: #27ae60; -fx-font-size: 13px;");
 
+        // --- LIKES ---
         int likes = likeCounts.getOrDefault(blog.getId(), 0);
         boolean isLiked = likedByCurrentUser.contains(blog.getId());
 
@@ -503,6 +541,58 @@ public class BlogController implements Initializable {
         likeBox.setAlignment(Pos.CENTER_LEFT);
 
         likeButton.setOnAction(e -> toggleLike(blog, likeButton, likeCountLabel));
+        // --- FIN LIKES ---
+
+        // --- ÉTOILES (notation) ---
+        double avg = ratingAverages.getOrDefault(blog.getId(), 0.0);
+        int userNote = userRatings.getOrDefault(blog.getId(), 0);
+        int voteCount = voteCounts.getOrDefault(blog.getId(), 0);
+
+        HBox starsBox = new HBox(2);
+        starsBox.setAlignment(Pos.CENTER_LEFT);
+        List<Button> starButtons = new ArrayList<>();
+        for (int i = 1; i <= 5; i++) {
+            Button star = new Button();
+            star.setStyle("-fx-background-color: transparent; -fx-cursor: hand; -fx-font-size: 16px;");
+            // Afficher en priorité la note de l'utilisateur s'il a voté
+            if (userNote >= i) {
+                star.setText("★");
+                star.setStyle(star.getStyle() + " -fx-text-fill: #FFD700;");
+            } else if (avg >= i - 0.5 && avg < i) {
+                star.setText("½");
+                star.setStyle(star.getStyle() + " -fx-text-fill: #FFD700;");
+            } else if (avg >= i) {
+                star.setText("★");
+                star.setStyle(star.getStyle() + " -fx-text-fill: #FFD700;");
+            } else {
+                star.setText("☆");
+                star.setStyle(star.getStyle() + " -fx-text-fill: #FFD700;");
+            }
+            int note = i;
+            star.setOnAction(e -> {
+                if (currentUser == null) {
+                    showWarning("Connectez-vous pour noter.");
+                    return;
+                }
+                try {
+                    Rating rating = new Rating(currentUser.getId(), blog.getId(), note);
+                    ratingCRUD.ajouterOuModifier(rating);
+                    loadRatings(); // recharger les données
+                    refreshAllCards();
+                    if (displayedDetailBlog != null && displayedDetailBlog.getId() == blog.getId()) {
+                        updateDetailStars();
+                    }
+                } catch (SQLException ex) {
+                    showError("Erreur notation", ex.getMessage());
+                }
+            });
+            starButtons.add(star);
+            starsBox.getChildren().add(star);
+        }
+        Label avgLabel = new Label(String.format("%.1f (%d votes)", avg, voteCount));
+        avgLabel.setStyle("-fx-text-fill: #34495e; -fx-font-size: 11px;");
+        VBox ratingBox = new VBox(3, starsBox, avgLabel);
+        // --- FIN ÉTOILES ---
 
         HBox actions = new HBox(8);
         actions.setAlignment(Pos.CENTER);
@@ -548,7 +638,7 @@ public class BlogController implements Initializable {
             actions.getChildren().addAll(modifierBtn, supprimerBtn);
         }
 
-        content.getChildren().addAll(auteur, date, categorie, extraitLabel, commentCount, likeBox, actions);
+        content.getChildren().addAll(auteur, date, categorie, extraitLabel, commentCount, likeBox, ratingBox, actions);
         card.getChildren().addAll(imageContainer, content);
 
         card.setOnMouseEntered(e -> card.setScaleX(1.02));
@@ -598,6 +688,7 @@ public class BlogController implements Initializable {
         detailImageView.fitWidthProperty().bind(detailImageContainer.widthProperty());
         detailImageView.setFitHeight(300);
 
+        // Mise à jour du like
         boolean isLiked = likedByCurrentUser.contains(blog.getId());
         if (heartFullImage != null && heartEmptyImage != null) {
             detailLikeImageView.setImage(isLiked ? heartFullImage : heartEmptyImage);
@@ -610,6 +701,9 @@ public class BlogController implements Initializable {
         int likes = likeCounts.getOrDefault(blog.getId(), 0);
         detailLikeCountLabel.setText(likes + (likes > 1 ? " likes" : " like"));
         detailLikeButton.setOnAction(e -> toggleLikeDetail(blog));
+
+        // Mise à jour des étoiles
+        updateDetailStars();
 
         afficherCommentairesDetail();
         listViewScroll.setVisible(false);
@@ -831,7 +925,6 @@ public class BlogController implements Initializable {
         c.setContenu(contenu.trim());
         c.setUtilisateur(currentUser.getId());
         c.setArticleId(displayedDetailBlog.getId());
-        // parentId reste null pour un commentaire racine
         try {
             commentaireCRUD.ajouter(c);
             detailNewCommentField.clear();
@@ -927,6 +1020,52 @@ public class BlogController implements Initializable {
         }
     }
 
+    // ========== GESTION DES ÉTOILES (VUE DÉTAIL) ==========
+    private void updateDetailStars() {
+        if (displayedDetailBlog == null) return;
+        int articleId = displayedDetailBlog.getId();
+        double avg = ratingAverages.getOrDefault(articleId, 0.0);
+        int userNote = userRatings.getOrDefault(articleId, 0);
+        int voteCount = voteCounts.getOrDefault(articleId, 0);
+
+        detailStarsBox.getChildren().clear();
+        for (int i = 1; i <= 5; i++) {
+            Button star = new Button();
+            star.setStyle("-fx-background-color: transparent; -fx-cursor: hand; -fx-font-size: 20px;");
+            if (userNote >= i) {
+                star.setText("★");
+                star.setStyle(star.getStyle() + " -fx-text-fill: #FFD700;");
+            } else if (avg >= i - 0.5 && avg < i) {
+                star.setText("½");
+                star.setStyle(star.getStyle() + " -fx-text-fill: #FFD700;");
+            } else if (avg >= i) {
+                star.setText("★");
+                star.setStyle(star.getStyle() + " -fx-text-fill: #FFD700;");
+            } else {
+                star.setText("☆");
+                star.setStyle(star.getStyle() + " -fx-text-fill: #FFD700;");
+            }
+            int note = i;
+            star.setOnAction(e -> {
+                if (currentUser == null) {
+                    showWarning("Connectez-vous pour noter.");
+                    return;
+                }
+                try {
+                    Rating rating = new Rating(currentUser.getId(), articleId, note);
+                    ratingCRUD.ajouterOuModifier(rating);
+                    loadRatings();
+                    refreshAllCards();
+                    updateDetailStars();
+                } catch (SQLException ex) {
+                    showError("Erreur notation", ex.getMessage());
+                }
+            });
+            detailStarsBox.getChildren().add(star);
+        }
+        detailAvgLabel.setText(String.format("%.1f (%d votes)", avg, voteCount));
+    }
+
     private void refreshAllCards() {
         displayBlogs(blogList);
     }
@@ -938,7 +1077,7 @@ public class BlogController implements Initializable {
             return;
         }
         Alert confirm = new Alert(Alert.AlertType.CONFIRMATION,
-                "Supprimer cet article ? Tous les commentaires et likes associés seront également supprimés.",
+                "Supprimer cet article ? Tous les commentaires, likes et notes associés seront également supprimés.",
                 ButtonType.YES, ButtonType.NO);
         confirm.showAndWait().ifPresent(r -> {
             if (r == ButtonType.YES) {
@@ -1110,6 +1249,7 @@ public class BlogController implements Initializable {
         loadBlogs();
         loadAllComments();
         loadLikes();
+        loadRatings();   // NOUVEAU
         filterArticles();
         if (selectedBlog != null) {
             blogList.stream()
@@ -1120,6 +1260,7 @@ public class BlogController implements Initializable {
         if (displayedDetailBlog != null) {
             afficherCommentairesDetail();
             updateDetailLikeButton();
+            updateDetailStars();   // NOUVEAU
         }
     }
 
