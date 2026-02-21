@@ -14,12 +14,17 @@ import java.util.concurrent.CompletableFuture;
 
 public class LibreTranslateService {
 
-    // Utiliser une instance alternative si celle-ci est instable
+    // Utilisation d'une instance publique alternative plus stable
     private static final String API_URL = "https://translate.argosopentech.com/translate";
     private static final Gson gson = new Gson();
 
     public static CompletableFuture<String> translateAsync(String text, String sourceLang, String targetLang) {
         return CompletableFuture.supplyAsync(() -> {
+            // Vérifier que le texte n'est pas vide
+            if (text == null || text.trim().isEmpty()) {
+                return text;
+            }
+
             try (CloseableHttpClient client = HttpClients.createDefault()) {
                 HttpPost post = new HttpPost(API_URL);
                 post.setHeader("Content-Type", "application/json");
@@ -32,22 +37,23 @@ public class LibreTranslateService {
 
                 post.setEntity(new StringEntity(gson.toJson(json), "UTF-8"));
 
-                System.out.println("Envoi requête à " + API_URL + " avec texte: " + text.substring(0, Math.min(20, text.length())) + "...");
+                // Log pour déboguer (optionnel)
+                System.out.println("Envoi requête de traduction...");
 
                 try (CloseableHttpResponse response = client.execute(post)) {
                     int statusCode = response.getStatusLine().getStatusCode();
                     String responseBody = EntityUtils.toString(response.getEntity(), "UTF-8");
-                    System.out.println("Statut: " + statusCode + ", Réponse: " + responseBody);
 
                     if (statusCode != 200) {
-                        System.err.println("Erreur API: " + statusCode + " - " + responseBody);
-                        return text;
+                        System.err.println("Erreur API (code " + statusCode + ") : " + responseBody);
+                        return text; // retourne le texte original en cas d'erreur
                     }
 
                     JsonObject responseJson = JsonParser.parseString(responseBody).getAsJsonObject();
                     return responseJson.get("translatedText").getAsString();
                 }
             } catch (Exception e) {
+                System.err.println("Exception lors de la traduction : " + e.getMessage());
                 e.printStackTrace();
                 return text;
             }
