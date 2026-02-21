@@ -149,7 +149,7 @@
                         </VBox>
                     </VBox>
 
-                    <VBox prefWidth="220" style="-fx-background-color: #FFFFFF; -fx-background-radius: 30; -fx-padding: 10;">
+                    <VBox prefWidth="220" style="-fx-background-color: #FFFFFF; -fx-background-radius: 20; -fx-padding: 10;">
                         <effect><DropShadow color="#0000000A" radius="15" offsetY="5" /></effect>
                         <Pane prefHeight="140" style="-fx-background-image: url('/assets/sidibou.jpg'); -fx-background-size: cover; -fx-background-radius: 15;" />
                         <VBox spacing="5" style="-fx-padding: 15 5 5 5;">
