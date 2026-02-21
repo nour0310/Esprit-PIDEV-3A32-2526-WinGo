@@ -7,7 +7,7 @@ import javafx.stage.Stage;
 public class myconnection extends Application {
     @Override
     public void start(Stage stage) throws Exception {
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("/Reservation.fxml"));
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("/accueil.fxml"));
         Scene scene = new Scene(loader.load());
         stage.setTitle("WinGo Travel");
         stage.setScene(scene);
