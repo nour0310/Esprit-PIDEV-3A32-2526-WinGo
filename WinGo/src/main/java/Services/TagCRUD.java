@@ -14,8 +14,6 @@ public class TagCRUD {
     public TagCRUD() {
         conn = MyBD.getInstance().getConn();
     }
-    
-
 
     // Ajouter un tag s'il n'existe pas déjà, retourne l'ID
     public int ajouterOuRecuperer(String nom) throws SQLException {
