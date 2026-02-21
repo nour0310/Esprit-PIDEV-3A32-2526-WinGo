@@ -18,25 +18,25 @@
     </properties>
 
     <dependencies>
-        <!-- MySQL JDBC -->
+        <!-- MySQL JDBC Driver -->
         <dependency>
             <groupId>mysql</groupId>
             <artifactId>mysql-connector-java</artifactId>
             <version>8.0.33</version>
         </dependency>
 
-        <!-- Apache HttpClient pour les appels API REST -->
+        <!-- Apache HttpClient pour les appels API REST (LibreTranslate) -->
         <dependency>
             <groupId>org.apache.httpcomponents</groupId>
             <artifactId>httpclient</artifactId>
             <version>4.5.14</version>
         </dependency>
 
-        <!-- Jackson Databind pour le parsing JSON -->
+        <!-- Gson pour le parsing JSON (alternative légère à Jackson) -->
         <dependency>
-            <groupId>com.fasterxml.jackson.core</groupId>
-            <artifactId>jackson-databind</artifactId>
-            <version>2.15.2</version>
+            <groupId>com.google.code.gson</groupId>
+            <artifactId>gson</artifactId>
+            <version>2.10.1</version>
         </dependency>
 
         <!-- JavaFX Controls -->
@@ -75,7 +75,7 @@
                 </configuration>
             </plugin>
 
-            <!-- Plugin JavaFX -->
+            <!-- Plugin JavaFX pour exécuter l'application -->
             <plugin>
                 <groupId>org.openjfx</groupId>
                 <artifactId>javafx-maven-plugin</artifactId>
