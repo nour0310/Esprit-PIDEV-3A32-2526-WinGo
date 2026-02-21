@@ -2,9 +2,11 @@ package Controlles;
 
 import Entites.Blog;
 import Entites.Commentaire;
+import Entites.Like;
 import Entites.Utilisateur;
 import Services.BlogCRUD;
 import Services.CommentaireCRUD;
+import Services.LikeCRUD;
 import Services.UtilisateurCRUD;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -23,9 +25,7 @@ import java.io.File;
 import java.net.URL;
 import java.sql.SQLException;
 import java.time.format.DateTimeFormatter;
-import java.util.List;
-import java.util.Optional;
-import java.util.ResourceBundle;
+import java.util.*;
 import java.util.regex.Pattern;
 
 public class BlogController implements Initializable {
@@ -34,6 +34,7 @@ public class BlogController implements Initializable {
     private final BlogCRUD blogCRUD = new BlogCRUD();
     private final CommentaireCRUD commentaireCRUD = new CommentaireCRUD();
     private final UtilisateurCRUD utilisateurCRUD = new UtilisateurCRUD();
+    private final LikeCRUD likeCRUD = new LikeCRUD();  // NOUVEAU
 
     // Données observables
     private ObservableList<Blog> blogList = FXCollections.observableArrayList();
@@ -43,6 +44,10 @@ public class BlogController implements Initializable {
 
     // Utilisateur connecté
     private Utilisateur currentUser;
+
+    // Données pour les likes
+    private Map<Integer, Integer> likeCounts = new HashMap<>();   // articleId -> nombre de likes
+    private Set<Integer> likedByCurrentUser = new HashSet<>();    // articleId que l'utilisateur courant a likés
 
     // Composants FXML de la vue liste
     @FXML private TextField searchField;
@@ -90,6 +95,9 @@ public class BlogController implements Initializable {
     @FXML private Button detailAddCommentBtn;
     @FXML private Label detailStatusLabel;
     @FXML private Label detailConnectedUserLabel;
+    // NOUVEAUX composants pour les likes dans la vue détail
+    @FXML private Button detailLikeButton;
+    @FXML private Label detailLikeCountLabel;
 
     // Filtres
     @FXML private ComboBox<String> regionFilterCombo;
@@ -297,6 +305,7 @@ public class BlogController implements Initializable {
         try {
             loadBlogs();
             loadAllComments();
+            loadLikes();               // <-- NOUVEAU
             updateStats();
             statusLabel.setText("✅ Prêt, " + blogList.size() + " articles chargés.");
         } catch (SQLException e) {
@@ -315,6 +324,20 @@ public class BlogController implements Initializable {
         commentaireList.clear();
         commentaireList.addAll(commentaireCRUD.afficher());
         totalCommentsLabel.setText(String.valueOf(commentaireList.size()));
+    }
+
+    // NOUVELLE MÉTHODE : charger les likes
+    private void loadLikes() throws SQLException {
+        if (currentUser == null) return;
+        List<Like> allLikes = likeCRUD.afficherTous();
+        likeCounts.clear();
+        likedByCurrentUser.clear();
+        for (Like l : allLikes) {
+            likeCounts.merge(l.getArticleId(), 1, Integer::sum);
+            if (l.getUtilisateurId() == currentUser.getId()) {
+                likedByCurrentUser.add(l.getArticleId());
+            }
+        }
     }
 
     private void displayBlogs(List<Blog> blogs) {
@@ -434,6 +457,22 @@ public class BlogController implements Initializable {
         Label commentCount = new Label("Commentaires: " + nbComments);
         commentCount.setStyle("-fx-text-fill: #27ae60; -fx-font-size: 13px;");
 
+        // --- NOUVEAU : LIKES (cœur) ---
+        int likes = likeCounts.getOrDefault(blog.getId(), 0);
+        boolean isLiked = likedByCurrentUser.contains(blog.getId());
+
+        Button likeButton = new Button();
+        likeButton.setStyle("-fx-background-color: transparent; -fx-cursor: hand; -fx-font-size: 16px;");
+        likeButton.setText(isLiked ? "❤️" : "🤍");
+        Label likeCountLabel = new Label(String.valueOf(likes));
+        likeCountLabel.setStyle("-fx-text-fill: white; -fx-font-size: 13px;");
+
+        HBox likeBox = new HBox(5, likeButton, likeCountLabel);
+        likeBox.setAlignment(Pos.CENTER_LEFT);
+
+        likeButton.setOnAction(e -> toggleLike(blog, likeButton, likeCountLabel));
+        // --- FIN NOUVEAU ---
+
         HBox actions = new HBox(8);
         actions.setAlignment(Pos.CENTER);
 
@@ -478,7 +517,7 @@ public class BlogController implements Initializable {
             actions.getChildren().addAll(modifierBtn, supprimerBtn);
         }
 
-        content.getChildren().addAll(auteur, date, categorie, extraitLabel, commentCount, actions);
+        content.getChildren().addAll(auteur, date, categorie, extraitLabel, commentCount, likeBox, actions);
         card.getChildren().addAll(imageContainer, content);
 
         card.setOnMouseEntered(e -> card.setScaleX(1.02));
@@ -511,7 +550,6 @@ public class BlogController implements Initializable {
     private void showDetailView(Blog blog) {
         displayedDetailBlog = blog;
         detailTitreLabel.setText(blog.getTitre() != null ? blog.getTitre() : "");
-        // Affichage du nom de l'auteur (prénom + nom)
         detailAuteurLabel.setText(blog.getAuteurNom() != null ? blog.getAuteurNom() : "Inconnu");
         detailDateLabel.setText(blog.getDatePublication() != null ? blog.getDatePublication().format(dateShortFormatter) : "");
         detailContenuLabel.setText(blog.getContenu() != null ? blog.getContenu() : "");
@@ -530,6 +568,12 @@ public class BlogController implements Initializable {
         detailImageView.fitWidthProperty().bind(detailImageContainer.widthProperty());
         detailImageView.setFitHeight(300);
 
+        // NOUVEAU : initialiser le bouton like
+        boolean isLiked = likedByCurrentUser.contains(blog.getId());
+        detailLikeButton.setText(isLiked ? "❤️" : "🤍");
+        detailLikeCountLabel.setText(String.valueOf(likeCounts.getOrDefault(blog.getId(), 0)));
+        detailLikeButton.setOnAction(e -> toggleLikeDetail(blog));
+
         afficherCommentairesDetail();
         listViewScroll.setVisible(false);
         listViewScroll.setManaged(false);
@@ -546,7 +590,6 @@ public class BlogController implements Initializable {
     }
 
     // ========== GESTION DES COMMENTAIRES (VUE DÉTAIL) ==========
-
     private void afficherCommentairesDetail() {
         if (displayedDetailBlog == null) return;
         detailCommentairesPane.getChildren().clear();
@@ -574,7 +617,6 @@ public class BlogController implements Initializable {
         HBox meta = new HBox(10);
         meta.setAlignment(Pos.CENTER_LEFT);
 
-        // Conteneur pour l'icône utilisateur avec fond
         StackPane userIconContainer = new StackPane();
         userIconContainer.setPrefSize(24, 24);
         userIconContainer.setStyle("-fx-background-color: #FFBD00; -fx-background-radius: 12;");
@@ -582,7 +624,6 @@ public class BlogController implements Initializable {
         userIcon.setStyle("-fx-font-size: 14px; -fx-text-fill: #390099;");
         userIconContainer.getChildren().add(userIcon);
 
-        // Affichage du nom de l'utilisateur (prénom + nom)
         String utilisateurNom = commentaire.getUtilisateurNom() != null ? commentaire.getUtilisateurNom() : "Utilisateur " + commentaire.getUtilisateur();
         Label auteurLabel = new Label(utilisateurNom);
         auteurLabel.setStyle("-fx-text-fill: #FFBD00; -fx-font-size: 12px; -fx-font-weight: bold;");
@@ -590,7 +631,6 @@ public class BlogController implements Initializable {
         HBox auteurBox = new HBox(5, userIconContainer, auteurLabel);
         auteurBox.setAlignment(Pos.CENTER_LEFT);
 
-        // Conteneur pour l'icône calendrier avec fond
         StackPane dateIconContainer = new StackPane();
         dateIconContainer.setPrefSize(24, 24);
         dateIconContainer.setStyle("-fx-background-color: rgba(255,255,255,0.2); -fx-background-radius: 12;");
@@ -704,6 +744,88 @@ public class BlogController implements Initializable {
         }
     }
 
+    // ========== GESTION DES LIKES ==========
+
+    // Bascule du like depuis la carte
+    private void toggleLike(Blog blog, Button heartButton, Label countLabel) {
+        if (currentUser == null) {
+            showWarning("Vous devez être connecté pour liker un article.");
+            return;
+        }
+        int articleId = blog.getId();
+        boolean currentlyLiked = likedByCurrentUser.contains(articleId);
+
+        try {
+            if (currentlyLiked) {
+                // Supprimer le like
+                likeCRUD.supprimerParUtilisateurEtArticle(currentUser.getId(), articleId);
+                likedByCurrentUser.remove(articleId);
+                likeCounts.put(articleId, likeCounts.getOrDefault(articleId, 0) - 1);
+            } else {
+                // Ajouter le like
+                Like like = new Like(currentUser.getId(), articleId);
+                likeCRUD.ajouter(like);
+                likedByCurrentUser.add(articleId);
+                likeCounts.put(articleId, likeCounts.getOrDefault(articleId, 0) + 1);
+            }
+            // Mettre à jour l'UI de la carte
+            heartButton.setText(likedByCurrentUser.contains(articleId) ? "❤️" : "🤍");
+            countLabel.setText(String.valueOf(likeCounts.getOrDefault(articleId, 0)));
+
+            // Mettre à jour la vue détail si elle est ouverte sur le même article
+            if (displayedDetailBlog != null && displayedDetailBlog.getId() == articleId) {
+                updateDetailLikeButton();
+            }
+        } catch (SQLException ex) {
+            showError("Erreur lors du like", ex.getMessage());
+        }
+    }
+
+    // Bascule du like depuis la vue détail
+    private void toggleLikeDetail(Blog blog) {
+        if (currentUser == null) {
+            showWarning("Connectez-vous pour liker.");
+            return;
+        }
+        int articleId = blog.getId();
+        boolean currentlyLiked = likedByCurrentUser.contains(articleId);
+
+        try {
+            if (currentlyLiked) {
+                likeCRUD.supprimerParUtilisateurEtArticle(currentUser.getId(), articleId);
+                likedByCurrentUser.remove(articleId);
+                likeCounts.put(articleId, likeCounts.getOrDefault(articleId, 0) - 1);
+            } else {
+                Like like = new Like(currentUser.getId(), articleId);
+                likeCRUD.ajouter(like);
+                likedByCurrentUser.add(articleId);
+                likeCounts.put(articleId, likeCounts.getOrDefault(articleId, 0) + 1);
+            }
+            // Mettre à jour la vue détail
+            detailLikeButton.setText(likedByCurrentUser.contains(articleId) ? "❤️" : "🤍");
+            detailLikeCountLabel.setText(String.valueOf(likeCounts.getOrDefault(articleId, 0)));
+
+            // Mettre à jour la carte correspondante en rafraîchissant l'affichage
+            refreshAllCards();
+        } catch (SQLException ex) {
+            showError("Erreur like", ex.getMessage());
+        }
+    }
+
+    // Met à jour le bouton like dans la vue détail
+    private void updateDetailLikeButton() {
+        if (displayedDetailBlog != null) {
+            boolean isLiked = likedByCurrentUser.contains(displayedDetailBlog.getId());
+            detailLikeButton.setText(isLiked ? "❤️" : "🤍");
+            detailLikeCountLabel.setText(String.valueOf(likeCounts.getOrDefault(displayedDetailBlog.getId(), 0)));
+        }
+    }
+
+    // Rafraîchit l'affichage de toutes les cartes (pour mettre à jour les likes après changement)
+    private void refreshAllCards() {
+        displayBlogs(blogList);
+    }
+
     // ========== CRUD BLOG AVEC VALIDATION ==========
 
     private void supprimerBlog(Blog blog) {
@@ -712,11 +834,12 @@ public class BlogController implements Initializable {
             return;
         }
         Alert confirm = new Alert(Alert.AlertType.CONFIRMATION,
-                "Supprimer cet article ? Tous les commentaires associés seront également supprimés.",
+                "Supprimer cet article ? Tous les commentaires et likes associés seront également supprimés.",
                 ButtonType.YES, ButtonType.NO);
         confirm.showAndWait().ifPresent(r -> {
             if (r == ButtonType.YES) {
                 try {
+                    // Les likes sont automatiquement supprimés par ON DELETE CASCADE
                     commentaireCRUD.supprimerParArticle(blog.getId());
                     blogCRUD.supprimer(blog.getId());
                     refreshData();
@@ -746,7 +869,6 @@ public class BlogController implements Initializable {
         imageField.setText(blog.getImage() != null ? blog.getImage() : "");
         regionField.setValue(blog.getRegion());
         categorieField.setValue(blog.getCategorie());
-        // Affichage du nom de l'auteur (prénom + nom)
         auteurLabel.setText(blog.getAuteurNom() != null ? blog.getAuteurNom() : "Inconnu");
         selectedArticleLabel.setText("Article sélectionné : " + (blog.getTitre() != null ? blog.getTitre() : ""));
         updateFormButtons();
@@ -884,6 +1006,7 @@ public class BlogController implements Initializable {
     private void refreshData() throws SQLException {
         loadBlogs();
         loadAllComments();
+        loadLikes();               // <-- NOUVEAU
         filterArticles();
         if (selectedBlog != null) {
             blogList.stream()
@@ -894,6 +1017,7 @@ public class BlogController implements Initializable {
         if (displayedDetailBlog != null) {
             commentaireList.setAll(commentaireCRUD.afficher());
             afficherCommentairesDetail();
+            updateDetailLikeButton();  // <-- NOUVEAU
         }
     }
 
