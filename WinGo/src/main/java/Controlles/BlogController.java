@@ -26,6 +26,11 @@ import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
 import javafx.scene.layout.*;
 import javafx.scene.shape.Rectangle;
+import javafx.scene.text.Font;
+import javafx.scene.text.FontWeight;
+import javafx.scene.text.Text;
+import javafx.scene.text.TextFlow;
+import javafx.scene.paint.Color;
 import javafx.stage.FileChooser;
 import javafx.stage.Popup;
 
@@ -128,6 +133,10 @@ public class BlogController implements Initializable {
     @FXML private Label detailAvgLabel;
     @FXML private HBox detailShareBox;
 
+    // Notifications
+    @FXML private Button notificationButton;
+    @FXML private Label notificationBadge;
+
     // Filtres
     @FXML private ComboBox<String> regionFilterCombo;
     @FXML private ComboBox<String> categorieFilterCombo;
@@ -217,6 +226,7 @@ public class BlogController implements Initializable {
                 auteurLabel.setText(nomComplet);
                 connectedUserLabel.setText(nomComplet);
                 detailConnectedUserLabel.setText(nomComplet);
+                loadNotifications();
             } else {
                 auteurLabel.setText("Utilisateur inconnu");
                 connectedUserLabel.setText("Utilisateur inconnu");
@@ -224,6 +234,22 @@ public class BlogController implements Initializable {
             }
         } catch (SQLException e) {
             showError("Erreur chargement utilisateurs", e.getMessage());
+        }
+    }
+
+    private void loadNotifications() {
+        if (currentUser == null) return;
+        try {
+            List<Notification> notifs = notificationCRUD.getNotificationsByUser(currentUser.getId());
+            long nonLues = notifs.stream().filter(n -> !n.isLu()).count();
+            if (nonLues > 0) {
+                notificationBadge.setText(String.valueOf(nonLues));
+                notificationBadge.setVisible(true);
+            } else {
+                notificationBadge.setVisible(false);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
     }
 
@@ -236,6 +262,59 @@ public class BlogController implements Initializable {
             backToListBtn.setOnAction(e -> showListView());
         }
         detailAddCommentBtn.setOnAction(e -> ajouterCommentaireDetail());
+        notificationButton.setOnAction(e -> afficherNotifications());
+    }
+
+    private void afficherNotifications() {
+        try {
+            List<Notification> notifs = notificationCRUD.getNotificationsByUser(currentUser.getId());
+            Popup notifPopup = new Popup();
+            VBox content = new VBox(5);
+            content.setStyle("-fx-background-color: white; -fx-background-radius: 10; -fx-padding: 10; -fx-border-color: #ddd; -fx-border-radius: 10;");
+            content.setMaxWidth(300);
+            Label title = new Label("Notifications");
+            title.setStyle("-fx-font-weight: bold;");
+            content.getChildren().add(title);
+
+            ListView<Notification> listView = new ListView<>();
+            listView.setPrefHeight(200);
+            listView.setCellFactory(lv -> new ListCell<Notification>() {
+                @Override
+                protected void updateItem(Notification item, boolean empty) {
+                    super.updateItem(item, empty);
+                    if (empty || item == null) {
+                        setText(null);
+                    } else {
+                        setText(item.getContenu() + " (" + item.getDateCreation().format(DateTimeFormatter.ofPattern("dd/MM HH:mm")) + ")");
+                        if (!item.isLu()) setStyle("-fx-font-weight: bold;");
+                        else setStyle("-fx-font-weight: normal;");
+                    }
+                }
+            });
+            ObservableList<Notification> items = FXCollections.observableArrayList(notifs);
+            listView.setItems(items);
+            content.getChildren().add(listView);
+
+            Button marquerLu = new Button("Tout marquer comme lu");
+            marquerLu.setOnAction(ev -> {
+                try {
+                    for (Notification n : notifs) {
+                        notificationCRUD.marquerCommeLu(n.getId());
+                    }
+                    loadNotifications();
+                    notifPopup.hide();
+                } catch (SQLException ex) {
+                    ex.printStackTrace();
+                }
+            });
+            content.getChildren().add(marquerLu);
+
+            notifPopup.getContent().add(content);
+            notifPopup.setAutoHide(true);
+            notifPopup.show(notificationButton, notificationButton.localToScreen(0, notificationButton.getHeight()).getX(), notificationButton.localToScreen(0, notificationButton.getHeight()).getY());
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 
     // ========== VALIDATION EN TEMPS RÉEL ==========
@@ -374,8 +453,10 @@ public class BlogController implements Initializable {
     private void loadBlogs() throws SQLException {
         blogList.clear();
         List<Blog> blogs = blogCRUD.afficher();
+        // Charger les tags pour chaque article (si non inclus dans afficher)
         for (Blog b : blogs) {
             b.setTags(tagCRUD.getTagsByArticle(b.getId()));
+            System.out.println("Article " + b.getId() + " a " + b.getTags().size() + " tags");
         }
         blogList.addAll(blogs);
         displayBlogs(blogList);
@@ -823,9 +904,9 @@ public class BlogController implements Initializable {
         card.setPrefWidth(250 + level * 20);
         card.setMaxWidth(250 + level * 20);
 
-        Label contenuLabel = new Label(commentaire.getContenu() != null ? commentaire.getContenu() : "");
-        contenuLabel.setWrapText(true);
-        contenuLabel.setStyle("-fx-font-size: 14px; -fx-text-fill: white; -fx-padding: 5;");
+        // Utilisation de TextFlow pour le contenu avec mentions colorées
+        TextFlow contenuFlow = formaterTexteAvecMentions(commentaire.getContenu());
+        contenuFlow.setPrefWidth(230 + level * 20);
 
         HBox meta = new HBox(10);
         meta.setAlignment(Pos.CENTER_LEFT);
@@ -875,7 +956,7 @@ public class BlogController implements Initializable {
         if (currentUser != null && commentaire.getUtilisateur() == currentUser.getId()) {
             Button editBtn = new Button("✏️");
             editBtn.setStyle("-fx-background-color: #f39c12; -fx-text-fill: white; -fx-background-radius: 20; -fx-cursor: hand; -fx-padding: 5 12; -fx-border-color: rgba(255,255,255,0.4); -fx-border-radius: 20;");
-            editBtn.setOnAction(e -> showEditComment(commentaire, card, contenuLabel, meta, actions, level));
+            editBtn.setOnAction(e -> showEditComment(commentaire, card, contenuFlow, meta, actions, level));
 
             Button deleteBtn = new Button("🗑️");
             deleteBtn.setStyle("-fx-background-color: #e74c3c; -fx-text-fill: white; -fx-background-radius: 20; -fx-cursor: hand; -fx-padding: 5 12; -fx-border-color: rgba(255,255,255,0.4); -fx-border-radius: 20;");
@@ -884,7 +965,7 @@ public class BlogController implements Initializable {
             actions.getChildren().addAll(editBtn, deleteBtn);
         }
 
-        card.getChildren().addAll(contenuLabel, meta, actions);
+        card.getChildren().addAll(contenuFlow, meta, actions);
 
         if (!commentaire.getReplies().isEmpty()) {
             VBox repliesBox = new VBox(8);
@@ -896,6 +977,38 @@ public class BlogController implements Initializable {
         }
 
         return card;
+    }
+
+    // Formate le texte avec les mentions en bleu et gras
+    private TextFlow formaterTexteAvecMentions(String texte) {
+        TextFlow textFlow = new TextFlow();
+        if (texte == null || texte.isEmpty()) return textFlow;
+
+        Pattern pattern = Pattern.compile("(@\\w+)");
+        Matcher matcher = pattern.matcher(texte);
+        int lastEnd = 0;
+        while (matcher.find()) {
+            if (matcher.start() > lastEnd) {
+                String avant = texte.substring(lastEnd, matcher.start());
+                Text textAvant = new Text(avant);
+                textAvant.setFill(Color.WHITE);
+                textFlow.getChildren().add(textAvant);
+            }
+            String mention = matcher.group();
+            Text mentionText = new Text(mention);
+            mentionText.setFill(Color.CORNFLOWERBLUE);
+            mentionText.setFont(Font.font(null, FontWeight.BOLD, 14));
+            textFlow.getChildren().add(mentionText);
+
+            lastEnd = matcher.end();
+        }
+        if (lastEnd < texte.length()) {
+            String reste = texte.substring(lastEnd);
+            Text textReste = new Text(reste);
+            textReste.setFill(Color.WHITE);
+            textFlow.getChildren().add(textReste);
+        }
+        return textFlow;
     }
 
     private void showReplyField(Commentaire parentComment, VBox parentCard, int level) {
@@ -943,7 +1056,7 @@ public class BlogController implements Initializable {
         cancelReplyBtn.setOnAction(e -> parentCard.getChildren().remove(replyInputBox));
     }
 
-    private void showEditComment(Commentaire commentaire, VBox card, Label contenuLabel, HBox meta, HBox actions, int level) {
+    private void showEditComment(Commentaire commentaire, VBox card, TextFlow contenuFlow, HBox meta, HBox actions, int level) {
         card.getChildren().clear();
 
         TextField editField = new TextField(commentaire.getContenu());
@@ -1127,14 +1240,21 @@ public class BlogController implements Initializable {
     }
 
     // ========== GESTION DES TAGS ==========
-    private void traiterTags(int articleId, String tagsInput) throws SQLException {
+    private void traiterTags(int articleId, String tagsInput) {
         if (tagsInput == null || tagsInput.trim().isEmpty()) return;
         String[] tagNames = tagsInput.split(",");
         for (String tagName : tagNames) {
             tagName = tagName.trim();
             if (!tagName.isEmpty()) {
-                int tagId = tagCRUD.ajouterOuRecuperer(tagName);
-                tagCRUD.associerTagArticle(articleId, tagId);
+                try {
+                    int tagId = tagCRUD.ajouterOuRecuperer(tagName);
+                    System.out.println("Tag '" + tagName + "' a ID " + tagId);
+                    tagCRUD.associerTagArticle(articleId, tagId);
+                    System.out.println("Association article " + articleId + " - tag " + tagId);
+                } catch (SQLException e) {
+                    System.err.println("❌ Erreur lors de l'ajout du tag '" + tagName + "' : " + e.getMessage());
+                    e.printStackTrace();
+                }
             }
         }
     }
@@ -1174,11 +1294,19 @@ public class BlogController implements Initializable {
 
         detailNewCommentField.textProperty().addListener((obs, oldText, newText) -> {
             int caretPos = detailNewCommentField.getCaretPosition();
-            if (caretPos > 0 && newText.charAt(caretPos - 1) == '@') {
-                String motEnCours = trouverMotEnCours(newText, caretPos - 1);
-                if (motEnCours != null && motEnCours.startsWith("@")) {
-                    String recherche = motEnCours.substring(1);
-                    afficherSuggestions(recherche);
+            // Sécurité : vérifier que caretPos est compris entre 1 et la longueur du texte
+            if (caretPos > 0 && caretPos <= newText.length()) {
+                char prevChar = newText.charAt(caretPos - 1);
+                if (prevChar == '@') {
+                    String motEnCours = trouverMotEnCours(newText, caretPos - 1);
+                    if (motEnCours != null && motEnCours.startsWith("@")) {
+                        String recherche = motEnCours.substring(1);
+                        afficherSuggestions(recherche);
+                    }
+                } else {
+                    if (suggestionsPopup.isShowing()) {
+                        suggestionsPopup.hide();
+                    }
                 }
             } else {
                 if (suggestionsPopup.isShowing()) {
@@ -1281,6 +1409,7 @@ public class BlogController implements Initializable {
             try {
                 Notification notif = new Notification(userId, currentUser.getId(), type, contenu, lien);
                 notificationCRUD.ajouter(notif);
+                System.out.println("Notification envoyée à l'utilisateur " + userId);
             } catch (SQLException e) {
                 e.printStackTrace();
             }
@@ -1362,15 +1491,22 @@ public class BlogController implements Initializable {
                     categorieField.getValue()
             );
             blogCRUD.ajouter(b);
+            System.out.println("✅ Article ajouté avec ID : " + b.getId());
 
-            // Traiter les tags
-            traiterTags(b.getId(), tagsField.getText());
+            String tagsInput = tagsField.getText();
+            System.out.println("Tags saisis : " + tagsInput);
+            if (tagsInput != null && !tagsInput.trim().isEmpty()) {
+                traiterTags(b.getId(), tagsInput);
+            } else {
+                System.out.println("Aucun tag saisi.");
+            }
 
             refreshData();
             clearForm();
             showInfo("Article ajouté avec succès.");
         } catch (SQLException e) {
             showError("Erreur ajout", e.getMessage());
+            e.printStackTrace();
         }
     }
 
@@ -1396,7 +1532,10 @@ public class BlogController implements Initializable {
             // Mise à jour des tags : supprimer les anciennes associations
             tagCRUD.supprimerAssociationsArticle(selectedBlog.getId());
             // Ajouter les nouvelles
-            traiterTags(selectedBlog.getId(), tagsField.getText());
+            String tagsInput = tagsField.getText();
+            if (tagsInput != null && !tagsInput.trim().isEmpty()) {
+                traiterTags(selectedBlog.getId(), tagsInput);
+            }
 
             refreshData();
             clearForm();
@@ -1471,6 +1610,7 @@ public class BlogController implements Initializable {
 
         try {
             commentaireCRUD.ajouter(c);
+            System.out.println("Commentaire ajouté avec ID : " + c.getId());
 
             // Envoyer les notifications
             if (!mentionsIds.isEmpty()) {
@@ -1483,8 +1623,10 @@ public class BlogController implements Initializable {
             detailNewCommentField.clear();
             afficherCommentairesDetail();
             detailStatusLabel.setText("✅ Commentaire ajouté.");
+            loadNotifications(); // Mettre à jour le badge de notifications
         } catch (SQLException e) {
             detailStatusLabel.setText("❌ Erreur : " + e.getMessage());
+            e.printStackTrace();
         }
     }
 
@@ -1550,6 +1692,7 @@ public class BlogController implements Initializable {
             instagramBtn.setOnAction(e -> share("Instagram", displayedDetailBlog));
             detailShareBox.getChildren().addAll(whatsappBtn, facebookBtn, instagramBtn);
         }
+        loadNotifications();
     }
 
     private void updateStats() {
