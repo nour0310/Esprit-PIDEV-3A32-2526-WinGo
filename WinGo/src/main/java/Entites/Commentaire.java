@@ -10,17 +10,19 @@ public class Commentaire {
     private LocalDateTime dateCommentaire;
     private int utilisateur;       // FK vers utilisateur.id
     private int articleId;         // FK vers article.id
-    private Integer parentId;      // FK vers commentaire.id (nullable)
-    private String utilisateurNom;  // non persisté, pour affichage
-    private List<Commentaire> reponses = new ArrayList<>(); // pour les réponses
+    private Integer parentId;      // FK vers commentaire.id (peut être null)
+    private String utilisateurNom; // non persisté, pour affichage
+    private List<Commentaire> replies; // non persisté, pour stocker les réponses
 
-    public Commentaire() {}
+    public Commentaire() {
+        this.replies = new ArrayList<>();
+    }
 
-    public Commentaire(String contenu, int utilisateur, int articleId, Integer parentId) {
+    public Commentaire(String contenu, int utilisateur, int articleId) {
         this.contenu = contenu;
         this.utilisateur = utilisateur;
         this.articleId = articleId;
-        this.parentId = parentId;
+        this.replies = new ArrayList<>();
     }
 
     public Commentaire(int id, String contenu, LocalDateTime dateCommentaire, int utilisateur, int articleId, Integer parentId) {
@@ -30,6 +32,7 @@ public class Commentaire {
         this.utilisateur = utilisateur;
         this.articleId = articleId;
         this.parentId = parentId;
+        this.replies = new ArrayList<>();
     }
 
     // Getters / Setters
@@ -54,8 +57,8 @@ public class Commentaire {
     public String getUtilisateurNom() { return utilisateurNom; }
     public void setUtilisateurNom(String utilisateurNom) { this.utilisateurNom = utilisateurNom; }
 
-    public List<Commentaire> getReponses() { return reponses; }
-    public void setReponses(List<Commentaire> reponses) { this.reponses = reponses; }
+    public List<Commentaire> getReplies() { return replies; }
+    public void setReplies(List<Commentaire> replies) { this.replies = replies; }
 
     @Override
     public String toString() {
