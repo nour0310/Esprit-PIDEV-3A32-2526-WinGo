@@ -1,89 +1,131 @@
 package Services;
+
 import java.net.URI;
 import java.net.URLEncoder;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
+
 public class TransportAPI {
 
+    private static final HttpClient client = HttpClient.newHttpClient();
 
+    // 1. Méthode pour obtenir la Distance et le Temps (API OSRM) + La Météo
+    public static String getInfosTrajet(String depart, String arrivee) {
+        System.out.println("🔍 Recherche des coordonnées...");
+        double[] coordsDepart = getCoordinates(depart);
+        double[] coordsArrivee = getCoordinates(arrivee);
 
+        if (coordsArrivee == null) {
+            return "❌ Destination introuvable.";
+        }
 
-        private static final HttpClient client = HttpClient.newHttpClient();
+        // Appel de la météo avec le correctif
+        String meteo = getDestinationWeather(coordsArrivee[0], coordsArrivee[1]);
+        String trajet = "";
 
-        /**
-         * API 1 & 2 Combined: Gets the city coordinates, then fetches the weather.
-         * Uses your Transport's `arrivee` attribute.
-         */
-        public static String getDestinationWeather(String arrivee) {
-            try {
-                // --- API 1: OPENSTREETMAP NOMINATIM (Get Coordinates from City Name) ---
-                System.out.println("🔍 Searching coordinates for: " + arrivee);
-                String encodedCity = URLEncoder.encode(arrivee, StandardCharsets.UTF_8);
-                String geoUrl = "https://nominatim.openstreetmap.org/search?q=" + encodedCity + "&format=json&limit=1";
+        if (coordsDepart != null) {
+            // Appel de l'API de Routage GPS
+            trajet = getDistanceAndTime(coordsDepart[0], coordsDepart[1], coordsArrivee[0], coordsArrivee[1]);
+        }
 
-                HttpRequest geoRequest = HttpRequest.newBuilder()
-                        .uri(URI.create(geoUrl))
-                        .header("User-Agent", "TripLove-StudentProject/1.0") // Required by Nominatim
-                        .GET()
-                        .build();
+        return "⛅ Météo à l'arrivée : " + meteo + "\n🚗 Trajet : " + trajet;
+    }
 
-                HttpResponse<String> geoResponse = client.send(geoRequest, HttpResponse.BodyHandlers.ofString());
-                String geoJson = geoResponse.body();
+    // --- SOUS-MÉTHODES (Appels aux différentes APIs) ---
 
-                if (geoJson.equals("[]")) {
-                    return "City not found!";
-                }
+    // Récupère la Latitude et Longitude d'une ville
+    private static double[] getCoordinates(String city) {
+        try {
+            // On encode le nom de la ville pour les espaces et accents
+            String encodedCity = URLEncoder.encode(city, StandardCharsets.UTF_8);
 
-                // Simple string extraction to find lat and lon without heavy JSON libraries
-                String latStr = extractJsonValue(geoJson, "\"lat\":\"");
-                String lonStr = extractJsonValue(geoJson, "\"lon\":\"");
+            // LA MAGIE EST ICI : On ajoute &countrycodes=tn à la fin de l'URL !
+            String url = "https://nominatim.openstreetmap.org/search?q=" + encodedCity + "&format=json&limit=1&countrycodes=tn&featureType=city";
 
-                // --- API 2: OPEN-METEO (Get Weather from Coordinates) ---
-                System.out.println("⛅ Fetching weather for Lat: " + latStr + ", Lon: " + lonStr);
-                String weatherUrl = "https://api.open-meteo.com/v1/forecast?latitude=" + latStr + "&longitude=" + lonStr + "&current_weather=true";
+            HttpRequest req = HttpRequest.newBuilder()
+                    .uri(URI.create(url))
+                    .header("User-Agent", "TripLove-App/1.0")
+                    .GET()
+                    .build();
 
-                HttpRequest weatherRequest = HttpRequest.newBuilder()
-                        .uri(URI.create(weatherUrl))
-                        .GET()
-                        .build();
+            HttpResponse<String> res = client.send(req, HttpResponse.BodyHandlers.ofString());
+            String json = res.body();
 
-                HttpResponse<String> weatherResponse = client.send(weatherRequest, HttpResponse.BodyHandlers.ofString());
-                String weatherJson = weatherResponse.body();
-
-                // Extract the temperature from the current_weather object
-                String tempStr = extractJsonValue(weatherJson, "\"temperature\":");
-
-                // Clean up the string (remove trailing commas or brackets)
-                tempStr = tempStr.split(",")[0].replace("}", "");
-
-                return tempStr + " °C";
-
-            } catch (Exception e) {
-                System.out.println("❌ API Error: " + e.getMessage());
-                return "N/A";
+            // Si la réponse est "[]", ça veut dire que la ville n'existe pas en Tunisie
+            if (json.equals("[]")) {
+                System.out.println("❌ " + city + " introuvable en Tunisie !");
+                return null;
             }
+            String nomComplet = extractJsonValue(json, "\"display_name\":\"");
+            System.out.println("📍 Le GPS a interprété '" + city + "' comme : " + nomComplet);
+
+            String latStr = extractJsonValue(json, "\"lat\":\"");
+            String lonStr = extractJsonValue(json, "\"lon\":\"");
+
+            return new double[]{Double.parseDouble(latStr), Double.parseDouble(lonStr)};
+
+        } catch (Exception e) {
+            System.out.println("❌ Erreur API pour " + city + " : " + e.getMessage());
+            return null;
         }
+    }
 
-        // Helper method to extract values from JSON strings simply
-        private static String extractJsonValue(String json, String key) {
-            int startIndex = json.indexOf(key) + key.length();
-            int endIndex = json.indexOf("\"", startIndex);
-            if (endIndex == -1 || key.endsWith(":")) { // Handle numbers
-                endIndex = json.indexOf(",", startIndex);
-                if(endIndex == -1) endIndex = json.indexOf("}", startIndex);
-            }
-            return json.substring(startIndex, endIndex).trim();
+    // Récupère la météo exacte (Corrigée !)
+    private static String getDestinationWeather(double lat, double lon) {
+        try {
+            String url = "https://api.open-meteo.com/v1/forecast?latitude=" + lat + "&longitude=" + lon + "&current_weather=true";
+            HttpRequest req = HttpRequest.newBuilder().uri(URI.create(url)).GET().build();
+            HttpResponse<String> res = client.send(req, HttpResponse.BodyHandlers.ofString());
+            String json = res.body();
+
+            // CORRECTIF : On cherche le bloc "current_weather" pour éviter les unités
+            int blocIndex = json.indexOf("\"current_weather\":");
+            String sousJson = json.substring(blocIndex);
+
+            String tempStr = extractJsonValue(sousJson, "\"temperature\":");
+            // On nettoie la chaîne pour ne garder que les chiffres et le point
+            tempStr = tempStr.replaceAll("[^0-9.]", "");
+
+            return tempStr + " °C";
+        } catch(Exception e) {
+            return "Indisponible";
         }
+    }
 
-        // --- TEST IT YOURSELF ---
-        public static void main(String[] args) {
-            // Imagine this comes from: myTransport.getArrivee();
-            String destination = "Tunis";
+    // Récupère la distance via GPS OSRM
+    private static String getDistanceAndTime(double lat1, double lon1, double lat2, double lon2) {
+        try {
+            // Attention: OSRM demande Longitude puis Latitude
+            String url = "http://router.project-osrm.org/route/v1/driving/" + lon1 + "," + lat1 + ";" + lon2 + "," + lat2 + "?overview=false";
+            HttpRequest req = HttpRequest.newBuilder().uri(URI.create(url)).GET().build();
+            HttpResponse<String> res = client.send(req, HttpResponse.BodyHandlers.ofString());
+            String json = res.body();
 
-            String weather = getDestinationWeather(destination);
-            System.out.println("✅ Result for your JavaFX interface: " + destination + " -> " + weather);
+            String distanceStr = extractJsonValue(json, "\"distance\":").replaceAll("[^0-9.]", "");
+            String durationStr = extractJsonValue(json, "\"duration\":").replaceAll("[^0-9.]", "");
+
+            double distanceKm = Double.parseDouble(distanceStr) / 1000.0;
+            double durationSec = Double.parseDouble(durationStr);
+
+            int heures = (int) (durationSec / 3600);
+            int minutes = (int) ((durationSec % 3600) / 60);
+
+            return String.format("%.1f km (Environ %dh %02dmin)", distanceKm, heures, minutes);
+        } catch (Exception e) {
+            return "Indisponible";
         }
+    }
 
+    // Outil pour lire le JSON proprement
+    private static String extractJsonValue(String json, String key) {
+        int startIndex = json.indexOf(key) + key.length();
+        int endIndex = json.indexOf("\"", startIndex);
+        if (endIndex == -1 || key.endsWith(":")) {
+            endIndex = json.indexOf(",", startIndex);
+            if (endIndex == -1) endIndex = json.indexOf("}", startIndex);
+        }
+        return json.substring(startIndex, endIndex).trim().replace("\"", "");
+    }
 }

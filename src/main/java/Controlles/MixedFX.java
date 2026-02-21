@@ -3,6 +3,7 @@ package Controlles;
 import Entites.Reservation;
 import Entites.Transport;
 import Services.ReservationCRUD;
+import Services.TransportAPI;
 import Services.TransportCRUD;
 import javafx.fxml.FXML;
 import javafx.geometry.Insets;
@@ -171,6 +172,7 @@ public class MixedFX {
 
     /** * Populates the FlowPane with Modern Cards 
      */
+    /** * Populates the FlowPane with Modern Cards */
     private void populateItems(List<?> items) {
         itemsFlowPane.getChildren().clear();
 
@@ -187,8 +189,27 @@ public class MixedFX {
                 String route = t.getDepart() + " ➔ " + t.getArrivee();
                 String price = t.getTarif() + " TND";
                 card = createModernCard(t.getType(), route, price, null);
-            }
 
+                // --- 🌟 NOUVEAU : LA BULLE CONSTANTE INTÉGRÉE ---
+                Label apiBubble = new Label("⏳ Chargement en cours...");
+                apiBubble.setWrapText(true); // Permet au texte de passer à la ligne
+                // Style de la bulle : fond bleu très clair, texte bleu foncé, bords arrondis
+                apiBubble.setStyle("-fx-background-color: #EEF2FF; -fx-text-fill: #4338CA; -fx-padding: 8; -fx-background-radius: 10; -fx-font-size: 11px; -fx-font-weight: bold;");
+
+                // On récupère la zone de texte de la carte (c'est le 2ème élément, donc index 1)
+                VBox textArea = (VBox) card.getChildren().get(1);
+                textArea.getChildren().add(apiBubble); // On ajoute la bulle tout en bas de la carte
+
+                // Thread en arrière-plan pour ne pas figer l'application
+                new Thread(() -> {
+                    String infos = Services.TransportAPI.getInfosTrajet(t.getDepart(), t.getArrivee());
+                    // Platform.runLater met à jour l'interface JavaFX une fois les données reçues
+                    javafx.application.Platform.runLater(() -> {
+                        apiBubble.setText(infos);
+                    });
+                }).start();
+                // --------------------------------------------------
+            }
             if (card != null) {
                 card.setOnMouseClicked(e -> {
                     selectedItem = obj;
@@ -204,8 +225,8 @@ public class MixedFX {
      */
     private VBox createModernCard(String title, String subtitle, String extraInfo, String imageUrl) {
         VBox card = new VBox();
-        card.setPrefSize(200, 260);
-        card.setMaxSize(200, 260);
+        card.setPrefSize(200, 320);
+        card.setMaxSize(200, 320);
         card.setStyle("-fx-background-color: #FFFFFF; -fx-background-radius: 25; -fx-border-color: #EEF2FF; -fx-border-radius: 25; -fx-border-width: 2;");
 
         DropShadow shadow = new DropShadow();
@@ -321,6 +342,12 @@ public class MixedFX {
                 t.setDateDepart(trDateField.getValue().atStartOfDay());
                 transportService.ajouter(t);
                 showAlert("Succès", "Transport ajouté avec succès !", Alert.AlertType.INFORMATION);
+                String villeDepart = trDepartField.getText();
+                String villeArrivee = trArriveeField.getText();
+                String infosApi = TransportAPI.getInfosTrajet(villeDepart, villeArrivee);
+
+                System.out.println("🌍 Infos Trajet :\n" + infosApi);
+                showAlert("Succès", "Transport ajouté avec succès !\n\n" + infosApi, Alert.AlertType.INFORMATION);
             }
         } catch (SQLException e) {
             showAlert("Erreur Base de Données", "Erreur lors de l'ajout !", Alert.AlertType.ERROR);
