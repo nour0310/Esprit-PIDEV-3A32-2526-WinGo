@@ -16,6 +16,7 @@ public class TagCRUD {
     }
 
     public int ajouterOuRecuperer(String nom) throws SQLException {
+        // Vérifier si le tag existe déjà
         String select = "SELECT id FROM tag WHERE nom = ?";
         try (PreparedStatement pst = conn.prepareStatement(select)) {
             pst.setString(1, nom);
@@ -26,10 +27,14 @@ public class TagCRUD {
             }
         }
 
+        // Sinon, l'insérer
         String insert = "INSERT INTO tag (nom) VALUES (?)";
         try (PreparedStatement pst = conn.prepareStatement(insert, Statement.RETURN_GENERATED_KEYS)) {
             pst.setString(1, nom);
-            pst.executeUpdate();
+            int affected = pst.executeUpdate();
+            if (affected == 0) {
+                throw new SQLException("Création de tag échouée, aucune ligne affectée.");
+            }
             try (ResultSet generatedKeys = pst.getGeneratedKeys()) {
                 if (generatedKeys.next()) {
                     return generatedKeys.getInt(1);
