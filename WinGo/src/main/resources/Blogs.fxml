@@ -371,6 +371,20 @@
                                                              -fx-text-fill: white; -fx-pref-width: 130; -fx-font-size: 11px;" />
                                             <Label fx:id="categorieError" text="" style="-fx-text-fill: #ff6b6b; -fx-font-size: 10px; -fx-wrap-text: true;" visible="false" managed="false"/>
                                         </VBox>
+
+                                        <!-- TAGS (nouveau) -->
+                                        <VBox spacing="4" GridPane.columnIndex="0" GridPane.rowIndex="5" GridPane.columnSpan="2">
+                                            <Label text="Tags (séparés par des virgules)" style="-fx-text-fill: rgba(255,255,255,0.80); -fx-font-size: 10px; -fx-font-weight: 800;" />
+                                            <TextField fx:id="tagsField" promptText="ex: voyage, été, plage"
+                                                       style="-fx-background-color: rgba(0,0,0,0.5);
+                                                              -fx-background-radius: 8;
+                                                              -fx-border-color: rgba(255,255,255,0.3);
+                                                              -fx-border-radius: 8;
+                                                              -fx-text-fill: white;
+                                                              -fx-prompt-text-fill: rgba(255,255,255,0.7);
+                                                              -fx-padding: 6 8;
+                                                              -fx-font-size: 11px;" />
+                                        </VBox>
                                     </GridPane>
 
                                     <!-- Boutons CRUD -->
@@ -477,7 +491,7 @@
                                 <Label fx:id="detailAvgLabel" text="0.0 (0 votes)" style="-fx-font-size: 14px; -fx-text-fill: white;"/>
                             </HBox>
 
-                            <!-- NOUVEAU : Boutons de partage -->
+                            <!-- Boutons de partage -->
                             <HBox fx:id="detailShareBox" spacing="10" alignment="CENTER" style="-fx-padding: 0 20;"/>
 
                             <!-- Contenu dans une carte stylisée -->
