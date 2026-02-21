@@ -1,20 +1,30 @@
 package Services.External;
 
+import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
 
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
-public class MyMemoryService {
+public class LibreTranslateService {
 
-    private static final String API_URL = "https://api.mymemory.translated.net/get";
+    // Liste d'instances publiques qui fonctionnent encore (à jour)
+    private static final List<String> API_URLS = Arrays.asList(
+            "https://translate.terraprint.co/translate",  // Instance communautaire
+            "https://libretranslate.pussthecat.org/translate", // Alternative
+            "https://lt.vern.cc/translate" // Autre miroir
+    );
+
+    private static final Gson gson = new Gson();
+    private static final String USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36";
 
     public static CompletableFuture<String> translateAsync(String text, String sourceLang, String targetLang) {
         return CompletableFuture.supplyAsync(() -> {
@@ -22,22 +32,41 @@ public class MyMemoryService {
                 return text;
             }
 
-            try (CloseableHttpClient client = HttpClients.createDefault()) {
-                String encodedText = URLEncoder.encode(text, StandardCharsets.UTF_8);
-                String url = String.format("%s?q=%s&langpair=%s|%s", API_URL, encodedText, sourceLang, targetLang);
+            for (String apiUrl : API_URLS) {
+                try (CloseableHttpClient client = HttpClients.createDefault()) {
+                    HttpPost post = new HttpPost(apiUrl);
+                    // Ajout d'un User-Agent pour imiter un navigateur
+                    post.setHeader("User-Agent", USER_AGENT);
+                    post.setHeader("Content-Type", "application/json");
 
-                HttpGet request = new HttpGet(url);
-                request.setHeader("User-Agent", "Mozilla/5.0");
+                    JsonObject json = new JsonObject();
+                    json.addProperty("q", text);
+                    json.addProperty("source", sourceLang);
+                    json.addProperty("target", targetLang);
+                    json.addProperty("format", "text");
 
-                try (CloseableHttpResponse response = client.execute(request)) {
-                    String responseBody = EntityUtils.toString(response.getEntity(), "UTF-8");
-                    JsonObject json = JsonParser.parseString(responseBody).getAsJsonObject();
-                    return json.getAsJsonObject("responseData").get("translatedText").getAsString();
+                    post.setEntity(new StringEntity(gson.toJson(json), "UTF-8"));
+
+                    System.out.println("Tentative de traduction avec : " + apiUrl);
+
+                    try (CloseableHttpResponse response = client.execute(post)) {
+                        int statusCode = response.getStatusLine().getStatusCode();
+                        String responseBody = EntityUtils.toString(response.getEntity(), "UTF-8");
+
+                        if (statusCode == 200) {
+                            JsonObject responseJson = JsonParser.parseString(responseBody).getAsJsonObject();
+                            return responseJson.get("translatedText").getAsString();
+                        } else {
+                            System.err.println("Erreur API " + apiUrl + " (code " + statusCode + ") : " + responseBody);
+                        }
+                    }
+                } catch (Exception e) {
+                    System.err.println("Exception avec l'URL " + apiUrl + " : " + e.getMessage());
                 }
-            } catch (Exception e) {
-                e.printStackTrace();
-                return text;
             }
+
+            System.err.println("Toutes les instances de traduction ont échoué. Texte original conservé.");
+            return text;
         });
     }
 }
