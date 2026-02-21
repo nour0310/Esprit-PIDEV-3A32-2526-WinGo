@@ -24,17 +24,15 @@ public class MyMemoryService {
 
             try (CloseableHttpClient client = HttpClients.createDefault()) {
                 String encodedText = URLEncoder.encode(text, StandardCharsets.UTF_8);
-                // Construction de l'URL : paire de langues source|target
                 String url = String.format("%s?q=%s&langpair=%s|%s",
                         API_URL, encodedText, sourceLang, targetLang);
 
                 HttpGet request = new HttpGet(url);
-                request.setHeader("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64)");
+                request.setHeader("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36");
 
                 try (CloseableHttpResponse response = client.execute(request)) {
                     String responseBody = EntityUtils.toString(response.getEntity(), "UTF-8");
                     JsonObject json = JsonParser.parseString(responseBody).getAsJsonObject();
-                    // Le chemin JSON est responseData.translatedText
                     return json.getAsJsonObject("responseData").get("translatedText").getAsString();
                 }
             } catch (Exception e) {
