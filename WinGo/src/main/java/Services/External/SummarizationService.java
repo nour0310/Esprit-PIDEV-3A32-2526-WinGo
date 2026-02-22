@@ -25,6 +25,7 @@ public class SummarizationService {
         public String[] keyPhrases;
         public int readabilityScore;
         public String sentiment;
+        public boolean success;
 
         public String getFormattedKeyPhrases() {
             if (keyPhrases == null) return "";

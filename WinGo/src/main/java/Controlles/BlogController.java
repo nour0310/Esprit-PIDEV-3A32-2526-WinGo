@@ -19,7 +19,7 @@ import Services.UtilisateurCRUD;
 import Services.External.MyMemoryService;
 import Services.External.OpenWeatherService;
 import Services.External.GoogleTTSService;
-import Services.External.SummarizationService; // <-- NOUVEAU SERVICE
+import Services.External.SummarizationService;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -473,15 +473,21 @@ public class BlogController implements Initializable {
                     javafx.application.Platform.runLater(() -> {
                         resumerBtn.setDisable(false);
                         resumerBtn.setText("📝 Résumé");
-                        if (result != null && result.success) {
+                        if (result != null && result.summary != null && !result.summary.isEmpty()) {
                             Alert alert = new Alert(Alert.AlertType.INFORMATION);
                             alert.setTitle("Résumé de l'article");
                             alert.setHeaderText("Résumé généré par IA");
-                            String message = result.summary +
-                                    "\n\n🔑 Mots-clés : " + result.getFormattedKeyPhrases() +
-                                    "\n📊 Score de lisibilité : " + result.readabilityScore +
-                                    "\n😊 Sentiment : " + result.sentiment;
-                            alert.setContentText(message);
+                            StringBuilder message = new StringBuilder(result.summary);
+                            if (result.keyPhrases != null && result.keyPhrases.length > 0) {
+                                message.append("\n\n🔑 Mots-clés : ").append(result.getFormattedKeyPhrases());
+                            }
+                            if (result.readabilityScore != 0) {
+                                message.append("\n📊 Score de lisibilité : ").append(result.readabilityScore);
+                            }
+                            if (result.sentiment != null && !result.sentiment.isEmpty()) {
+                                message.append("\n😊 Sentiment : ").append(result.sentiment);
+                            }
+                            alert.setContentText(message.toString());
                             alert.getDialogPane().setMinHeight(400);
                             alert.getDialogPane().setMinWidth(500);
                             alert.showAndWait();
