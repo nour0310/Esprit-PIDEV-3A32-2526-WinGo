@@ -19,7 +19,7 @@ import Services.UtilisateurCRUD;
 import Services.External.MyMemoryService;
 import Services.External.OpenWeatherService;
 import Services.External.GoogleTTSService;
-import Services.External.SummarizationService;
+import Services.External.HuggingFaceSummaryService;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -454,7 +454,50 @@ public class BlogController implements Initializable {
                 });
     }
     // ========== FIN SYNTHÈSE VOCALE ==========
-   
+    private void resumerArticle() {
+        if (displayedDetailBlog == null) {
+            detailStatusLabel.setText("❌ Aucun article sélectionné");
+            return;
+        }
+        String texte = detailContenuLabel.getText();
+        if (texte == null || texte.trim().isEmpty()) return;
+
+        // 🔽 Désactiver le bouton pendant l'appel
+        resumerBtn.setDisable(true);
+        resumerBtn.setText("⏳ Résumé...");
+        detailStatusLabel.setText("⏳ Génération du résumé...");
+
+        // Appel au nouveau service Hugging Face
+        HuggingFaceSummaryService.summarizeAsync(texte)
+                .thenAccept(result -> {
+                    // ⚠️ Les mises à jour UI doivent être faites sur le thread JavaFX
+                    javafx.application.Platform.runLater(() -> {
+                        resumerBtn.setDisable(false);
+                        resumerBtn.setText("📝 Résumé");
+
+                        // Créer et afficher l'alerte avec le résumé
+                        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                        alert.setTitle("Résumé de l'article");
+                        alert.setHeaderText("Résumé généré par Hugging Face (facebook/bart-large-cnn)");
+                        alert.setContentText(result);
+                        // Rendre la boîte de dialogue plus grande
+                        alert.getDialogPane().setMinHeight(400);
+                        alert.getDialogPane().setMinWidth(500);
+                        alert.showAndWait();
+
+                        detailStatusLabel.setText("✅ Résumé généré.");
+                    });
+                })
+                .exceptionally(ex -> {
+                    javafx.application.Platform.runLater(() -> {
+                        resumerBtn.setDisable(false);
+                        resumerBtn.setText("📝 Résumé");
+                        detailStatusLabel.setText("❌ Erreur : " + ex.getMessage());
+                        ex.printStackTrace();
+                    });
+                    return null;
+                });
+    }
     // ========== RÉSUMÉ AUTOMATIQUE ==========
 
     // ========== FIN RÉSUMÉ ==========
