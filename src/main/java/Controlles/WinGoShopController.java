@@ -156,11 +156,19 @@ public class WinGoShopController {
     // ==================== INIT ====================
     @FXML
     public void initialize() {
-        // ✅ OVERLAY EN PREMIER, avant tout le reste
+        // ✅ OVERLAY EN PREMIER
         if (overlayContainerFxml != null) {
             overlayContainerFxml.setMouseTransparent(false);
             this.overlayContainer = overlayContainerFxml;
         }
+
+        // 🔍 DEBUG — à supprimer après
+        System.out.println("=== DEBUG INIT ===");
+        System.out.println("overlayContainer null? " + (overlayContainer == null));
+        System.out.println("Session logged? " + Session.isLoggedIn());
+        System.out.println("Session userId? " + Session.getUserId());
+        System.out.println("clientProductsGrid null? " + (clientProductsGrid == null));
+        System.out.println("overlayContainerFxml null? " + (overlayContainerFxml == null));
 
         setupProductsTable();
         setupFilters();
