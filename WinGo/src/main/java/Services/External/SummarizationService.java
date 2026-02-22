@@ -1,6 +1,7 @@
 package Services.External;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import org.apache.http.client.methods.CloseableHttpResponse;
@@ -14,7 +15,6 @@ import java.util.concurrent.CompletableFuture;
 
 public class SummarizationService {
 
-    // Remplace par ta clé et ton hôte RapidAPI
     private static final String API_KEY = "3dfa6a93aamsh0e8d1bb47c280c6p199c88jsnff11d2cc9132";
     private static final String API_HOST = "text-summarization13.p.rapidapi.com";
     private static final String API_URL = "https://" + API_HOST + "/summarize";
@@ -50,20 +50,42 @@ public class SummarizationService {
 
                 try (CloseableHttpResponse response = client.execute(post)) {
                     String responseBody = EntityUtils.toString(response.getEntity(), "UTF-8");
+                    System.out.println("Réponse de l'API : " + responseBody); // DEBUG
+
                     JsonObject root = JsonParser.parseString(responseBody).getAsJsonObject();
 
                     SummaryResult result = new SummaryResult();
-                    result.success = root.get("success").getAsBoolean();
-                    result.summary = root.get("summary").getAsString();
 
-                    if (root.has("key_phrases")) {
-                        result.keyPhrases = gson.fromJson(root.getAsJsonArray("key_phrases"), String[].class);
+                    // Vérifier la présence des champs avant de les lire
+                    JsonElement successElem = root.get("success");
+                    result.success = successElem != null && successElem.getAsBoolean();
+
+                    JsonElement summaryElem = root.get("summary");
+                    if (summaryElem != null) {
+                        result.summary = summaryElem.getAsString();
+                    } else {
+                        // Si pas de summary, essayer un autre champ possible
+                        summaryElem = root.get("summarized_text");
+                        if (summaryElem != null) {
+                            result.summary = summaryElem.getAsString();
+                        } else {
+                            result.summary = "Résumé non disponible";
+                        }
                     }
-                    if (root.has("readability_score")) {
-                        result.readabilityScore = root.get("readability_score").getAsInt();
+
+                    JsonElement keyPhrasesElem = root.get("key_phrases");
+                    if (keyPhrasesElem != null && keyPhrasesElem.isJsonArray()) {
+                        result.keyPhrases = gson.fromJson(keyPhrasesElem, String[].class);
                     }
-                    if (root.has("sentiment")) {
-                        result.sentiment = root.get("sentiment").getAsString();
+
+                    JsonElement readabilityElem = root.get("readability_score");
+                    if (readabilityElem != null) {
+                        result.readabilityScore = readabilityElem.getAsInt();
+                    }
+
+                    JsonElement sentimentElem = root.get("sentiment");
+                    if (sentimentElem != null) {
+                        result.sentiment = sentimentElem.getAsString();
                     }
 
                     return result;
