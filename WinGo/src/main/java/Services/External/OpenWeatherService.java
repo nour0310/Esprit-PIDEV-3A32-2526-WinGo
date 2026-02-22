@@ -115,7 +115,6 @@ public class OpenWeatherService {
             this.success = false;
         }
 
-        // Getters et setters
         public String getCity() { return city; }
         public void setCity(String city) { this.city = city; }
         public double getTemp() { return temp; }
