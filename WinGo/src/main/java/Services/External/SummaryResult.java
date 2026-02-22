@@ -1,12 +1,7 @@
 package Services.External;
 
 import java.util.Arrays;
-import java.util.List;
 
-/**
- * Représente la réponse structurée de l'API de résumé.
- * Adaptez les noms des champs selon la documentation de l'API.
- */
 public class SummaryResult {
     private String summary;
     private String[] keyPhrases;
@@ -32,13 +27,8 @@ public class SummaryResult {
         return sentiment;
     }
 
-    /**
-     * Retourne les mots-clés formatés pour l'affichage.
-     */
     public String getFormattedKeyPhrases() {
-        if (keyPhrases == null || keyPhrases.length == 0) {
-            return "";
-        }
+        if (keyPhrases == null || keyPhrases.length == 0) return "";
         return String.join(", ", keyPhrases);
     }
 
