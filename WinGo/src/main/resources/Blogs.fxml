@@ -502,7 +502,7 @@
                                 <Label fx:id="detailMeteoLabel" text="⏳ Chargement météo..." style="-fx-text-fill: #3498db; -fx-font-size: 14px;"/>
                             </HBox>
 
-                            <!-- ZONE DE TRADUCTION ET ÉCOUTE -->
+                            <!-- ZONE DE TRADUCTION, ÉCOUTE ET RÉSUMÉ -->
                             <HBox spacing="10" alignment="CENTER" style="-fx-padding: 0 20;">
                                 <ComboBox fx:id="langueCombo" promptText="Langue cible"
                                           style="-fx-background-color: rgba(255,255,255,0.2); -fx-text-fill: white; -fx-background-radius: 30; -fx-padding: 5 10;"/>
@@ -510,6 +510,8 @@
                                         style="-fx-background-color: #3498db; -fx-text-fill: white; -fx-background-radius: 30; -fx-padding: 8 20; -fx-cursor: hand;"/>
                                 <Button fx:id="ecouterBtn" text="🔊 Écouter"
                                         style="-fx-background-color: #27ae60; -fx-text-fill: white; -fx-background-radius: 30; -fx-padding: 8 20; -fx-cursor: hand;"/>
+                                <Button fx:id="resumerBtn" text="📝 Résumé"
+                                        style="-fx-background-color: #9b59b6; -fx-text-fill: white; -fx-background-radius: 30; -fx-padding: 8 20; -fx-cursor: hand;"/>
                             </HBox>
 
                             <HBox fx:id="detailShareBox" spacing="10" alignment="CENTER" style="-fx-padding: 0 20;"/>
@@ -566,4 +568,3 @@
         </bottom>
     </BorderPane>
 </StackPane>
-ppppppppppppppppppppp
