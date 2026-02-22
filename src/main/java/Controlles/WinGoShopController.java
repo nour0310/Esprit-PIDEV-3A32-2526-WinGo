@@ -384,12 +384,12 @@ public class WinGoShopController {
         if (!isCommercant) viewAsCommercant = false;
 
         boolean commercantView = isCommercantView();
-        navAddBox.setVisible(commercantView);       navAddBox.setManaged(commercantView);
-        navDashboardBox.setVisible(commercantView); navDashboardBox.setManaged(commercantView);
+        if (navAddBox != null) { navAddBox.setVisible(commercantView); navAddBox.setManaged(commercantView); }
+        if (navDashboardBox != null) { navDashboardBox.setVisible(commercantView); navDashboardBox.setManaged(commercantView); }
 
         boolean showCart = isClient && !commercantView;
-        navCartBox.setVisible(showCart);             navCartBox.setManaged(showCart);
-        navBecomeCommercantBox.setVisible(isClient); navBecomeCommercantBox.setManaged(isClient);
+        if (navCartBox != null) { navCartBox.setVisible(showCart); navCartBox.setManaged(showCart); }
+        if (navBecomeCommercantBox != null) { navBecomeCommercantBox.setVisible(isClient); navBecomeCommercantBox.setManaged(isClient); }
 
         if (cartBadgeBox != null) { cartBadgeBox.setVisible(showCart); cartBadgeBox.setManaged(showCart); }
         if (topSubtitleLabel != null) topSubtitleLabel.setText(commercantView ? "Espace Commerçant" : "Produits Locaux Tunisiens");
