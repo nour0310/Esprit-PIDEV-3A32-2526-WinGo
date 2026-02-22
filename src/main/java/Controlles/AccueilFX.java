@@ -19,17 +19,21 @@ public class AccueilFX {
 
     @FXML
     public void initialize() {
-        menuToggleBtn.setOnAction(e -> toggleMenu());
+        if (menuToggleBtn != null) {
+            menuToggleBtn.setOnAction(e -> toggleMenu());
+        }
     }
 
     private void toggleMenu() {
+        if (mainContent == null) return;
+
         TranslateTransition transition = new TranslateTransition(Duration.millis(300), mainContent);
         transition.setToX(isMenuOpen ? 0 : 250);
         transition.play();
         isMenuOpen = !isMenuOpen;
     }
 
-    // ✅ NEW: ouvre Produit.fxml au centre
+    // ✅ Ouvre Produit.fxml au centre
     @FXML
     private void goProducts() {
         try {
