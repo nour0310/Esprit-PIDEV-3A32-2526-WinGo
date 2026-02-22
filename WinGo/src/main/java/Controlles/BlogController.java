@@ -17,7 +17,7 @@ import Services.RatingCRUD;
 import Services.TagCRUD;
 import Services.UtilisateurCRUD;
 import Services.External.MyMemoryService;
-import Services.External.OpenWeatherService; // <-- NOUVEAU
+import Services.External.OpenWeatherService;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -143,7 +143,10 @@ public class BlogController implements Initializable {
     @FXML private Label detailAvgLabel;
     @FXML private HBox detailShareBox;
     @FXML private Button detailFavButton;
-    @FXML private Label detailMeteoLabel; // <-- NOUVEAU : pour la météo dans la vue détail
+
+    // Composants pour la météo (NOUVEAU)
+    @FXML private ImageView detailMeteoIcon;
+    @FXML private Label detailMeteoLabel;
 
     // Composants pour la traduction
     @FXML private ComboBox<String> langueCombo;
@@ -700,18 +703,6 @@ public class BlogController implements Initializable {
         Label commentCount = new Label("Commentaires: " + nbComments);
         commentCount.setStyle("-fx-text-fill: #27ae60; -fx-font-size: 13px;");
 
-        // --- MÉTÉO (NOUVEAU) ---
-        Label meteoLabel = new Label("⏳ Météo...");
-        meteoLabel.setStyle("-fx-text-fill: #2980b9; -fx-font-size: 11px;");
-        // Lancer l'appel asynchrone pour récupérer la météo
-        OpenWeatherService.getWeatherAsync(blog.getRegion())
-                .thenAccept(meteo -> javafx.application.Platform.runLater(() -> meteoLabel.setText("☀️ " + meteo)))
-                .exceptionally(ex -> {
-                    javafx.application.Platform.runLater(() -> meteoLabel.setText("❌ Météo indisponible"));
-                    return null;
-                });
-        // --- FIN MÉTÉO ---
-
         // --- LIKES ---
         int likes = likeCounts.getOrDefault(blog.getId(), 0);
         boolean isLiked = likedByCurrentUser.contains(blog.getId());
@@ -809,6 +800,36 @@ public class BlogController implements Initializable {
         }
         // --- FIN TAGS ---
 
+        // --- MÉTÉO AVEC ICÔNE (NOUVEAU) ---
+        HBox meteoBox = new HBox(5);
+        meteoBox.setAlignment(Pos.CENTER_LEFT);
+        ImageView meteoIcon = new ImageView();
+        meteoIcon.setFitHeight(20);
+        meteoIcon.setFitWidth(20);
+        Label meteoLabel = new Label("⏳ Météo...");
+        meteoLabel.setStyle("-fx-text-fill: #2980b9; -fx-font-size: 11px;");
+        meteoBox.getChildren().addAll(meteoIcon, meteoLabel);
+
+        if (blog.getRegion() != null && !blog.getRegion().isEmpty()) {
+            OpenWeatherService.getWeatherAsync(blog.getRegion())
+                    .thenAccept(weather -> javafx.application.Platform.runLater(() -> {
+                        if (weather.isSuccess()) {
+                            meteoLabel.setText(String.format("%.0f°C, %s", weather.getTemp(), weather.getDescription()));
+                            Image iconImage = new Image(weather.getIconUrl(), true);
+                            meteoIcon.setImage(iconImage);
+                        } else {
+                            meteoLabel.setText("❌ " + weather.getError());
+                        }
+                    }))
+                    .exceptionally(ex -> {
+                        javafx.application.Platform.runLater(() -> meteoLabel.setText("❌ Erreur météo"));
+                        return null;
+                    });
+        } else {
+            meteoLabel.setText("🌍 Région non spécifiée");
+        }
+        // --- FIN MÉTÉO ---
+
         HBox actions = new HBox(8);
         actions.setAlignment(Pos.CENTER);
 
@@ -870,7 +891,7 @@ public class BlogController implements Initializable {
         // Ajout des éléments au contenu
         content.getChildren().addAll(auteur, date, categorie, extraitLabel, commentCount, likeBox, favButton, ratingBox);
         if (tagsBox != null) content.getChildren().add(tagsBox);
-        content.getChildren().add(meteoLabel); // <-- Ajout de la météo
+        content.getChildren().add(meteoBox); // Ajout de la météo
         content.getChildren().add(actions);
 
         card.getChildren().addAll(imageContainer, content);
@@ -981,14 +1002,24 @@ public class BlogController implements Initializable {
         // --- MÉTÉO DANS LA VUE DÉTAIL ---
         if (blog.getRegion() != null && !blog.getRegion().isEmpty()) {
             detailMeteoLabel.setText("⏳ Chargement météo...");
+            detailMeteoIcon.setImage(null);
             OpenWeatherService.getWeatherAsync(blog.getRegion())
-                    .thenAccept(meteo -> javafx.application.Platform.runLater(() -> detailMeteoLabel.setText("☀️ Météo: " + meteo)))
+                    .thenAccept(weather -> javafx.application.Platform.runLater(() -> {
+                        if (weather.isSuccess()) {
+                            detailMeteoLabel.setText(String.format("%.0f°C, %s", weather.getTemp(), weather.getDescription()));
+                            Image iconImage = new Image(weather.getIconUrl(), true);
+                            detailMeteoIcon.setImage(iconImage);
+                        } else {
+                            detailMeteoLabel.setText("❌ " + weather.getError());
+                        }
+                    }))
                     .exceptionally(ex -> {
-                        javafx.application.Platform.runLater(() -> detailMeteoLabel.setText("❌ Météo indisponible"));
+                        javafx.application.Platform.runLater(() -> detailMeteoLabel.setText("❌ Erreur météo"));
                         return null;
                     });
         } else {
             detailMeteoLabel.setText("🌍 Région non spécifiée");
+            detailMeteoIcon.setImage(null);
         }
         // --- FIN MÉTÉO ---
 
@@ -1029,7 +1060,6 @@ public class BlogController implements Initializable {
         card.setPrefWidth(250 + level * 20);
         card.setMaxWidth(250 + level * 20);
 
-        // Utilisation de TextFlow pour le contenu avec mentions colorées
         TextFlow contenuFlow = formaterTexteAvecMentions(commentaire.getContenu());
         contenuFlow.setPrefWidth(230 + level * 20);
 
@@ -1104,7 +1134,6 @@ public class BlogController implements Initializable {
         return card;
     }
 
-    // Formate le texte avec les mentions en bleu et gras
     private TextFlow formaterTexteAvecMentions(String texte) {
         TextFlow textFlow = new TextFlow();
         if (texte == null || texte.isEmpty()) return textFlow;
@@ -1560,14 +1589,11 @@ public class BlogController implements Initializable {
                 favorisUtilisateur.add(articleId);
                 showInfo("Article ajouté aux favoris.");
             }
-            // Mettre à jour le bouton
             boolean nouveauState = favorisUtilisateur.contains(articleId);
             favButton.setTextFill(nouveauState ? Color.GOLD : Color.GRAY);
-            // Mettre à jour la vue détail si ouverte
             if (displayedDetailBlog != null && displayedDetailBlog.getId() == articleId) {
                 detailFavButton.setTextFill(nouveauState ? Color.GOLD : Color.GRAY);
             }
-            // Mettre à jour la carte correspondante (on rafraîchit tout)
             refreshAllCards();
         } catch (SQLException e) {
             showError("Erreur lors de la gestion des favoris", e.getMessage());
