@@ -28,6 +28,8 @@ public class MixedFX {
     @FXML private Label totalCountLabel;
     private javafx.collections.ObservableSet<String> dynamicWishlist = javafx.collections.FXCollections.observableSet();
     private String currentUserId = "NormanHaires";
+    private boolean filterByWishlist = false;
+    @FXML private Button wishlistFilterBtn;
 
     private boolean showingReservations = true;
 
@@ -77,6 +79,34 @@ public class MixedFX {
                             t.getArrivee().toLowerCase().contains(query.toLowerCase()))
                     .toList();
             populateItems(filtered);
+        }
+    }
+    @FXML
+    private void toggleWishlistFilter() {
+        filterByWishlist = !filterByWishlist;
+
+        if (filterByWishlist) {
+            // Style bouton actif (Rouge)
+            wishlistFilterBtn.setStyle("-fx-background-color: #FEF2F2; -fx-text-fill: #EF4444; -fx-background-radius: 10; -fx-padding: 10; -fx-font-size: 16px;");
+
+            // Filtrer la liste actuelle pour ne garder que les favoris
+            if (showingReservations) {
+                List<Reservation> filtered = reservationList.stream()
+                        .filter(r -> dynamicWishlist.contains("RES_" + r.getId()))
+                        .toList();
+                populateItems(filtered);
+            } else {
+                List<Transport> filtered = transportList.stream()
+                        .filter(t -> dynamicWishlist.contains("TR_" + t.getId()))
+                        .toList();
+                populateItems(filtered);
+            }
+        } else {
+            // Style bouton inactif (Gris)
+            wishlistFilterBtn.setStyle("-fx-background-color: white; -fx-text-fill: #CBD5E1; -fx-background-radius: 10; -fx-padding: 10; -fx-font-size: 16px;");
+
+            // Recharger la liste complète selon l'onglet actif
+            reloadCurrent();
         }
     }
 

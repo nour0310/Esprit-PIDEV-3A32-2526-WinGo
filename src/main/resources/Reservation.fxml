@@ -96,6 +96,11 @@
                                             <Label text="Filtrer par :" style="-fx-text-fill: #64748B; -fx-font-weight: bold; -fx-font-size: 13px; -fx-padding: 0 10 0 0;"/>
                                             <ComboBox fx:id="filter1" promptText="Destination..."
                                                       style="-fx-background-color: #F8FAFC; -fx-background-radius: 50; -fx-pref-width: 140;" />
+                                            <Button fx:id="wishlistFilterBtn" onAction="#toggleWishlistFilter"
+                                                    style="-fx-background-color: white; -fx-text-fill: #CBD5E1; -fx-background-radius: 10; -fx-padding: 10; -fx-font-size: 16px; -fx-cursor: hand;"
+                                                    text="❤">
+                                                <effect><DropShadow color="#00000010" radius="5" /></effect>
+                                            </Button>
                                         </HBox>
                                         <HBox alignment="CENTER" style="-fx-background-color: #FFFFFF; -fx-background-radius: 50; -fx-padding: 8 20;">
                                             <effect><DropShadow color="#00000008" offsetY="4" radius="10" /></effect>
