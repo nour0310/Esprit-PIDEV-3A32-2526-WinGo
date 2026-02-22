@@ -52,7 +52,7 @@ import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-import Services.External.SummaryResult;
+
 public class BlogController implements Initializable {
 
     // Services
@@ -454,57 +454,7 @@ public class BlogController implements Initializable {
                 });
     }
     // ========== FIN SYNTHÈSE VOCALE ==========
-    private void resumerArticle() {
-        if (displayedDetailBlog == null) {
-            detailStatusLabel.setText("❌ Aucun article sélectionné");
-            return;
-        }
-        String texte = detailContenuLabel.getText();
-        if (texte == null || texte.trim().isEmpty()) return;
-
-        resumerBtn.setDisable(true);
-        resumerBtn.setText("⏳ Résumé...");
-        detailStatusLabel.setText("⏳ Génération du résumé...");
-
-        SummarizationService.summarizeAsync(texte)
-                .thenAccept(result -> {
-                    javafx.application.Platform.runLater(() -> {
-                        resumerBtn.setDisable(false);
-                        resumerBtn.setText("📝 Résumé");
-                        if (result != null && result.getSummary() != null && !result.getSummary().isEmpty()) {
-                            Alert alert = new Alert(Alert.AlertType.INFORMATION);
-                            alert.setTitle("Résumé de l'article");
-                            alert.setHeaderText("Résumé généré par IA");
-                            StringBuilder message = new StringBuilder(result.getSummary());
-                            if (result.getKeyPhrases() != null && result.getKeyPhrases().length > 0) {
-                                message.append("\n\n🔑 Mots-clés : ").append(result.getFormattedKeyPhrases());
-                            }
-                            if (result.getReadabilityScore() != 0) {
-                                message.append("\n📊 Score de lisibilité : ").append(result.getReadabilityScore());
-                            }
-                            if (result.getSentiment() != null && !result.getSentiment().isEmpty()) {
-                                message.append("\n😊 Sentiment : ").append(result.getSentiment());
-                            }
-                            alert.setContentText(message.toString());
-                            alert.getDialogPane().setMinHeight(400);
-                            alert.getDialogPane().setMinWidth(500);
-                            alert.showAndWait();
-                            detailStatusLabel.setText("✅ Résumé généré.");
-                        } else {
-                            detailStatusLabel.setText("❌ Erreur de génération du résumé");
-                        }
-                    });
-                })
-                .exceptionally(ex -> {
-                    javafx.application.Platform.runLater(() -> {
-                        resumerBtn.setDisable(false);
-                        resumerBtn.setText("📝 Résumé");
-                        detailStatusLabel.setText("❌ Erreur : " + ex.getMessage());
-                        ex.printStackTrace();
-                    });
-                    return null;
-                });
-    }
+   
     // ========== RÉSUMÉ AUTOMATIQUE ==========
 
     // ========== FIN RÉSUMÉ ==========
