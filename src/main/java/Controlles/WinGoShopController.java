@@ -712,17 +712,25 @@ public class WinGoShopController {
 
     @FXML
     public void showBecomeCommercant() {
-        if (!Session.isLoggedIn()) { showLogin(); return; }
-        if (Session.isCommercant()) { showAlert("✅ Info","Vous êtes déjà commerçant."); return; }
-        if (overlayContainer == null) return;
+        if (overlayContainer == null) {
+            showAlert("⚠ Erreur", "Overlay non initialisé.");
+            return;
+        }
+        if (!Session.isLoggedIn()) {
+            showAlert("⚠ Connexion requise", "Connecte-toi pour accéder à cette fonctionnalité.");
+            return;
+        }
+        if (Session.isCommercant()) {
+            showAlert("✅ Info", "Vous êtes déjà commerçant.");
+            return;
+        }
 
-        // Lire le statut réel depuis la DB
         String type = getTypeUtilisateur(Session.getUserId());
 
         StackPane overlay = new StackPane();
         overlay.setStyle("-fx-background-color: rgba(0,0,0,0.65);");
         overlay.setAlignment(javafx.geometry.Pos.CENTER);
-        overlay.setOnMouseClicked(e -> { if (e.getTarget()==overlay) overlayContainer.getChildren().remove(overlay); });
+        overlay.setOnMouseClicked(e -> { if (e.getTarget() == overlay) overlayContainer.getChildren().remove(overlay); });
 
         VBox panel = buildBecomeCommercantPanel(overlay, type);
         panel.setOnMouseClicked(javafx.event.Event::consume);
