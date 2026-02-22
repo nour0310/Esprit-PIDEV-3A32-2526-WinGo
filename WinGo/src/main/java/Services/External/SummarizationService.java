@@ -21,7 +21,6 @@ public class SummarizationService {
     private static final Gson gson = new Gson();
 
     public static class SummaryResult {
-        public boolean success;
         public String summary;
         public String[] keyPhrases;
         public int readabilityScore;
@@ -50,39 +49,30 @@ public class SummarizationService {
 
                 try (CloseableHttpResponse response = client.execute(post)) {
                     String responseBody = EntityUtils.toString(response.getEntity(), "UTF-8");
-                    System.out.println("Réponse de l'API : " + responseBody); // DEBUG
+                    System.out.println("🔍 Réponse de l'API : " + responseBody); // DEBUG
 
                     JsonObject root = JsonParser.parseString(responseBody).getAsJsonObject();
-
                     SummaryResult result = new SummaryResult();
 
-                    // Vérifier la présence des champs avant de les lire
-                    JsonElement successElem = root.get("success");
-                    result.success = successElem != null && successElem.getAsBoolean();
-
+                    // Chercher le résumé dans différents champs possibles
                     JsonElement summaryElem = root.get("summary");
-                    if (summaryElem != null) {
-                        result.summary = summaryElem.getAsString();
-                    } else {
-                        // Si pas de summary, essayer un autre champ possible
-                        summaryElem = root.get("summarized_text");
-                        if (summaryElem != null) {
-                            result.summary = summaryElem.getAsString();
-                        } else {
-                            result.summary = "Résumé non disponible";
-                        }
+                    if (summaryElem == null) summaryElem = root.get("summarized_text");
+                    if (summaryElem == null) summaryElem = root.get("result");
+                    result.summary = (summaryElem != null) ? summaryElem.getAsString() : "Résumé non disponible";
+
+                    // Mots-clés
+                    JsonElement keyElem = root.get("key_phrases");
+                    if (keyElem != null && keyElem.isJsonArray()) {
+                        result.keyPhrases = gson.fromJson(keyElem, String[].class);
                     }
 
-                    JsonElement keyPhrasesElem = root.get("key_phrases");
-                    if (keyPhrasesElem != null && keyPhrasesElem.isJsonArray()) {
-                        result.keyPhrases = gson.fromJson(keyPhrasesElem, String[].class);
-                    }
-
+                    // Score de lisibilité
                     JsonElement readabilityElem = root.get("readability_score");
                     if (readabilityElem != null) {
                         result.readabilityScore = readabilityElem.getAsInt();
                     }
 
+                    // Sentiment
                     JsonElement sentimentElem = root.get("sentiment");
                     if (sentimentElem != null) {
                         result.sentiment = sentimentElem.getAsString();
