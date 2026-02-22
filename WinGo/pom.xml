@@ -25,14 +25,14 @@
             <version>8.0.33</version>
         </dependency>
 
-        <!-- Apache HttpClient pour les appels API REST (LibreTranslate) -->
+        <!-- Apache HttpClient pour les appels API REST -->
         <dependency>
             <groupId>org.apache.httpcomponents</groupId>
             <artifactId>httpclient</artifactId>
             <version>4.5.14</version>
         </dependency>
 
-        <!-- Gson pour le parsing JSON (alternative légère à Jackson) -->
+        <!-- Gson pour le parsing JSON -->
         <dependency>
             <groupId>com.google.code.gson</groupId>
             <artifactId>gson</artifactId>
@@ -51,6 +51,14 @@
         <dependency>
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-fxml</artifactId>
+            <version>${javafx.version}</version>
+            <classifier>win</classifier>
+        </dependency>
+
+        <!-- JavaFX Media (pour la lecture audio MP3) -->
+        <dependency>
+            <groupId>org.openjfx</groupId>
+            <artifactId>javafx-media</artifactId>
             <version>${javafx.version}</version>
             <classifier>win</classifier>
         </dependency>
