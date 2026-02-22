@@ -18,7 +18,7 @@ import Services.TagCRUD;
 import Services.UtilisateurCRUD;
 import Services.External.MyMemoryService;
 import Services.External.OpenWeatherService;
-import Services.External.GoogleTTSService; // <-- NOUVEAU service gratuit
+import Services.External.GoogleTTSService; // Service de synthèse vocale gratuit
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -89,6 +89,9 @@ public class BlogController implements Initializable {
     // Images pour les cœurs
     private Image heartEmptyImage;
     private Image heartFullImage;
+
+    // Langue courante pour la synthèse vocale (défaut français)
+    private String currentTTSLang = "fr";
 
     // Composants FXML de la vue liste
     @FXML private TextField searchField;
@@ -396,6 +399,8 @@ public class BlogController implements Initializable {
                     javafx.application.Platform.runLater(() -> {
                         detailContenuLabel.setText(texteTraduit);
                         detailStatusLabel.setText("✅ Traduit en " + langueChoisie);
+                        // Mettre à jour la langue pour la synthèse vocale
+                        currentTTSLang = codeLangue;
                     });
                 })
                 .exceptionally(ex -> {
@@ -417,19 +422,17 @@ public class BlogController implements Initializable {
         String texte = detailContenuLabel.getText();
         if (texte == null || texte.trim().isEmpty()) return;
 
-        // Désactiver le bouton pendant la génération
         ecouterBtn.setDisable(true);
         ecouterBtn.setText("⏳ Génération...");
         detailStatusLabel.setText("⏳ Génération audio...");
 
-        // Utiliser Google TTS (français)
-        GoogleTTSService.generateSpeechAsync(texte, "fr")
+        // Utiliser la langue courante (défaut "fr" ou celle après traduction)
+        GoogleTTSService.generateSpeechAsync(texte, currentTTSLang)
                 .thenAccept(audioData -> {
                     javafx.application.Platform.runLater(() -> {
                         ecouterBtn.setDisable(false);
                         ecouterBtn.setText("🔊 Écouter");
                         if (audioData != null) {
-                            System.out.println("✅ Audio reçu, taille: " + audioData.length);
                             GoogleTTSService.playAudio(audioData);
                             detailStatusLabel.setText("✅ Lecture en cours...");
                         } else {
@@ -974,6 +977,9 @@ public class BlogController implements Initializable {
         detailAuteurLabel.setText(blog.getAuteurNom() != null ? blog.getAuteurNom() : "Inconnu");
         detailDateLabel.setText(blog.getDatePublication() != null ? blog.getDatePublication().format(dateShortFormatter) : "");
         detailContenuLabel.setText(blog.getContenu() != null ? blog.getContenu() : "");
+
+        // Réinitialiser la langue de synthèse au français (texte original)
+        currentTTSLang = "fr";
 
         Image img = loadImage(blog.getImage());
         if (img != null && !img.isError()) {
