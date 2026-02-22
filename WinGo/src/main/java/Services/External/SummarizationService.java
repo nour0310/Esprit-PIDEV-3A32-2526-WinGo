@@ -1,4 +1,4 @@
-package org.example.workshop3A9.service;
+package Services.External;
 
 import java.net.URI;
 import java.net.URLEncoder;
@@ -6,32 +6,22 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
+import java.util.concurrent.CompletableFuture;
 
 public class SummarizationService {
 
     private static final String RAPIDAPI_HOST = "text-summarization13.p.rapidapi.com";
-    private static final String RAPIDAPI_KEY = "VOTRE_NOUVELLE_CLE_API"; // Remplacez par votre clé regénérée
+    private static final String RAPIDAPI_KEY = "VOTRE_NOUVELLE_CLE_API"; // À remplacer
     private static final String API_URL = "https://" + RAPIDAPI_HOST + "/data";
 
-    private final HttpClient client;
-
-    public SummarizationService() {
-        this.client = HttpClient.newHttpClient();
-    }
+    private static final HttpClient client = HttpClient.newHttpClient();
 
     /**
-     * Envoie le texte à l'API et retourne le résumé.
-     *
-     * @param text le texte à résumer
-     * @return la réponse brute de l'API (à parser selon le format de retour)
-     * @throws Exception en cas d'erreur réseau ou de réponse invalide
+     * Version synchrone (bloquante)
      */
-    public String summarize(String text) throws Exception {
-        // Préparer le corps de la requête au format application/x-www-form-urlencoded
-        // Le paramètre attendu s'appelle 'text' (vérifié sur l'endpoint)
+    public static String summarize(String text) throws Exception {
         String formBody = "text=" + URLEncoder.encode(text, StandardCharsets.UTF_8);
 
-        // Construire la requête
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(API_URL))
                 .header("Content-Type", "application/x-www-form-urlencoded")
@@ -40,17 +30,25 @@ public class SummarizationService {
                 .POST(HttpRequest.BodyPublishers.ofString(formBody))
                 .build();
 
-        // Envoyer et récupérer la réponse
         HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
 
-        int statusCode = response.statusCode();
-        String responseBody = response.body();
-
-        // Vérifier le code de statut HTTP
-        if (statusCode != 200) {
-            throw new RuntimeException("Erreur API (" + statusCode + ") : " + responseBody);
+        if (response.statusCode() != 200) {
+            throw new RuntimeException("Erreur API (" + response.statusCode() + ") : " + response.body());
         }
 
-        return responseBody;
+        return response.body();
+    }
+
+    /**
+     * Version asynchrone (recommandée pour ne pas bloquer l'UI)
+     */
+    public static CompletableFuture<String> summarizeAsync(String text) {
+        return CompletableFuture.supplyAsync(() -> {
+            try {
+                return summarize(text);
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        });
     }
 }
