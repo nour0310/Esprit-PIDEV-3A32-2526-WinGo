@@ -18,7 +18,8 @@ import Services.TagCRUD;
 import Services.UtilisateurCRUD;
 import Services.External.MyMemoryService;
 import Services.External.OpenWeatherService;
-import Services.External.GoogleTTSService; // Service de synthèse vocale gratuit
+import Services.External.GoogleTTSService;
+import Services.External.SummarizationService; // <-- NOUVEAU SERVICE
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -158,6 +159,9 @@ public class BlogController implements Initializable {
 
     // Composant pour la synthèse vocale
     @FXML private Button ecouterBtn;
+
+    // NOUVEAU : Bouton pour le résumé
+    @FXML private Button resumerBtn;
 
     // Notifications
     @FXML private Button notificationButton;
@@ -309,6 +313,7 @@ public class BlogController implements Initializable {
         notificationButton.setOnAction(e -> afficherNotifications());
         traduireBtn.setOnAction(e -> traduireArticle());
         ecouterBtn.setOnAction(e -> ecouterArticle());
+        resumerBtn.setOnAction(e -> resumerArticle()); // NOUVEAU listener
     }
 
     private void afficherNotifications() {
@@ -399,8 +404,7 @@ public class BlogController implements Initializable {
                     javafx.application.Platform.runLater(() -> {
                         detailContenuLabel.setText(texteTraduit);
                         detailStatusLabel.setText("✅ Traduit en " + langueChoisie);
-                        // Mettre à jour la langue pour la synthèse vocale
-                        currentTTSLang = codeLangue;
+                        currentTTSLang = codeLangue; // mettre à jour la langue pour la synthèse
                     });
                 })
                 .exceptionally(ex -> {
@@ -413,7 +417,7 @@ public class BlogController implements Initializable {
     }
     // ========== FIN TRADUCTION ==========
 
-    // ========== SYNTHÈSE VOCALE (GRATUITE) ==========
+    // ========== SYNTHÈSE VOCALE ==========
     private void ecouterArticle() {
         if (displayedDetailBlog == null) {
             detailStatusLabel.setText("❌ Aucun article sélectionné");
@@ -426,7 +430,6 @@ public class BlogController implements Initializable {
         ecouterBtn.setText("⏳ Génération...");
         detailStatusLabel.setText("⏳ Génération audio...");
 
-        // Utiliser la langue courante (défaut "fr" ou celle après traduction)
         GoogleTTSService.generateSpeechAsync(texte, currentTTSLang)
                 .thenAccept(audioData -> {
                     javafx.application.Platform.runLater(() -> {
@@ -451,6 +454,54 @@ public class BlogController implements Initializable {
                 });
     }
     // ========== FIN SYNTHÈSE VOCALE ==========
+
+    // ========== RÉSUMÉ AUTOMATIQUE ==========
+    private void resumerArticle() {
+        if (displayedDetailBlog == null) {
+            detailStatusLabel.setText("❌ Aucun article sélectionné");
+            return;
+        }
+        String texte = detailContenuLabel.getText();
+        if (texte == null || texte.trim().isEmpty()) return;
+
+        resumerBtn.setDisable(true);
+        resumerBtn.setText("⏳ Résumé...");
+        detailStatusLabel.setText("⏳ Génération du résumé...");
+
+        SummarizationService.summarizeAsync(texte)
+                .thenAccept(result -> {
+                    javafx.application.Platform.runLater(() -> {
+                        resumerBtn.setDisable(false);
+                        resumerBtn.setText("📝 Résumé");
+                        if (result != null && result.success) {
+                            Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                            alert.setTitle("Résumé de l'article");
+                            alert.setHeaderText("Résumé généré par IA");
+                            String message = result.summary +
+                                    "\n\n🔑 Mots-clés : " + result.getFormattedKeyPhrases() +
+                                    "\n📊 Score de lisibilité : " + result.readabilityScore +
+                                    "\n😊 Sentiment : " + result.sentiment;
+                            alert.setContentText(message);
+                            alert.getDialogPane().setMinHeight(400);
+                            alert.getDialogPane().setMinWidth(500);
+                            alert.showAndWait();
+                            detailStatusLabel.setText("✅ Résumé généré.");
+                        } else {
+                            detailStatusLabel.setText("❌ Erreur de génération du résumé");
+                        }
+                    });
+                })
+                .exceptionally(ex -> {
+                    javafx.application.Platform.runLater(() -> {
+                        resumerBtn.setDisable(false);
+                        resumerBtn.setText("📝 Résumé");
+                        detailStatusLabel.setText("❌ Erreur : " + ex.getMessage());
+                        ex.printStackTrace();
+                    });
+                    return null;
+                });
+    }
+    // ========== FIN RÉSUMÉ ==========
 
     // ========== VALIDATION ==========
     private void setupValidationListeners() {
@@ -978,8 +1029,7 @@ public class BlogController implements Initializable {
         detailDateLabel.setText(blog.getDatePublication() != null ? blog.getDatePublication().format(dateShortFormatter) : "");
         detailContenuLabel.setText(blog.getContenu() != null ? blog.getContenu() : "");
 
-        // Réinitialiser la langue de synthèse au français (texte original)
-        currentTTSLang = "fr";
+        currentTTSLang = "fr"; // réinitialiser la langue
 
         Image img = loadImage(blog.getImage());
         if (img != null && !img.isError()) {
