@@ -79,7 +79,7 @@ public class WinGoShopController {
     @FXML private Label loginStatusLabel;
 
     // ==================== CLIENT MODE ====================
-    @FXML private FlowPane clientProductsGrid;
+    @FXML private VBox clientProductsGrid;
     @FXML private ComboBox<String> clientCategoryFilter;
     @FXML private ComboBox<String> clientRegionFilter;
 
@@ -760,111 +760,175 @@ public class WinGoShopController {
     private void refreshClientProducts() {
         if (clientProductsGrid == null) return;
         clientProductsGrid.getChildren().clear();
-        System.out.println("🔄 Refreshing " + produitsData.size() + " product cards");
         for (Produit p : produitsData) {
-            System.out.println("🖼 Produit: " + p.getNom() + " | Image URL: [" + p.getImage() + "]");
             clientProductsGrid.getChildren().add(createProductCard(p));
         }
-        System.out.println("✅ Created " + clientProductsGrid.getChildren().size() + " cards");
     }
 
-    private VBox createProductCard(Produit p) {
-        VBox card = new VBox(10);
-        card.setAlignment(Pos.TOP_CENTER);
-        card.setPrefWidth(220);
-        card.setPrefHeight(360);
-        card.setMinHeight(360);
+    private HBox createProductCard(Produit p) {
+
+        // ── CARTE HORIZONTALE PRINCIPALE ─────────────────────────
+        HBox card = new HBox(0);
+        card.setPrefHeight(185);
+        card.setMaxHeight(185);
         card.setStyle(
-                "-fx-background-color: rgba(0,0,0,0.28);" +
-                        "-fx-background-radius: 16;" +
-                        "-fx-border-color: rgba(255,255,255,0.18);" +
-                        "-fx-border-radius: 16;" +
-                        "-fx-padding: 12;" +
-                        "-fx-cursor: hand;"
+                "-fx-background-color: #FFFFFF;" +
+                        "-fx-background-radius: 20;" +
+                        "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.09), 20, 0, 0, 6);"
         );
 
-        // ── IMAGE CONTAINER ──────────────────────────────────────
-        StackPane imageContainer = new StackPane();
-        imageContainer.setPrefWidth(196);
-        imageContainer.setPrefHeight(160);
-        imageContainer.setMinHeight(160);
-        imageContainer.setMaxHeight(160);
-        imageContainer.setStyle("-fx-background-color: rgba(255,189,0,0.10); -fx-background-radius: 12;");
+        // ── BLOC IMAGE (gauche, 230px) ────────────────────────────
+        StackPane imageBlock = new StackPane();
+        imageBlock.setPrefWidth(230);
+        imageBlock.setMinWidth(230);
+        imageBlock.setMaxWidth(230);
+        imageBlock.setMinHeight(185);
+        imageBlock.setStyle(
+                "-fx-background-color: #E2E8F0;" +
+                        "-fx-background-radius: 20 0 0 20;"
+        );
 
-        javafx.scene.shape.Rectangle clip = new javafx.scene.shape.Rectangle(196, 160);
-        clip.setArcWidth(16); clip.setArcHeight(16);
-        imageContainer.setClip(clip);
+        // Clip arrondi seulement à gauche
+        javafx.scene.shape.Rectangle clip = new javafx.scene.shape.Rectangle(230, 185);
+        clip.setArcWidth(40);
+        clip.setArcHeight(40);
+        imageBlock.setClip(clip);
 
-        final ImageView imageView = new ImageView();
-        imageView.setFitWidth(196);
-        imageView.setFitHeight(160);
-        imageView.setPreserveRatio(false);
-        imageView.setSmooth(true);
-        imageContainer.getChildren().add(imageView);
+        ImageView iv = new ImageView();
+        iv.setFitWidth(230);
+        iv.setFitHeight(185);
+        iv.setPreserveRatio(false);
+        iv.setSmooth(true);
+        imageBlock.getChildren().add(iv);
 
-        // ── CHARGEMENT IMAGE ROBUSTE ──────────────────────────────
-        final String imageUrl = p.getImage();
-        if (imageUrl != null && !imageUrl.isBlank()) {
+        // Chargement image en thread
+        final String rawUrl = p.getImage();
+        if (rawUrl != null && !rawUrl.isBlank()) {
             Thread t = new Thread(() -> {
                 try {
-                    String finalUrl = imageUrl.trim();
-
-                    // Bloquer URLs Google Images
-                    if (finalUrl.contains("encrypted-tbn") || finalUrl.contains("gstatic.com/images")) {
-                        System.err.println("⛔ URL Google Images bloquée: " + finalUrl);
-                        return;
+                    String url = rawUrl.trim();
+                    if (url.contains("encrypted-tbn") || url.contains("gstatic.com/images")) return;
+                    if (!url.startsWith("http") && !url.startsWith("file:")) {
+                        java.io.File f = new java.io.File(url);
+                        url = f.exists() ? f.toURI().toString() : "file:///" + url.replace("\\", "/");
                     }
-
-                    // Chemin local → file:///
-                    if (!finalUrl.startsWith("http") && !finalUrl.startsWith("file:")) {
-                        java.io.File f = new java.io.File(finalUrl);
-                        finalUrl = f.exists() ? f.toURI().toString()
-                                : "file:///" + finalUrl.replace("\\", "/");
-                    }
-
-                    System.out.println("🔍 [" + p.getNom() + "] Loading: " + finalUrl);
-                    Image img = new Image(finalUrl, 196, 160, false, true, false);
-
+                    Image img = new Image(url, 230, 185, false, true, false);
                     if (!img.isError()) {
                         final Image done = img;
-                        javafx.application.Platform.runLater(() -> imageView.setImage(done));
-                        System.out.println("✅ [" + p.getNom() + "] OK");
-                    } else {
-                        System.err.println("❌ [" + p.getNom() + "] Error for: " + finalUrl);
+                        javafx.application.Platform.runLater(() -> iv.setImage(done));
                     }
-                } catch (Exception ex) {
-                    System.err.println("❌ [" + p.getNom() + "] Exception: " + ex.getMessage());
-                }
+                } catch (Exception ex) { /* ignore */ }
             });
             t.setDaemon(true);
             t.start();
         }
 
-        // ── LABELS ───────────────────────────────────────────────
-        Label nameLabel = new Label(p.getNom());
-        nameLabel.setStyle("-fx-text-fill: white; -fx-font-weight: 900; -fx-font-size: 14px;");
-        nameLabel.setMaxWidth(196); nameLabel.setWrapText(true);
+        // ── CONTENU DROITE ────────────────────────────────────────
+        VBox right = new VBox(8);
+        right.setAlignment(javafx.geometry.Pos.CENTER_LEFT);
+        right.setStyle("-fx-padding: 18 24 18 24; -fx-background-color: transparent;");
+        HBox.setHgrow(right, javafx.scene.layout.Priority.ALWAYS);
 
-        Label priceLabel = new Label(String.format("%.2f TND", p.getPrix()));
-        priceLabel.setStyle("-fx-text-fill: #FFBD00; -fx-font-weight: 900; -fx-font-size: 16px;");
+        // Nom du produit (bleu ciel, gras)
+        Label nom = new Label(p.getNom());
+        nom.setStyle(
+                "-fx-text-fill: #87CEEB;" +
+                        "-fx-font-weight: 900;" +
+                        "-fx-font-size: 19px;"
+        );
+        nom.setWrapText(true);
 
-        Label regionLabel = new Label("📍 " + (p.getRegion() != null ? p.getRegion() : "Tunisie"));
-        regionLabel.setStyle("-fx-text-fill: rgba(255,255,255,0.70); -fx-font-size: 11px;");
+        // Région
+        HBox locRow = new HBox(5);
+        locRow.setAlignment(javafx.geometry.Pos.CENTER_LEFT);
+        Label pin = new Label("📍");
+        pin.setStyle("-fx-font-size: 11px; -fx-text-fill: #3B82F6;");
+        Label region = new Label(p.getRegion() != null ? p.getRegion() : "Tunisie");
+        region.setStyle("-fx-text-fill: #64748B; -fx-font-weight: 700; -fx-font-size: 13px;");
+        locRow.getChildren().addAll(pin, region);
 
-        Label stockLabel = new Label(p.getStock() > 0 ? "✅ En stock" : "❌ Rupture");
-        stockLabel.setStyle("-fx-text-fill: " + (p.getStock() > 0 ? "#00FF9D" : "#FF0054") +
-                "; -fx-font-size: 10px; -fx-font-weight: 800;");
+        // Catégorie (petit badge violet)
+        Label catBadge = new Label(p.getCategorie() != null ? p.getCategorie() : "");
+        catBadge.setStyle(
+                "-fx-background-color: #EEF2FF;" +
+                        "-fx-text-fill: #6366F1;" +
+                        "-fx-font-weight: 800;" +
+                        "-fx-font-size: 10px;" +
+                        "-fx-background-radius: 6;" +
+                        "-fx-padding: 3 8;"
+        );
 
-        Button addBtn = new Button("🛒 Ajouter");
-        addBtn.setStyle("-fx-background-color: #FFBD00; -fx-text-fill: #390099;" +
-                "-fx-background-radius: 999; -fx-padding: 8 16;" +
-                "-fx-font-weight: 900; -fx-cursor: hand;");
-        addBtn.setMaxWidth(Double.MAX_VALUE);
+        // Badge PRIX (ticket orange)
+        HBox priceBadge = new HBox(6);
+        priceBadge.setAlignment(javafx.geometry.Pos.CENTER_LEFT);
+        priceBadge.setMaxWidth(170);
+        priceBadge.setStyle(
+                "-fx-background-color: #FFF7ED;" +
+                        "-fx-background-radius: 10;" +
+                        "-fx-padding: 5 14;"
+        );
+        Label ticketIco = new Label("🎫");
+        Label prix = new Label(String.format("%.2f TND", p.getPrix()));
+        prix.setStyle(
+                "-fx-text-fill: #C2410C;" +
+                        "-fx-font-weight: 900;" +
+                        "-fx-font-size: 17px;"
+        );
+        priceBadge.getChildren().addAll(ticketIco, prix);
+
+        // Description courte
+        String desc = p.getDescription() != null && !p.getDescription().isBlank()
+                ? p.getDescription() : "Produit artisanal tunisien de qualité authentique.";
+        if (desc.length() > 110) desc = desc.substring(0, 110) + "…";
+        Label descLbl = new Label(desc);
+        descLbl.setStyle("-fx-text-fill: #475569; -fx-font-size: 12px; -fx-wrap-text: true;");
+        descLbl.setMaxWidth(500);
+        descLbl.setWrapText(true);
+
+        // Ligne infos bas + bouton
+        HBox bottomRow = new HBox(14);
+        bottomRow.setAlignment(javafx.geometry.Pos.CENTER_LEFT);
+
+        Label stockInfo = new Label("📦 " + p.getStock() + " en stock");
+        stockInfo.setStyle("-fx-text-fill: #6366F1; -fx-font-weight: 700; -fx-font-size: 11px;");
+
+        Label statusLbl = new Label(p.getStock() > 0 ? "✅ Disponible" : "❌ Rupture");
+        statusLbl.setStyle("-fx-text-fill: " + (p.getStock() > 0 ? "#10B981" : "#EF4444") +
+                "; -fx-font-weight: 700; -fx-font-size: 11px;");
+
+        javafx.scene.layout.Region spacer = new javafx.scene.layout.Region();
+        HBox.setHgrow(spacer, javafx.scene.layout.Priority.ALWAYS);
+
+        Button addBtn = new Button("🛒  Ajouter au panier");
+        addBtn.setStyle(
+                "-fx-background-color: #87CEEB;" +
+                        "-fx-text-fill: white;" +
+                        "-fx-font-weight: 900;" +
+                        "-fx-font-size: 13px;" +
+                        "-fx-background-radius: 10;" +
+                        "-fx-padding: 9 22;" +
+                        "-fx-cursor: hand;" +
+                        "-fx-effect: dropshadow(gaussian,rgba(99,102,241,0.25),10,0,0,4);"
+        );
+        addBtn.setOnMouseEntered(e -> addBtn.setStyle(
+                "-fx-background-color: #6366F1; -fx-text-fill: white; -fx-font-weight: 900;" +
+                        "-fx-font-size: 13px; -fx-background-radius: 10; -fx-padding: 9 22; -fx-cursor: hand;"
+        ));
+        addBtn.setOnMouseExited(e -> addBtn.setStyle(
+                "-fx-background-color: #87CEEB; -fx-text-fill: white; -fx-font-weight: 900;" +
+                        "-fx-font-size: 13px; -fx-background-radius: 10; -fx-padding: 9 22; -fx-cursor: hand;" +
+                        "-fx-effect: dropshadow(gaussian,rgba(99,102,241,0.25),10,0,0,4);"
+        ));
         addBtn.setOnAction(e -> addProductToCart(p));
 
-        card.getChildren().addAll(imageContainer, nameLabel, priceLabel, regionLabel, stockLabel, addBtn);
+        bottomRow.getChildren().addAll(stockInfo, statusLbl, spacer, addBtn);
+
+        right.getChildren().addAll(nom, locRow, catBadge, priceBadge, descLbl, bottomRow);
+
+        card.getChildren().addAll(imageBlock, right);
         return card;
     }
+
 
     private void addProductToCart(Produit p) {
         if (!Session.isLoggedIn()) { showAlert("⚠ Connexion requise", "Connecte-toi pour ajouter au panier."); showLogin(); return; }
@@ -881,12 +945,16 @@ public class WinGoShopController {
 
     @FXML
     private void onClientFilter() {
-        String catFilter = clientCategoryFilter.getValue();
-        String regFilter = clientRegionFilter.getValue();
+        String catFilter = clientCategoryFilter != null ? clientCategoryFilter.getValue() : null;
+        String regFilter = clientRegionFilter  != null ? clientRegionFilter.getValue()  : null;
+
         List<Produit> filtered = produitsData.stream()
-                .filter(p -> catFilter == null || catFilter.equals("Toutes") || (p.getCategorie() != null && p.getCategorie().equals(catFilter)))
-                .filter(p -> regFilter == null || regFilter.equals("Toutes") || (p.getRegion() != null && p.getRegion().equals(regFilter)))
+                .filter(p -> catFilter == null || catFilter.equals("Toutes") ||
+                        (p.getCategorie() != null && p.getCategorie().equals(catFilter)))
+                .filter(p -> regFilter == null || regFilter.equals("Toutes") ||
+                        (p.getRegion() != null && p.getRegion().equals(regFilter)))
                 .collect(Collectors.toList());
+
         clientProductsGrid.getChildren().clear();
         for (Produit p : filtered) clientProductsGrid.getChildren().add(createProductCard(p));
     }

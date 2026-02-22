@@ -146,8 +146,8 @@
 
                 <ScrollPane fitToWidth="true" style="-fx-background-color: transparent;" VBox.vgrow="ALWAYS">
                     <content>
-                        <FlowPane fx:id="clientProductsGrid" hgap="14" vgap="14" prefWrapLength="1000"/>
-                    </content>
+                        <VBox fx:id="clientProductsGrid" spacing="16"
+                              style="-fx-padding: 4 8 20 4; -fx-background-color: transparent;"/>                    </content>
                 </ScrollPane>
             </VBox>
 
