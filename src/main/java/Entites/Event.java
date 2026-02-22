@@ -16,6 +16,7 @@ public class Event {
     private String event_type;          // matches DB column: event_type
     private String status;
     private String image_event;         // matches DB column: image_event
+    private double price;                // NEW: price column
 
     // Default Constructor
     public Event() {}
@@ -23,7 +24,7 @@ public class Event {
     // Full Constructor with all fields
     public Event(int id_event, String title, String description, String location, Date date_event,
                  Time start_time, int capacity, int available_places, String season,
-                 String event_type, String status, String image_event) {
+                 String event_type, String status, String image_event, double price) {
         this.id_event = id_event;
         this.title = title;
         this.description = description;
@@ -36,6 +37,7 @@ public class Event {
         this.event_type = event_type;
         this.status = status;
         this.image_event = image_event;
+        this.price = price;
     }
 
     // ==================== ORIGINAL GETTERS/SETTERS (with underscores) ====================
@@ -76,9 +78,11 @@ public class Event {
     public String getImage_event() { return image_event; }
     public void setImage_event(String image_event) { this.image_event = image_event; }
 
-    // ==================== HELPER METHODS for JavaFX PropertyValueFactory (without underscores) ====================
+    // NEW: Price getter and setter
+    public double getPrice() { return price; }
+    public void setPrice(double price) { this.price = price; }
 
-    // These methods allow your FXML to use property names like "idEvent", "dateEvent", etc.
+    // ==================== HELPER METHODS for JavaFX PropertyValueFactory (without underscores) ====================
 
     public int getIdEvent() { return id_event; }
     public void setIdEvent(int idEvent) { this.id_event = idEvent; }
@@ -103,6 +107,7 @@ public class Event {
         return "Event{" +
                 "id_event=" + id_event +
                 ", title='" + title + '\'' +
+                ", price=" + price +
                 '}';
     }
 }
