@@ -37,7 +37,7 @@ public class AccueilFX {
     @FXML
     private void goProducts() {
         try {
-            Parent produitsPage = FXMLLoader.load(getClass().getResource("/Produit.fxml"));
+            Parent produitsPage = FXMLLoader.load(getClass().getResource("/Produits.fxml"));
             mainContent.setCenter(produitsPage);
 
             // optionnel: fermer le menu après clic

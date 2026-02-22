@@ -186,7 +186,7 @@ public class WinGoShopController {
         refreshCartUI();
         setupRealtimeValidation();   // ← validation temps réel
         updateUIForUserType();
-        showLogin();
+        showProducts();
     }
 
     // controle de saisie
