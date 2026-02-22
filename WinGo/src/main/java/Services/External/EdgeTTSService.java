@@ -41,13 +41,13 @@ public class EdgeTTSService {
     public static void playAudio(byte[] audioData) {
         if (audioData == null) return;
         try {
-            // Créer un fichier temporaire
+            // Créer un fichier temporaire avec extension .mp3
             File tempFile = File.createTempFile("tts_", ".mp3");
             tempFile.deleteOnExit();
             try (FileOutputStream fos = new FileOutputStream(tempFile)) {
                 fos.write(audioData);
             }
-            // Jouer avec MediaPlayer (JavaFX)
+            // Lire avec MediaPlayer (JavaFX)
             Media media = new Media(tempFile.toURI().toString());
             MediaPlayer mediaPlayer = new MediaPlayer(media);
             mediaPlayer.play();
