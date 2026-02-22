@@ -782,11 +782,11 @@ public class WinGoShopController {
         imageBlock.setPrefWidth(230);
         imageBlock.setMinWidth(230);
         imageBlock.setMaxWidth(230);
+        imageBlock.setPrefHeight(185);
         imageBlock.setMinHeight(185);
-        imageBlock.setStyle(
-                "-fx-background-color: #E2E8F0;" +
-                        "-fx-background-radius: 20 0 0 20;"
-        );
+        imageBlock.setMaxHeight(185);
+        imageBlock.setAlignment(javafx.geometry.Pos.CENTER);
+        imageBlock.setStyle("-fx-background-color: #E2E8F0;");
 
         // Clip arrondi seulement à gauche
         javafx.scene.shape.Rectangle clip = new javafx.scene.shape.Rectangle(230, 185);
@@ -797,9 +797,11 @@ public class WinGoShopController {
         ImageView iv = new ImageView();
         iv.setFitWidth(230);
         iv.setFitHeight(185);
-        iv.setPreserveRatio(false);
+        iv.setPreserveRatio(false);   // ← false = remplit tout le bloc
         iv.setSmooth(true);
+        StackPane.setAlignment(iv, javafx.geometry.Pos.CENTER);
         imageBlock.getChildren().add(iv);
+
 
         // Chargement image en thread
         final String rawUrl = p.getImage();
