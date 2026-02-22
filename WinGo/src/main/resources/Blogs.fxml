@@ -496,18 +496,20 @@
                                 <Label fx:id="detailAvgLabel" text="0.0 (0 votes)" style="-fx-font-size: 14px; -fx-text-fill: white;"/>
                             </HBox>
 
-                            <!-- Météo avec icône (NOUVEAU) -->
+                            <!-- Météo avec icône -->
                             <HBox spacing="10" alignment="CENTER" style="-fx-padding: 0 20;">
                                 <ImageView fx:id="detailMeteoIcon" fitHeight="32" fitWidth="32" preserveRatio="true"/>
                                 <Label fx:id="detailMeteoLabel" text="⏳ Chargement météo..." style="-fx-text-fill: #3498db; -fx-font-size: 14px;"/>
                             </HBox>
 
-                            <!-- ZONE DE TRADUCTION -->
+                            <!-- ZONE DE TRADUCTION ET ÉCOUTE -->
                             <HBox spacing="10" alignment="CENTER" style="-fx-padding: 0 20;">
                                 <ComboBox fx:id="langueCombo" promptText="Langue cible"
                                           style="-fx-background-color: rgba(255,255,255,0.2); -fx-text-fill: white; -fx-background-radius: 30; -fx-padding: 5 10;"/>
                                 <Button fx:id="traduireBtn" text="🌐 Traduire"
                                         style="-fx-background-color: #3498db; -fx-text-fill: white; -fx-background-radius: 30; -fx-padding: 8 20; -fx-cursor: hand;"/>
+                                <Button fx:id="ecouterBtn" text="🔊 Écouter"
+                                        style="-fx-background-color: #27ae60; -fx-text-fill: white; -fx-background-radius: 30; -fx-padding: 8 20; -fx-cursor: hand;"/>
                             </HBox>
 
                             <HBox fx:id="detailShareBox" spacing="10" alignment="CENTER" style="-fx-padding: 0 20;"/>
