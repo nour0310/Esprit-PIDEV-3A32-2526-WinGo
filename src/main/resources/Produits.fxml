@@ -28,6 +28,17 @@
 
         <Region HBox.hgrow="ALWAYS"/>
 
+        <!-- BOUTON DEVENIR COMMERÇANT -->
+        <Button text="🏪 Devenir Commerçant"
+                onAction="#showBecomeCommercant"
+                style="-fx-background-color: #6366F1;
+                           -fx-text-fill: white;
+                           -fx-font-weight: 900;
+                           -fx-font-size: 12px;
+                           -fx-background-radius: 10;
+                           -fx-padding: 10 18;
+                           -fx-cursor: hand;"/>
+
         <!-- BOUTON PANIER avec badge compteur -->
         <StackPane alignment="CENTER">
             <Button onAction="#showPanierDialog"

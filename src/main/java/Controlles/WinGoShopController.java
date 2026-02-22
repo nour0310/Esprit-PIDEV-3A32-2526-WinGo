@@ -151,6 +151,8 @@ public class WinGoShopController {
     private static final String STYLE_ERR_LABEL =
             "-fx-text-fill: #FF0054; -fx-font-size: 10px; -fx-font-weight: 800; -fx-padding: 2 0 0 4;";
 
+    @FXML private StackPane overlayContainerFxml;
+
     // ==================== INIT ====================
     @FXML
     public void initialize() {
@@ -161,6 +163,10 @@ public class WinGoShopController {
         setupRealtimeValidation();
         updateUIForUserType();
         showProducts();
+        if (overlayContainerFxml != null) {
+            overlayContainerFxml.setMouseTransparent(false);
+            this.overlayContainer = overlayContainerFxml;
+        }
     }
 
     // ==================== REALTIME VALIDATION ====================
@@ -202,8 +208,7 @@ public class WinGoShopController {
             prixTextField.textProperty().addListener((obs, old, val) -> {
                 if (val.isBlank()) { showInlineError(prixTextField, errPrix, "⚡ Le prix est obligatoire"); return; }
                 try { double p = Double.parseDouble(val.trim());
-                    if (p <= 0) showInlineError(prixTextField, errPrix, "⚡ Le prix doit être > 0");
-                    else if (p > 99999.99) showInlineError(prixTextField, errPrix, "⚡ Maximum 99 999.99 TND");
+                    if (p <= 0) showInlineError(prixTextField, errPrix, "⚡ Le prix doit être > 0");else if (p > 99999.99) showInlineError(prixTextField, errPrix, "⚡ Maximum 99 999.99 TND");
                     else clearInlineError(prixTextField, errPrix);
                 } catch (NumberFormatException e) { showInlineError(prixTextField, errPrix, "⚡ Chiffres uniquement (ex: 12.50)"); }
             });
