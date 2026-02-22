@@ -18,6 +18,7 @@ import Services.TagCRUD;
 import Services.UtilisateurCRUD;
 import Services.External.MyMemoryService;
 import Services.External.OpenWeatherService;
+import Services.External.GoogleTTSService; // <-- NOUVEAU service gratuit
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -407,7 +408,7 @@ public class BlogController implements Initializable {
     }
     // ========== FIN TRADUCTION ==========
 
-    // ========== SYNTHÈSE VOCALE ==========
+    // ========== SYNTHÈSE VOCALE (GRATUITE) ==========
     private void ecouterArticle() {
         if (displayedDetailBlog == null) {
             detailStatusLabel.setText("❌ Aucun article sélectionné");
@@ -421,21 +422,18 @@ public class BlogController implements Initializable {
         ecouterBtn.setText("⏳ Génération...");
         detailStatusLabel.setText("⏳ Génération audio...");
 
-        // Voix française recommandée
-        String voiceId = "fr-FR-DeniseNeural";
-
-        EdgeTTSService.generateSpeechAsync(texte, voiceId)
+        // Utiliser Google TTS (français)
+        GoogleTTSService.generateSpeechAsync(texte, "fr")
                 .thenAccept(audioData -> {
                     javafx.application.Platform.runLater(() -> {
                         ecouterBtn.setDisable(false);
                         ecouterBtn.setText("🔊 Écouter");
                         if (audioData != null) {
                             System.out.println("✅ Audio reçu, taille: " + audioData.length);
-                            EdgeTTSService.playAudio(audioData);
+                            GoogleTTSService.playAudio(audioData);
                             detailStatusLabel.setText("✅ Lecture en cours...");
                         } else {
                             detailStatusLabel.setText("❌ Erreur de génération audio");
-                            System.err.println("❌ Audio data null");
                         }
                     });
                 })
