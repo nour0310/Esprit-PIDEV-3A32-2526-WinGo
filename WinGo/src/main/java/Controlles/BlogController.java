@@ -18,6 +18,7 @@ import Services.TagCRUD;
 import Services.UtilisateurCRUD;
 import Services.External.MyMemoryService;
 import Services.External.OpenWeatherService;
+import Services.External.EdgeTTSService; // Nouveau service
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -144,13 +145,16 @@ public class BlogController implements Initializable {
     @FXML private HBox detailShareBox;
     @FXML private Button detailFavButton;
 
-    // Composants pour la météo (NOUVEAU)
+    // Composants pour la météo
     @FXML private ImageView detailMeteoIcon;
     @FXML private Label detailMeteoLabel;
 
     // Composants pour la traduction
     @FXML private ComboBox<String> langueCombo;
     @FXML private Button traduireBtn;
+
+    // Composant pour la synthèse vocale
+    @FXML private Button ecouterBtn;
 
     // Notifications
     @FXML private Button notificationButton;
@@ -301,6 +305,7 @@ public class BlogController implements Initializable {
         detailAddCommentBtn.setOnAction(e -> ajouterCommentaireDetail());
         notificationButton.setOnAction(e -> afficherNotifications());
         traduireBtn.setOnAction(e -> traduireArticle());
+        ecouterBtn.setOnAction(e -> ecouterArticle()); // Nouveau listener
     }
 
     private void afficherNotifications() {
@@ -402,6 +407,46 @@ public class BlogController implements Initializable {
                 .thenAccept(titreTraduit -> javafx.application.Platform.runLater(() -> detailTitreLabel.setText(titreTraduit)));
     }
     // ========== FIN TRADUCTION ==========
+
+    // ========== SYNTHÈSE VOCALE ==========
+    private void ecouterArticle() {
+        if (displayedDetailBlog == null) {
+            detailStatusLabel.setText("❌ Aucun article sélectionné");
+            return;
+        }
+        String texte = detailContenuLabel.getText();
+        if (texte == null || texte.trim().isEmpty()) return;
+
+        // Désactiver le bouton pendant la génération
+        ecouterBtn.setDisable(true);
+        ecouterBtn.setText("⏳ Génération...");
+
+        // Voix française recommandée
+        String voiceId = "fr-FR-DeniseNeural";
+
+        EdgeTTSService.generateSpeechAsync(texte, voiceId)
+                .thenAccept(audioData -> {
+                    javafx.application.Platform.runLater(() -> {
+                        ecouterBtn.setDisable(false);
+                        ecouterBtn.setText("🔊 Écouter");
+                        if (audioData != null) {
+                            EdgeTTSService.playAudio(audioData);
+                            detailStatusLabel.setText("✅ Lecture en cours...");
+                        } else {
+                            detailStatusLabel.setText("❌ Erreur de génération audio");
+                        }
+                    });
+                })
+                .exceptionally(ex -> {
+                    javafx.application.Platform.runLater(() -> {
+                        ecouterBtn.setDisable(false);
+                        ecouterBtn.setText("🔊 Écouter");
+                        detailStatusLabel.setText("❌ Erreur : " + ex.getMessage());
+                    });
+                    return null;
+                });
+    }
+    // ========== FIN SYNTHÈSE VOCALE ==========
 
     // ========== VALIDATION ==========
     private void setupValidationListeners() {
@@ -800,7 +845,7 @@ public class BlogController implements Initializable {
         }
         // --- FIN TAGS ---
 
-        // --- MÉTÉO AVEC ICÔNE (NOUVEAU) ---
+        // --- MÉTÉO AVEC ICÔNE ---
         HBox meteoBox = new HBox(5);
         meteoBox.setAlignment(Pos.CENTER_LEFT);
         ImageView meteoIcon = new ImageView();
@@ -891,7 +936,7 @@ public class BlogController implements Initializable {
         // Ajout des éléments au contenu
         content.getChildren().addAll(auteur, date, categorie, extraitLabel, commentCount, likeBox, favButton, ratingBox);
         if (tagsBox != null) content.getChildren().add(tagsBox);
-        content.getChildren().add(meteoBox); // Ajout de la météo
+        content.getChildren().add(meteoBox);
         content.getChildren().add(actions);
 
         card.getChildren().addAll(imageContainer, content);
