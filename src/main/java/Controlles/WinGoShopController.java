@@ -156,6 +156,12 @@ public class WinGoShopController {
     // ==================== INIT ====================
     @FXML
     public void initialize() {
+        // ✅ OVERLAY EN PREMIER, avant tout le reste
+        if (overlayContainerFxml != null) {
+            overlayContainerFxml.setMouseTransparent(false);
+            this.overlayContainer = overlayContainerFxml;
+        }
+
         setupProductsTable();
         setupFilters();
         refreshProducts();
@@ -163,10 +169,6 @@ public class WinGoShopController {
         setupRealtimeValidation();
         updateUIForUserType();
         showProducts();
-        if (overlayContainerFxml != null) {
-            overlayContainerFxml.setMouseTransparent(false);
-            this.overlayContainer = overlayContainerFxml;
-        }
     }
 
     // ==================== REALTIME VALIDATION ====================
