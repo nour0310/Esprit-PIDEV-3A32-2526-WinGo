@@ -12,7 +12,7 @@ import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.concurrent.CompletableFuture;
 
-public class WeatherService {
+public class OpenWeatherService {
 
     private static final String API_KEY = "29760027ad011b56a3fde54646907eaa"; // Votre clé API
     private static final String API_URL = "https://api.openweathermap.org/data/2.5/weather";
