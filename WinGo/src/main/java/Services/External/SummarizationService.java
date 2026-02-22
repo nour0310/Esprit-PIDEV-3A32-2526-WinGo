@@ -14,14 +14,12 @@ import java.util.concurrent.CompletableFuture;
 
 public class SummarizationService {
 
-    // 🔁 REMPLACE CES 2 LIGNES AVEC TES INFORMATIONS RAPIDAPI
-    private static final String API_KEY = "3dfa6a93aamsh0e8d1bb47c280c6p199c88jsnff11d2cc9132"; // Ta clé
-    private static final String API_HOST = "text-summarization13.p.rapidapi.com"; // L'hôte
-
+    // TES INFORMATIONS RAPIDAPI (déjà remplies)
+    private static final String API_KEY = "3dfa6a93aamsh0e8d1bb47c280c6p199c88jsnff11d2cc9132";
+    private static final String API_HOST = "text-summarization13.p.rapidapi.com";
     private static final String API_URL = "https://" + API_HOST + "/summarize";
     private static final Gson gson = new Gson();
 
-    // Classe pour stocker le résultat complet
     public static class SummaryResult {
         public boolean success;
         public String summary;
@@ -43,11 +41,10 @@ public class SummarizationService {
                 post.setHeader("X-RapidAPI-Key", API_KEY);
                 post.setHeader("X-RapidAPI-Host", API_HOST);
 
-                // Corps de la requête
                 JsonObject json = new JsonObject();
                 json.addProperty("text", text);
-                json.addProperty("length", "medium");  // short, medium, long
-                json.addProperty("format", "paragraph"); // paragraph ou bullet
+                json.addProperty("length", "medium");
+                json.addProperty("format", "paragraph");
 
                 post.setEntity(new StringEntity(json.toString(), "UTF-8"));
 
@@ -59,15 +56,12 @@ public class SummarizationService {
                     result.success = root.get("success").getAsBoolean();
                     result.summary = root.get("summary").getAsString();
 
-                    // Extraction des key_phrases
                     if (root.has("key_phrases")) {
                         result.keyPhrases = gson.fromJson(root.getAsJsonArray("key_phrases"), String[].class);
                     }
-
                     if (root.has("readability_score")) {
                         result.readabilityScore = root.get("readability_score").getAsInt();
                     }
-
                     if (root.has("sentiment")) {
                         result.sentiment = root.get("sentiment").getAsString();
                     }
