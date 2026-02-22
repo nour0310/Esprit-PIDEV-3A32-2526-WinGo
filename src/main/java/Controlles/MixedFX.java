@@ -15,7 +15,8 @@ import javafx.scene.paint.Color;
 import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.List;
-
+import javafx.scene.web.WebView;
+import javafx.scene.web.WebEngine;
 public class MixedFX {
 
     @FXML private Button reservationToggleBtn, transportToggleBtn;
@@ -30,6 +31,9 @@ public class MixedFX {
     private String currentUserId = "NormanHaires";
     private boolean filterByWishlist = false;
     @FXML private Button wishlistFilterBtn;
+    @FXML private WebView mapWebView;
+    @FXML private Label mapRouteLabel;
+    @FXML private ProgressBar mapProgressBar;
 
     private boolean showingReservations = true;
 
@@ -176,6 +180,26 @@ public class MixedFX {
             if (!showingReservations && totalCountLabel != null) totalCountLabel.setText(String.valueOf(transportList.size()));
         } catch (SQLException e) { e.printStackTrace(); }
     }
+    private void updateMapDisplay(Transport t) {
+        if (mapWebView == null) return; // Sécurité si la WebView n'est pas injectée
+
+        // Nettoyage des noms pour l'URL (remplace les espaces par des +)
+        String origin = t.getDepart().replace(" ", "+");
+        String destination = t.getArrivee().replace(" ", "+");
+
+        // URL Google Maps en mode Direction (Embed)
+        // Note: Utiliser une clé API si tu veux éviter les limitations, sinon Maps URL simple
+        String url = "https://www.google.com/maps/dir/?api=1&origin=" + origin + "&destination=" + destination + "&travelmode=driving";
+
+        javafx.application.Platform.runLater(() -> {
+            mapWebView.getEngine().load(url);
+
+            // Optionnel : Mettre à jour les labels de ton bloc à droite (image_21b93a.png)
+            if (mapRouteLabel != null) {
+                mapRouteLabel.setText(t.getDepart() + " vers " + t.getArrivee());
+            }
+        });
+    }
 
     private void populateItems(List<?> items) {
         itemsFlowPane.getChildren().clear();
@@ -183,7 +207,7 @@ public class MixedFX {
 
         for (Object obj : items) {
             VBox card = null;
-            String uniqueKey = ""; // Identifiant unique pour la wishlist
+            String uniqueKey = "";
 
             if (showingReservations && obj instanceof Reservation) {
                 Reservation r = (Reservation) obj;
@@ -196,13 +220,11 @@ public class MixedFX {
                 uniqueKey = "TR_" + t.getId();
                 card = createModernCard(t.getType(), t.getDepart() + " ➔ " + t.getArrivee(), t.getTarif() + " TND", null);
 
-                // --- PARTIE SUIVI ET API ---
                 VBox textArea = (VBox) card.lookup("#textArea");
                 if (textArea != null) {
-                    // Barre de progression pour simuler le trajet
                     ProgressBar travelProgress = new ProgressBar(0);
                     travelProgress.setPrefWidth(170);
-                    travelProgress.setStyle("-fx-accent: #EF4444;"); // Rouge comme demandé
+                    travelProgress.setStyle("-fx-accent: #EF4444;");
 
                     Label apiNote = new Label("⏳ Initialisation GPS...");
                     apiNote.setStyle("-fx-font-size: 10px; -fx-text-fill: #94A3B8;");
@@ -213,14 +235,11 @@ public class MixedFX {
                     new Thread(() -> {
                         try {
                             Thread.sleep(delay);
-                            // Animation de la barre (Tracking)
                             for (double p = 0; p <= 1; p += 0.1) {
                                 final double progress = p;
                                 javafx.application.Platform.runLater(() -> travelProgress.setProgress(progress));
                                 Thread.sleep(200);
                             }
-
-                            // Appel API une fois arrivé
                             String infos = Services.TransportAPI.getInfosTrajet(t.getDepart(), t.getArrivee());
                             javafx.application.Platform.runLater(() -> {
                                 apiNote.setText("🏁 " + infos);
@@ -233,35 +252,33 @@ public class MixedFX {
             }
 
             if (card != null) {
-                // --- AJOUT DU BOUTON WISHLIST DYNAMIQUE ---
                 Button wishlistBtn = new Button("❤");
-                // Positionnement sur la carte
                 wishlistBtn.setTranslateX(170);
                 wishlistBtn.setTranslateY(-10);
 
-                // État initial
                 updateWishlistButtonStyle(wishlistBtn, dynamicWishlist.contains(uniqueKey));
 
-                // Logique de clic
                 final String finalKey = uniqueKey;
                 wishlistBtn.setOnAction(e -> {
-                    if (!dynamicWishlist.contains(finalKey)) {
-                        dynamicWishlist.add(finalKey);
-                    } else {
-                        dynamicWishlist.remove(finalKey);
-                    }
+                    if (!dynamicWishlist.contains(finalKey)) dynamicWishlist.add(finalKey);
+                    else dynamicWishlist.remove(finalKey);
                     updateWishlistButtonStyle(wishlistBtn, dynamicWishlist.contains(finalKey));
-                    e.consume(); // Empêche de déclencher le clic sur la carte
+                    e.consume();
                 });
 
-                // Ajouter le bouton à l'imagePane ou au sommet de la carte
                 ((Pane)card.getChildren().get(0)).getChildren().add(wishlistBtn);
 
-                // Gestion des clics standards
+                // --- GESTION DU CLIC POUR LA MAP ---
                 card.setOnMouseClicked(e -> {
                     selectedItem = obj;
                     fillFormFields(obj);
                     populateForm();
+
+                    // Si c'est un transport, on met à jour la carte à droite
+                    if (obj instanceof Transport) {
+                        updateMapDisplay((Transport) obj);
+                    }
+
                     if (e.getClickCount() == 2) showDetails(obj);
                 });
 
@@ -269,7 +286,6 @@ public class MixedFX {
             }
         }
     }
-
     private VBox createModernCard(String title, String subtitle, String extraInfo, String imageUrl) {
         VBox card = new VBox();
         card.setPrefSize(210, 320);

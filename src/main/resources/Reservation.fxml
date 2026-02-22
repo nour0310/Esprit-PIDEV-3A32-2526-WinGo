@@ -5,7 +5,7 @@
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.image.Image?>
-
+<?import javafx.scene.web.WebView?>
 <StackPane prefHeight="720" prefWidth="1200"
            xmlns="http://javafx.com/javafx/17"
            xmlns:fx="http://javafx.com/fxml/1"
@@ -165,6 +165,17 @@
                                  -fx-background-radius: 300;">
                         <effect><DropShadow color="#0000001A" offsetY="15" radius="30" /></effect>
                     </Pane>
+                    <VBox fx:id="mapContainer" prefWidth="320" spacing="15" style="-fx-background-color: #FFFFFF; -fx-background-radius: 20; -fx-padding: 10;">
+                        <effect><DropShadow color="#0000000A" offsetY="5" radius="15" /></effect>
+                        <Label style="-fx-text-fill: #0F172A; -fx-font-weight: 900; -fx-font-size: 15px;" text="📍 Suivi du Trajet" />
+                        <WebView fx:id="mapWebView" prefHeight="400.0" prefWidth="300.0" />
+
+
+                        <VBox spacing="5" style="-fx-padding: 10;">
+                            <Label fx:id="mapRouteLabel" style="-fx-text-fill: #64748B; -fx-font-weight: bold; -fx-font-size: 12px;" text="Sélectionnez un transport" />
+                            <ProgressBar fx:id="mapProgressBar" prefWidth="280" progress="0.0" style="-fx-accent: #EF4444;" />
+                        </VBox>
+                    </VBox>
 
                     <HBox spacing="35" alignment="CENTER" style="-fx-background-color: #FFFFFF; -fx-background-radius: 30; -fx-padding: 20 10;">
                         <effect><DropShadow color="#0000000A" offsetY="8" radius="20" /></effect>
@@ -180,7 +191,10 @@
                             <Label fx:id="totalCountLabel" text="0" style="-fx-text-fill: #1E293B; -fx-font-weight: 900; -fx-font-size: 28px;" />
                             <Label text="Transports" style="-fx-text-fill: #94A3B8; -fx-font-size: 13px; -fx-font-weight: bold;" />
                         </VBox>
+
                     </HBox>
+
+
                 </VBox>
 
             </HBox>

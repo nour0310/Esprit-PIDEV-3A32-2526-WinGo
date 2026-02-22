@@ -32,6 +32,11 @@
             <version>${javafx.version}</version>
             <classifier>win</classifier>
         </dependency>
+        <dependency>
+            <groupId>org.openjfx</groupId>
+            <artifactId>javafx-web</artifactId>
+            <version>${javafx.version}</version>
+        </dependency>
 
         <dependency>
             <groupId>org.openjfx</groupId>
@@ -51,6 +56,7 @@
             <artifactId>mysql-connector-j</artifactId>
             <version>8.0.33</version>
         </dependency>
+
 
     </dependencies>
 
