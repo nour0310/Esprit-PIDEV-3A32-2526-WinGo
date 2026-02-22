@@ -51,7 +51,6 @@ public class EdgeTTSService {
             return;
         }
         try {
-            // Utiliser AudioSystem avec le service provider mp3spi
             ByteArrayInputStream bais = new ByteArrayInputStream(audioData);
             AudioInputStream audioStream = AudioSystem.getAudioInputStream(bais);
             Clip clip = AudioSystem.getClip();
@@ -64,7 +63,7 @@ public class EdgeTTSService {
             });
             System.out.println("▶️ Lecture audio démarrée");
         } catch (UnsupportedAudioFileException e) {
-            System.err.println("❌ Format audio non supporté. Assurez-vous que la dépendance mp3spi est présente.");
+            System.err.println("❌ Format audio non supporté. Vérifiez que la dépendance mp3spi est bien installée.");
             e.printStackTrace();
         } catch (IOException | LineUnavailableException e) {
             e.printStackTrace();
