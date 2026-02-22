@@ -2,6 +2,7 @@
 
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
+<?import javafx.scene.effect.DropShadow?>
 
 <VBox spacing="14"
       prefHeight="800"
@@ -10,32 +11,55 @@
       xmlns:fx="http://javafx.com/fxml/1"
       fx:controller="Controlles.WinGoShopController">
 
-    <!-- FILTRES -->
+    <!-- BARRE DU HAUT : Filtres + Bouton Panier -->
     <HBox spacing="12" alignment="CENTER_LEFT">
+
         <ComboBox fx:id="clientCategoryFilter"
-                  promptText="Catégorie"
-                  prefWidth="200"
+                  promptText="📂 Catégorie"
+                  prefWidth="180"
                   onAction="#onClientFilter"
-                  style="-fx-background-radius: 12; -fx-border-color: #E2E8F0;"/>
+                  style="-fx-background-radius: 12; -fx-border-color: #E2E8F0; -fx-border-radius: 12;"/>
+
         <ComboBox fx:id="clientRegionFilter"
-                  promptText="Région"
-                  prefWidth="200"
+                  promptText="📍 Région"
+                  prefWidth="180"
                   onAction="#onClientFilter"
-                  style="-fx-background-radius: 12; -fx-border-color: #E2E8F0;"/>
+                  style="-fx-background-radius: 12; -fx-border-color: #E2E8F0; -fx-border-radius: 12;"/>
+
+        <Region HBox.hgrow="ALWAYS"/>
+
+        <!-- BOUTON PANIER avec badge compteur -->
+        <StackPane alignment="CENTER">
+            <Button onAction="#showPanierDialog"
+                    style="-fx-background-color: #6366F1;
+                   -fx-background-radius: 50;
+                   -fx-min-width: 46; -fx-min-height: 46;
+                   -fx-max-width: 46; -fx-max-height: 46;
+                   -fx-cursor: hand; -fx-padding: 0;">
+                <graphic>
+                    <Label text="🛒" style="-fx-font-size: 19px;"/>
+                </graphic>
+            </Button>
+            <Label fx:id="cartCountLabel" text="0"
+                   style="-fx-background-color: #EF4444; -fx-text-fill: white;
+                  -fx-font-weight: 900; -fx-font-size: 9px;
+                  -fx-background-radius: 999; -fx-padding: 2 5;"
+                   StackPane.alignment="TOP_RIGHT"
+                   translateX="6" translateY="-6"/>
+        </StackPane>
+
     </HBox>
 
     <!-- LISTE PRODUITS -->
     <ScrollPane fitToWidth="true" VBox.vgrow="ALWAYS"
-                style="-fx-background-color: transparent;
-                       -fx-background: transparent;
-                       -fx-border-color: transparent;">
+                style="-fx-background-color: transparent; -fx-background: transparent; -fx-border-color: transparent;">
         <content>
             <VBox fx:id="clientProductsGrid" spacing="16"
                   style="-fx-padding: 4 4 20 4; -fx-background-color: transparent;"/>
         </content>
     </ScrollPane>
 
-    <!-- Champs cachés SIMPLES requis par WinGoShopController (pas de TableColumn ici) -->
+    <!-- Champs cachés requis par WinGoShopController -->
     <VBox managed="false" visible="false">
         <TextField fx:id="searchField"/>
         <TextField fx:id="emailField"/>
@@ -53,7 +77,6 @@
         <TextField fx:id="becomeCommercantType"/>
         <TextField fx:id="categorieAutreField"/>
         <Label fx:id="loginStatusLabel" text=""/>
-        <Label fx:id="cartCountLabel" text="0"/>
         <Label fx:id="userNameLabel" text=""/>
         <Label fx:id="topSubtitleLabel" text=""/>
         <Label fx:id="statusLabel" text=""/>
@@ -89,7 +112,6 @@
         <VBox fx:id="formPane"/>
         <VBox fx:id="cartItemsBox"/>
         <ScrollPane fx:id="formScrollPane"/>
-        <!-- TableView avec ses colonnes (obligatoire ensemble) -->
         <TableView fx:id="produitsTable">
             <columns>
                 <TableColumn fx:id="colImage" text="Image"/>

@@ -140,6 +140,7 @@ public class WinGoShopController {
     private Label errBcPhone   = new Label();
     private Label errBcType    = new Label();
     private Label errBcMotiv   = new Label();
+    private StackPane overlayContainer; // injecté par AccueilFX
 
     // ==================== STYLE CONSTANTS ====================
     private static final String STYLE_FIELD_OK =
@@ -1024,6 +1025,335 @@ public class WinGoShopController {
             if (cartTotalLabel != null) cartTotalLabel.setText(String.format("%.2f TND", total));
             for (CartItem it : cartData) cartItemsBox.getChildren().add(createCartItemCard(it));
         } catch (SQLException e) { e.printStackTrace(); }
+    }
+    public void setOverlayContainer(StackPane container) {
+        this.overlayContainer = container;
+    }
+    @FXML
+    public void showPanierDialog() {
+        if (overlayContainer == null) return;
+
+        List<CartItem> items = new java.util.ArrayList<>();
+        try {
+            items = panierCRUD.getActiveCart(Session.getUserId());
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        // ── FOND SEMI-TRANSPARENT ─────────────────────────────────
+        StackPane overlay = new StackPane();
+        overlay.setStyle("-fx-background-color: rgba(0,0,0,0.5);");
+        overlay.setAlignment(javafx.geometry.Pos.CENTER);
+        // Fermer en cliquant sur le fond
+        overlay.setOnMouseClicked(e -> {
+            if (e.getTarget() == overlay) overlayContainer.getChildren().remove(overlay);
+        });
+
+        // ── PANNEAU BLANC ─────────────────────────────────────────
+        VBox panel = new VBox(0);
+        panel.setPrefWidth(700);
+        panel.setMaxWidth(700);
+        panel.setStyle(
+                "-fx-background-color: #FFFFFF;" +
+                        "-fx-background-radius: 16;" +
+                        "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 40, 0, 0, 10);"
+        );
+        // Empêche la fermeture quand on clique sur le panel
+        panel.setOnMouseClicked(javafx.event.Event::consume);
+
+        // ── HEADER ────────────────────────────────────────────────
+        HBox panelHeader = new HBox();
+        panelHeader.setAlignment(javafx.geometry.Pos.CENTER_LEFT);
+        panelHeader.setStyle(
+                "-fx-padding: 16 20;" +
+                        "-fx-background-color: #F8F9FA;" +
+                        "-fx-background-radius: 16 16 0 0;" +
+                        "-fx-border-color: #E2E8F0;" +
+                        "-fx-border-width: 0 0 1 0;"
+        );
+        Label panelTitle = new Label("🛒  Mon Panier");
+        panelTitle.setStyle("-fx-font-weight: 900; -fx-font-size: 16px; -fx-text-fill: #1E293B;");
+        Region hSpacer = new Region();
+        HBox.setHgrow(hSpacer, Priority.ALWAYS);
+        Button closeBtn = new Button("✕");
+        closeBtn.setStyle(
+                "-fx-background-color: #F1F5F9; -fx-text-fill: #64748B;" +
+                        "-fx-background-radius: 999; -fx-font-weight: 900; -fx-font-size: 12px;" +
+                        "-fx-min-width: 30; -fx-min-height: 30; -fx-cursor: hand; -fx-padding: 0;"
+        );
+        closeBtn.setOnAction(e -> overlayContainer.getChildren().remove(overlay));
+        panelHeader.getChildren().addAll(panelTitle, hSpacer, closeBtn);
+
+        // ── COLONNES ──────────────────────────────────────────────
+        HBox colHeader = new HBox();
+        colHeader.setStyle(
+                "-fx-padding: 10 20;" +
+                        "-fx-background-color: #F8F9FA;" +
+                        "-fx-border-color: #E2E8F0; -fx-border-width: 0 0 1 0;"
+        );
+        colHeader.getChildren().addAll(
+                makeHeaderLabel("PRODUIT",    300),
+                makeHeaderLabel("PRIX",       110),
+                makeHeaderLabel("QUANTITÉ",   130),
+                makeHeaderLabel("SOUS-TOTAL", 120)
+        );
+
+        // ── Labels totaux (référence partagée) ────────────────────
+        Label sousTotalLbl = new Label("0.000 TND");
+        sousTotalLbl.setStyle("-fx-font-weight: 900; -fx-font-size: 14px; -fx-text-fill: #1E293B;");
+        Label totalLbl = new Label("0.000 TND");
+        totalLbl.setStyle("-fx-font-weight: 900; -fx-font-size: 15px; -fx-text-fill: #1E293B;");
+
+        // ── ITEMS ─────────────────────────────────────────────────
+        VBox itemsBox = new VBox(0);
+
+        if (items.isEmpty()) {
+            Label empty = new Label("🛒  Votre panier est vide");
+            empty.setStyle(
+                    "-fx-text-fill: #94A3B8; -fx-font-size: 15px;" +
+                            "-fx-font-weight: 700; -fx-padding: 40 0;"
+            );
+            itemsBox.setAlignment(javafx.geometry.Pos.CENTER);
+            itemsBox.getChildren().add(empty);
+        } else {
+            for (CartItem it : items) {
+                itemsBox.getChildren().add(buildPanierRow(it, itemsBox, sousTotalLbl, totalLbl, overlay));
+            }
+        }
+
+        recalcPanierTotals(sousTotalLbl, totalLbl);
+
+        ScrollPane scroll = new ScrollPane(itemsBox);
+        scroll.setFitToWidth(true);
+        scroll.setMaxHeight(260);
+        scroll.setStyle("-fx-background-color: transparent; -fx-background: transparent; -fx-border-color: transparent;");
+
+        // ── BOUTON CONTINUER ──────────────────────────────────────
+        Button continueBtn = new Button("← POURSUIVRE LES ACHATS");
+        continueBtn.setStyle(
+                "-fx-background-color: transparent; -fx-text-fill: #475569;" +
+                        "-fx-font-weight: 700; -fx-font-size: 12px;" +
+                        "-fx-border-color: #CBD5E1; -fx-border-radius: 6;" +
+                        "-fx-background-radius: 6; -fx-padding: 8 16; -fx-cursor: hand;"
+        );
+        continueBtn.setOnAction(e -> overlayContainer.getChildren().remove(overlay));
+        HBox continueRow = new HBox(continueBtn);
+        continueRow.setStyle("-fx-padding: 12 20;");
+
+        // ── SECTION TOTAL ─────────────────────────────────────────
+        VBox totalSection = new VBox(0);
+        totalSection.setStyle(
+                "-fx-background-color: #F8F9FA;" +
+                        "-fx-border-color: #E2E8F0; -fx-border-width: 1 0 0 0;" +
+                        "-fx-padding: 16 24;" +
+                        "-fx-background-radius: 0 0 16 16;"
+        );
+        Label totalTitle = new Label("TOTAL PANIER");
+        totalTitle.setStyle("-fx-font-weight: 900; -fx-font-size: 13px; -fx-text-fill: #1E293B; -fx-padding: 0 0 10 0;");
+
+        HBox stRow = makePanierTotalRow("Sous-total", sousTotalLbl);
+
+        HBox livrRow = new HBox();
+        livrRow.setStyle("-fx-padding: 8 0;");
+        Label livrLbl = new Label("Livraison");
+        livrLbl.setStyle("-fx-font-size: 13px; -fx-text-fill: #475569; -fx-font-weight: 700;");
+        livrLbl.setPrefWidth(200);
+        Label livrInfo = new Label("Livraison à domicile sur toute la Tunisie (48h ouvrable): 4.500 TND");
+        livrInfo.setStyle("-fx-font-size: 11px; -fx-text-fill: #64748B;");
+        livrInfo.setWrapText(true);
+        livrRow.getChildren().addAll(livrLbl, livrInfo);
+
+        HBox totRow = makePanierTotalRow("Total", totalLbl);
+
+        Button checkoutBtn = new Button("VALIDER LA COMMANDE");
+        checkoutBtn.setMaxWidth(Double.MAX_VALUE);
+        checkoutBtn.setStyle(
+                "-fx-background-color: #16A34A; -fx-text-fill: white;" +
+                        "-fx-font-weight: 900; -fx-font-size: 14px;" +
+                        "-fx-background-radius: 8; -fx-padding: 14 0; -fx-cursor: hand;"
+        );
+        checkoutBtn.setOnAction(e -> {
+            overlayContainer.getChildren().remove(overlay);
+            showAlert("✅ Commande", "Commande validée (à implémenter).");
+        });
+        VBox.setMargin(checkoutBtn, new javafx.geometry.Insets(12, 0, 0, 0));
+
+        totalSection.getChildren().addAll(totalTitle, stRow, livrRow, totRow, checkoutBtn);
+        panel.getChildren().addAll(panelHeader, colHeader, scroll, continueRow, totalSection);
+
+        overlay.getChildren().add(panel);
+        overlayContainer.getChildren().add(overlay);
+        refreshCartUI();
+    }
+
+    // ── LIGNE PRODUIT PANIER ──────────────────────────────────────
+    private HBox buildPanierRow(CartItem it, VBox itemsBox,
+                                Label sousTotalLbl, Label totalLbl, StackPane overlay) {
+        HBox row = new HBox();
+        row.setAlignment(javafx.geometry.Pos.CENTER_LEFT);
+        row.setStyle("-fx-padding: 12 20; -fx-border-color: #F1F5F9; -fx-border-width: 0 0 1 0;");
+
+        Button delBtn = new Button("✕");
+        delBtn.setStyle(
+                "-fx-background-color: #F1F5F9; -fx-text-fill: #94A3B8;" +
+                        "-fx-background-radius: 999; -fx-font-size: 10px;" +
+                        "-fx-min-width: 22; -fx-max-width: 22; -fx-min-height: 22; -fx-max-height: 22;" +
+                        "-fx-cursor: hand; -fx-padding: 0;"
+        );
+
+        ImageView iv = new ImageView();
+        iv.setFitWidth(55); iv.setFitHeight(55);
+        iv.setPreserveRatio(true); iv.setSmooth(true);
+        if (it.getImage() != null && !it.getImage().isBlank()) {
+            try { iv.setImage(new Image(it.getImage().trim(), 55, 55, true, true, true)); }
+            catch (Exception ignored) {}
+        }
+        javafx.scene.shape.Rectangle imgClip = new javafx.scene.shape.Rectangle(55, 55);
+        imgClip.setArcWidth(10); imgClip.setArcHeight(10);
+        iv.setClip(imgClip);
+
+        Label nomLbl = new Label(it.getNom());
+        nomLbl.setStyle("-fx-font-weight: 700; -fx-font-size: 13px; -fx-text-fill: #1E293B;");
+        nomLbl.setMaxWidth(170); nomLbl.setWrapText(true);
+
+        HBox prodCell = new HBox(8, delBtn, iv, nomLbl);
+        prodCell.setAlignment(javafx.geometry.Pos.CENTER_LEFT);
+        prodCell.setPrefWidth(300);
+
+        Label prixLbl = new Label(String.format("%.3f TND", it.getPrix()));
+        prixLbl.setStyle("-fx-font-size: 13px; -fx-text-fill: #475569; -fx-font-weight: 700;");
+        prixLbl.setPrefWidth(110);
+
+        final int[] qty = { it.getQty() };
+        Label qtyLbl = new Label(String.valueOf(qty[0]));
+        qtyLbl.setStyle("-fx-font-weight: 900; -fx-font-size: 13px; -fx-text-fill: #1E293B; -fx-padding: 0 10; -fx-min-width: 32;");
+        qtyLbl.setAlignment(javafx.geometry.Pos.CENTER);
+
+        Label subLbl = new Label(String.format("%.3f TND", it.getSubtotal()));
+        subLbl.setStyle("-fx-font-size: 13px; -fx-font-weight: 900; -fx-text-fill: #1E293B;");
+        subLbl.setPrefWidth(120);
+
+        Button minusBtn = new Button("−");
+        minusBtn.setStyle(
+                "-fx-background-color: #F1F5F9; -fx-text-fill: #475569; -fx-font-weight: 900; -fx-font-size: 15px;" +
+                        "-fx-min-width: 30; -fx-min-height: 30; -fx-background-radius: 6; -fx-cursor: hand; -fx-padding: 0;"
+        );
+        Button plusBtn = new Button("+");
+        plusBtn.setStyle(
+                "-fx-background-color: #F1F5F9; -fx-text-fill: #475569; -fx-font-weight: 900; -fx-font-size: 15px;" +
+                        "-fx-min-width: 30; -fx-min-height: 30; -fx-background-radius: 6; -fx-cursor: hand; -fx-padding: 0;"
+        );
+
+        HBox qtyBox = new HBox(0, minusBtn, qtyLbl, plusBtn);
+        qtyBox.setAlignment(javafx.geometry.Pos.CENTER_LEFT);
+        qtyBox.setPrefWidth(130);
+        qtyBox.setStyle("-fx-background-color: #F1F5F9; -fx-background-radius: 8; -fx-max-width: 105;");
+
+        minusBtn.setOnAction(e -> {
+            try {
+                panierCRUD.changeQty(Session.getUserId(), it.getIdProduit(), -1);
+                qty[0]--;
+                if (qty[0] <= 0) {
+                    itemsBox.getChildren().remove(row);
+                } else {
+                    qtyLbl.setText(String.valueOf(qty[0]));
+                    subLbl.setText(String.format("%.3f TND", qty[0] * it.getPrix()));
+                }
+                recalcPanierTotals(sousTotalLbl, totalLbl);
+                refreshCartUI();
+            } catch (Exception ignored) {}
+        });
+
+        plusBtn.setOnAction(e -> {
+            try {
+                panierCRUD.changeQty(Session.getUserId(), it.getIdProduit(), +1);
+                qty[0]++;
+                qtyLbl.setText(String.valueOf(qty[0]));
+                subLbl.setText(String.format("%.3f TND", qty[0] * it.getPrix()));
+                recalcPanierTotals(sousTotalLbl, totalLbl);
+                refreshCartUI();
+            } catch (Exception ignored) {}
+        });
+
+        delBtn.setOnAction(e -> {
+            try {
+                panierCRUD.remove(Session.getUserId(), it.getIdProduit());
+                itemsBox.getChildren().remove(row);
+                recalcPanierTotals(sousTotalLbl, totalLbl);
+                refreshCartUI();
+            } catch (Exception ignored) {}
+        });
+
+        row.getChildren().addAll(prodCell, prixLbl, qtyBox, subLbl);
+        return row;
+    }
+
+    private void recalcPanierTotals(Label sousTotalLbl, Label totalLbl) {
+        try {
+            List<CartItem> current = panierCRUD.getActiveCart(Session.getUserId());
+            double sub = current.stream().mapToDouble(CartItem::getSubtotal).sum();
+            sousTotalLbl.setText(String.format("%.3f TND", sub));
+            totalLbl.setText(String.format("%.3f TND", sub + 4.5));
+        } catch (Exception ignored) {}
+    }
+
+
+
+    private HBox makePanierTotalRow(String labelText, Label valueLabel) {
+        HBox row = new HBox();
+        row.setAlignment(javafx.geometry.Pos.CENTER_LEFT);
+        row.setStyle("-fx-padding: 8 0;");
+        Label lbl = new Label(labelText);
+        lbl.setStyle("-fx-font-size: 13px; -fx-text-fill: #475569; -fx-font-weight: 700;");
+        lbl.setPrefWidth(200);
+        Region sp = new Region();
+        HBox.setHgrow(sp, Priority.ALWAYS);
+        row.getChildren().addAll(lbl, sp, valueLabel);
+        return row;
+    }
+
+// ── HELPERS ───────────────────────────────────────────────────
+
+    private Label makeHeaderLabel(String text, double width) {
+        Label lbl = new Label(text);
+        lbl.setStyle("-fx-font-weight: 900; -fx-font-size: 11px; -fx-text-fill: #64748B;");
+        lbl.setPrefWidth(width);
+        return lbl;
+    }
+
+    private HBox makeCartTotalRow(String labelText, Label valueLabel) {
+        HBox row = new HBox();
+        row.setAlignment(javafx.geometry.Pos.CENTER_LEFT);
+        row.setStyle("-fx-padding: 10 0;");
+        Label lbl = new Label(labelText);
+        lbl.setStyle("-fx-font-size: 13px; -fx-text-fill: #475569; -fx-font-weight: 700;");
+        lbl.setPrefWidth(200);
+        Region sp = new Region();
+        HBox.setHgrow(sp, Priority.ALWAYS);
+        row.getChildren().addAll(lbl, sp, valueLabel);
+        return row;
+    }
+
+    private void updateTotals(VBox itemsBox, Label sousTotal, Label totalLabel) {
+        // Recalcule depuis les labels sous-total visibles
+        double total = 0;
+        for (javafx.scene.Node node : itemsBox.getChildren()) {
+            if (node instanceof HBox row) {
+                for (javafx.scene.Node child : row.getChildren()) {
+                    if (child instanceof Label lbl) {
+                        String txt = lbl.getText();
+                        if (txt != null && txt.contains("TND") && !txt.contains("←")) {
+                            try {
+                                total += Double.parseDouble(txt.replace(" TND", "").replace(",", ".").trim());
+                                break;
+                            } catch (Exception ignored) {}
+                        }
+                    }
+                }
+            }
+        }
+        sousTotal.setText(String.format("%.3f TND", total));
+        totalLabel.setText(String.format("%.3f TND", total + 4.5));
     }
 
     private HBox createCartItemCard(CartItem it) {

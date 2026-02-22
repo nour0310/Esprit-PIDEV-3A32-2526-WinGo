@@ -6,6 +6,8 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.control.Button;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.StackPane;
+import javafx.scene.layout.VBox;
 import javafx.util.Duration;
 
 import java.io.IOException;
@@ -14,6 +16,9 @@ public class AccueilFX {
 
     @FXML private BorderPane mainContent;
     @FXML private Button menuToggleBtn;
+    @FXML private StackPane centerStack;   // ← le StackPane racine du center
+    @FXML private VBox homeContent;        // ← la home page
+    @FXML private StackPane dynamicContent; // ← zone produits
 
     private boolean isMenuOpen = false;
 
@@ -26,21 +31,29 @@ public class AccueilFX {
 
     private void toggleMenu() {
         if (mainContent == null) return;
-
         TranslateTransition transition = new TranslateTransition(Duration.millis(300), mainContent);
         transition.setToX(isMenuOpen ? 0 : 250);
         transition.play();
         isMenuOpen = !isMenuOpen;
     }
 
-    // ✅ Ouvre Produit.fxml au centre
     @FXML
     private void goProducts() {
         try {
-            Parent produitsPage = FXMLLoader.load(getClass().getResource("/Produits.fxml"));
-            mainContent.setCenter(produitsPage);
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/Produits.fxml"));
+            Parent produitsPage = loader.load();
 
-            // optionnel: fermer le menu après clic
+            // ✅ Passe le StackPane au controller pour que le panier s'affiche en overlay
+            WinGoShopController shopCtrl = loader.getController();
+            shopCtrl.setOverlayContainer(centerStack);
+
+            // Affiche produits, cache home
+            dynamicContent.getChildren().setAll(produitsPage);
+            dynamicContent.setVisible(true);
+            dynamicContent.setManaged(true);
+            homeContent.setVisible(false);
+            homeContent.setManaged(false);
+
             if (isMenuOpen) toggleMenu();
 
         } catch (IOException e) {
