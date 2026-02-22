@@ -14,13 +14,13 @@ import java.util.concurrent.CompletableFuture;
 
 public class EdgeTTSService {
 
-    // Remplacez par l'URL de votre worker
+    // URL de votre worker Cloudflare
     private static final String API_URL = "https://fancy-bird-3b32.balkis-zaghdoud.workers.dev/v1/audio/speech";
 
     /**
      * Génère un fichier audio à partir d'un texte.
      * @param text Le texte à synthétiser
-     * @param voiceId L'identifiant de la voix (ex: "zh-CN-XiaoxiaoNeural")
+     * @param voiceId L'identifiant de la voix (ex: "fr-FR-DeniseNeural")
      * @return Un CompletableFuture contenant les données audio (byte[])
      */
     public static CompletableFuture<byte[]> generateSpeechAsync(String text, String voiceId) {
@@ -46,19 +46,22 @@ public class EdgeTTSService {
 
     /**
      * Joue un flux audio à partir des données.
-     * @param audioData Les données audio (format MP3, mais le worker renvoie probablement du MP3)
+     * @param audioData Les données audio (format MP3)
      */
     public static void playAudio(byte[] audioData) {
         if (audioData == null) return;
         try {
-            // Convertir les bytes en flux audio
             ByteArrayInputStream bais = new ByteArrayInputStream(audioData);
             AudioInputStream audioStream = AudioSystem.getAudioInputStream(bais);
             Clip clip = AudioSystem.getClip();
             clip.open(audioStream);
             clip.start();
-            // Optionnel : attendre la fin de la lecture
-            // clip.addLineListener(event -> { if (event.getType() == LineEvent.Type.STOP) clip.close(); });
+            // Optionnel : libérer les ressources quand la lecture est terminée
+            clip.addLineListener(event -> {
+                if (event.getType() == LineEvent.Type.STOP) {
+                    clip.close();
+                }
+            });
         } catch (UnsupportedAudioFileException | IOException | LineUnavailableException e) {
             e.printStackTrace();
         }
