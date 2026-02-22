@@ -52,7 +52,7 @@ import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-
+import Services.External.SummaryResult;
 public class BlogController implements Initializable {
 
     // Services
@@ -454,8 +454,6 @@ public class BlogController implements Initializable {
                 });
     }
     // ========== FIN SYNTHÈSE VOCALE ==========
-
-    // ========== RÉSUMÉ AUTOMATIQUE ==========
     private void resumerArticle() {
         if (displayedDetailBlog == null) {
             detailStatusLabel.setText("❌ Aucun article sélectionné");
@@ -473,19 +471,19 @@ public class BlogController implements Initializable {
                     javafx.application.Platform.runLater(() -> {
                         resumerBtn.setDisable(false);
                         resumerBtn.setText("📝 Résumé");
-                        if (result != null && result.summary != null && !result.summary.isEmpty()) {
+                        if (result != null && result.getSummary() != null && !result.getSummary().isEmpty()) {
                             Alert alert = new Alert(Alert.AlertType.INFORMATION);
                             alert.setTitle("Résumé de l'article");
                             alert.setHeaderText("Résumé généré par IA");
-                            StringBuilder message = new StringBuilder(result.summary);
-                            if (result.keyPhrases != null && result.keyPhrases.length > 0) {
+                            StringBuilder message = new StringBuilder(result.getSummary());
+                            if (result.getKeyPhrases() != null && result.getKeyPhrases().length > 0) {
                                 message.append("\n\n🔑 Mots-clés : ").append(result.getFormattedKeyPhrases());
                             }
-                            if (result.readabilityScore != 0) {
-                                message.append("\n📊 Score de lisibilité : ").append(result.readabilityScore);
+                            if (result.getReadabilityScore() != 0) {
+                                message.append("\n📊 Score de lisibilité : ").append(result.getReadabilityScore());
                             }
-                            if (result.sentiment != null && !result.sentiment.isEmpty()) {
-                                message.append("\n😊 Sentiment : ").append(result.sentiment);
+                            if (result.getSentiment() != null && !result.getSentiment().isEmpty()) {
+                                message.append("\n😊 Sentiment : ").append(result.getSentiment());
                             }
                             alert.setContentText(message.toString());
                             alert.getDialogPane().setMinHeight(400);
@@ -507,6 +505,8 @@ public class BlogController implements Initializable {
                     return null;
                 });
     }
+    // ========== RÉSUMÉ AUTOMATIQUE ==========
+
     // ========== FIN RÉSUMÉ ==========
 
     // ========== VALIDATION ==========
