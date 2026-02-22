@@ -770,7 +770,9 @@ public class WinGoShopController {
         // ── CARTE HORIZONTALE PRINCIPALE ─────────────────────────
         HBox card = new HBox(0);
         card.setPrefHeight(185);
+        card.setMinHeight(185);
         card.setMaxHeight(185);
+        card.setAlignment(javafx.geometry.Pos.CENTER_LEFT);
         card.setStyle(
                 "-fx-background-color: #FFFFFF;" +
                         "-fx-background-radius: 20;" +
@@ -797,11 +799,10 @@ public class WinGoShopController {
         ImageView iv = new ImageView();
         iv.setFitWidth(230);
         iv.setFitHeight(185);
-        iv.setPreserveRatio(false);   // ← false = remplit tout le bloc
+        iv.setPreserveRatio(true);   // ✅ garde les proportions
         iv.setSmooth(true);
         StackPane.setAlignment(iv, javafx.geometry.Pos.CENTER);
         imageBlock.getChildren().add(iv);
-
 
         // Chargement image en thread
         final String rawUrl = p.getImage();
@@ -814,7 +815,7 @@ public class WinGoShopController {
                         java.io.File f = new java.io.File(url);
                         url = f.exists() ? f.toURI().toString() : "file:///" + url.replace("\\", "/");
                     }
-                    Image img = new Image(url, 230, 185, false, true, false);
+                    Image img = new Image(url, 230, 185, true, true, false);
                     if (!img.isError()) {
                         final Image done = img;
                         javafx.application.Platform.runLater(() -> iv.setImage(done));
@@ -828,10 +829,12 @@ public class WinGoShopController {
         // ── CONTENU DROITE ────────────────────────────────────────
         VBox right = new VBox(8);
         right.setAlignment(javafx.geometry.Pos.CENTER_LEFT);
-        right.setStyle("-fx-padding: 18 24 18 24; -fx-background-color: transparent;");
+        right.setPrefHeight(185);
+        right.setMinHeight(185);
+        right.setStyle("-fx-padding: 16 24 16 24; -fx-background-color: transparent;");
         HBox.setHgrow(right, javafx.scene.layout.Priority.ALWAYS);
 
-        // Nom du produit (bleu ciel, gras)
+        // Nom du produit
         Label nom = new Label(p.getNom());
         nom.setStyle(
                 "-fx-text-fill: #87CEEB;" +
@@ -849,7 +852,7 @@ public class WinGoShopController {
         region.setStyle("-fx-text-fill: #64748B; -fx-font-weight: 700; -fx-font-size: 13px;");
         locRow.getChildren().addAll(pin, region);
 
-        // Catégorie (petit badge violet)
+        // Badge catégorie
         Label catBadge = new Label(p.getCategorie() != null ? p.getCategorie() : "");
         catBadge.setStyle(
                 "-fx-background-color: #EEF2FF;" +
@@ -860,7 +863,7 @@ public class WinGoShopController {
                         "-fx-padding: 3 8;"
         );
 
-        // Badge PRIX (ticket orange)
+        // Badge prix
         HBox priceBadge = new HBox(6);
         priceBadge.setAlignment(javafx.geometry.Pos.CENTER_LEFT);
         priceBadge.setMaxWidth(170);
@@ -878,16 +881,16 @@ public class WinGoShopController {
         );
         priceBadge.getChildren().addAll(ticketIco, prix);
 
-        // Description courte
+        // Description
         String desc = p.getDescription() != null && !p.getDescription().isBlank()
                 ? p.getDescription() : "Produit artisanal tunisien de qualité authentique.";
         if (desc.length() > 110) desc = desc.substring(0, 110) + "…";
         Label descLbl = new Label(desc);
-        descLbl.setStyle("-fx-text-fill: #475569; -fx-font-size: 12px; -fx-wrap-text: true;");
+        descLbl.setStyle("-fx-text-fill: #475569; -fx-font-size: 12px;");
         descLbl.setMaxWidth(500);
         descLbl.setWrapText(true);
 
-        // Ligne infos bas + bouton
+        // Ligne bas : stock + bouton
         HBox bottomRow = new HBox(14);
         bottomRow.setAlignment(javafx.geometry.Pos.CENTER_LEFT);
 
@@ -924,9 +927,7 @@ public class WinGoShopController {
         addBtn.setOnAction(e -> addProductToCart(p));
 
         bottomRow.getChildren().addAll(stockInfo, statusLbl, spacer, addBtn);
-
         right.getChildren().addAll(nom, locRow, catBadge, priceBadge, descLbl, bottomRow);
-
         card.getChildren().addAll(imageBlock, right);
         return card;
     }
