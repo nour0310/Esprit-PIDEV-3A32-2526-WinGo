@@ -160,7 +160,7 @@ public class BlogController implements Initializable {
     // Composant pour la synthèse vocale
     @FXML private Button ecouterBtn;
 
-    // NOUVEAU : Bouton pour le résumé
+    // Bouton pour le résumé
     @FXML private Button resumerBtn;
 
     // Notifications
@@ -174,6 +174,11 @@ public class BlogController implements Initializable {
     // ScrollPanes
     @FXML private ScrollPane listViewScroll;
     @FXML private ScrollPane detailViewScroll;
+
+    // NOUVEAUX composants pour le résumé réactif
+    @FXML private VBox resumeContainer;
+    @FXML private TextArea resumeTextArea;
+    @FXML private Label resumeStatusLabel;
 
     private final DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
     private final DateTimeFormatter dateShortFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
@@ -454,6 +459,8 @@ public class BlogController implements Initializable {
                 });
     }
     // ========== FIN SYNTHÈSE VOCALE ==========
+
+    // ========== RÉSUMÉ AUTOMATIQUE RÉACTIF ==========
     private void resumerArticle() {
         if (displayedDetailBlog == null) {
             detailStatusLabel.setText("❌ Aucun article sélectionné");
@@ -462,44 +469,43 @@ public class BlogController implements Initializable {
         String texte = detailContenuLabel.getText();
         if (texte == null || texte.trim().isEmpty()) return;
 
-        // 🔽 Désactiver le bouton pendant l'appel
+        // Afficher le conteneur de résumé et le statut
+        resumeContainer.setVisible(true);
+        resumeContainer.setManaged(true);
+        resumeStatusLabel.setText("⏳ Génération du résumé...");
+        resumeTextArea.clear();
+
+        // Désactiver le bouton
         resumerBtn.setDisable(true);
         resumerBtn.setText("⏳ Résumé...");
         detailStatusLabel.setText("⏳ Génération du résumé...");
 
-        // Appel au nouveau service Hugging Face
         HuggingFaceSummaryService.summarizeAsync(texte)
                 .thenAccept(result -> {
-                    // ⚠️ Les mises à jour UI doivent être faites sur le thread JavaFX
                     javafx.application.Platform.runLater(() -> {
+                        resumeStatusLabel.setText(""); // effacer le statut
+                        if (result != null && !result.isEmpty()) {
+                            resumeTextArea.setText(result);
+                            detailStatusLabel.setText("✅ Résumé généré.");
+                        } else {
+                            resumeTextArea.setText("Impossible de générer un résumé.");
+                            detailStatusLabel.setText("❌ Erreur de génération.");
+                        }
                         resumerBtn.setDisable(false);
                         resumerBtn.setText("📝 Résumé");
-
-                        // Créer et afficher l'alerte avec le résumé
-                        Alert alert = new Alert(Alert.AlertType.INFORMATION);
-                        alert.setTitle("Résumé de l'article");
-                        alert.setHeaderText("Résumé généré par Hugging Face (facebook/bart-large-cnn)");
-                        alert.setContentText(result);
-                        // Rendre la boîte de dialogue plus grande
-                        alert.getDialogPane().setMinHeight(400);
-                        alert.getDialogPane().setMinWidth(500);
-                        alert.showAndWait();
-
-                        detailStatusLabel.setText("✅ Résumé généré.");
                     });
                 })
                 .exceptionally(ex -> {
                     javafx.application.Platform.runLater(() -> {
+                        resumeStatusLabel.setText("❌ Erreur : " + ex.getMessage());
+                        detailStatusLabel.setText("❌ Erreur de génération.");
                         resumerBtn.setDisable(false);
                         resumerBtn.setText("📝 Résumé");
-                        detailStatusLabel.setText("❌ Erreur : " + ex.getMessage());
                         ex.printStackTrace();
                     });
                     return null;
                 });
     }
-    // ========== RÉSUMÉ AUTOMATIQUE ==========
-
     // ========== FIN RÉSUMÉ ==========
 
     // ========== VALIDATION ==========
@@ -1029,6 +1035,10 @@ public class BlogController implements Initializable {
         detailContenuLabel.setText(blog.getContenu() != null ? blog.getContenu() : "");
 
         currentTTSLang = "fr"; // réinitialiser la langue
+
+        // Masquer la zone de résumé pour le nouvel article
+        resumeContainer.setVisible(false);
+        resumeContainer.setManaged(false);
 
         Image img = loadImage(blog.getImage());
         if (img != null && !img.isError()) {
