@@ -24,6 +24,15 @@ import java.util.stream.Collectors;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
+import javafx.scene.Node;
+import javafx.stage.Stage;
+import javafx.scene.input.MouseEvent;
+
+import java.io.IOException;
+
 public class WinGoShopController {
 
     // ==================== TOP BAR ====================
@@ -1211,6 +1220,25 @@ public class WinGoShopController {
     }
 
     @FXML
+    private void goProducts(javafx.scene.input.MouseEvent event) {
+        try {
+            Parent root = FXMLLoader.load(
+                    getClass().getResource("/AjouterProduit.fxml")
+            );
+
+            Stage stage = (Stage) ((Node) event.getSource())
+                    .getScene()
+                    .getWindow();
+
+            stage.setScene(new Scene(root));
+            stage.show();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @FXML
     public void clearForm() {
         idProduitHidden.clear();
         nomTextField.clear();
@@ -1346,4 +1374,6 @@ public class WinGoShopController {
         alert.setContentText(message);
         alert.showAndWait();
     }
+
+
 }
