@@ -586,9 +586,18 @@ public class WinGoShopController {
     public void setOverlayContainer(StackPane container) { this.overlayContainer = container; }
 
     @FXML public void showPanierDialog() {
-        if (overlayContainer==null) return;
+        if (overlayContainer == null) {
+            showAlert("⚠ Erreur", "Overlay non initialisé.");
+            return;
+        }
+        if (!Session.isLoggedIn()) {
+            showAlert("⚠ Connexion requise", "Connecte-toi pour accéder au panier.");
+            return;
+        }
+
         List<CartItem> items = new java.util.ArrayList<>();
-        try { items = panierCRUD.getActiveCart(Session.getUserId()); } catch (SQLException e) { e.printStackTrace(); }
+        try { items = panierCRUD.getActiveCart(Session.getUserId()); }
+        catch (SQLException e) { e.printStackTrace(); }
         StackPane overlay = new StackPane(); overlay.setStyle("-fx-background-color: rgba(0,0,0,0.5);"); overlay.setAlignment(javafx.geometry.Pos.CENTER);
         overlay.setOnMouseClicked(e -> { if (e.getTarget()==overlay) overlayContainer.getChildren().remove(overlay); });
         VBox panel = new VBox(0); panel.setPrefWidth(700); panel.setMaxWidth(700);
