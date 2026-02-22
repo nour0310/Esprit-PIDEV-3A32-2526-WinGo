@@ -28,8 +28,16 @@ public class EdgeTTSService {
                 String jsonBody = String.format("{\"input\": \"%s\", \"voice\": \"%s\"}", escapedText, voiceId);
                 post.setEntity(new StringEntity(jsonBody, "UTF-8"));
 
+                System.out.println("Envoi de la requête TTS vers " + API_URL);
                 try (CloseableHttpResponse response = client.execute(post)) {
-                    return EntityUtils.toByteArray(response.getEntity());
+                    int statusCode = response.getStatusLine().getStatusCode();
+                    byte[] data = EntityUtils.toByteArray(response.getEntity());
+                    System.out.println("Réponse reçue, status: " + statusCode + ", taille: " + data.length + " octets");
+                    if (statusCode != 200) {
+                        System.err.println("Erreur API TTS: " + new String(data));
+                        return null;
+                    }
+                    return data;
                 }
             } catch (Exception e) {
                 e.printStackTrace();
@@ -39,22 +47,32 @@ public class EdgeTTSService {
     }
 
     public static void playAudio(byte[] audioData) {
-        if (audioData == null) return;
+        if (audioData == null) {
+            System.err.println("Aucune donnée audio à jouer");
+            return;
+        }
         try {
-            // Créer un fichier temporaire avec extension .mp3
             File tempFile = File.createTempFile("tts_", ".mp3");
             tempFile.deleteOnExit();
             try (FileOutputStream fos = new FileOutputStream(tempFile)) {
                 fos.write(audioData);
             }
-            // Lire avec MediaPlayer (JavaFX)
+            System.out.println("Fichier temporaire créé: " + tempFile.getAbsolutePath() + ", taille: " + audioData.length);
+
             Media media = new Media(tempFile.toURI().toString());
             MediaPlayer mediaPlayer = new MediaPlayer(media);
+            mediaPlayer.setVolume(1.0); // volume max
             mediaPlayer.play();
             mediaPlayer.setOnEndOfMedia(() -> {
                 mediaPlayer.dispose();
                 tempFile.delete();
+                System.out.println("Lecture terminée, fichier supprimé");
             });
+            mediaPlayer.setOnError(() -> {
+                System.err.println("Erreur MediaPlayer: " + mediaPlayer.getError());
+                tempFile.delete();
+            });
+            mediaPlayer.setOnPlaying(() -> System.out.println("Lecture démarrée"));
         } catch (IOException e) {
             e.printStackTrace();
         }
