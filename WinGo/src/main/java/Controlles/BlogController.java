@@ -18,7 +18,6 @@ import Services.TagCRUD;
 import Services.UtilisateurCRUD;
 import Services.External.MyMemoryService;
 import Services.External.OpenWeatherService;
-import Services.External.EdgeTTSService;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
