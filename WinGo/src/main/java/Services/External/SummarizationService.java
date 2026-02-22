@@ -14,7 +14,7 @@ import java.util.concurrent.CompletableFuture;
 
 public class SummarizationService {
 
-    // TES INFORMATIONS RAPIDAPI (déjà remplies)
+    // Remplace par ta clé et ton hôte RapidAPI
     private static final String API_KEY = "3dfa6a93aamsh0e8d1bb47c280c6p199c88jsnff11d2cc9132";
     private static final String API_HOST = "text-summarization13.p.rapidapi.com";
     private static final String API_URL = "https://" + API_HOST + "/summarize";
