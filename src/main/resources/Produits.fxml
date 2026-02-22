@@ -1,242 +1,107 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.scene.control.*?>
-<?import javafx.scene.effect.DropShadow?>
 <?import javafx.scene.layout.*?>
-<?import javafx.scene.shape.Circle?>
-<?import javafx.geometry.Insets?>
 
-<BorderPane prefHeight="850" prefWidth="1400"
-            style="-fx-background-color: #F8F9FA;"
-            xmlns="http://javafx.com/javafx/25"
-            xmlns:fx="http://javafx.com/fxml/1"
-            fx:controller="Controlles.WinGoShopController">
+<VBox spacing="14"
+      prefHeight="800"
+      style="-fx-background-color: #F8F9FA; -fx-padding: 20 30 20 30;"
+      xmlns="http://javafx.com/javafx/25"
+      xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="Controlles.WinGoShopController">
 
-    <!-- ================= LEFT NAV (same as accueil) ================= -->
-    <left>
-        <VBox fx:id="leftNav" prefWidth="260" spacing="5"
-              style="-fx-background-color: #FFFFFF; -fx-padding: 30 0; -fx-border-color: #E2E8F0; -fx-border-width: 0 1 0 0;">
-            <effect><DropShadow color="#00000012" offsetX="3" radius="25"/></effect>
+    <!-- FILTRES -->
+    <HBox spacing="12" alignment="CENTER_LEFT">
+        <ComboBox fx:id="clientCategoryFilter"
+                  promptText="Catégorie"
+                  prefWidth="200"
+                  onAction="#onClientFilter"
+                  style="-fx-background-radius: 12; -fx-border-color: #E2E8F0;"/>
+        <ComboBox fx:id="clientRegionFilter"
+                  promptText="Région"
+                  prefWidth="200"
+                  onAction="#onClientFilter"
+                  style="-fx-background-radius: 12; -fx-border-color: #E2E8F0;"/>
+    </HBox>
 
-            <HBox alignment="CENTER_LEFT" spacing="15" style="-fx-padding: 0 0 40 30;">
-                <Label style="-fx-font-size: 32px; -fx-text-fill: #6366F1;" text="⛰️"/>
-                <VBox alignment="CENTER_LEFT">
-                    <Label style="-fx-text-fill: #6366F1; -fx-font-size: 22px; -fx-font-weight: 900;" text="WinGO"/>
-                    <Label style="-fx-text-fill: #94A3B8; -fx-font-size: 10px; -fx-font-weight: bold;" text="Produits Locaux"/>
-                </VBox>
-            </HBox>
+    <!-- LISTE PRODUITS -->
+    <ScrollPane fitToWidth="true" VBox.vgrow="ALWAYS"
+                style="-fx-background-color: transparent;
+                       -fx-background: transparent;
+                       -fx-border-color: transparent;">
+        <content>
+            <VBox fx:id="clientProductsGrid" spacing="16"
+                  style="-fx-padding: 4 4 20 4; -fx-background-color: transparent;"/>
+        </content>
+    </ScrollPane>
 
-            <!-- Home -->
-            <Button fx:id="navHomeBtn"
-                    text="🏠  Accueil / Produits"
-                    onAction="#showProducts"
-                    style="-fx-background-color: transparent; -fx-text-fill: #1E293B; -fx-font-weight: 800; -fx-padding: 12 30; -fx-cursor: hand;"
-                    maxWidth="1.7976931348623157E308"/>
+    <!-- Champs cachés SIMPLES requis par WinGoShopController (pas de TableColumn ici) -->
+    <VBox managed="false" visible="false">
+        <TextField fx:id="searchField"/>
+        <TextField fx:id="emailField"/>
+        <PasswordField fx:id="passwordField"/>
+        <TextField fx:id="nomTextField"/>
+        <TextField fx:id="descriptionField"/>
+        <TextField fx:id="prixTextField"/>
+        <TextField fx:id="stockField"/>
+        <TextField fx:id="regionField"/>
+        <TextField fx:id="categorieField"/>
+        <TextField fx:id="imageField"/>
+        <TextField fx:id="idProduitHidden"/>
+        <TextField fx:id="becomeCommercantNom"/>
+        <TextField fx:id="becomeCommercantPhone"/>
+        <TextField fx:id="becomeCommercantType"/>
+        <TextField fx:id="categorieAutreField"/>
+        <Label fx:id="loginStatusLabel" text=""/>
+        <Label fx:id="cartCountLabel" text="0"/>
+        <Label fx:id="userNameLabel" text=""/>
+        <Label fx:id="topSubtitleLabel" text=""/>
+        <Label fx:id="statusLabel" text=""/>
+        <Label fx:id="commercantProductCount" text=""/>
+        <Label fx:id="formTitleLabel" text=""/>
+        <Label fx:id="welcomeLabel" text=""/>
+        <Label fx:id="cartTotalLabel" text=""/>
+        <Label fx:id="becomeCommercantStatusLabel" text=""/>
+        <Label fx:id="dashTotalProducts" text=""/>
+        <Label fx:id="dashTotalStock" text=""/>
+        <Label fx:id="dashStockValue" text=""/>
+        <Button fx:id="saveBtn" text=""/>
+        <Button fx:id="navHomeBtn" text=""/>
+        <ToggleButton fx:id="modeToggle" text=""/>
+        <ComboBox fx:id="categorieCombo"/>
+        <TextArea fx:id="becomeCommercantMotivation"/>
+        <HBox fx:id="cartBadgeBox"/>
+        <HBox fx:id="modeSwitchBox"/>
+        <HBox fx:id="searchBox"/>
+        <HBox fx:id="topActionsBox"/>
+        <HBox fx:id="userBox"/>
+        <VBox fx:id="leftNav"/>
+        <VBox fx:id="navAddBox"/>
+        <VBox fx:id="navDashboardBox"/>
+        <VBox fx:id="navCartBox"/>
+        <VBox fx:id="navBecomeCommercantBox"/>
+        <VBox fx:id="loginPane"/>
+        <VBox fx:id="clientProductsPane"/>
+        <VBox fx:id="commercantProductsPane"/>
+        <HBox fx:id="cartPane"/>
+        <VBox fx:id="becomeCommercantPane"/>
+        <VBox fx:id="dashboardPane"/>
+        <VBox fx:id="formPane"/>
+        <VBox fx:id="cartItemsBox"/>
+        <ScrollPane fx:id="formScrollPane"/>
+        <!-- TableView avec ses colonnes (obligatoire ensemble) -->
+        <TableView fx:id="produitsTable">
+            <columns>
+                <TableColumn fx:id="colImage" text="Image"/>
+                <TableColumn fx:id="colId" text="ID"/>
+                <TableColumn fx:id="colNom" text="Nom"/>
+                <TableColumn fx:id="colPrix" text="Prix"/>
+                <TableColumn fx:id="colStock" text="Stock"/>
+                <TableColumn fx:id="colCat" text="Catégorie"/>
+                <TableColumn fx:id="colRegion" text="Région"/>
+            </columns>
+        </TableView>
+        <TableView fx:id="dashboardRecentTable"/>
+    </VBox>
 
-            <!-- Cart -->
-            <VBox fx:id="navCartBox">
-                <Button text="🛒  Panier" onAction="#showCart"
-                        style="-fx-background-color: transparent; -fx-text-fill: #1E293B; -fx-font-weight: 800; -fx-padding: 12 30; -fx-cursor: hand;"
-                        maxWidth="1.7976931348623157E308"/>
-            </VBox>
-
-            <!-- Add (commercant) -->
-            <VBox fx:id="navAddBox">
-                <Button text="➕  Ajouter produit"
-                        style="-fx-background-color: transparent; -fx-text-fill: #1E293B; -fx-font-weight: 800; -fx-padding: 12 30; -fx-cursor: hand;"
-                        maxWidth="1.7976931348623157E308"/>
-            </VBox>
-
-            <!-- Dashboard (commercant) -->
-            <VBox fx:id="navDashboardBox">
-                <Button text="📊  Dashboard"
-                        style="-fx-background-color: transparent; -fx-text-fill: #1E293B; -fx-font-weight: 800; -fx-padding: 12 30; -fx-cursor: hand;"
-                        maxWidth="1.7976931348623157E308"/>
-            </VBox>
-
-            <!-- Become commercant (client) -->
-            <VBox fx:id="navBecomeCommercantBox">
-                <Button text="🧑‍💼  Devenir commerçant"
-                        style="-fx-background-color: transparent; -fx-text-fill: #1E293B; -fx-font-weight: 800; -fx-padding: 12 30; -fx-cursor: hand;"
-                        maxWidth="1.7976931348623157E308"/>
-            </VBox>
-
-            <Region VBox.vgrow="ALWAYS"/>
-
-            <Button text="🔐  Se connecter" onAction="#showLogin"
-                    style="-fx-background-color: #6366F1; -fx-text-fill: white; -fx-font-weight: 900; -fx-background-radius: 12; -fx-padding: 12 30; -fx-cursor: hand;"
-                    maxWidth="1.7976931348623157E308"/>
-        </VBox>
-    </left>
-
-    <!-- ================= TOP BAR ================= -->
-    <top>
-        <HBox spacing="15" alignment="CENTER_LEFT"
-              style="-fx-padding: 18 30; -fx-background-color: transparent;">
-            <HBox fx:id="searchBox" alignment="CENTER_LEFT" spacing="10"
-                  style="-fx-background-color: #FFFFFF; -fx-background-radius: 15; -fx-padding: 10 16;">
-                <effect><DropShadow color="#00000008" offsetY="5" radius="10"/></effect>
-                <Label text="🔍" style="-fx-text-fill: #94A3B8;"/>
-                <TextField fx:id="searchField"
-                           promptText="Rechercher un produit..."
-                           style="-fx-background-color: transparent; -fx-text-fill: #1E293B; -fx-prompt-text-fill: #94A3B8;"
-                           HBox.hgrow="ALWAYS"/>
-            </HBox>
-
-            <!-- topActionsBox -->
-            <HBox fx:id="topActionsBox" spacing="10" alignment="CENTER_LEFT">
-                <Button text="Rafraîchir" onAction="#showProducts"
-                        style="-fx-background-color: #10B981; -fx-text-fill: white; -fx-font-weight: 900; -fx-background-radius: 12; -fx-padding: 10 16; -fx-cursor: hand;"/>
-            </HBox>
-
-            <Region HBox.hgrow="ALWAYS"/>
-
-            <!-- cart badge -->
-            <HBox fx:id="cartBadgeBox" spacing="8" alignment="CENTER"
-                  style="-fx-background-color: #EEF2FF; -fx-background-radius: 999; -fx-padding: 8 12;">
-                <Label text="🛒"/>
-                <Label fx:id="cartCountLabel" text="0" style="-fx-font-weight: 900; -fx-text-fill: #6366F1;"/>
-            </HBox>
-
-            <!-- mode switch -->
-            <HBox fx:id="modeSwitchBox" spacing="8" alignment="CENTER">
-                <ToggleButton fx:id="modeToggle" text="Client"
-                              style="-fx-background-radius: 12; -fx-cursor: hand;"/>
-            </HBox>
-
-            <!-- user box -->
-            <HBox fx:id="userBox" spacing="10" alignment="CENTER_RIGHT">
-                <Circle radius="18" fill="#F59E0B"/>
-                <VBox>
-                    <Label fx:id="userNameLabel" text="Visiteur" style="-fx-font-weight: 900; -fx-text-fill: #1E293B;"/>
-                    <Label fx:id="topSubtitleLabel" text="Produits Locaux Tunisiens" style="-fx-text-fill: #6366F1; -fx-font-weight: 800; -fx-font-size: 11px;"/>
-                </VBox>
-            </HBox>
-        </HBox>
-    </top>
-
-    <!-- ================= CENTER SCREENS (important for controller) ================= -->
-    <center>
-        <StackPane style="-fx-padding: 18 30;">
-            <!-- LOGIN -->
-            <VBox fx:id="loginPane" spacing="12" maxWidth="520"
-                  style="-fx-background-color: white; -fx-background-radius: 18; -fx-padding: 18;">
-                <effect><DropShadow color="#00000012" offsetY="10" radius="18"/></effect>
-
-                <Label text="Connexion" style="-fx-font-weight: 900; -fx-font-size: 18px; -fx-text-fill: #1E293B;"/>
-
-                <TextField fx:id="emailField" promptText="Email"
-                           style="-fx-background-radius: 12; -fx-border-radius: 12; -fx-border-color: #E2E8F0; -fx-padding: 10 12;"/>
-                <PasswordField fx:id="passwordField" promptText="Mot de passe"
-                               style="-fx-background-radius: 12; -fx-border-radius: 12; -fx-border-color: #E2E8F0; -fx-padding: 10 12;"/>
-
-                <Label fx:id="loginStatusLabel" text="" style="-fx-text-fill: #EF4444; -fx-font-weight: 800;"/>
-
-                <Button text="Se connecter" onAction="#doLogin"
-                        style="-fx-background-color: #6366F1; -fx-text-fill: white; -fx-font-weight: 900; -fx-background-radius: 12; -fx-padding: 12 14; -fx-cursor: hand;"/>
-            </VBox>
-
-            <!-- CLIENT PRODUCTS -->
-            <VBox fx:id="clientProductsPane" spacing="14"
-                  style="-fx-background-color: transparent;">
-                <HBox spacing="12" alignment="CENTER_LEFT">
-                    <ComboBox fx:id="clientCategoryFilter" promptText="Catégorie" prefWidth="220"/>
-                    <ComboBox fx:id="clientRegionFilter" promptText="Région" prefWidth="220"/>
-                </HBox>
-
-                <ScrollPane fitToWidth="true" style="-fx-background-color: transparent;" VBox.vgrow="ALWAYS">
-                    <content>
-                        <VBox fx:id="clientProductsGrid" spacing="16"
-                              style="-fx-padding: 4 8 20 4; -fx-background-color: transparent;"/>                    </content>
-                </ScrollPane>
-            </VBox>
-
-            <!-- COMMERCANT PRODUCTS (TABLE) -->
-            <VBox fx:id="commercantProductsPane" spacing="12"
-                  style="-fx-background-color: white; -fx-background-radius: 18; -fx-padding: 14;"
-                  maxWidth="1200">
-                <effect><DropShadow color="#00000012" offsetY="10" radius="18"/></effect>
-
-                <HBox alignment="CENTER_LEFT" spacing="10">
-                    <Label text="Espace Commerçant - Produits" style="-fx-font-weight: 900; -fx-text-fill: #1E293B; -fx-font-size: 16px;"/>
-                    <Region HBox.hgrow="ALWAYS"/>
-                    <Label text="Total:" style="-fx-text-fill: #64748B; -fx-font-weight: 800;"/>
-                    <Label fx:id="commercantProductCount" text="0" style="-fx-text-fill: #6366F1; -fx-font-weight: 900;"/>
-                </HBox>
-
-                <TableView fx:id="produitsTable" VBox.vgrow="ALWAYS">
-                    <columns>
-                        <TableColumn fx:id="colImage" text="Image" prefWidth="90"/>
-                        <TableColumn fx:id="colId" text="ID" prefWidth="70"/>
-                        <TableColumn fx:id="colNom" text="Nom" prefWidth="220"/>
-                        <TableColumn fx:id="colPrix" text="Prix" prefWidth="120"/>
-                        <TableColumn fx:id="colStock" text="Stock" prefWidth="100"/>
-                        <TableColumn fx:id="colCat" text="Catégorie" prefWidth="160"/>
-                        <TableColumn fx:id="colRegion" text="Région" prefWidth="160"/>
-                    </columns>
-                </TableView>
-
-                <Label fx:id="statusLabel" text="" style="-fx-text-fill: #10B981; -fx-font-weight: 800;"/>
-            </VBox>
-
-            <!-- FORM SCREEN (placeholder to avoid null) -->
-            <ScrollPane fx:id="formScrollPane" fitToWidth="true" visible="false" managed="false">
-                <content>
-                    <VBox fx:id="formPane" spacing="10" style="-fx-padding: 14;">
-                        <Label fx:id="formTitleLabel" text="Formulaire produit"/>
-                        <TextField fx:id="idProduitHidden" visible="false" managed="false"/>
-                        <TextField fx:id="nomTextField" promptText="Nom"/>
-                        <TextField fx:id="descriptionField" promptText="Description"/>
-                        <TextField fx:id="prixTextField" promptText="Prix"/>
-                        <TextField fx:id="stockField" promptText="Stock"/>
-                        <TextField fx:id="regionField" promptText="Région"/>
-                        <TextField fx:id="categorieField" promptText="Catégorie"/>
-                        <ComboBox fx:id="categorieCombo" onAction="#onCategorieChanged" promptText="Choisir une catégorie"/>
-                        <TextField fx:id="categorieAutreField" promptText="Autre catégorie" visible="false" managed="false"/>
-                        <TextField fx:id="imageField" promptText="Image URL"/>
-                        <Button fx:id="saveBtn" text="Enregistrer"/>
-                        <Label fx:id="welcomeLabel" text=""/>
-                    </VBox>
-                </content>
-            </ScrollPane>
-
-            <!-- CART SCREEN -->
-            <HBox fx:id="cartPane" spacing="14" visible="false" managed="false"
-                  style="-fx-background-color: white; -fx-background-radius: 18; -fx-padding: 14;">
-                <effect><DropShadow color="#00000012" offsetY="10" radius="18"/></effect>
-
-                <VBox fx:id="cartItemsBox" spacing="10" HBox.hgrow="ALWAYS"/>
-                <VBox spacing="10" prefWidth="220">
-                    <Label text="Total" style="-fx-font-weight: 900;"/>
-                    <Label fx:id="cartTotalLabel" text="0.00 TND" style="-fx-text-fill: #6366F1; -fx-font-weight: 900; -fx-font-size: 16px;"/>
-                </VBox>
-            </HBox>
-
-            <!-- BECOME COMMERCANT (placeholder) -->
-            <VBox fx:id="becomeCommercantPane" spacing="10" visible="false" managed="false"
-                  style="-fx-background-color: white; -fx-background-radius: 18; -fx-padding: 14;">
-                <TextField fx:id="becomeCommercantNom" promptText="Nom"/>
-                <TextField fx:id="becomeCommercantPhone" promptText="Téléphone"/>
-                <TextField fx:id="becomeCommercantType" promptText="Type"/>
-                <TextArea fx:id="becomeCommercantMotivation" promptText="Motivation"/>
-                <Label fx:id="becomeCommercantStatusLabel" text=""/>
-            </VBox>
-
-            <!-- DASHBOARD (placeholder) -->
-            <VBox fx:id="dashboardPane" spacing="10" visible="false" managed="false"
-                  style="-fx-background-color: white; -fx-background-radius: 18; -fx-padding: 14;">
-                <HBox spacing="10">
-                    <Label text="Produits:"/>
-                    <Label fx:id="dashTotalProducts" text="0"/>
-                    <Label text="Stock:"/>
-                    <Label fx:id="dashTotalStock" text="0"/>
-                    <Label text="Valeur:"/>
-                    <Label fx:id="dashStockValue" text="0"/>
-                </HBox>
-                <TableView fx:id="dashboardRecentTable" prefHeight="220"/>
-            </VBox>
-
-        </StackPane>
-    </center>
-
-</BorderPane>
+</VBox>
