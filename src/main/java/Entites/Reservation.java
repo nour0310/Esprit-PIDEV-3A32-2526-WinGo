@@ -8,6 +8,7 @@ public class Reservation {
     private String exp;
     private Timestamp date;
     private String statut;
+
     public Reservation() {}
     public Reservation(String user, String exp, String statut, Timestamp date) {
         this.user = user;

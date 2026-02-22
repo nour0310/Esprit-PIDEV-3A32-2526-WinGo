@@ -26,6 +26,8 @@ public class MixedFX {
     @FXML private ScrollPane listScroll, detailScroll;
     @FXML private TextField searchField;
     @FXML private Label totalCountLabel;
+    private javafx.collections.ObservableSet<String> dynamicWishlist = javafx.collections.FXCollections.observableSet();
+    private String currentUserId = "NormanHaires";
 
     private boolean showingReservations = true;
 
@@ -147,49 +149,92 @@ public class MixedFX {
 
     private void populateItems(List<?> items) {
         itemsFlowPane.getChildren().clear();
-        int index = 0; // Pour le délai progressif
+        int index = 0;
 
         for (Object obj : items) {
             VBox card = null;
+            String uniqueKey = ""; // Identifiant unique pour la wishlist
 
             if (showingReservations && obj instanceof Reservation) {
                 Reservation r = (Reservation) obj;
+                uniqueKey = "RES_" + r.getId();
                 String dateStr = (r.getDate() != null) ? r.getDate().toString().split(" ")[0] : "Pas de date";
                 card = createModernCard(r.getUser(), "Statut: " + r.getStatut(), dateStr, null);
+
             } else if (!showingReservations && obj instanceof Transport) {
                 Transport t = (Transport) obj;
+                uniqueKey = "TR_" + t.getId();
                 card = createModernCard(t.getType(), t.getDepart() + " ➔ " + t.getArrivee(), t.getTarif() + " TND", null);
 
-                // --- PARTIE API CORRIGÉE ---
-                Label apiNote = new Label("⏳ Connexion GPS...");
-                apiNote.setWrapText(true);
-                apiNote.setMaxWidth(170);
-                apiNote.setStyle("-fx-background-color: #FFFBEB; -fx-text-fill: #92400E; -fx-padding: 10; -fx-background-radius: 5; -fx-border-color: #F59E0B; -fx-border-width: 0 0 0 4; -fx-font-size: 11px; -fx-font-family: 'Segoe UI Semibold';");
-
+                // --- PARTIE SUIVI ET API ---
                 VBox textArea = (VBox) card.lookup("#textArea");
-                if (textArea != null) textArea.getChildren().add(apiNote);
+                if (textArea != null) {
+                    // Barre de progression pour simuler le trajet
+                    ProgressBar travelProgress = new ProgressBar(0);
+                    travelProgress.setPrefWidth(170);
+                    travelProgress.setStyle("-fx-accent: #EF4444;"); // Rouge comme demandé
 
-                final int delay = index * 1000; // 1 seconde de décalage entre chaque carte
-                new Thread(() -> {
-                    try {
-                        Thread.sleep(delay);
-                        String infos = Services.TransportAPI.getInfosTrajet(t.getDepart(), t.getArrivee());
-                        javafx.application.Platform.runLater(() -> {
-                            apiNote.setText(infos);
-                            apiNote.setStyle(apiNote.getStyle() + "-fx-background-color: #F0FDF4; -fx-border-color: #22C55E; -fx-text-fill: #166534;");
-                        });
-                    } catch (InterruptedException e) { e.printStackTrace(); }
-                }).start();
+                    Label apiNote = new Label("⏳ Initialisation GPS...");
+                    apiNote.setStyle("-fx-font-size: 10px; -fx-text-fill: #94A3B8;");
+
+                    textArea.getChildren().addAll(new Label("Suivi du trajet:"), travelProgress, apiNote);
+
+                    final int delay = index * 1000;
+                    new Thread(() -> {
+                        try {
+                            Thread.sleep(delay);
+                            // Animation de la barre (Tracking)
+                            for (double p = 0; p <= 1; p += 0.1) {
+                                final double progress = p;
+                                javafx.application.Platform.runLater(() -> travelProgress.setProgress(progress));
+                                Thread.sleep(200);
+                            }
+
+                            // Appel API une fois arrivé
+                            String infos = Services.TransportAPI.getInfosTrajet(t.getDepart(), t.getArrivee());
+                            javafx.application.Platform.runLater(() -> {
+                                apiNote.setText("🏁 " + infos);
+                                apiNote.setStyle("-fx-text-fill: #22C55E; -fx-font-weight: bold; -fx-font-size: 10px;");
+                            });
+                        } catch (InterruptedException e) { e.printStackTrace(); }
+                    }).start();
+                }
                 index++;
             }
 
             if (card != null) {
+                // --- AJOUT DU BOUTON WISHLIST DYNAMIQUE ---
+                Button wishlistBtn = new Button("❤");
+                // Positionnement sur la carte
+                wishlistBtn.setTranslateX(170);
+                wishlistBtn.setTranslateY(-10);
+
+                // État initial
+                updateWishlistButtonStyle(wishlistBtn, dynamicWishlist.contains(uniqueKey));
+
+                // Logique de clic
+                final String finalKey = uniqueKey;
+                wishlistBtn.setOnAction(e -> {
+                    if (!dynamicWishlist.contains(finalKey)) {
+                        dynamicWishlist.add(finalKey);
+                    } else {
+                        dynamicWishlist.remove(finalKey);
+                    }
+                    updateWishlistButtonStyle(wishlistBtn, dynamicWishlist.contains(finalKey));
+                    e.consume(); // Empêche de déclencher le clic sur la carte
+                });
+
+                // Ajouter le bouton à l'imagePane ou au sommet de la carte
+                ((Pane)card.getChildren().get(0)).getChildren().add(wishlistBtn);
+
+                // Gestion des clics standards
                 card.setOnMouseClicked(e -> {
                     selectedItem = obj;
                     fillFormFields(obj);
                     populateForm();
                     if (e.getClickCount() == 2) showDetails(obj);
                 });
+
                 itemsFlowPane.getChildren().add(card);
             }
         }
@@ -313,5 +358,12 @@ public class MixedFX {
     private void backToList() {
         detailScroll.setVisible(false); detailScroll.setManaged(false);
         listScroll.setVisible(true); listScroll.setManaged(true);
+    }
+    private void updateWishlistButtonStyle(Button btn, boolean isFavorite) {
+        if (isFavorite) {
+            btn.setStyle("-fx-background-color: transparent; -fx-text-fill: #EF4444; -fx-font-size: 20px; -fx-cursor: hand;");
+        } else {
+            btn.setStyle("-fx-background-color: transparent; -fx-text-fill: #CBD5E1; -fx-font-size: 20px; -fx-cursor: hand;");
+        }
     }
 }
