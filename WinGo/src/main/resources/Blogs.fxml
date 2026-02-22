@@ -496,8 +496,9 @@
                                 <Label fx:id="detailAvgLabel" text="0.0 (0 votes)" style="-fx-font-size: 14px; -fx-text-fill: white;"/>
                             </HBox>
 
-                            <!-- NOUVEAU : Météo -->
+                            <!-- Météo avec icône (NOUVEAU) -->
                             <HBox spacing="10" alignment="CENTER" style="-fx-padding: 0 20;">
+                                <ImageView fx:id="detailMeteoIcon" fitHeight="32" fitWidth="32" preserveRatio="true"/>
                                 <Label fx:id="detailMeteoLabel" text="⏳ Chargement météo..." style="-fx-text-fill: #3498db; -fx-font-size: 14px;"/>
                             </HBox>
 
