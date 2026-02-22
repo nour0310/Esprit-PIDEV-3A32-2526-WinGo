@@ -55,12 +55,19 @@
             <classifier>win</classifier>
         </dependency>
 
-        <!-- JavaFX Media (pour la lecture audio MP3) -->
+        <!-- JavaFX Media (pour la lecture audio) -->
         <dependency>
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-media</artifactId>
             <version>${javafx.version}</version>
             <classifier>win</classifier>
+        </dependency>
+
+        <!-- mp3spi pour lire les MP3 avec Java Sound -->
+        <dependency>
+            <groupId>com.googlecode.soundlibs</groupId>
+            <artifactId>mp3spi</artifactId>
+            <version>1.9.5.4</version>
         </dependency>
 
         <!-- JUnit 5 pour les tests unitaires -->
