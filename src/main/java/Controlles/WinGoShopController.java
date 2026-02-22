@@ -364,13 +364,13 @@ public class WinGoShopController {
     }
 
     private void hideAllScreens() {
-        loginPane.setVisible(false);               loginPane.setManaged(false);
-        clientProductsPane.setVisible(false);      clientProductsPane.setManaged(false);
-        commercantProductsPane.setVisible(false);  commercantProductsPane.setManaged(false);
-        formScrollPane.setVisible(false);          formScrollPane.setManaged(false);
-        cartPane.setVisible(false);                cartPane.setManaged(false);
-        becomeCommercantPane.setVisible(false);    becomeCommercantPane.setManaged(false);
-        dashboardPane.setVisible(false);           dashboardPane.setManaged(false);
+        if (loginPane != null) { loginPane.setVisible(false); loginPane.setManaged(false); }
+        if (clientProductsPane != null) { clientProductsPane.setVisible(false); clientProductsPane.setManaged(false); }
+        if (commercantProductsPane != null) { commercantProductsPane.setVisible(false); commercantProductsPane.setManaged(false); }
+        if (formScrollPane != null) { formScrollPane.setVisible(false); formScrollPane.setManaged(false); }
+        if (cartPane != null) { cartPane.setVisible(false); cartPane.setManaged(false); }
+        if (becomeCommercantPane != null) { becomeCommercantPane.setVisible(false); becomeCommercantPane.setManaged(false); }
+        if (dashboardPane != null) { dashboardPane.setVisible(false); dashboardPane.setManaged(false); }
     }
 
     private void updateUIForUserType() {
