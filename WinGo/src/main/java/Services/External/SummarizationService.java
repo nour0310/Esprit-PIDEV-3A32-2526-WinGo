@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import com.google.gson.JsonSyntaxException;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
@@ -25,7 +26,6 @@ public class SummarizationService {
         public String[] keyPhrases;
         public int readabilityScore;
         public String sentiment;
-        public boolean success;
 
         public String getFormattedKeyPhrases() {
             if (keyPhrases == null) return "";
@@ -50,40 +50,50 @@ public class SummarizationService {
 
                 try (CloseableHttpResponse response = client.execute(post)) {
                     String responseBody = EntityUtils.toString(response.getEntity(), "UTF-8");
-                    System.out.println("🔍 Réponse de l'API : " + responseBody); // DEBUG
+                    System.out.println("🔍 Réponse de l'API : " + responseBody);
 
-                    JsonObject root = JsonParser.parseString(responseBody).getAsJsonObject();
                     SummaryResult result = new SummaryResult();
 
-                    // Chercher le résumé dans différents champs possibles
-                    JsonElement summaryElem = root.get("summary");
-                    if (summaryElem == null) summaryElem = root.get("summarized_text");
-                    if (summaryElem == null) summaryElem = root.get("result");
-                    result.summary = (summaryElem != null) ? summaryElem.getAsString() : "Résumé non disponible";
+                    // Essayer de parser le JSON
+                    try {
+                        JsonObject root = JsonParser.parseString(responseBody).getAsJsonObject();
 
-                    // Mots-clés
-                    JsonElement keyElem = root.get("key_phrases");
-                    if (keyElem != null && keyElem.isJsonArray()) {
-                        result.keyPhrases = gson.fromJson(keyElem, String[].class);
-                    }
+                        // Chercher le résumé dans différents champs possibles
+                        JsonElement summaryElem = root.get("summary");
+                        if (summaryElem == null) summaryElem = root.get("summarized_text");
+                        if (summaryElem == null) summaryElem = root.get("result");
+                        result.summary = (summaryElem != null) ? summaryElem.getAsString() : "Résumé non disponible";
 
-                    // Score de lisibilité
-                    JsonElement readabilityElem = root.get("readability_score");
-                    if (readabilityElem != null) {
-                        result.readabilityScore = readabilityElem.getAsInt();
-                    }
+                        // Mots-clés
+                        JsonElement keyElem = root.get("key_phrases");
+                        if (keyElem != null && keyElem.isJsonArray()) {
+                            result.keyPhrases = gson.fromJson(keyElem, String[].class);
+                        }
 
-                    // Sentiment
-                    JsonElement sentimentElem = root.get("sentiment");
-                    if (sentimentElem != null) {
-                        result.sentiment = sentimentElem.getAsString();
+                        // Score de lisibilité
+                        JsonElement readabilityElem = root.get("readability_score");
+                        if (readabilityElem != null) {
+                            result.readabilityScore = readabilityElem.getAsInt();
+                        }
+
+                        // Sentiment
+                        JsonElement sentimentElem = root.get("sentiment");
+                        if (sentimentElem != null) {
+                            result.sentiment = sentimentElem.getAsString();
+                        }
+                    } catch (JsonSyntaxException e) {
+                        // La réponse n'est pas un JSON valide (ex: message d'erreur du gateway)
+                        System.err.println("❌ Réponse non JSON reçue : " + responseBody);
+                        result.summary = "Erreur de l'API de résumé : " + responseBody;
                     }
 
                     return result;
                 }
             } catch (Exception e) {
                 e.printStackTrace();
-                return null;
+                SummaryResult errorResult = new SummaryResult();
+                errorResult.summary = "Erreur de connexion : " + e.getMessage();
+                return errorResult;
             }
         });
     }
