@@ -16,7 +16,7 @@ public class Home extends Application {
 
     @Override
     public void start(Stage primaryStage) {
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("/AjouterProduit.fxml"));
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("/Home.fxml"));
         try {
             Parent root = loader.load();
             Scene scene = new Scene(root);
@@ -32,7 +32,7 @@ public class Home extends Application {
             primaryStage.show();
 
             Navigator.setStage(primaryStage);
-            Navigator.goTo("AjouterProduit.fxml", "Ajouter Produit");
+            Navigator.goTo("Home.fxml", "Ajouter Produit");
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

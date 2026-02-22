@@ -21,15 +21,12 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.stream.Collectors;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.Node;
 import javafx.stage.Stage;
-import javafx.scene.input.MouseEvent;
 
 import java.io.IOException;
 
@@ -1291,7 +1288,7 @@ public class WinGoShopController {
     private void goProducts(javafx.scene.input.MouseEvent event) {
         try {
             Parent root = FXMLLoader.load(
-                    getClass().getResource("/AjouterProduit.fxml")
+                    getClass().getResource("/Home.fxml")
             );
 
             Stage stage = (Stage) ((Node) event.getSource())
