@@ -1,7 +1,5 @@
 package Services.External;
 
-import javafx.scene.media.Media;
-import javafx.scene.media.MediaPlayer;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
@@ -9,9 +7,8 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
 
-import java.awt.Desktop;
-import java.io.File;
-import java.io.FileOutputStream;
+import javax.sound.sampled.*;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.concurrent.CompletableFuture;
 
@@ -54,45 +51,23 @@ public class EdgeTTSService {
             return;
         }
         try {
-            File tempFile = File.createTempFile("tts_", ".mp3");
-            tempFile.deleteOnExit();
-            try (FileOutputStream fos = new FileOutputStream(tempFile)) {
-                fos.write(audioData);
-            }
-            System.out.println("💾 Fichier temporaire créé: " + tempFile.getAbsolutePath());
-
-            // Essayer avec MediaPlayer JavaFX
-            try {
-                Media media = new Media(tempFile.toURI().toString());
-                MediaPlayer mediaPlayer = new MediaPlayer(media);
-                mediaPlayer.setVolume(1.0);
-                mediaPlayer.play();
-                mediaPlayer.setOnEndOfMedia(() -> {
-                    mediaPlayer.dispose();
-                    tempFile.delete();
-                    System.out.println("✅ Lecture terminée, fichier supprimé");
-                });
-                mediaPlayer.setOnError(() -> {
-                    System.err.println("⚠️ Erreur MediaPlayer: " + mediaPlayer.getError());
-                    // Fallback : ouvrir avec le lecteur par défaut
-                    openWithDefaultPlayer(tempFile);
-                });
-                mediaPlayer.setOnPlaying(() -> System.out.println("▶️ Lecture démarrée"));
-            } catch (Exception e) {
-                e.printStackTrace();
-                openWithDefaultPlayer(tempFile);
-            }
-        } catch (IOException e) {
+            // Utiliser AudioSystem avec le service provider mp3spi
+            ByteArrayInputStream bais = new ByteArrayInputStream(audioData);
+            AudioInputStream audioStream = AudioSystem.getAudioInputStream(bais);
+            Clip clip = AudioSystem.getClip();
+            clip.open(audioStream);
+            clip.start();
+            clip.addLineListener(event -> {
+                if (event.getType() == LineEvent.Type.STOP) {
+                    clip.close();
+                }
+            });
+            System.out.println("▶️ Lecture audio démarrée");
+        } catch (UnsupportedAudioFileException e) {
+            System.err.println("❌ Format audio non supporté. Assurez-vous que la dépendance mp3spi est présente.");
             e.printStackTrace();
-        }
-    }
-
-    private static void openWithDefaultPlayer(File file) {
-        try {
-            Desktop.getDesktop().open(file);
-            System.out.println("📂 Ouverture avec le lecteur par défaut");
-        } catch (IOException ex) {
-            ex.printStackTrace();
+        } catch (IOException | LineUnavailableException e) {
+            e.printStackTrace();
         }
     }
 }
