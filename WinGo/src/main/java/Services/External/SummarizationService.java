@@ -1,5 +1,7 @@
 package Services.External;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonSyntaxException;
 import java.net.URI;
 import java.net.URLEncoder;
 import java.net.http.HttpClient;
@@ -11,15 +13,16 @@ import java.util.concurrent.CompletableFuture;
 public class SummarizationService {
 
     private static final String RAPIDAPI_HOST = "text-summarization13.p.rapidapi.com";
-    private static final String RAPIDAPI_KEY = "VOTRE_NOUVELLE_CLE_API"; // À remplacer
+    private static final String RAPIDAPI_KEY = "VOTRE_NOUVELLE_CLE_API"; // Remplacez par votre clé
     private static final String API_URL = "https://" + RAPIDAPI_HOST + "/data";
 
     private static final HttpClient client = HttpClient.newHttpClient();
+    private static final Gson gson = new Gson();
 
     /**
      * Version synchrone (bloquante)
      */
-    public static String summarize(String text) throws Exception {
+    public static SummaryResult summarize(String text) throws Exception {
         String formBody = "text=" + URLEncoder.encode(text, StandardCharsets.UTF_8);
 
         HttpRequest request = HttpRequest.newBuilder()
@@ -36,13 +39,18 @@ public class SummarizationService {
             throw new RuntimeException("Erreur API (" + response.statusCode() + ") : " + response.body());
         }
 
-        return response.body();
+        // Parser la réponse JSON
+        try {
+            return gson.fromJson(response.body(), SummaryResult.class);
+        } catch (JsonSyntaxException e) {
+            throw new RuntimeException("Erreur de parsing JSON : " + response.body(), e);
+        }
     }
 
     /**
      * Version asynchrone (recommandée pour ne pas bloquer l'UI)
      */
-    public static CompletableFuture<String> summarizeAsync(String text) {
+    public static CompletableFuture<SummaryResult> summarizeAsync(String text) {
         return CompletableFuture.supplyAsync(() -> {
             try {
                 return summarize(text);
