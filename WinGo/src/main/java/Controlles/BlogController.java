@@ -17,6 +17,7 @@ import Services.RatingCRUD;
 import Services.TagCRUD;
 import Services.UtilisateurCRUD;
 import Services.External.MyMemoryService;
+import Services.External.OpenWeatherService; // <-- NOUVEAU
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -141,7 +142,8 @@ public class BlogController implements Initializable {
     @FXML private HBox detailStarsBox;
     @FXML private Label detailAvgLabel;
     @FXML private HBox detailShareBox;
-    @FXML private Button detailFavButton; // FAVORI
+    @FXML private Button detailFavButton;
+    @FXML private Label detailMeteoLabel; // <-- NOUVEAU : pour la météo dans la vue détail
 
     // Composants pour la traduction
     @FXML private ComboBox<String> langueCombo;
@@ -174,7 +176,7 @@ public class BlogController implements Initializable {
     public void initialize(URL location, ResourceBundle resources) {
         loadImages();
         initComboBoxes();
-        initLangues(); // Initialiser la liste des langues pour la traduction
+        initLangues();
         loadUtilisateurs();
         attachListeners();
         setupValidationListeners();
@@ -237,7 +239,7 @@ public class BlogController implements Initializable {
                 "Anglais", "Espagnol", "Allemand", "Arabe", "Italien", "Portugais"
         );
         langueCombo.setItems(langues);
-        langueCombo.setValue("Anglais"); // valeur par défaut
+        langueCombo.setValue("Anglais");
     }
 
     private void loadUtilisateurs() {
@@ -295,7 +297,7 @@ public class BlogController implements Initializable {
         }
         detailAddCommentBtn.setOnAction(e -> ajouterCommentaireDetail());
         notificationButton.setOnAction(e -> afficherNotifications());
-        traduireBtn.setOnAction(e -> traduireArticle()); // Traduction
+        traduireBtn.setOnAction(e -> traduireArticle());
     }
 
     private void afficherNotifications() {
@@ -356,7 +358,7 @@ public class BlogController implements Initializable {
         filterArticles();
     }
 
-    // ========== TRADUCTION AVEC MYMEMORY (CORRIGÉE) ==========
+    // ========== TRADUCTION ==========
     private void traduireArticle() {
         if (displayedDetailBlog == null) {
             detailStatusLabel.setText("❌ Aucun article sélectionné");
@@ -376,15 +378,12 @@ public class BlogController implements Initializable {
             default -> "en";
         };
 
-        // Toujours utiliser le contenu original de l'article (pas le texte déjà traduit)
         String texteOriginal = displayedDetailBlog.getContenu();
         String titreOriginal = displayedDetailBlog.getTitre();
 
         detailStatusLabel.setText("⏳ Traduction en cours...");
 
-        // Traduction du contenu avec détection automatique de la langue source
         MyMemoryService.translateAsync(texteOriginal, "fr", codeLangue)
-
                 .thenAccept(texteTraduit -> {
                     javafx.application.Platform.runLater(() -> {
                         detailContenuLabel.setText(texteTraduit);
@@ -392,21 +391,16 @@ public class BlogController implements Initializable {
                     });
                 })
                 .exceptionally(ex -> {
-                    javafx.application.Platform.runLater(() ->
-                            detailStatusLabel.setText("❌ Erreur de traduction")
-                    );
+                    javafx.application.Platform.runLater(() -> detailStatusLabel.setText("❌ Erreur de traduction"));
                     return null;
                 });
 
-        // Traduction optionnelle du titre
         MyMemoryService.translateAsync(titreOriginal, "fr", codeLangue)
-                .thenAccept(titreTraduit ->
-                        javafx.application.Platform.runLater(() -> detailTitreLabel.setText(titreTraduit))
-                );
+                .thenAccept(titreTraduit -> javafx.application.Platform.runLater(() -> detailTitreLabel.setText(titreTraduit)));
     }
     // ========== FIN TRADUCTION ==========
 
-    // ========== VALIDATION EN TEMPS RÉEL ==========
+    // ========== VALIDATION ==========
     private void setupValidationListeners() {
         titreField.textProperty().addListener((obs, oldVal, newVal) -> validateTitre());
         contenuField.textProperty().addListener((obs, oldVal, newVal) -> validateContenu());
@@ -706,6 +700,18 @@ public class BlogController implements Initializable {
         Label commentCount = new Label("Commentaires: " + nbComments);
         commentCount.setStyle("-fx-text-fill: #27ae60; -fx-font-size: 13px;");
 
+        // --- MÉTÉO (NOUVEAU) ---
+        Label meteoLabel = new Label("⏳ Météo...");
+        meteoLabel.setStyle("-fx-text-fill: #2980b9; -fx-font-size: 11px;");
+        // Lancer l'appel asynchrone pour récupérer la météo
+        OpenWeatherService.getWeatherAsync(blog.getRegion())
+                .thenAccept(meteo -> javafx.application.Platform.runLater(() -> meteoLabel.setText("☀️ " + meteo)))
+                .exceptionally(ex -> {
+                    javafx.application.Platform.runLater(() -> meteoLabel.setText("❌ Météo indisponible"));
+                    return null;
+                });
+        // --- FIN MÉTÉO ---
+
         // --- LIKES ---
         int likes = likeCounts.getOrDefault(blog.getId(), 0);
         boolean isLiked = likedByCurrentUser.contains(blog.getId());
@@ -864,6 +870,7 @@ public class BlogController implements Initializable {
         // Ajout des éléments au contenu
         content.getChildren().addAll(auteur, date, categorie, extraitLabel, commentCount, likeBox, favButton, ratingBox);
         if (tagsBox != null) content.getChildren().add(tagsBox);
+        content.getChildren().add(meteoLabel); // <-- Ajout de la météo
         content.getChildren().add(actions);
 
         card.getChildren().addAll(imageContainer, content);
@@ -970,6 +977,20 @@ public class BlogController implements Initializable {
         } else {
             detailView.getChildren().add(tagsBox);
         }
+
+        // --- MÉTÉO DANS LA VUE DÉTAIL ---
+        if (blog.getRegion() != null && !blog.getRegion().isEmpty()) {
+            detailMeteoLabel.setText("⏳ Chargement météo...");
+            OpenWeatherService.getWeatherAsync(blog.getRegion())
+                    .thenAccept(meteo -> javafx.application.Platform.runLater(() -> detailMeteoLabel.setText("☀️ Météo: " + meteo)))
+                    .exceptionally(ex -> {
+                        javafx.application.Platform.runLater(() -> detailMeteoLabel.setText("❌ Météo indisponible"));
+                        return null;
+                    });
+        } else {
+            detailMeteoLabel.setText("🌍 Région non spécifiée");
+        }
+        // --- FIN MÉTÉO ---
 
         afficherCommentairesDetail();
         listViewScroll.setVisible(false);
@@ -1595,7 +1616,6 @@ public class BlogController implements Initializable {
         regionField.setValue(blog.getRegion());
         categorieField.setValue(blog.getCategorie());
         auteurLabel.setText(blog.getAuteurNom() != null ? blog.getAuteurNom() : "Inconnu");
-        // Pré-remplir les tags
         if (!blog.getTags().isEmpty()) {
             StringBuilder sb = new StringBuilder();
             for (Tag tag : blog.getTags()) {
@@ -1663,9 +1683,7 @@ public class BlogController implements Initializable {
             selectedBlog.setCategorie(categorieField.getValue());
             blogCRUD.modifier(selectedBlog);
 
-            // Mise à jour des tags : supprimer les anciennes associations
             tagCRUD.supprimerAssociationsArticle(selectedBlog.getId());
-            // Ajouter les nouvelles
             String tagsInput = tagsField.getText();
             if (tagsInput != null && !tagsInput.trim().isEmpty()) {
                 traiterTags(selectedBlog.getId(), tagsInput);
@@ -1734,7 +1752,6 @@ public class BlogController implements Initializable {
             return;
         }
 
-        // Détecter les mentions
         List<Integer> mentionsIds = detecterMentions(contenu);
 
         Commentaire c = new Commentaire();
@@ -1746,7 +1763,6 @@ public class BlogController implements Initializable {
             commentaireCRUD.ajouter(c);
             System.out.println("Commentaire ajouté avec ID : " + c.getId());
 
-            // Envoyer les notifications
             if (!mentionsIds.isEmpty()) {
                 String lien = "/article/" + displayedDetailBlog.getId() + "#commentaire-" + c.getId();
                 String message = currentUser.getPrenom() + " " + currentUser.getNom() +
@@ -1823,7 +1839,6 @@ public class BlogController implements Initializable {
             afficherCommentairesDetail();
             updateDetailLikeButton();
             updateDetailStars();
-            // Re-créer les boutons de partage
             detailShareBox.getChildren().clear();
             Button whatsappBtn = createShareButton("WhatsApp", "/images/whatsapp.png", "#25D366", displayedDetailBlog, null);
             Button facebookBtn = createShareButton("Facebook", "/images/facebook.png", "#4267B2", displayedDetailBlog, null);
