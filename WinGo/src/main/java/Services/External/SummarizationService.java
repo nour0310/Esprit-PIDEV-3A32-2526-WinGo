@@ -1,100 +1,56 @@
-package Services.External;
+package org.example.workshop3A9.service;
 
-import com.google.gson.Gson;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
-import com.google.gson.JsonSyntaxException;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.entity.StringEntity;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClients;
-import org.apache.http.util.EntityUtils;
-
-import java.util.concurrent.CompletableFuture;
+import java.net.URI;
+import java.net.URLEncoder;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import java.nio.charset.StandardCharsets;
 
 public class SummarizationService {
 
-    private static final String API_KEY = "3dfa6a93aamsh0e8d1bb47c280c6p199c88jsnff11d2cc9132";
-    private static final String API_HOST = "text-summarization13.p.rapidapi.com";
-    private static final String API_URL = "https://" + API_HOST + "/summarize";
-    private static final Gson gson = new Gson();
+    private static final String RAPIDAPI_HOST = "text-summarization13.p.rapidapi.com";
+    private static final String RAPIDAPI_KEY = "VOTRE_NOUVELLE_CLE_API"; // Remplacez par votre clé regénérée
+    private static final String API_URL = "https://" + RAPIDAPI_HOST + "/data";
 
-    public static class SummaryResult {
-        public String summary;
-        public String[] keyPhrases;
-        public int readabilityScore;
-        public String sentiment;
+    private final HttpClient client;
 
-        public String getFormattedKeyPhrases() {
-            if (keyPhrases == null) return "";
-            return String.join(", ", keyPhrases);
-        }
+    public SummarizationService() {
+        this.client = HttpClient.newHttpClient();
     }
 
-    public static CompletableFuture<SummaryResult> summarizeAsync(String text) {
-        return CompletableFuture.supplyAsync(() -> {
-            try (CloseableHttpClient client = HttpClients.createDefault()) {
-                HttpPost post = new HttpPost(API_URL);
-                post.setHeader("Content-Type", "application/json");
-                post.setHeader("X-RapidAPI-Key", API_KEY);
-                post.setHeader("X-RapidAPI-Host", API_HOST);
+    /**
+     * Envoie le texte à l'API et retourne le résumé.
+     *
+     * @param text le texte à résumer
+     * @return la réponse brute de l'API (à parser selon le format de retour)
+     * @throws Exception en cas d'erreur réseau ou de réponse invalide
+     */
+    public String summarize(String text) throws Exception {
+        // Préparer le corps de la requête au format application/x-www-form-urlencoded
+        // Le paramètre attendu s'appelle 'text' (vérifié sur l'endpoint)
+        String formBody = "text=" + URLEncoder.encode(text, StandardCharsets.UTF_8);
 
-                JsonObject json = new JsonObject();
-                json.addProperty("text", text);
-                json.addProperty("length", "medium");
-                json.addProperty("format", "paragraph");
+        // Construire la requête
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create(API_URL))
+                .header("Content-Type", "application/x-www-form-urlencoded")
+                .header("X-RapidAPI-Key", RAPIDAPI_KEY)
+                .header("X-RapidAPI-Host", RAPIDAPI_HOST)
+                .POST(HttpRequest.BodyPublishers.ofString(formBody))
+                .build();
 
-                post.setEntity(new StringEntity(json.toString(), "UTF-8"));
+        // Envoyer et récupérer la réponse
+        HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
 
-                try (CloseableHttpResponse response = client.execute(post)) {
-                    String responseBody = EntityUtils.toString(response.getEntity(), "UTF-8");
-                    System.out.println("🔍 Réponse de l'API : " + responseBody);
+        int statusCode = response.statusCode();
+        String responseBody = response.body();
 
-                    SummaryResult result = new SummaryResult();
+        // Vérifier le code de statut HTTP
+        if (statusCode != 200) {
+            throw new RuntimeException("Erreur API (" + statusCode + ") : " + responseBody);
+        }
 
-                    // Essayer de parser le JSON
-                    try {
-                        JsonObject root = JsonParser.parseString(responseBody).getAsJsonObject();
-
-                        // Chercher le résumé dans différents champs possibles
-                        JsonElement summaryElem = root.get("summary");
-                        if (summaryElem == null) summaryElem = root.get("summarized_text");
-                        if (summaryElem == null) summaryElem = root.get("result");
-                        result.summary = (summaryElem != null) ? summaryElem.getAsString() : "Résumé non disponible";
-
-                        // Mots-clés
-                        JsonElement keyElem = root.get("key_phrases");
-                        if (keyElem != null && keyElem.isJsonArray()) {
-                            result.keyPhrases = gson.fromJson(keyElem, String[].class);
-                        }
-
-                        // Score de lisibilité
-                        JsonElement readabilityElem = root.get("readability_score");
-                        if (readabilityElem != null) {
-                            result.readabilityScore = readabilityElem.getAsInt();
-                        }
-
-                        // Sentiment
-                        JsonElement sentimentElem = root.get("sentiment");
-                        if (sentimentElem != null) {
-                            result.sentiment = sentimentElem.getAsString();
-                        }
-                    } catch (JsonSyntaxException e) {
-                        // La réponse n'est pas un JSON valide (ex: message d'erreur du gateway)
-                        System.err.println("❌ Réponse non JSON reçue : " + responseBody);
-                        result.summary = "Erreur de l'API de résumé : " + responseBody;
-                    }
-
-                    return result;
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
-                SummaryResult errorResult = new SummaryResult();
-                errorResult.summary = "Erreur de connexion : " + e.getMessage();
-                return errorResult;
-            }
-        });
+        return responseBody;
     }
 }
