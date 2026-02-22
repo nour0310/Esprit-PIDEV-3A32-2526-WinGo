@@ -18,7 +18,7 @@ import Services.TagCRUD;
 import Services.UtilisateurCRUD;
 import Services.External.MyMemoryService;
 import Services.External.OpenWeatherService;
-import Services.External.EdgeTTSService; // Nouveau service
+import Services.External.EdgeTTSService;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -305,7 +305,7 @@ public class BlogController implements Initializable {
         detailAddCommentBtn.setOnAction(e -> ajouterCommentaireDetail());
         notificationButton.setOnAction(e -> afficherNotifications());
         traduireBtn.setOnAction(e -> traduireArticle());
-        ecouterBtn.setOnAction(e -> ecouterArticle()); // Nouveau listener
+        ecouterBtn.setOnAction(e -> ecouterArticle());
     }
 
     private void afficherNotifications() {
@@ -420,6 +420,7 @@ public class BlogController implements Initializable {
         // Désactiver le bouton pendant la génération
         ecouterBtn.setDisable(true);
         ecouterBtn.setText("⏳ Génération...");
+        detailStatusLabel.setText("⏳ Génération audio...");
 
         // Voix française recommandée
         String voiceId = "fr-FR-DeniseNeural";
@@ -430,10 +431,12 @@ public class BlogController implements Initializable {
                         ecouterBtn.setDisable(false);
                         ecouterBtn.setText("🔊 Écouter");
                         if (audioData != null) {
+                            System.out.println("✅ Audio reçu, taille: " + audioData.length);
                             EdgeTTSService.playAudio(audioData);
                             detailStatusLabel.setText("✅ Lecture en cours...");
                         } else {
                             detailStatusLabel.setText("❌ Erreur de génération audio");
+                            System.err.println("❌ Audio data null");
                         }
                     });
                 })
@@ -442,6 +445,7 @@ public class BlogController implements Initializable {
                         ecouterBtn.setDisable(false);
                         ecouterBtn.setText("🔊 Écouter");
                         detailStatusLabel.setText("❌ Erreur : " + ex.getMessage());
+                        ex.printStackTrace();
                     });
                     return null;
                 });
