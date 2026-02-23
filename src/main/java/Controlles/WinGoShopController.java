@@ -1106,7 +1106,7 @@ public class WinGoShopController {
         // ScrollPane pour le body (formulaire peut être long)
         ScrollPane scrollBody = new ScrollPane(body);
         scrollBody.setFitToWidth(true);
-        scrollBody.setMaxHeight(500);
+        scrollBody.setMaxHeight(560);
         scrollBody.setStyle("-fx-background-color: transparent; -fx-background: transparent; -fx-border-color: transparent;");
 
         panel.getChildren().addAll(header, scrollBody);
