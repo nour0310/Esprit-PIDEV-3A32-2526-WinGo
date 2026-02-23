@@ -879,7 +879,7 @@ public class WinGoShopController {
         overlay.setOnMouseClicked(e -> { if (e.getTarget() == overlay) overlayContainer.getChildren().remove(overlay); });
 
         VBox panel = new VBox(0);
-        panel.setPrefWidth(520); panel.setMaxWidth(520);
+        panel.setPrefWidth(700); panel.setMaxWidth(700);
         panel.setStyle("-fx-background-color: #0F172A; -fx-background-radius: 20;" +
                 "-fx-effect: dropshadow(gaussian, rgba(99,102,241,0.4), 50, 0, 0, 0);");
         panel.setOnMouseClicked(javafx.event.Event::consume);
