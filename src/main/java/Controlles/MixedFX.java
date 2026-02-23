@@ -1,5 +1,12 @@
 package Controlles;
-
+import Services.BusinessLogic;
+import com.google.zxing.BarcodeFormat;
+import com.google.zxing.client.j2se.MatrixToImageWriter;
+import com.google.zxing.common.BitMatrix;
+import com.google.zxing.qrcode.QRCodeWriter;
+import javafx.scene.image.Image;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import Entites.Reservation;
 import Entites.Transport;
 import Services.ReservationCRUD;
@@ -9,6 +16,7 @@ import javafx.fxml.FXML;
 import javafx.geometry.Insets;
 import javafx.scene.control.*;
 import javafx.scene.effect.DropShadow;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 
@@ -34,6 +42,8 @@ public class MixedFX {
     @FXML private WebView mapWebView;
     @FXML private Label mapRouteLabel;
     @FXML private ProgressBar mapProgressBar;
+    @FXML private Label priceNoteLabel;
+    @FXML private ImageView qrCodeView;
 
     private boolean showingReservations = true;
 
@@ -85,6 +95,7 @@ public class MixedFX {
             populateItems(filtered);
         }
     }
+
     @FXML
     private void toggleWishlistFilter() {
         filterByWishlist = !filterByWishlist;
@@ -148,6 +159,42 @@ public class MixedFX {
         label.setStyle("-fx-text-fill: #64748B; -fx-font-weight: bold;");
         return label;
     }
+    public static float calculerPrixDynamique(Transport t) {
+        float prixFinal = t.getTarif();
+
+        // 1. Majoration Heure de pointe (07h-09h ou 17h-19h)
+        int heure = t.getDateDepart().getHour();
+        if ((heure >= 7 && heure <= 9) || (heure >= 17 && heure <= 19)) {
+            prixFinal *= 1.25; // +25%
+        }
+
+        // 2. Majoration Type de transport
+        if (t.getType().equalsIgnoreCase("Luxe") || t.getType().equalsIgnoreCase("Avion")) {
+            prixFinal += 50.0;
+        }
+
+        // 3. Réduction Anticipation (si réservé plus de 7 jours avant)
+        if (t.getDateDepart().isAfter(java.time.LocalDateTime.now().plusDays(7))) {
+            prixFinal *= 0.90; // -10%
+        }
+
+        return prixFinal;
+    }
+
+    // --- GÉNÉRATION QR CODE ---
+    public static Image generateQRCode(String data) {
+        try {
+            QRCodeWriter qrCodeWriter = new QRCodeWriter();
+            BitMatrix bitMatrix = qrCodeWriter.encode(data, BarcodeFormat.QR_CODE, 200, 200);
+
+            ByteArrayOutputStream pngOutputStream = new ByteArrayOutputStream();
+            MatrixToImageWriter.writeToStream(bitMatrix, "PNG", pngOutputStream);
+
+            return new Image(new ByteArrayInputStream(pngOutputStream.toByteArray()));
+        } catch (Exception e) {
+            return null;
+        }
+    }
 
     @FXML
     private void showReservations() {
@@ -164,6 +211,7 @@ public class MixedFX {
         reservationToggleBtn.setStyle("-fx-background-color: transparent; -fx-text-fill: #94A3B8;");
         setupFormFields(); loadTransports(); selectedItem = null; searchField.clear();
     }
+
 
     private void loadReservations() {
         try {
@@ -328,10 +376,22 @@ public class MixedFX {
         if (showingReservations && item instanceof Reservation r) {
             resUserField.setText(r.getUser()); resExpField.setText(r.getExp()); resStatutField.setText(r.getStatut());
             if (r.getDate() != null) resDateField.setValue(r.getDate().toLocalDateTime().toLocalDate());
+            if (priceNoteLabel != null) priceNoteLabel.setVisible(false);
         } else if (!showingReservations && item instanceof Transport t) {
             trTypeField.setText(t.getType()); trCapField.setText(t.getCapacite()); trTarifField.setText(String.valueOf(t.getTarif()));
             trDepartField.setText(t.getDepart()); trArriveeField.setText(t.getArrivee());
             if (t.getDateDepart() != null) trDateField.setValue(t.getDateDepart().toLocalDate());
+            //if (!showingReservations && item instanceof Transport transportItem) {
+                float prixSuggere = Services.BusinessLogic.calculerPrixDynamique(t);
+                if (priceNoteLabel != null) {
+                    if (prixSuggere > t.getTarif()) {
+                        priceNoteLabel.setText("🔥 +25% Heure de pointe : " + prixSuggere + " TND");
+                        priceNoteLabel.setVisible(true);
+                    } else {
+                        priceNoteLabel.setVisible(false);
+                    }
+                }
+
         }
     }
 
@@ -399,12 +459,22 @@ public class MixedFX {
         listScroll.setVisible(false); listScroll.setManaged(false);
         detailScroll.setVisible(true); detailScroll.setManaged(true);
         detailGrid.getChildren().clear();
+        String qrContent = "";
         if (showingReservations && item instanceof Reservation r) {
             detailGrid.addRow(0, createStyledLabel("User:"), new Label(r.getUser()));
             detailGrid.addRow(1, createStyledLabel("Statut:"), new Label(r.getStatut()));
+            String ticketInfo = "BILLET RÉSERVATION\nID: " + r.getId() + "\nClient: " + r.getUser() + "\nStatut: " + r.getStatut();
+            Image qrImage = BusinessLogic.generateQRCode(ticketInfo);
+
+            ImageView qrView = new ImageView(qrImage);
+            detailGrid.addRow(2, createStyledLabel("Billet Digital:"), qrView);
         } else if (item instanceof Transport t) {
             detailGrid.addRow(0, createStyledLabel("Départ:"), new Label(t.getDepart()));
             detailGrid.addRow(1, createStyledLabel("Arrivée:"), new Label(t.getArrivee()));
+        }
+        if (qrCodeView != null && !qrContent.isEmpty()) {
+            Image img = Services.BusinessLogic.generateQRCode(qrContent);
+            qrCodeView.setImage(img);
         }
     }
 
