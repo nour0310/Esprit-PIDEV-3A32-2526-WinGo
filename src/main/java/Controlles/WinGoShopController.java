@@ -915,7 +915,21 @@ public class WinGoShopController {
         fCat.setPromptText("Choisir une catégorie...");
         fCat.setMaxWidth(Double.MAX_VALUE);
         // ✅ Style minimal — pas de background-color custom qui cache le popup
-        fCat.setStyle("-fx-font-size: 13px; -fx-background-radius: 10;");
+        fCat.setStyle("");
+        fCat.setCellFactory(lv -> new ListCell<String>() {
+            @Override protected void updateItem(String item, boolean empty) {
+                super.updateItem(item, empty);
+                setText(empty || item == null ? null : item);
+                setStyle(empty ? "" : "-fx-background-color: white; -fx-text-fill: #1E293B; -fx-font-size: 13px; -fx-padding: 8 12;");
+            }
+        });
+        fCat.setButtonCell(new ListCell<String>() {
+            @Override protected void updateItem(String item, boolean empty) {
+                super.updateItem(item, empty);
+                setText(empty || item == null ? "Choisir une catégorie..." : item);
+                setStyle("-fx-text-fill: " + (empty || item == null ? "#94A3B8" : "#1E293B") + "; -fx-font-size: 13px;");
+            }
+        });
         if (existant != null && existant.getCategorie() != null) fCat.setValue(existant.getCategorie());
         Label errCatLbl = overlayErrLabel();
         fCat.valueProperty().addListener((obs, old, val) -> {
