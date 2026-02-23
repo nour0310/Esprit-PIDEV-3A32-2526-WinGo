@@ -158,8 +158,8 @@ public class WinGoShopController {
     public void initialize() {
         // ✅ OVERLAY EN PREMIER
         if (overlayContainerFxml != null) {
-            overlayContainerFxml.setMouseTransparent(false);
             this.overlayContainer = overlayContainerFxml;
+            overlayContainerFxml.setPickOnBounds(false); // ✅ ne bloque pas les clics quand vide
         }
 
         // 🔍 DEBUG — à supprimer après
@@ -178,6 +178,8 @@ public class WinGoShopController {
         updateUIForUserType();
         showProducts();
     }
+
+
 
     // ==================== REALTIME VALIDATION ====================
     private void setupRealtimeValidation() {

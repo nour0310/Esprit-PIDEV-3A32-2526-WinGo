@@ -39,7 +39,6 @@
                            -fx-background-radius: 10;
                            -fx-padding: 10 18;
                            -fx-cursor: hand;"/>
-
             <!-- BOUTON PANIER avec badge compteur -->
             <StackPane alignment="CENTER">
                 <Button onAction="#showPanierDialog"
