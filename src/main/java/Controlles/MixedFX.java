@@ -181,24 +181,32 @@ public class MixedFX {
         } catch (SQLException e) { e.printStackTrace(); }
     }
     private void updateMapDisplay(Transport t) {
-        if (mapWebView == null) return; // Sécurité si la WebView n'est pas injectée
+        if (mapWebView == null) return;
 
-        // Nettoyage des noms pour l'URL (remplace les espaces par des +)
-        String origin = t.getDepart().replace(" ", "+");
-        String destination = t.getArrivee().replace(" ", "+");
+        // 1. Clean the strings for URL (handle spaces and special characters)
+        try {
+            String origin = java.net.URLEncoder.encode(t.getDepart(), "UTF-8");
+            String destination = java.net.URLEncoder.encode(t.getArrivee(), "UTF-8");
 
-        // URL Google Maps en mode Direction (Embed)
-        // Note: Utiliser une clé API si tu veux éviter les limitations, sinon Maps URL simple
-        String url = "https://www.google.com/maps/dir/?api=1&origin=" + origin + "&destination=" + destination + "&travelmode=driving";
+            // 2. Use the official Google Maps search/dir URL
+            // 'dir' stands for directions, 'api=1' is the current platform version
+            String url = "https://www.google.com/maps/dir/?api=1&origin=" + origin + "&destination=" + destination + "&travelmode=driving";
 
-        javafx.application.Platform.runLater(() -> {
-            mapWebView.getEngine().load(url);
+            javafx.application.Platform.runLater(() -> {
+                WebEngine engine = mapWebView.getEngine();
 
-            // Optionnel : Mettre à jour les labels de ton bloc à droite (image_21b93a.png)
-            if (mapRouteLabel != null) {
-                mapRouteLabel.setText(t.getDepart() + " vers " + t.getArrivee());
-            }
-        });
+                // Optional: Set a User-Agent to ensure the mobile/web view renders correctly
+                engine.setUserAgent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36");
+
+                engine.load(url);
+
+                if (mapRouteLabel != null) {
+                    mapRouteLabel.setText(t.getDepart() + " ➔ " + t.getArrivee());
+                }
+            });
+        } catch (java.io.UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
     }
 
     private void populateItems(List<?> items) {
