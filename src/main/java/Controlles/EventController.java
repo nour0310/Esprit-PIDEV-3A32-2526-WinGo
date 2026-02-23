@@ -3,6 +3,7 @@ package Controlles;
 import Entites.Event;
 import Entites.Participation;
 import Services.EventCRUD;
+import Services.MailService;
 import Services.ParticipationCRUD;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -112,6 +113,11 @@ public class EventController implements Initializable {
     @FXML private Label totalRevenueLabel;
     @FXML private Label averagePriceLabel;
 
+    // Badges
+    @FXML private Label eventCountBadge;
+    @FXML private Label participationCountBadge;
+    @FXML private Label activeEventsLabel;
+
     // Participation Form Fields
     @FXML private Label eventIdLabel;
     @FXML private TextField userIdField;
@@ -168,10 +174,6 @@ public class EventController implements Initializable {
     @FXML private HBox mainContainer;
     @FXML private VBox sidebar;
     @FXML private VBox mainContent;
-    @FXML private HBox topBar;
-    @FXML private HBox searchBar;
-    @FXML private HBox userProfile;
-    @FXML private VBox statisticsPanel;
 
     // ==================== SERVICES ====================
 
@@ -477,19 +479,19 @@ public class EventController implements Initializable {
             darkModeSlider.getChildren().clear();
 
             Circle circle = new Circle();
-            circle.setRadius(7);
+            circle.setRadius(10);
             circle.setFill(Color.WHITE);
 
             if (isDarkMode) {
                 // Dark mode - circle on the right
-                circle.setCenterX(28);
-                circle.setCenterY(9);
-                darkModeSlider.setStyle("-fx-background-color: #8B5CF6; -fx-background-radius: 10;");
+                circle.setCenterX(36);
+                circle.setCenterY(12);
+                darkModeSlider.setStyle("-fx-background-color: #8B5CF6; -fx-background-radius: 30;");
             } else {
                 // Light mode - circle on the left
-                circle.setCenterX(7);
-                circle.setCenterY(9);
-                darkModeSlider.setStyle("-fx-background-color: #6366F1; -fx-background-radius: 10;");
+                circle.setCenterX(12);
+                circle.setCenterY(12);
+                darkModeSlider.setStyle("-fx-background-color: #E2E8F0; -fx-background-radius: 30;");
             }
 
             darkModeSlider.getChildren().add(circle);
@@ -524,31 +526,6 @@ public class EventController implements Initializable {
             mainContent.setStyle("-fx-background-color: #1a1a2e;");
         }
 
-        // Top bar
-        if (topBar != null) {
-            topBar.setStyle("-fx-background-color: #16213e; -fx-background-radius: 20;");
-        }
-
-        // Search bar
-        if (searchBar != null) {
-            searchBar.setStyle("-fx-background-color: #0f3460; -fx-background-radius: 15;");
-        }
-
-        // User profile
-        if (userProfile != null) {
-            userProfile.setStyle("-fx-background-color: #0f3460; -fx-background-radius: 30;");
-        }
-
-        // Statistics panel
-        if (statisticsPanel != null) {
-            statisticsPanel.setStyle("-fx-background-color: #16213e; -fx-background-radius: 15;");
-        }
-
-        // Statistics dashboard
-        if (statisticsDashboard != null) {
-            statisticsDashboard.setStyle("-fx-background-color: #16213e; -fx-background-radius: 25;");
-        }
-
         // Update all labels and text colors
         updateTextColorsForDarkMode();
 
@@ -567,42 +544,17 @@ public class EventController implements Initializable {
     private void applyLightMode() {
         // Root and main container
         if (rootPane != null) {
-            rootPane.setStyle("-fx-background-color: #F8F9FA;");
+            rootPane.setStyle("-fx-background-color: #F8FAFC;");
         }
 
         // Sidebar
         if (sidebar != null) {
-            sidebar.setStyle("-fx-background-color: #FFFFFF; -fx-border-color: #E2E8F0; -fx-border-width: 0 1 0 0;");
+            sidebar.setStyle("-fx-background-color: white; -fx-border-color: #E2E8F0; -fx-border-width: 0 1 0 0;");
         }
 
         // Main content
         if (mainContent != null) {
-            mainContent.setStyle("-fx-background-color: #F8F9FA;");
-        }
-
-        // Top bar
-        if (topBar != null) {
-            topBar.setStyle("-fx-background-color: rgba(255,255,255,0.9); -fx-background-radius: 20;");
-        }
-
-        // Search bar
-        if (searchBar != null) {
-            searchBar.setStyle("-fx-background-color: #F1F5F9; -fx-background-radius: 15;");
-        }
-
-        // User profile
-        if (userProfile != null) {
-            userProfile.setStyle("-fx-background-color: #F1F5F9; -fx-background-radius: 30;");
-        }
-
-        // Statistics panel
-        if (statisticsPanel != null) {
-            statisticsPanel.setStyle("-fx-background-color: #FFFFFF; -fx-background-radius: 15;");
-        }
-
-        // Statistics dashboard
-        if (statisticsDashboard != null) {
-            statisticsDashboard.setStyle("-fx-background-color: #FFFFFF; -fx-background-radius: 25;");
+            mainContent.setStyle("-fx-background-color: #F8FAFC;");
         }
 
         // Update all labels and text colors
@@ -656,8 +608,8 @@ public class EventController implements Initializable {
         if (totalParticipationsLabel != null) totalParticipationsLabel.setStyle(lightHeadingStyle);
         if (totalRevenueLabel != null) totalRevenueLabel.setStyle(lightHeadingStyle);
         if (averagePriceLabel != null) averagePriceLabel.setStyle(lightHeadingStyle);
-        if (eventResultCountLabel != null) eventResultCountLabel.setStyle("-fx-text-fill: #6366F1;");
-        if (selectedEventLabel != null) selectedEventLabel.setStyle("-fx-text-fill: #6366F1;");
+        if (eventResultCountLabel != null) eventResultCountLabel.setStyle("-fx-text-fill: #667EEA;");
+        if (selectedEventLabel != null) selectedEventLabel.setStyle("-fx-text-fill: #667EEA;");
     }
 
     private void updateLabelsInContainer(Parent container, String textStyle, String secondaryStyle, String headingStyle) {
@@ -671,12 +623,14 @@ public class EventController implements Initializable {
                     if (currentText.contains("WinGO") || currentText.contains("Discover") ||
                             currentText.contains("Management") || currentText.contains("Participations") ||
                             currentText.contains("Events") || currentText.contains("Home") ||
-                            currentText.contains("My Trips") || currentText.contains("Statistics")) {
+                            currentText.contains("My Trips") || currentText.contains("Analytics") ||
+                            currentText.contains("Welcome")) {
                         label.setStyle(headingStyle);
                     } else if (currentText.contains("📍") || currentText.contains("📅") ||
                             currentText.contains("👥") || currentText.contains("💰") ||
                             currentText.contains("🎫") || currentText.contains("⭐") ||
-                            currentText.contains("🔍") || currentText.contains("✕")) {
+                            currentText.contains("🔍") || currentText.contains("✕") ||
+                            currentText.contains("👤") || currentText.contains("📊")) {
                         label.setStyle(textStyle);
                     } else {
                         label.setStyle(secondaryStyle);
@@ -689,7 +643,7 @@ public class EventController implements Initializable {
     }
 
     private void updateTableStylesForDarkMode() {
-        String darkTableStyle = "-fx-background-color: #16213e; -fx-border-color: #0f3460; -fx-border-radius: 10; -fx-background-radius: 10;";
+        String darkTableStyle = "-fx-background-color: #16213e; -fx-border-color: #0f3460; -fx-border-radius: 15;";
 
         if (eventTable != null) {
             eventTable.setStyle(darkTableStyle);
@@ -709,7 +663,7 @@ public class EventController implements Initializable {
     }
 
     private void updateTableStylesForLightMode() {
-        String lightTableStyle = "-fx-background-color: transparent; -fx-border-color: #E2E8F0; -fx-border-radius: 10;";
+        String lightTableStyle = "-fx-background-color: transparent; -fx-border-color: #E2E8F0; -fx-border-radius: 15;";
 
         if (eventTable != null) {
             eventTable.setStyle(lightTableStyle);
@@ -729,8 +683,8 @@ public class EventController implements Initializable {
     }
 
     private void updateFormStylesForDarkMode() {
-        String darkFieldStyle = "-fx-background-color: #0f3460; -fx-border-color: #1e3a5f; -fx-text-fill: white; -fx-prompt-text-fill: #a0a0a0;";
-        String darkComboStyle = "-fx-background-color: #0f3460; -fx-border-color: #1e3a5f; -fx-text-fill: white;";
+        String darkFieldStyle = "-fx-background-color: #0f3460; -fx-border-color: #1e3a5f; -fx-text-fill: white; -fx-prompt-text-fill: #a0a0a0; -fx-background-radius: 12; -fx-border-radius: 12;";
+        String darkComboStyle = "-fx-background-color: #0f3460; -fx-border-color: #1e3a5f; -fx-text-fill: white; -fx-background-radius: 12; -fx-border-radius: 12;";
 
         // Update form fields
         if (titleField != null) titleField.setStyle(darkFieldStyle);
@@ -747,8 +701,8 @@ public class EventController implements Initializable {
     }
 
     private void updateFormStylesForLightMode() {
-        String lightFieldStyle = "-fx-background-color: #F8FAFC; -fx-border-color: #E2E8F0; -fx-text-fill: #1E293B; -fx-prompt-text-fill: #94A3B8;";
-        String lightComboStyle = "-fx-background-color: #F8FAFC; -fx-border-color: #E2E8F0; -fx-text-fill: #1E293B;";
+        String lightFieldStyle = "-fx-background-color: #F8FAFC; -fx-border-color: #E2E8F0; -fx-text-fill: #1E293B; -fx-prompt-text-fill: #94A3B8; -fx-background-radius: 12; -fx-border-radius: 12;";
+        String lightComboStyle = "-fx-background-color: #F8FAFC; -fx-border-color: #E2E8F0; -fx-text-fill: #1E293B; -fx-background-radius: 12; -fx-border-radius: 12;";
 
         // Update form fields
         if (titleField != null) titleField.setStyle(lightFieldStyle);
@@ -854,6 +808,14 @@ public class EventController implements Initializable {
             double avgPrice = allEvents.stream().mapToDouble(Event::getPrice).average().orElse(0.0);
             averagePriceLabel.setText(String.format("$%.2f", avgPrice));
         }
+
+        // Update active events count
+        if (activeEventsLabel != null) {
+            long activeCount = allEvents.stream()
+                    .filter(e -> "Planifié".equals(e.getStatus()) || "Active".equals(e.getStatus()))
+                    .count();
+            activeEventsLabel.setText(activeCount + " active");
+        }
     }
 
     private int getEventBookings(int eventId) {
@@ -884,6 +846,11 @@ public class EventController implements Initializable {
 
         eventTypePieChart.setData(pieChartData);
         eventTypePieChart.setTitle("Events by Type");
+
+        // Apply dark mode colors to chart if needed
+        if (isDarkMode) {
+            eventTypePieChart.setStyle("-fx-text-fill: white;");
+        }
     }
 
     private void updateMonthlyBookingsChart() {
@@ -918,6 +885,11 @@ public class EventController implements Initializable {
 
         monthlyBookingsChart.getData().clear();
         monthlyBookingsChart.getData().add(series);
+
+        // Apply dark mode colors to chart if needed
+        if (isDarkMode) {
+            monthlyBookingsChart.setStyle("-fx-text-fill: white;");
+        }
     }
 
     private void updateTopEventsTable() {
@@ -1055,18 +1027,18 @@ public class EventController implements Initializable {
         // Apply card style based on theme
         String cardStyle = isDarkMode ?
                 "-fx-background-color: #16213e; -fx-background-radius: 20; -fx-padding: 15; -fx-cursor: hand; -fx-border-color: #0f3460; -fx-border-radius: 20;" :
-                "-fx-background-color: #FFFFFF; -fx-background-radius: 20; -fx-padding: 15; -fx-cursor: hand;";
+                "-fx-background-color: white; -fx-background-radius: 20; -fx-padding: 15; -fx-cursor: hand; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.03), 10, 0, 0, 5);";
 
         card.setStyle(cardStyle);
-        card.setEffect(new DropShadow(5, 0, 5, isDarkMode ? Color.rgb(0, 0, 0, 0.5) : Color.rgb(0, 0, 0, 0.1)));
+        card.setEffect(new DropShadow(5, 0, 5, isDarkMode ? Color.rgb(0, 0, 0, 0.5) : Color.rgb(0, 0, 0, 0.05)));
 
         // Image container
         StackPane imageContainer = new StackPane();
-        imageContainer.setPrefHeight(180);
+        imageContainer.setPrefHeight(160);
         imageContainer.setStyle("-fx-background-radius: 15; -fx-background-color: " + (isDarkMode ? "#0f3460" : "#F1F5F9") + ";");
 
         ImageView imageView = new ImageView();
-        imageView.setFitHeight(180);
+        imageView.setFitHeight(160);
         imageView.setFitWidth(280);
         imageView.setPreserveRatio(true);
         imageView.setStyle("-fx-background-radius: 15;");
@@ -1079,7 +1051,7 @@ public class EventController implements Initializable {
                 String imagePath = "file:src/main/resources/" + event.getImageEvent();
                 File imageFile = new File("src/main/resources/" + event.getImageEvent());
                 if (imageFile.exists()) {
-                    Image image = new Image(imageFile.toURI().toString(), 280, 180, true, true);
+                    Image image = new Image(imageFile.toURI().toString(), 280, 160, true, true);
                     imageView.setImage(image);
                     imageLoaded = true;
                 }
@@ -1098,20 +1070,20 @@ public class EventController implements Initializable {
 
         // Event type badge
         Label typeBadge = new Label(event.getEventType() != null ? event.getEventType() : "Event");
-        typeBadge.setStyle("-fx-background-color: #6366F1; -fx-text-fill: white; -fx-font-size: 10px; -fx-font-weight: 800; -fx-background-radius: 999; -fx-padding: 3 10;");
+        typeBadge.setStyle("-fx-background-color: #667EEA; -fx-text-fill: white; -fx-font-size: 10px; -fx-font-weight: 800; -fx-background-radius: 999; -fx-padding: 3 10;");
         typeBadge.setTranslateX(10);
-        typeBadge.setTranslateY(-75);
+        typeBadge.setTranslateY(-70);
         typeBadge.setAlignment(Pos.TOP_LEFT);
         imageContainer.getChildren().add(typeBadge);
 
         // Event details
-        VBox details = new VBox(5);
-        details.setPadding(new Insets(5, 0, 0, 0));
+        VBox details = new VBox(8);
+        details.setPadding(new Insets(10, 0, 0, 0));
 
         String titleColor = isDarkMode ? "white" : "#1E293B";
         String textColor = isDarkMode ? "#a0a0a0" : "#64748B";
         String priceColor = isDarkMode ? "#f97316" : "#C2410C";
-        String statColor = isDarkMode ? "#60a5fa" : "#3B82F6";
+        String statColor = isDarkMode ? "#60a5fa" : "#667EEA";
         String availableColor = isDarkMode ? "#34d399" : "#10B981";
 
         Label titleLabel = new Label(event.getTitle());
@@ -1172,8 +1144,8 @@ public class EventController implements Initializable {
         // Progress bar for capacity
         ProgressBar capacityBar = new ProgressBar(event.getCapacity() > 0 ? (double)bookings / event.getCapacity() : 0);
         capacityBar.setPrefWidth(250);
-        capacityBar.setPrefHeight(8);
-        capacityBar.setStyle("-fx-accent: #6366F1;");
+        capacityBar.setPrefHeight(6);
+        capacityBar.setStyle("-fx-accent: #667EEA;");
 
         HBox progressBox = new HBox(5);
         progressBox.setAlignment(Pos.CENTER_LEFT);
@@ -1184,9 +1156,10 @@ public class EventController implements Initializable {
         // Action buttons
         HBox actions = new HBox(10);
         actions.setAlignment(Pos.CENTER);
+        actions.setPadding(new Insets(5, 0, 0, 0));
 
-        Button participateBtn = new Button("Make a bid!");
-        participateBtn.setStyle("-fx-background-color: #6366F1; -fx-text-fill: white; -fx-font-weight: 800; -fx-background-radius: 10; -fx-padding: 10 20; -fx-font-size: 12px; -fx-cursor: hand;");
+        Button participateBtn = new Button("Book Now");
+        participateBtn.setStyle("-fx-background-color: #667EEA; -fx-text-fill: white; -fx-font-weight: 800; -fx-background-radius: 30; -fx-padding: 10 25; -fx-font-size: 12px; -fx-cursor: hand;");
         participateBtn.setOnAction(e -> {
             currentEventId = event.getIdEvent();
             if (tabPane != null && participationsTab != null) {
@@ -1195,10 +1168,10 @@ public class EventController implements Initializable {
             }
         });
 
-        Button reviewBtn = new Button("Review");
+        Button reviewBtn = new Button("Details");
         String reviewBtnStyle = isDarkMode ?
-                "-fx-background-color: #0f3460; -fx-text-fill: #a0a0a0; -fx-font-weight: 800; -fx-background-radius: 10; -fx-padding: 10 20; -fx-font-size: 12px; -fx-cursor: hand;" :
-                "-fx-background-color: #EEF2FF; -fx-text-fill: #6366F1; -fx-font-weight: 800; -fx-background-radius: 10; -fx-padding: 10 20; -fx-font-size: 12px; -fx-cursor: hand;";
+                "-fx-background-color: #0f3460; -fx-text-fill: #a0a0a0; -fx-font-weight: 800; -fx-background-radius: 30; -fx-padding: 10 25; -fx-font-size: 12px; -fx-cursor: hand;" :
+                "-fx-background-color: #F1F5F9; -fx-text-fill: #64748B; -fx-font-weight: 800; -fx-background-radius: 30; -fx-padding: 10 25; -fx-font-size: 12px; -fx-cursor: hand;";
         reviewBtn.setStyle(reviewBtnStyle);
         reviewBtn.setOnAction(e -> {
             showEventDetails(event);
@@ -1240,7 +1213,7 @@ public class EventController implements Initializable {
         int availableSpots = event.getAvailablePlaces() - bookings;
 
         String details = String.format(
-                "Event Details\n\n" +
+                "📋 EVENT DETAILS\n\n" +
                         "Title: %s\n" +
                         "Location: %s\n" +
                         "Date: %s\n" +
@@ -1264,7 +1237,7 @@ public class EventController implements Initializable {
                 event.getPrice(),
                 event.getCapacity(),
                 bookings,
-                availableSpots,
+                Math.max(0, availableSpots),
                 revenue,
                 event.getCapacity() > 0 ? (bookings * 100.0 / event.getCapacity()) : 0,
                 event.getStatus(),
@@ -1280,12 +1253,13 @@ public class EventController implements Initializable {
         textArea.setWrapText(true);
         textArea.setPrefRowCount(20);
         textArea.setPrefWidth(450);
+        textArea.setStyle("-fx-font-family: 'Monospaced'; -fx-font-size: 12px;");
 
         // Apply dark mode to alert if needed
         if (isDarkMode) {
             DialogPane dialogPane = alert.getDialogPane();
             dialogPane.setStyle("-fx-background-color: #16213e;");
-            textArea.setStyle("-fx-background-color: #0f3460; -fx-text-fill: white; -fx-control-inner-background: #0f3460;");
+            textArea.setStyle("-fx-background-color: #0f3460; -fx-text-fill: white; -fx-control-inner-background: #0f3460; -fx-font-family: 'Monospaced';");
         }
 
         alert.getDialogPane().setContent(textArea);
@@ -1341,14 +1315,14 @@ public class EventController implements Initializable {
             loadEvents();
             clearEventFields();
             loadEventSelector();
-            showInfo("Event added successfully! Price: $" + String.format("%.2f", e.getPrice()));
+            showInfo("✅ Event added successfully! Price: $" + String.format("%.2f", e.getPrice()));
 
         } catch (NumberFormatException ex) {
-            showAlert("Capacity and Price must be valid numbers!");
+            showAlert("❌ Capacity and Price must be valid numbers!");
         } catch (DateTimeParseException ex) {
-            showAlert("Time must be like HH:mm (e.g., 19:30)!");
+            showAlert("❌ Time must be like HH:mm (e.g., 19:30)!");
         } catch (Exception ex) {
-            showAlert("Error: " + ex.getMessage());
+            showAlert("❌ Error: " + ex.getMessage());
             ex.printStackTrace();
         }
     }
@@ -1357,7 +1331,7 @@ public class EventController implements Initializable {
     private void updateEvent() {
         Event selected = eventTable.getSelectionModel().getSelectedItem();
         if (selected == null) {
-            showAlert("Please select an event to update");
+            showAlert("⚠️ Please select an event to update");
             return;
         }
 
@@ -1375,12 +1349,12 @@ public class EventController implements Initializable {
             loadEvents();
             clearEventFields();
             loadEventSelector();
-            showInfo("Event updated successfully! New price: $" + String.format("%.2f", e.getPrice()));
+            showInfo("✅ Event updated successfully! New price: $" + String.format("%.2f", e.getPrice()));
 
         } catch (NumberFormatException ex) {
-            showAlert("Capacity and Price must be valid numbers!");
+            showAlert("❌ Capacity and Price must be valid numbers!");
         } catch (Exception ex) {
-            showAlert("Invalid input: " + ex.getMessage());
+            showAlert("❌ Invalid input: " + ex.getMessage());
             ex.printStackTrace();
         }
     }
@@ -1389,7 +1363,7 @@ public class EventController implements Initializable {
     private void deleteEvent() {
         Event selected = eventTable.getSelectionModel().getSelectedItem();
         if (selected == null) {
-            showAlert("Please select an event to delete");
+            showAlert("⚠️ Please select an event to delete");
             return;
         }
 
@@ -1398,7 +1372,7 @@ public class EventController implements Initializable {
             loadEvents();
             clearEventFields();
             loadEventSelector();
-            showInfo("Event deleted successfully!");
+            showInfo("✅ Event deleted successfully!");
         }
     }
 
@@ -1406,7 +1380,7 @@ public class EventController implements Initializable {
     private void openParticipationForSelectedEvent() {
         Event selectedEvent = eventTable.getSelectionModel().getSelectedItem();
         if (selectedEvent == null) {
-            showAlert("Please select an event first!");
+            showAlert("⚠️ Please select an event first!");
             return;
         }
 
@@ -1457,40 +1431,40 @@ public class EventController implements Initializable {
 
     private boolean validateEventInputs() {
         if (titleField.getText().trim().isEmpty()) {
-            showAlert("Title is required");
+            showAlert("⚠️ Title is required");
             return false;
         }
 
         if (locationField.getText().trim().isEmpty()) {
-            showAlert("Location is required");
+            showAlert("⚠️ Location is required");
             return false;
         }
 
         if (datePicker.getValue() == null) {
-            showAlert("Please select a date!");
+            showAlert("⚠️ Please select a date!");
             return false;
         }
 
         if (timeField.getText().trim().isEmpty()) {
-            showAlert("Time is required (HH:mm)!");
+            showAlert("⚠️ Time is required (HH:mm)!");
             return false;
         }
 
         try {
             LocalTime.parse(timeField.getText().trim(), DateTimeFormatter.ofPattern("HH:mm"));
         } catch (DateTimeParseException e) {
-            showAlert("Time must be like HH:mm (e.g., 19:30)!");
+            showAlert("⚠️ Time must be like HH:mm (e.g., 19:30)!");
             return false;
         }
 
         try {
             int capacity = Integer.parseInt(capacityField.getText().trim());
             if (capacity <= 0) {
-                showAlert("Capacity must be positive");
+                showAlert("⚠️ Capacity must be positive");
                 return false;
             }
         } catch (NumberFormatException e) {
-            showAlert("Capacity must be a number!");
+            showAlert("⚠️ Capacity must be a number!");
             return false;
         }
 
@@ -1501,11 +1475,11 @@ public class EventController implements Initializable {
                 priceText = priceText.replace(',', '.');
                 double price = Double.parseDouble(priceText);
                 if (price < 0) {
-                    showAlert("Price cannot be negative");
+                    showAlert("⚠️ Price cannot be negative");
                     return false;
                 }
             } catch (NumberFormatException e) {
-                showAlert("Price must be a valid number!");
+                showAlert("⚠️ Price must be a valid number!");
                 return false;
             }
         }
@@ -1587,6 +1561,11 @@ public class EventController implements Initializable {
             updateEventResultCount(events.size());
             displayEventCards(events); // Update cards on home tab
 
+            // Update event count badge
+            if (eventCountBadge != null) {
+                eventCountBadge.setText(String.valueOf(events.size()));
+            }
+
             // Refresh table to show statistics
             eventTable.refresh();
         }
@@ -1634,12 +1613,11 @@ public class EventController implements Initializable {
             if (event != null) {
                 int bookings = getEventBookings(eventId);
                 double revenue = getEventRevenue(eventId);
-                eventIdLabel.setText("Event #" + eventId + ": " + event.getTitle() +
-                        " - " + bookings + " bookings ($" + String.format("%.2f", revenue) + ")");
+                eventIdLabel.setText(event.getTitle() + " - " + bookings + " bookings ($" + String.format("%.2f", revenue) + ")");
             } else {
-                eventIdLabel.setText("Participation to Event #" + eventId);
+                eventIdLabel.setText("Event #" + eventId);
             }
-            eventIdLabel.setStyle("-fx-text-fill: #10B981; -fx-font-weight: 800;");
+            eventIdLabel.setStyle("-fx-text-fill: #667EEA; -fx-font-weight: 800;");
         }
         loadParticipationsForEvent();
     }
@@ -1647,7 +1625,7 @@ public class EventController implements Initializable {
     public void setClientEmail(String email) {
         this.currentClientEmail = email;
         if (clientInfoLabel != null) {
-            clientInfoLabel.setText("Client: " + email);
+            clientInfoLabel.setText(email);
         }
         loadParticipationsByEmail(email);
     }
@@ -1662,7 +1640,7 @@ public class EventController implements Initializable {
         }
 
         if (currentEventId == 0) {
-            showAlert("Please select an event first!");
+            showAlert("⚠️ Please select an event first!");
             return;
         }
 
@@ -1675,21 +1653,25 @@ public class EventController implements Initializable {
             int currentBookings = getEventBookings(currentEventId);
             Event event = eventCRUD.getById(currentEventId);
             if (event != null && currentBookings + p.getNombrePlaces() > event.getCapacity()) {
-                showAlert("Not enough spots available! Only " + (event.getCapacity() - currentBookings) + " spots left.");
+                showAlert("⚠️ Not enough spots available! Only " + (event.getCapacity() - currentBookings) + " spots left.");
                 return;
             }
 
             participationCRUD.ajouter(p);
 
+            // Send confirmation email (runs in background thread)
+            Event mailEvent = eventCRUD.getById(currentEventId);
+            MailService.sendParticipationConfirmation(p, mailEvent);
+
             refreshParticipations();
             clearParticipationFields();
             loadEvents(); // Refresh to update statistics
-            showInfo("Participation added successfully!");
+            showInfo("✅ Participation added! Confirmation email sent to " + p.getEmail_participant());
 
         } catch (NumberFormatException e) {
-            showAlert("User ID and places must be valid numbers!");
+            showAlert("❌ User ID and places must be valid numbers!");
         } catch (Exception e) {
-            showAlert("Error: " + e.getMessage());
+            showAlert("❌ Error: " + e.getMessage());
             e.printStackTrace();
         }
     }
@@ -1699,7 +1681,7 @@ public class EventController implements Initializable {
         Participation selected = participationTable.getSelectionModel().getSelectedItem();
 
         if (selected == null) {
-            showAlert("Please select a participation to update!");
+            showAlert("⚠️ Please select a participation to update!");
             return;
         }
 
@@ -1718,13 +1700,17 @@ public class EventController implements Initializable {
 
             participationCRUD.modifier(selected);
 
+            // Send status-update email
+            Event mailEventU = eventCRUD.getById(selected.getIdEvent());
+            MailService.sendStatusUpdate(selected, mailEventU);
+
             refreshParticipations();
             clearParticipationFields();
             loadEvents(); // Refresh to update statistics
-            showInfo("Participation updated successfully!");
+            showInfo("✅ Participation updated! Update email sent to " + selected.getEmail_participant());
 
         } catch (NumberFormatException e) {
-            showAlert("User ID and places must be valid numbers!");
+            showAlert("❌ User ID and places must be valid numbers!");
         }
     }
 
@@ -1733,16 +1719,20 @@ public class EventController implements Initializable {
         Participation selected = participationTable.getSelectionModel().getSelectedItem();
 
         if (selected == null) {
-            showAlert("Please select a participation to delete!");
+            showAlert("⚠️ Please select a participation to delete!");
             return;
         }
 
         if (confirmAction("Delete Participation", "Are you sure you want to delete this participation?")) {
+            // Send cancellation email BEFORE deleting (so we still have the data)
+            Event mailEventD = eventCRUD.getById(selected.getIdEvent());
+            MailService.sendParticipationCancellation(selected, mailEventD);
+
             participationCRUD.supprimer(selected.getIdParticipation());
             refreshParticipations();
             clearParticipationFields();
             loadEvents(); // Refresh to update statistics
-            showInfo("Participation deleted successfully!");
+            showInfo("✅ Participation deleted! Cancellation email sent to " + selected.getEmail_participant());
         }
     }
 
@@ -1754,7 +1744,7 @@ public class EventController implements Initializable {
             selected = participationTable2.getSelectionModel().getSelectedItem();
         }
         if (selected == null) {
-            showAlert("Please select a participation!");
+            showAlert("⚠️ Please select a participation!");
             return;
         }
 
@@ -1764,11 +1754,9 @@ public class EventController implements Initializable {
         double totalPrice = price * selected.getNombrePlaces();
 
         String details = String.format(
-                "Participation Details\n\n" +
+                "👤 PARTICIPATION DETAILS\n\n" +
                         "ID: %d\n" +
-                        "Event ID: %d\n" +
-                        "Event Title: %s\n" +
-                        "User ID: %d\n" +
+                        "Event: %s\n" +
                         "Date: %s\n" +
                         "Status: %s\n" +
                         "Name: %s %s\n" +
@@ -1778,9 +1766,7 @@ public class EventController implements Initializable {
                         "Price per person: $%.2f\n" +
                         "Total Amount: $%.2f",
                 selected.getIdParticipation(),
-                selected.getIdEvent(),
                 selected.getEventTitle() != null ? selected.getEventTitle() : "N/A",
-                selected.getIdUser(),
                 selected.getDateParticipation(),
                 selected.getStatut(),
                 selected.getPrenomParticipant(),
@@ -1800,12 +1786,13 @@ public class EventController implements Initializable {
         textArea.setEditable(false);
         textArea.setWrapText(true);
         textArea.setPrefRowCount(15);
+        textArea.setStyle("-fx-font-family: 'Monospaced'; -fx-font-size: 12px;");
 
         // Apply dark mode to alert if needed
         if (isDarkMode) {
             DialogPane dialogPane = alert.getDialogPane();
             dialogPane.setStyle("-fx-background-color: #16213e;");
-            textArea.setStyle("-fx-background-color: #0f3460; -fx-text-fill: white; -fx-control-inner-background: #0f3460;");
+            textArea.setStyle("-fx-background-color: #0f3460; -fx-text-fill: white; -fx-control-inner-background: #0f3460; -fx-font-family: 'Monospaced';");
         }
 
         alert.getDialogPane().setContent(textArea);
@@ -1816,7 +1803,7 @@ public class EventController implements Initializable {
     private void loadParticipationsForSelectedEvent() {
         Event selectedEvent = eventSelectorBox.getValue();
         if (selectedEvent == null) {
-            showAlert("Please select an event!");
+            showAlert("⚠️ Please select an event!");
             return;
         }
 
@@ -1839,54 +1826,54 @@ public class EventController implements Initializable {
 
     private boolean validateParticipationInputs() {
         if (partDatePicker.getValue() == null) {
-            showAlert("Please select a date!");
+            showAlert("⚠️ Please select a date!");
             return false;
         }
 
         if (statutBox.getValue() == null) {
-            showAlert("Please select a status!");
+            showAlert("⚠️ Please select a status!");
             return false;
         }
 
         try {
             int userId = Integer.parseInt(userIdField.getText().trim());
             if (userId <= 0) {
-                showAlert("User ID must be a positive number!");
+                showAlert("⚠️ User ID must be a positive number!");
                 return false;
             }
         } catch (NumberFormatException e) {
-            showAlert("User ID must be a valid number!");
+            showAlert("❌ User ID must be a valid number!");
             return false;
         }
 
         if (prenomField.getText().trim().isEmpty()) {
-            showAlert("First name is required!");
+            showAlert("⚠️ First name is required!");
             return false;
         }
 
         if (nomField.getText().trim().isEmpty()) {
-            showAlert("Last name is required!");
+            showAlert("⚠️ Last name is required!");
             return false;
         }
 
         if (emailField.getText().trim().isEmpty()) {
-            showAlert("Email is required!");
+            showAlert("⚠️ Email is required!");
             return false;
         }
 
         if (!emailField.getText().trim().matches("^[A-Za-z0-9+_.-]+@(.+)$")) {
-            showAlert("Please enter a valid email!");
+            showAlert("⚠️ Please enter a valid email!");
             return false;
         }
 
         try {
             int places = Integer.parseInt(placesField.getText().trim());
             if (places <= 0) {
-                showAlert("Number of places must be greater than 0!");
+                showAlert("⚠️ Number of places must be greater than 0!");
                 return false;
             }
         } catch (NumberFormatException e) {
-            showAlert("Number of places must be a valid number!");
+            showAlert("❌ Number of places must be a valid number!");
             return false;
         }
 
@@ -2020,9 +2007,10 @@ public class EventController implements Initializable {
             List<Participation> participations = participationCRUD.afficherParClient(email);
             participationTable2.setItems(FXCollections.observableArrayList(participations));
             if (myTripsResultLabel != null) {
-                myTripsResultLabel.setText(participations.size() + " participation(s) trouvee(s)");
+                myTripsResultLabel.setText(participations.size() + " participation(s) found");
             }
         }
+        updateParticipationBadge();
     }
 
     private void loadParticipationsByName(String nom, String prenom) {
@@ -2035,9 +2023,10 @@ public class EventController implements Initializable {
             List<Participation> participations = participationCRUD.afficherParNomClient(nom, prenom);
             participationTable2.setItems(FXCollections.observableArrayList(participations));
             if (myTripsResultLabel != null) {
-                myTripsResultLabel.setText(participations.size() + " participation(s) trouvee(s)");
+                myTripsResultLabel.setText(participations.size() + " participation(s) found");
             }
         }
+        updateParticipationBadge();
     }
 
     private void searchParticipations(String term) {
@@ -2050,9 +2039,10 @@ public class EventController implements Initializable {
             List<Participation> participations = participationCRUD.rechercherParticipations(term);
             participationTable2.setItems(FXCollections.observableArrayList(participations));
             if (myTripsResultLabel != null) {
-                myTripsResultLabel.setText(participations.size() + " participation(s) trouvee(s)");
+                myTripsResultLabel.setText(participations.size() + " participation(s) found");
             }
         }
+        updateParticipationBadge();
     }
 
     private void loadAllParticipations() {
@@ -2061,6 +2051,7 @@ public class EventController implements Initializable {
             participationTable.setItems(FXCollections.observableArrayList(participations));
             updateResultCount(participations.size());
         }
+        updateParticipationBadge();
     }
 
     private void loadAllParticipationsIntoTable2() {
@@ -2068,9 +2059,10 @@ public class EventController implements Initializable {
             List<Participation> participations = participationCRUD.afficherTous();
             participationTable2.setItems(FXCollections.observableArrayList(participations));
             if (myTripsResultLabel != null) {
-                myTripsResultLabel.setText(participations.size() + " participation(s) trouvee(s)");
+                myTripsResultLabel.setText(participations.size() + " participation(s) found");
             }
         }
+        updateParticipationBadge();
     }
 
     private void loadParticipationsForEvent() {
@@ -2079,6 +2071,7 @@ public class EventController implements Initializable {
             participationTable.setItems(FXCollections.observableArrayList(participations));
             updateResultCount(participations.size());
         }
+        updateParticipationBadge();
     }
 
     private void refreshParticipations() {
@@ -2098,7 +2091,13 @@ public class EventController implements Initializable {
 
     private void updateResultCount(int count) {
         if (resultCountLabel != null) {
-            resultCountLabel.setText(count + " participation(s) trouvée(s)");
+            resultCountLabel.setText(count + " participation(s) found");
+        }
+    }
+
+    private void updateParticipationBadge() {
+        if (participationCountBadge != null && participationTable != null) {
+            participationCountBadge.setText(String.valueOf(participationTable.getItems().size()));
         }
     }
 
