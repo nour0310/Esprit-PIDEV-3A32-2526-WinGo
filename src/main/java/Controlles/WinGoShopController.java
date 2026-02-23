@@ -975,7 +975,21 @@ public class WinGoShopController {
         );
         fRegion.setPromptText("Choisir une région...");
         fRegion.setMaxWidth(Double.MAX_VALUE);
-        fRegion.setStyle("-fx-font-size: 13px; -fx-background-radius: 10;");
+        fRegion.setStyle("");
+        fRegion.setCellFactory(lv -> new ListCell<String>() {
+            @Override protected void updateItem(String item, boolean empty) {
+                super.updateItem(item, empty);
+                setText(empty || item == null ? null : item);
+                setStyle(empty ? "" : "-fx-background-color: white; -fx-text-fill: #1E293B; -fx-font-size: 13px; -fx-padding: 8 12;");
+            }
+        });
+        fRegion.setButtonCell(new ListCell<String>() {
+            @Override protected void updateItem(String item, boolean empty) {
+                super.updateItem(item, empty);
+                setText(empty || item == null ? "Choisir une région..." : item);
+                setStyle("-fx-text-fill: " + (empty || item == null ? "#94A3B8" : "#1E293B") + "; -fx-font-size: 13px;");
+            }
+        });
         if (existant != null && existant.getRegion() != null) fRegion.setValue(existant.getRegion());
         Label errRegionLbl = overlayErrLabel();
 
