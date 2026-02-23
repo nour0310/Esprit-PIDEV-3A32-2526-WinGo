@@ -878,12 +878,13 @@ public class WinGoShopController {
         overlay.setAlignment(Pos.CENTER);
         overlay.setOnMouseClicked(e -> { if (e.getTarget() == overlay) overlayContainer.getChildren().remove(overlay); });
 
-        VBox panel = new VBox(0); panel.setPrefWidth(520); panel.setMaxWidth(520);
+        VBox panel = new VBox(0);
+        panel.setPrefWidth(520); panel.setMaxWidth(520);
         panel.setStyle("-fx-background-color: #0F172A; -fx-background-radius: 20;" +
                 "-fx-effect: dropshadow(gaussian, rgba(99,102,241,0.4), 50, 0, 0, 0);");
         panel.setOnMouseClicked(javafx.event.Event::consume);
 
-        // Header
+        // ── HEADER ──────────────────────────────────────────────────────────────
         HBox header = new HBox(); header.setAlignment(Pos.CENTER_LEFT);
         header.setStyle("-fx-padding: 18 24; -fx-background-color: linear-gradient(to right,#6366F1,#8B5CF6); -fx-background-radius: 20 20 0 0;");
         Label title = new Label(existant == null ? "➕  Ajouter un produit" : "✏  Modifier le produit");
@@ -895,80 +896,268 @@ public class WinGoShopController {
         closeBtn.setOnAction(e -> overlayContainer.getChildren().remove(overlay));
         header.getChildren().addAll(title, hsp, closeBtn);
 
-        // Form body
-        ScrollPane scroll = new ScrollPane();
-        scroll.setFitToWidth(true); scroll.setMaxHeight(480);
-        scroll.setStyle("-fx-background-color: transparent; -fx-background: transparent; -fx-border-color: transparent;");
+        // ── BODY ────────────────────────────────────────────────────────────────
+        VBox body = new VBox(14); body.setStyle("-fx-padding: 24 28 28 28;");
 
-        VBox body = new VBox(14); body.setStyle("-fx-padding: 24 28;");
+        // Nom
+        TextField fNom = overlayField("Nom du produit", existant != null ? existant.getNom() : "");
+        Label errNomLbl = overlayErrLabel();
+        fNom.textProperty().addListener((obs, old, val) -> {
+            if (val.trim().length() < 2) showOverlayErr(fNom, errNomLbl, "⚡ Minimum 2 caractères");
+            else if (val.trim().length() > 100) showOverlayErr(fNom, errNomLbl, "⚡ Maximum 100 caractères");
+            else if (!val.trim().matches("^[a-zA-ZÀ-ÿ0-9\\s\\-'()]+$")) showOverlayErr(fNom, errNomLbl, "⚡ Caractères spéciaux interdits");
+            else clearOverlayErr(fNom, errNomLbl);
+        });
 
-        TextField fNom = formField("Nom du produit", existant != null ? existant.getNom() : "");
-        TextField fPrix = formField("Prix (TND)", existant != null ? String.valueOf(existant.getPrix()) : "");
-        TextField fStock = formField("Stock", existant != null ? String.valueOf(existant.getStock()) : "");
-        TextField fRegion = formField("Région", existant != null ? existant.getRegion() : "");
-        TextField fImage = formField("URL Image", existant != null ? existant.getImage() : "");
-        TextArea fDesc = new TextArea(existant != null ? existant.getDescription() : "");
-        fDesc.setPromptText("Description..."); fDesc.setPrefRowCount(3); fDesc.setWrapText(true);
-        fDesc.setStyle("-fx-background-color: rgba(255,255,255,0.06); -fx-background-radius: 10;" +
-                "-fx-border-color: rgba(255,255,255,0.15); -fx-border-radius: 10;" +
-                "-fx-text-fill: white; -fx-padding: 10 12; -fx-font-size: 13px;");
-
-        // Combo catégorie
+        // Catégorie — ComboBox SANS style personnalisé pour que le dropdown soit visible
         ComboBox<String> fCat = new ComboBox<>();
-        fCat.getItems().addAll("Artisanat","Gastronomie","Textile","Bijoux","Art","Souvenirs");
-        fCat.setPromptText("Catégorie");
-        if (existant != null) fCat.setValue(existant.getCategorie());
+        fCat.getItems().addAll("Artisanat", "Gastronomie", "Textile", "Bijoux", "Art", "Souvenirs");
+        fCat.setPromptText("Choisir une catégorie...");
         fCat.setMaxWidth(Double.MAX_VALUE);
-        fCat.setStyle("-fx-background-color: rgba(255,255,255,0.06); -fx-background-radius: 10;" +
-                "-fx-border-color: rgba(255,255,255,0.15); -fx-text-fill: white;");
+        // ✅ Style minimal — pas de background-color custom qui cache le popup
+        fCat.setStyle("-fx-font-size: 13px; -fx-background-radius: 10;");
+        if (existant != null && existant.getCategorie() != null) fCat.setValue(existant.getCategorie());
+        Label errCatLbl = overlayErrLabel();
+        fCat.valueProperty().addListener((obs, old, val) -> {
+            if (val == null) showOverlayErrCombo(fCat, errCatLbl, "⚡ Catégorie obligatoire");
+            else clearOverlayErrCombo(fCat, errCatLbl);
+        });
 
-        Label errLbl = new Label(""); errLbl.setStyle("-fx-text-fill: #F87171; -fx-font-weight: 800; -fx-font-size: 12px;");
+        // Prix
+        TextField fPrix = overlayField("Prix (ex: 12.50)", existant != null ? String.valueOf(existant.getPrix()) : "");
+        Label errPrixLbl = overlayErrLabel();
+        fPrix.textProperty().addListener((obs, old, val) -> {
+            try {
+                double p = Double.parseDouble(val.trim());
+                if (p <= 0) showOverlayErr(fPrix, errPrixLbl, "⚡ Le prix doit être > 0");
+                else if (p > 99999.99) showOverlayErr(fPrix, errPrixLbl, "⚡ Maximum 99 999.99 TND");
+                else clearOverlayErr(fPrix, errPrixLbl);
+            } catch (NumberFormatException ex) {
+                if (!val.isBlank()) showOverlayErr(fPrix, errPrixLbl, "⚡ Chiffres uniquement (ex: 12.50)");
+            }
+        });
 
-        Button saveBtn2 = new Button(existant == null ? "✅  Enregistrer" : "💾  Mettre à jour");
+        // Stock
+        TextField fStock = overlayField("Stock (ex: 10)", existant != null ? String.valueOf(existant.getStock()) : "");
+        Label errStockLbl = overlayErrLabel();
+        fStock.textProperty().addListener((obs, old, val) -> {
+            try {
+                int s = Integer.parseInt(val.trim());
+                if (s < 0) showOverlayErr(fStock, errStockLbl, "⚡ Stock ne peut pas être négatif");
+                else if (s > 99999) showOverlayErr(fStock, errStockLbl, "⚡ Maximum 99 999");
+                else clearOverlayErr(fStock, errStockLbl);
+            } catch (NumberFormatException ex) {
+                if (!val.isBlank()) showOverlayErr(fStock, errStockLbl, "⚡ Entier uniquement (ex: 10)");
+            }
+        });
+
+        // Région — ComboBox avec les 24 gouvernorats
+        ComboBox<String> fRegion = new ComboBox<>();
+        fRegion.getItems().addAll(
+                "Tunis", "Ariana", "Ben Arous", "Manouba", "Nabeul", "Zaghouan",
+                "Bizerte", "Béja", "Jendouba", "Le Kef", "Siliana", "Sousse",
+                "Monastir", "Mahdia", "Sfax", "Kairouan", "Kasserine", "Sidi Bouzid",
+                "Gabès", "Médenine", "Tataouine", "Gafsa", "Tozeur", "Kebili"
+        );
+        fRegion.setPromptText("Choisir une région...");
+        fRegion.setMaxWidth(Double.MAX_VALUE);
+        fRegion.setStyle("-fx-font-size: 13px; -fx-background-radius: 10;");
+        if (existant != null && existant.getRegion() != null) fRegion.setValue(existant.getRegion());
+        Label errRegionLbl = overlayErrLabel();
+
+        // URL Image
+        TextField fImage = overlayField("URL Image (https://...)", existant != null && existant.getImage() != null ? existant.getImage() : "");
+        Label errImageLbl = overlayErrLabel();
+        fImage.textProperty().addListener((obs, old, val) -> {
+            if (val.isBlank()) { clearOverlayErr(fImage, errImageLbl); return; }
+            if (val.contains("encrypted-tbn") || val.contains("gstatic.com/images"))
+                showOverlayErr(fImage, errImageLbl, "🚫 URL Google Images non supportée → Unsplash");
+            else if (!val.startsWith("http://") && !val.startsWith("https://") && !val.startsWith("file:") && !new java.io.File(val).exists())
+                showOverlayErr(fImage, errImageLbl, "⚡ Doit commencer par https://");
+            else clearOverlayErr(fImage, errImageLbl);
+        });
+
+        // Description — hauteur fixée !
+        TextArea fDesc = new TextArea(existant != null && existant.getDescription() != null ? existant.getDescription() : "");
+        fDesc.setPromptText("Description du produit...");
+        fDesc.setPrefRowCount(3);
+        fDesc.setPrefHeight(80);   // ✅ hauteur fixe
+        fDesc.setMaxHeight(80);    // ✅ empêche l'expansion infinie
+        fDesc.setWrapText(true);
+        // ✅ Style avec -fx-control-inner-background pour la couleur interne
+        fDesc.setStyle("-fx-control-inner-background: #1E293B; -fx-background-radius: 10;" +
+                "-fx-border-color: rgba(255,255,255,0.15); -fx-border-radius: 10;" +
+                "-fx-text-fill: white; -fx-font-size: 13px;");
+        Label errDescLbl = overlayErrLabel();
+        fDesc.textProperty().addListener((obs, old, val) -> {
+            if (val.length() > 500) showOverlayErrArea(fDesc, errDescLbl, "⚡ Maximum 500 caractères (" + val.length() + "/500)");
+            else clearOverlayErrArea(fDesc, errDescLbl);
+        });
+
+        // Label erreur global
+        Label errGlobal = new Label("");
+        errGlobal.setStyle("-fx-text-fill: #F87171; -fx-font-weight: 800; -fx-font-size: 12px;");
+        errGlobal.setWrapText(true);
+
+        // Bouton Enregistrer
+        Button saveBtn2 = new Button(existant == null ? "✅  Enregistrer le produit" : "💾  Mettre à jour");
         saveBtn2.setMaxWidth(Double.MAX_VALUE);
         saveBtn2.setStyle("-fx-background-color: linear-gradient(to right,#6366F1,#8B5CF6);" +
                 "-fx-text-fill: white; -fx-font-weight: 900; -fx-font-size: 14px;" +
                 "-fx-background-radius: 10; -fx-padding: 13 0; -fx-cursor: hand;");
+        saveBtn2.setOnMouseEntered(e -> saveBtn2.setStyle("-fx-background-color: linear-gradient(to right,#4F46E5,#7C3AED);" +
+                "-fx-text-fill: white; -fx-font-weight: 900; -fx-font-size: 14px; -fx-background-radius: 10; -fx-padding: 13 0; -fx-cursor: hand;"));
+        saveBtn2.setOnMouseExited(e -> saveBtn2.setStyle("-fx-background-color: linear-gradient(to right,#6366F1,#8B5CF6);" +
+                "-fx-text-fill: white; -fx-font-weight: 900; -fx-font-size: 14px; -fx-background-radius: 10; -fx-padding: 13 0; -fx-cursor: hand;"));
 
         saveBtn2.setOnAction(e -> {
-            String nom2 = fNom.getText().trim();
-            String cat2 = fCat.getValue();
-            String region2 = fRegion.getText().trim();
-            String img2 = fImage.getText().trim();
-            String desc2 = fDesc.getText().trim();
-            double prix2; int stock2;
+            // Récupération valeurs
+            String nom2   = fNom.getText() == null ? "" : fNom.getText().trim();
+            String cat2   = fCat.getValue();
+            String region2 = fRegion.getValue() != null ? fRegion.getValue() : "";
+            String img2   = fImage.getText() == null ? "" : fImage.getText().trim();
+            String desc2  = fDesc.getText() == null ? "" : fDesc.getText().trim();
+            errGlobal.setText("");
 
-            if (nom2.length() < 2) { errLbl.setText("⚡ Nom invalide (min 2 car.)"); return; }
-            if (cat2 == null || cat2.isBlank()) { errLbl.setText("⚡ Catégorie obligatoire"); return; }
-            try { prix2 = Double.parseDouble(fPrix.getText().trim()); if (prix2 <= 0) { errLbl.setText("⚡ Prix > 0"); return; } }
-            catch (NumberFormatException ex) { errLbl.setText("⚡ Prix invalide"); return; }
-            try { stock2 = Integer.parseInt(fStock.getText().trim()); if (stock2 < 0) { errLbl.setText("⚡ Stock >= 0"); return; } }
-            catch (NumberFormatException ex) { errLbl.setText("⚡ Stock invalide"); return; }
+            // Validation
+            if (nom2.length() < 2) { errGlobal.setText("⚡ Nom invalide (minimum 2 caractères)"); fNom.requestFocus(); return; }
+            if (nom2.length() > 100) { errGlobal.setText("⚡ Nom trop long (maximum 100 car.)"); return; }
+            if (!nom2.matches("^[a-zA-ZÀ-ÿ0-9\\s\\-'()]+$")) { errGlobal.setText("⚡ Nom contient des caractères spéciaux interdits"); return; }
+            if (cat2 == null || cat2.isBlank()) { errGlobal.setText("⚡ Veuillez choisir une catégorie"); fCat.requestFocus(); return; }
 
+            double prix2;
+            try {
+                prix2 = Double.parseDouble(fPrix.getText().trim());
+                if (prix2 <= 0) { errGlobal.setText("⚡ Le prix doit être supérieur à 0"); return; }
+                if (prix2 > 99999.99) { errGlobal.setText("⚡ Prix maximum : 99 999.99 TND"); return; }
+            } catch (NumberFormatException ex) { errGlobal.setText("⚡ Prix invalide (ex: 12.50)"); fPrix.requestFocus(); return; }
+
+            int stock2;
+            try {
+                stock2 = Integer.parseInt(fStock.getText().trim());
+                if (stock2 < 0) { errGlobal.setText("⚡ Le stock ne peut pas être négatif"); return; }
+                if (stock2 > 99999) { errGlobal.setText("⚡ Stock maximum : 99 999"); return; }
+            } catch (NumberFormatException ex) { errGlobal.setText("⚡ Stock invalide (ex: 10)"); fStock.requestFocus(); return; }
+
+            if (!img2.isBlank()) {
+                if (img2.contains("encrypted-tbn") || img2.contains("gstatic.com/images")) { errGlobal.setText("🚫 URL Google Images non supportée"); return; }
+                if (!img2.startsWith("http://") && !img2.startsWith("https://") && !img2.startsWith("file:") && !new java.io.File(img2).exists()) { errGlobal.setText("⚡ URL image invalide (doit commencer par https://)"); return; }
+            }
+            if (desc2.length() > 500) { errGlobal.setText("⚡ Description trop longue (maximum 500 car.)"); return; }
+
+            // Sauvegarde DB
             try {
                 if (existant == null) {
                     produitCRUD.ajouter(new Produit(Session.getUserId(), nom2, desc2, prix2, region2, cat2, stock2, img2));
-                    showAlert("✅ Ajouté", "Produit ajouté avec succès !");
+                    showAlert("✅ Produit ajouté", "\"" + nom2 + "\" a été ajouté avec succès !");
                 } else {
                     produitCRUD.modifier(new Produit(existant.getIdProduit(), Session.getUserId(), nom2, desc2, prix2, region2, cat2, stock2, img2));
-                    showAlert("✅ Modifié", "Produit mis à jour !");
+                    showAlert("✅ Produit modifié", "\"" + nom2 + "\" a été mis à jour !");
                 }
                 overlayContainer.getChildren().remove(overlay);
-                showModeCommercant(); // Rafraîchir la liste
-            } catch (SQLException ex) { errLbl.setText("❌ Erreur DB : " + ex.getMessage()); ex.printStackTrace(); }
+                showModeCommercant();
+            } catch (SQLException ex) {
+                errGlobal.setText("❌ Erreur base de données : " + ex.getMessage());
+                ex.printStackTrace();
+            }
         });
 
+        // Assemblage du body
         body.getChildren().addAll(
-                formRow("Nom", fNom), formRow("Catégorie", fCat),
-                formRow("Prix (TND)", fPrix), formRow("Stock", fStock),
-                formRow("Région", fRegion), formRow("URL Image", fImage),
-                formRow("Description", fDesc), errLbl, saveBtn2
+                overlayFormRow("Nom du produit *", fNom), errNomLbl,
+                overlayFormRow("Catégorie *", fCat), errCatLbl,
+                overlayFormRow("Prix (TND) *", fPrix), errPrixLbl,
+                overlayFormRow("Stock *", fStock), errStockLbl,
+                overlayFormRow("Région", fRegion), errRegionLbl,
+                overlayFormRow("URL Image", fImage), errImageLbl,
+                overlayFormRow("Description", fDesc), errDescLbl,
+                errGlobal,
+                saveBtn2
         );
 
-        scroll.setContent(body);
-        panel.getChildren().addAll(header, scroll);
+        // ScrollPane pour le body (formulaire peut être long)
+        ScrollPane scrollBody = new ScrollPane(body);
+        scrollBody.setFitToWidth(true);
+        scrollBody.setMaxHeight(500);
+        scrollBody.setStyle("-fx-background-color: transparent; -fx-background: transparent; -fx-border-color: transparent;");
+
+        panel.getChildren().addAll(header, scrollBody);
         overlay.getChildren().add(panel);
         overlayContainer.getChildren().add(overlay);
+    }
+
+    // ==================== HELPERS OVERLAY FORM ====================
+    private TextField overlayField(String prompt, String val) {
+        TextField f = new TextField(val != null ? val : "");
+        f.setPromptText(prompt);
+        f.setStyle("-fx-background-color: #1E293B; -fx-background-radius: 10;" +
+                "-fx-border-color: rgba(255,255,255,0.18); -fx-border-radius: 10;" +
+                "-fx-text-fill: white; -fx-prompt-text-fill: rgba(255,255,255,0.35);" +
+                "-fx-padding: 10 14; -fx-font-size: 13px;");
+        f.focusedProperty().addListener((obs, old, focused) -> {
+            if (focused) f.setStyle("-fx-background-color: #1E293B; -fx-background-radius: 10;" +
+                    "-fx-border-color: #6366F1; -fx-border-width: 1.5; -fx-border-radius: 10;" +
+                    "-fx-text-fill: white; -fx-prompt-text-fill: rgba(255,255,255,0.35);" +
+                    "-fx-padding: 10 14; -fx-font-size: 13px;");
+            else f.setStyle("-fx-background-color: #1E293B; -fx-background-radius: 10;" +
+                    "-fx-border-color: rgba(255,255,255,0.18); -fx-border-radius: 10;" +
+                    "-fx-text-fill: white; -fx-prompt-text-fill: rgba(255,255,255,0.35);" +
+                    "-fx-padding: 10 14; -fx-font-size: 13px;");
+        });
+        return f;
+    }
+
+    private Label overlayErrLabel() {
+        Label l = new Label("");
+        l.setStyle("-fx-text-fill: #F87171; -fx-font-size: 10px; -fx-font-weight: 800; -fx-padding: 0 0 0 4;");
+        l.setVisible(false); l.setManaged(false);
+        return l;
+    }
+
+    private VBox overlayFormRow(String labelTxt, javafx.scene.Node field) {
+        VBox box = new VBox(5);
+        Label lbl = new Label(labelTxt);
+        lbl.setStyle("-fx-text-fill: rgba(255,255,255,0.6); -fx-font-size: 11px; -fx-font-weight: 700;");
+        box.getChildren().addAll(lbl, field);
+        return box;
+    }
+
+    private void showOverlayErr(TextField f, Label lbl, String msg) {
+        f.setStyle("-fx-background-color: rgba(248,113,113,0.1); -fx-background-radius: 10;" +
+                "-fx-border-color: #F87171; -fx-border-width: 1.5; -fx-border-radius: 10;" +
+                "-fx-text-fill: white; -fx-padding: 10 14; -fx-font-size: 13px;");
+        lbl.setText(msg); lbl.setVisible(true); lbl.setManaged(true);
+    }
+
+    private void clearOverlayErr(TextField f, Label lbl) {
+        f.setStyle("-fx-background-color: rgba(16,185,129,0.08); -fx-background-radius: 10;" +
+                "-fx-border-color: #10B981; -fx-border-width: 1.5; -fx-border-radius: 10;" +
+                "-fx-text-fill: white; -fx-padding: 10 14; -fx-font-size: 13px;");
+        lbl.setText(""); lbl.setVisible(false); lbl.setManaged(false);
+    }
+
+    private void showOverlayErrCombo(ComboBox<?> f, Label lbl, String msg) {
+        f.setStyle("-fx-border-color: #F87171; -fx-border-width: 1.5; -fx-border-radius: 10; -fx-font-size: 13px;");
+        lbl.setText(msg); lbl.setVisible(true); lbl.setManaged(true);
+    }
+
+    private void clearOverlayErrCombo(ComboBox<?> f, Label lbl) {
+        f.setStyle("-fx-border-color: #10B981; -fx-border-width: 1.5; -fx-border-radius: 10; -fx-font-size: 13px;");
+        lbl.setText(""); lbl.setVisible(false); lbl.setManaged(false);
+    }
+
+    private void showOverlayErrArea(TextArea f, Label lbl, String msg) {
+        f.setStyle("-fx-control-inner-background: rgba(248,113,113,0.1); -fx-background-radius: 10;" +
+                "-fx-border-color: #F87171; -fx-border-width: 1.5; -fx-border-radius: 10;" +
+                "-fx-text-fill: white; -fx-font-size: 13px;");
+        lbl.setText(msg); lbl.setVisible(true); lbl.setManaged(true);
+    }
+
+    private void clearOverlayErrArea(TextArea f, Label lbl) {
+        f.setStyle("-fx-control-inner-background: #1E293B; -fx-background-radius: 10;" +
+                "-fx-border-color: rgba(255,255,255,0.15); -fx-border-radius: 10;" +
+                "-fx-text-fill: white; -fx-font-size: 13px;");
+        lbl.setText(""); lbl.setVisible(false); lbl.setManaged(false);
     }
 
     // Helpers form overlay
