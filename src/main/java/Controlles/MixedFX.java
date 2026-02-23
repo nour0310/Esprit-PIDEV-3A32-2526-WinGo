@@ -73,6 +73,10 @@ public class MixedFX {
         searchField.textProperty().addListener((observable, oldValue, newValue) -> {
             filterItems(newValue);
         });
+        if (qrCodeView == null) System.out.println("❌ ERREUR: qrCodeView n'est pas lié au FXML !");
+        else System.out.println("✅ OK: qrCodeView est prêt.");
+
+        if (priceNoteLabel == null) System.out.println("❌ ERREUR: priceNoteLabel n'est pas lié au FXML !");
     }
 
     private void filterItems(String query) {
@@ -456,25 +460,42 @@ public class MixedFX {
 
     private void showDetails(Object item) {
         selectedItem = item;
+
+        // 1. Affichage des panneaux
         listScroll.setVisible(false); listScroll.setManaged(false);
         detailScroll.setVisible(true); detailScroll.setManaged(true);
-        detailGrid.getChildren().clear();
-        String qrContent = "";
-        if (showingReservations && item instanceof Reservation r) {
-            detailGrid.addRow(0, createStyledLabel("User:"), new Label(r.getUser()));
-            detailGrid.addRow(1, createStyledLabel("Statut:"), new Label(r.getStatut()));
-            String ticketInfo = "BILLET RÉSERVATION\nID: " + r.getId() + "\nClient: " + r.getUser() + "\nStatut: " + r.getStatut();
-            Image qrImage = BusinessLogic.generateQRCode(ticketInfo);
 
-            ImageView qrView = new ImageView(qrImage);
-            detailGrid.addRow(2, createStyledLabel("Billet Digital:"), qrView);
+        // 2. Nettoyage
+        detailGrid.getChildren().clear();
+        String qrData = "";
+
+        // 3. Remplissage des textes et préparation du contenu QR
+        if (showingReservations && item instanceof Reservation r) {
+            detailGrid.addRow(0, createStyledLabel("Passager:"), new Label(r.getUser()));
+            detailGrid.addRow(1, createStyledLabel("Statut:"), new Label(r.getStatut()));
+            qrData = "WinGo-RES-" + r.getId() + "\nClient: " + r.getUser();
+
         } else if (item instanceof Transport t) {
-            detailGrid.addRow(0, createStyledLabel("Départ:"), new Label(t.getDepart()));
-            detailGrid.addRow(1, createStyledLabel("Arrivée:"), new Label(t.getArrivee()));
+            detailGrid.addRow(0, createStyledLabel("Type:"), new Label(t.getType()));
+            detailGrid.addRow(1, createStyledLabel("Trajet:"), new Label(t.getDepart() + " -> " + t.getArrivee()));
+
+            // On affiche le prix dynamique aussi ici pour le style
+            float prixFinal = BusinessLogic.calculerPrixDynamique(t);
+            detailGrid.addRow(2, createStyledLabel("Prix Final:"), new Label(prixFinal + " TND"));
+
+            qrData = "WinGo-TR-" + t.getId() + "\nDe: " + t.getDepart() + "\nA: " + t.getArrivee();
         }
-        if (qrCodeView != null && !qrContent.isEmpty()) {
-            Image img = Services.BusinessLogic.generateQRCode(qrContent);
-            qrCodeView.setImage(img);
+
+        // 4. AFFICHAGE DU QR CODE
+        if (qrCodeView != null && !qrData.isEmpty()) {
+            System.out.println("Génération du QR pour : " + qrData); // Vérification console
+            Image img = BusinessLogic.generateQRCode(qrData);
+            if (img != null) {
+                qrCodeView.setImage(img);
+                System.out.println("✅ Image QR appliquée à l'ImageView");
+            } else {
+                System.out.println("❌ Erreur : BusinessLogic a retourné une image NULL");
+            }
         }
     }
 
