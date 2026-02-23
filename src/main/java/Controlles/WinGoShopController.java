@@ -409,6 +409,16 @@ public class WinGoShopController {
         if (topSubtitleLabel != null) topSubtitleLabel.setText(commercantView ? "Espace Commerçant" : "Produits Locaux Tunisiens");
         if (userNameLabel != null) userNameLabel.setText(logged ? getNomPrenomUtilisateur(Session.getUserId()) : "Visiteur");
         if (modeToggle != null && isCommercant) { modeToggle.setSelected(commercantView); modeToggle.setText(commercantView ? "Commerçant" : "Client"); }
+
+        if (switchModeBtn != null) {
+            switchModeBtn.setVisible(isCommercant);
+            switchModeBtn.setManaged(isCommercant);
+            updateSwitchBtn();
+        }
+        if (becomeCommercantBtn != null) {
+            becomeCommercantBtn.setVisible(isClient);
+            becomeCommercantBtn.setManaged(isClient);
+        }
     }
 
     // ==================== SCREENS ====================
@@ -783,6 +793,199 @@ public class WinGoShopController {
     private void showModeClient() {
         refreshProducts();
         refreshClientProducts();
+    }
+
+    private HBox createCommercantProductCard(Produit p) {
+        HBox card = new HBox(0);
+        card.setPrefHeight(140); card.setMaxHeight(140);
+        card.setStyle("-fx-background-color: #FFFFFF; -fx-background-radius: 16;" +
+                "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 16, 0, 0, 4);");
+
+        // Image
+        StackPane imgBlock = new StackPane();
+        imgBlock.setPrefWidth(160); imgBlock.setMinWidth(160); imgBlock.setMaxWidth(160);
+        imgBlock.setStyle("-fx-background-color: #E2E8F0; -fx-background-radius: 16 0 0 16;");
+        ImageView iv = new ImageView(); iv.setFitWidth(160); iv.setFitHeight(140);
+        iv.setPreserveRatio(false); iv.setSmooth(true);
+        if (p.getImage() != null && !p.getImage().isBlank()) {
+            try { iv.setImage(new Image(p.getImage().trim(), 160, 140, false, true, true)); } catch (Exception ignored) {}
+        }
+        imgBlock.getChildren().add(iv);
+
+        // Infos
+        VBox info = new VBox(6); info.setAlignment(Pos.CENTER_LEFT);
+        info.setStyle("-fx-padding: 14 20;"); HBox.setHgrow(info, Priority.ALWAYS);
+
+        Label nom = new Label(p.getNom());
+        nom.setStyle("-fx-font-weight: 900; -fx-font-size: 16px; -fx-text-fill: #1E293B;");
+
+        HBox badges = new HBox(8);
+        Label cat = new Label(p.getCategorie() != null ? p.getCategorie() : "");
+        cat.setStyle("-fx-background-color: #EEF2FF; -fx-text-fill: #6366F1; -fx-font-weight: 800;" +
+                "-fx-font-size: 10px; -fx-background-radius: 6; -fx-padding: 3 8;");
+        Label region = new Label("📍 " + (p.getRegion() != null ? p.getRegion() : ""));
+        region.setStyle("-fx-text-fill: #64748B; -fx-font-size: 11px; -fx-font-weight: 700;");
+        badges.getChildren().addAll(cat, region);
+
+        Label prix = new Label(String.format("%.2f TND", p.getPrix()));
+        prix.setStyle("-fx-font-weight: 900; -fx-font-size: 15px; -fx-text-fill: #C2410C;");
+
+        Label stock = new Label("📦 " + p.getStock() + " en stock");
+        stock.setStyle("-fx-text-fill: " + (p.getStock() > 0 ? "#10B981" : "#EF4444") +
+                "; -fx-font-weight: 700; -fx-font-size: 11px;");
+
+        info.getChildren().addAll(nom, badges, prix, stock);
+
+        // Actions
+        VBox actions = new VBox(8); actions.setAlignment(Pos.CENTER);
+        actions.setStyle("-fx-padding: 14 16;");
+
+        Button editBtn = new Button("✏ Modifier");
+        editBtn.setStyle("-fx-background-color: #F1F5F9; -fx-text-fill: #475569; -fx-font-weight: 800;" +
+                "-fx-font-size: 11px; -fx-background-radius: 8; -fx-padding: 7 14; -fx-cursor: hand;");
+        editBtn.setOnAction(e -> showEditProductOverlay(p));
+
+        Button delBtn = new Button("🗑 Supprimer");
+        delBtn.setStyle("-fx-background-color: #FEF2F2; -fx-text-fill: #EF4444; -fx-font-weight: 800;" +
+                "-fx-font-size: 11px; -fx-background-radius: 8; -fx-padding: 7 14; -fx-cursor: hand;");
+        delBtn.setOnAction(e -> {
+            Alert confirm = new Alert(Alert.AlertType.CONFIRMATION);
+            confirm.setTitle("Confirmer"); confirm.setHeaderText(null);
+            confirm.setContentText("Supprimer \"" + p.getNom() + "\" ?");
+            if (confirm.showAndWait().orElse(ButtonType.CANCEL) == ButtonType.OK) {
+                try { produitCRUD.supprimer(p.getIdProduit()); showModeCommercant(); }
+                catch (SQLException ex) { showAlert("❌ Erreur", ex.getMessage()); }
+            }
+        });
+
+        actions.getChildren().addAll(editBtn, delBtn);
+        card.getChildren().addAll(imgBlock, info, actions);
+        return card;
+    }
+    private void showAddProductOverlay() {
+        showProductFormOverlay(null);
+    }
+
+    private void showEditProductOverlay(Produit p) {
+        showProductFormOverlay(p);
+    }
+
+    private void showProductFormOverlay(Produit existant) {
+        if (overlayContainer == null) return;
+
+        StackPane overlay = new StackPane();
+        overlay.setStyle("-fx-background-color: rgba(0,0,0,0.6);");
+        overlay.setAlignment(Pos.CENTER);
+        overlay.setOnMouseClicked(e -> { if (e.getTarget() == overlay) overlayContainer.getChildren().remove(overlay); });
+
+        VBox panel = new VBox(0); panel.setPrefWidth(520); panel.setMaxWidth(520);
+        panel.setStyle("-fx-background-color: #0F172A; -fx-background-radius: 20;" +
+                "-fx-effect: dropshadow(gaussian, rgba(99,102,241,0.4), 50, 0, 0, 0);");
+        panel.setOnMouseClicked(javafx.event.Event::consume);
+
+        // Header
+        HBox header = new HBox(); header.setAlignment(Pos.CENTER_LEFT);
+        header.setStyle("-fx-padding: 18 24; -fx-background-color: linear-gradient(to right,#6366F1,#8B5CF6); -fx-background-radius: 20 20 0 0;");
+        Label title = new Label(existant == null ? "➕  Ajouter un produit" : "✏  Modifier le produit");
+        title.setStyle("-fx-text-fill: white; -fx-font-weight: 900; -fx-font-size: 16px;");
+        Region hsp = new Region(); HBox.setHgrow(hsp, Priority.ALWAYS);
+        Button closeBtn = new Button("✕");
+        closeBtn.setStyle("-fx-background-color: rgba(255,255,255,0.18); -fx-text-fill: white;" +
+                "-fx-background-radius: 999; -fx-font-weight: 900; -fx-min-width: 30; -fx-min-height: 30; -fx-cursor: hand; -fx-padding: 0;");
+        closeBtn.setOnAction(e -> overlayContainer.getChildren().remove(overlay));
+        header.getChildren().addAll(title, hsp, closeBtn);
+
+        // Form body
+        ScrollPane scroll = new ScrollPane();
+        scroll.setFitToWidth(true); scroll.setMaxHeight(480);
+        scroll.setStyle("-fx-background-color: transparent; -fx-background: transparent; -fx-border-color: transparent;");
+
+        VBox body = new VBox(14); body.setStyle("-fx-padding: 24 28;");
+
+        TextField fNom = formField("Nom du produit", existant != null ? existant.getNom() : "");
+        TextField fPrix = formField("Prix (TND)", existant != null ? String.valueOf(existant.getPrix()) : "");
+        TextField fStock = formField("Stock", existant != null ? String.valueOf(existant.getStock()) : "");
+        TextField fRegion = formField("Région", existant != null ? existant.getRegion() : "");
+        TextField fImage = formField("URL Image", existant != null ? existant.getImage() : "");
+        TextArea fDesc = new TextArea(existant != null ? existant.getDescription() : "");
+        fDesc.setPromptText("Description..."); fDesc.setPrefRowCount(3); fDesc.setWrapText(true);
+        fDesc.setStyle("-fx-background-color: rgba(255,255,255,0.06); -fx-background-radius: 10;" +
+                "-fx-border-color: rgba(255,255,255,0.15); -fx-border-radius: 10;" +
+                "-fx-text-fill: white; -fx-padding: 10 12; -fx-font-size: 13px;");
+
+        // Combo catégorie
+        ComboBox<String> fCat = new ComboBox<>();
+        fCat.getItems().addAll("Artisanat","Gastronomie","Textile","Bijoux","Art","Souvenirs");
+        fCat.setPromptText("Catégorie");
+        if (existant != null) fCat.setValue(existant.getCategorie());
+        fCat.setMaxWidth(Double.MAX_VALUE);
+        fCat.setStyle("-fx-background-color: rgba(255,255,255,0.06); -fx-background-radius: 10;" +
+                "-fx-border-color: rgba(255,255,255,0.15); -fx-text-fill: white;");
+
+        Label errLbl = new Label(""); errLbl.setStyle("-fx-text-fill: #F87171; -fx-font-weight: 800; -fx-font-size: 12px;");
+
+        Button saveBtn2 = new Button(existant == null ? "✅  Enregistrer" : "💾  Mettre à jour");
+        saveBtn2.setMaxWidth(Double.MAX_VALUE);
+        saveBtn2.setStyle("-fx-background-color: linear-gradient(to right,#6366F1,#8B5CF6);" +
+                "-fx-text-fill: white; -fx-font-weight: 900; -fx-font-size: 14px;" +
+                "-fx-background-radius: 10; -fx-padding: 13 0; -fx-cursor: hand;");
+
+        saveBtn2.setOnAction(e -> {
+            String nom2 = fNom.getText().trim();
+            String cat2 = fCat.getValue();
+            String region2 = fRegion.getText().trim();
+            String img2 = fImage.getText().trim();
+            String desc2 = fDesc.getText().trim();
+            double prix2; int stock2;
+
+            if (nom2.length() < 2) { errLbl.setText("⚡ Nom invalide (min 2 car.)"); return; }
+            if (cat2 == null || cat2.isBlank()) { errLbl.setText("⚡ Catégorie obligatoire"); return; }
+            try { prix2 = Double.parseDouble(fPrix.getText().trim()); if (prix2 <= 0) { errLbl.setText("⚡ Prix > 0"); return; } }
+            catch (NumberFormatException ex) { errLbl.setText("⚡ Prix invalide"); return; }
+            try { stock2 = Integer.parseInt(fStock.getText().trim()); if (stock2 < 0) { errLbl.setText("⚡ Stock >= 0"); return; } }
+            catch (NumberFormatException ex) { errLbl.setText("⚡ Stock invalide"); return; }
+
+            try {
+                if (existant == null) {
+                    produitCRUD.ajouter(new Produit(Session.getUserId(), nom2, desc2, prix2, region2, cat2, stock2, img2));
+                    showAlert("✅ Ajouté", "Produit ajouté avec succès !");
+                } else {
+                    produitCRUD.modifier(new Produit(existant.getIdProduit(), Session.getUserId(), nom2, desc2, prix2, region2, cat2, stock2, img2));
+                    showAlert("✅ Modifié", "Produit mis à jour !");
+                }
+                overlayContainer.getChildren().remove(overlay);
+                showModeCommercant(); // Rafraîchir la liste
+            } catch (SQLException ex) { errLbl.setText("❌ Erreur DB : " + ex.getMessage()); ex.printStackTrace(); }
+        });
+
+        body.getChildren().addAll(
+                formRow("Nom", fNom), formRow("Catégorie", fCat),
+                formRow("Prix (TND)", fPrix), formRow("Stock", fStock),
+                formRow("Région", fRegion), formRow("URL Image", fImage),
+                formRow("Description", fDesc), errLbl, saveBtn2
+        );
+
+        scroll.setContent(body);
+        panel.getChildren().addAll(header, scroll);
+        overlay.getChildren().add(panel);
+        overlayContainer.getChildren().add(overlay);
+    }
+
+    // Helpers form overlay
+    private TextField formField(String prompt, String val) {
+        TextField f = new TextField(val); f.setPromptText(prompt);
+        f.setStyle("-fx-background-color: rgba(255,255,255,0.06); -fx-background-radius: 10;" +
+                "-fx-border-color: rgba(255,255,255,0.15); -fx-border-radius: 10;" +
+                "-fx-text-fill: white; -fx-prompt-text-fill: rgba(255,255,255,0.4);" +
+                "-fx-padding: 10 14; -fx-font-size: 13px;");
+        return f;
+    }
+    private VBox formRow(String labelTxt, javafx.scene.Node field) {
+        VBox box = new VBox(5);
+        Label lbl = new Label(labelTxt);
+        lbl.setStyle("-fx-text-fill: rgba(255,255,255,0.55); -fx-font-size: 11px; -fx-font-weight: 700;");
+        box.getChildren().addAll(lbl, field);
+        return box;
     }
 
     private boolean isCommercantView() { return Session.isLoggedIn()&&Session.isCommercant()&&viewAsCommercant; }
