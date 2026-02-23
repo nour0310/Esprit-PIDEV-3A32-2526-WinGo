@@ -780,6 +780,10 @@ public class WinGoShopController {
             e.printStackTrace();
         }
     }
+    private void showModeClient() {
+        refreshProducts();
+        refreshClientProducts();
+    }
 
     private boolean isCommercantView() { return Session.isLoggedIn()&&Session.isCommercant()&&viewAsCommercant; }
 
