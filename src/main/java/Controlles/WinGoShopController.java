@@ -30,6 +30,15 @@ import javafx.stage.Stage;
 
 import java.io.IOException;
 
+
+//import des API
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.io.OutputStream;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+
+
 public class WinGoShopController {
 
     // ==================== TOP BAR ====================
