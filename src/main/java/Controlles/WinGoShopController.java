@@ -125,7 +125,11 @@ public class WinGoShopController {
 
     private final ObservableList<Produit> produitsData = FXCollections.observableArrayList();
     private final ObservableList<CartItem> cartData    = FXCollections.observableArrayList();
+    @FXML private Button switchModeBtn;
+    @FXML private Button becomeCommercantBtn;
 
+    // Variable pour savoir si on est en mode commerçant
+    private boolean enModeCommercant = false;
     // ==================== VALIDATION LABELS ====================
     private Label errNom = new Label(), errCat = new Label(), errPrix = new Label();
     private Label errStock = new Label(), errImage = new Label(), errRegion = new Label();
@@ -713,6 +717,70 @@ public class WinGoShopController {
         updateUIForUserType(); showProducts();
         if (isCommercantView()) refreshCommercantProducts(); else { refreshProducts(); refreshClientProducts(); }
     }
+
+    @FXML
+    public void toggleModeSimple() {
+        enModeCommercant = !enModeCommercant;
+        updateSwitchBtn();
+        if (enModeCommercant) {
+            showModeCommercant();
+        } else {
+            showModeClient();
+        }
+    }
+    private void updateSwitchBtn() {
+        if (switchModeBtn == null) return;
+        if (enModeCommercant) {
+            switchModeBtn.setText("👤 Mode Client");
+            switchModeBtn.setStyle("-fx-background-color: #0F172A; -fx-text-fill: #6366F1;" +
+                    "-fx-font-weight: 900; -fx-font-size: 12px; -fx-background-radius: 10;" +
+                    "-fx-border-color: #6366F1; -fx-border-width: 2; -fx-border-radius: 10;" +
+                    "-fx-padding: 10 18; -fx-cursor: hand;");
+        } else {
+            switchModeBtn.setText("🏪 Mode Commerçant");
+            switchModeBtn.setStyle("-fx-background-color: #6366F1; -fx-text-fill: white;" +
+                    "-fx-font-weight: 900; -fx-font-size: 12px; -fx-background-radius: 10;" +
+                    "-fx-padding: 10 18; -fx-cursor: hand;");
+        }
+    }
+
+    private void showModeCommercant() {
+        // Affiche la vue commerçant : tableau de ses produits + boutons gérer/ajouter
+        if (clientProductsGrid == null) return;
+        clientProductsGrid.getChildren().clear();
+
+        // Titre
+        Label titre = new Label("🏪  Mes Produits");
+        titre.setStyle("-fx-font-size: 20px; -fx-font-weight: 900; -fx-text-fill: #1E293B; -fx-padding: 0 0 10 0;");
+
+        // Bouton Ajouter
+        Button addBtn = new Button("➕  Ajouter un produit");
+        addBtn.setStyle("-fx-background-color: #6366F1; -fx-text-fill: white; -fx-font-weight: 900;" +
+                "-fx-font-size: 13px; -fx-background-radius: 10; -fx-padding: 10 20; -fx-cursor: hand;");
+        addBtn.setOnAction(e -> showAddProductOverlay());
+
+        HBox topBar = new HBox(12, titre, new Region() {{ HBox.setHgrow(this, Priority.ALWAYS); }}, addBtn);
+        topBar.setAlignment(Pos.CENTER_LEFT);
+
+        clientProductsGrid.getChildren().add(topBar);
+
+        // Charger les produits du commerçant
+        try {
+            List<Produit> mesProduits = produitCRUD.afficherParUser(Session.getUserId());
+            if (mesProduits.isEmpty()) {
+                Label empty = new Label("Vous n'avez pas encore de produits.");
+                empty.setStyle("-fx-text-fill: #94A3B8; -fx-font-size: 14px; -fx-padding: 20 0;");
+                clientProductsGrid.getChildren().add(empty);
+            } else {
+                for (Produit p : mesProduits) {
+                    clientProductsGrid.getChildren().add(createCommercantProductCard(p));
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
     private boolean isCommercantView() { return Session.isLoggedIn()&&Session.isCommercant()&&viewAsCommercant; }
 
     // ==================== BECOME COMMERCANT — OVERLAY ====================
