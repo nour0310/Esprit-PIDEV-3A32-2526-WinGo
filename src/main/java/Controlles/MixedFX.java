@@ -310,10 +310,21 @@ public class MixedFX {
                                 javafx.application.Platform.runLater(() -> travelProgress.setProgress(progress));
                                 Thread.sleep(200);
                             }
+
+                            // 1. Get real data from API
                             String infos = Services.TransportAPI.getInfosTrajet(t.getDepart(), t.getArrivee());
+
+                            // 2. Calculate price based on that distance
+                            float realPrice = calculateDistanceBasedPrice(t, infos);
+
                             javafx.application.Platform.runLater(() -> {
                                 apiNote.setText("🏁 " + infos);
                                 apiNote.setStyle("-fx-text-fill: #22C55E; -fx-font-weight: bold; -fx-font-size: 10px;");
+
+                                // 3. Update the global price label if this card is currently selected
+                                if (selectedItem == t && priceNoteLabel != null) {
+                                    priceNoteLabel.setText("💰 Prix Calculé: " + String.format("%.2f", realPrice) + " TND (" + infos.split(" ")[0] + " km)");
+                                }
                             });
                         } catch (InterruptedException e) { e.printStackTrace(); }
                     }).start();
