@@ -35,6 +35,7 @@ public class MixedFX {
     @FXML private ScrollPane listScroll, detailScroll;
     @FXML private TextField searchField;
     @FXML private Label totalCountLabel;
+    @FXML private VBox formOverlay;
     private javafx.collections.ObservableSet<String> dynamicWishlist = javafx.collections.FXCollections.observableSet();
     private String currentUserId = "NormanHaires";
     private boolean filterByWishlist = false;
@@ -199,6 +200,16 @@ public class MixedFX {
             return null;
         }
     }
+    @FXML private void closeFormOverlay() { formOverlay.setVisible(false); }
+    @FXML
+
+    private void handleShowAddForm() {
+        clearForm();
+        formTitle.setText("Nouvelle " + (showingReservations ? "Réservation" : "Transport"));
+        addBtn.setVisible(true);
+        editBtn.setVisible(false);
+        formOverlay.setVisible(true); // Show the popup!
+    }
 
     @FXML
     private void showReservations() {
@@ -285,7 +296,6 @@ public class MixedFX {
                     ProgressBar travelProgress = new ProgressBar(0);
                     travelProgress.setPrefWidth(170);
                     travelProgress.setStyle("-fx-accent: #EF4444;");
-
                     Label apiNote = new Label("⏳ Initialisation GPS...");
                     apiNote.setStyle("-fx-font-size: 10px; -fx-text-fill: #94A3B8;");
 
@@ -312,10 +322,27 @@ public class MixedFX {
             }
 
             if (card != null) {
+                Pane topPane = (Pane) card.getChildren().get(0);
+
+                // 1. DELETE BUTTON (Added only once)
+                Button cardDelBtn = new Button("🗑");
+                cardDelBtn.setTranslateX(130);
+                cardDelBtn.setTranslateY(10);
+                cardDelBtn.setStyle("-fx-background-color: #FDA4AF; -fx-text-fill: white; -fx-background-radius: 10;");
+                cardDelBtn.setOnAction(e -> { selectedItem = obj; handleDelete(); e.consume(); });
+                topPane.getChildren().add(cardDelBtn);
+
+                // 2. DETAILS BUTTON
+                Button cardDetailBtn = new Button("👁");
+                cardDetailBtn.setStyle("-fx-background-color: #A3B1FF; -fx-text-fill: white; -fx-background-radius: 10; -fx-font-weight: bold;");
+                cardDetailBtn.setTranslateX(90); cardDetailBtn.setTranslateY(10);
+                cardDetailBtn.setOnAction(e -> { showDetails(obj); e.consume(); });
+                topPane.getChildren().add(cardDetailBtn);
+
+                // 3. WISHLIST BUTTON (Restored Style)
                 Button wishlistBtn = new Button("❤");
                 wishlistBtn.setTranslateX(170);
                 wishlistBtn.setTranslateY(-10);
-
                 updateWishlistButtonStyle(wishlistBtn, dynamicWishlist.contains(uniqueKey));
 
                 final String finalKey = uniqueKey;
@@ -325,18 +352,22 @@ public class MixedFX {
                     updateWishlistButtonStyle(wishlistBtn, dynamicWishlist.contains(finalKey));
                     e.consume();
                 });
+                topPane.getChildren().add(wishlistBtn);
 
-                ((Pane)card.getChildren().get(0)).getChildren().add(wishlistBtn);
-
-                // --- GESTION DU CLIC POUR LA MAP ---
+                // 4. CLICK HANDLER (Map + Form + Price Logic)
                 card.setOnMouseClicked(e -> {
                     selectedItem = obj;
                     fillFormFields(obj);
                     populateForm();
 
-                    // Si c'est un transport, on met à jour la carte à droite
                     if (obj instanceof Transport) {
-                        updateMapDisplay((Transport) obj);
+                        Transport t = (Transport) obj;
+                        updateMapDisplay(t);
+                        // Update price label if linked
+                        if (priceNoteLabel != null) {
+                            float finalP = calculerPrixDynamique(t);
+                            priceNoteLabel.setText("Prix Final: " + finalP + " TND");
+                        }
                     }
 
                     if (e.getClickCount() == 2) showDetails(obj);
@@ -344,6 +375,37 @@ public class MixedFX {
 
                 itemsFlowPane.getChildren().add(card);
             }
+        }
+    }
+    private void updatePriceDisplay(Transport t) {
+        if (priceNoteLabel == null) return;
+
+        float finalPrice = calculerPrixDynamique(t);
+        float basePrice = t.getTarif();
+
+        if (finalPrice > basePrice) {
+            priceNoteLabel.setText("🔥 Prix Dynamique: " + String.format("%.2f", finalPrice) + " TND (Heure de pointe!)");
+            priceNoteLabel.setStyle("-fx-text-fill: #EF4444; -fx-font-weight: bold;"); // Red for surge
+        } else {
+            priceNoteLabel.setText("Standard: " + String.format("%.2f", finalPrice) + " TND");
+            priceNoteLabel.setStyle("-fx-text-fill: #22C55E; -fx-font-weight: bold;"); // Green for normal
+        }
+    }
+    private void updateWishlistButtonStyle(Button btn, boolean isFavorite) {
+        if (isFavorite) {
+            // Vibrant Red for Active Favorited State
+            btn.setStyle("-fx-background-color: transparent; " +
+                    "-fx-text-fill: #EF4444; " +
+                    "-fx-font-size: 22px; " +
+                    "-fx-cursor: hand; " +
+                    "-fx-padding: 0;");
+        } else {
+            // Soft Slate Gray for Inactive State
+            btn.setStyle("-fx-background-color: transparent; " +
+                    "-fx-text-fill: #CBD5E1; " +
+                    "-fx-font-size: 22px; " +
+                    "-fx-cursor: hand; " +
+                    "-fx-padding: 0;");
         }
     }
     private VBox createModernCard(String title, String subtitle, String extraInfo, String imageUrl) {
@@ -378,24 +440,21 @@ public class MixedFX {
 
     private void fillFormFields(Object item) {
         if (showingReservations && item instanceof Reservation r) {
-            resUserField.setText(r.getUser()); resExpField.setText(r.getExp()); resStatutField.setText(r.getStatut());
-            if (r.getDate() != null) resDateField.setValue(r.getDate().toLocalDateTime().toLocalDate());
-            if (priceNoteLabel != null) priceNoteLabel.setVisible(false);
+            resUserField.setText(r.getUser());
+            resExpField.setText(r.getExp());
+            resStatutField.setText(r.getStatut());
+            if (r.getDate() != null) {
+                resDateField.setValue(r.getDate().toLocalDateTime().toLocalDate());
+            }
         } else if (!showingReservations && item instanceof Transport t) {
-            trTypeField.setText(t.getType()); trCapField.setText(t.getCapacite()); trTarifField.setText(String.valueOf(t.getTarif()));
-            trDepartField.setText(t.getDepart()); trArriveeField.setText(t.getArrivee());
-            if (t.getDateDepart() != null) trDateField.setValue(t.getDateDepart().toLocalDate());
-            //if (!showingReservations && item instanceof Transport transportItem) {
-                float prixSuggere = Services.BusinessLogic.calculerPrixDynamique(t);
-                if (priceNoteLabel != null) {
-                    if (prixSuggere > t.getTarif()) {
-                        priceNoteLabel.setText("🔥 +25% Heure de pointe : " + prixSuggere + " TND");
-                        priceNoteLabel.setVisible(true);
-                    } else {
-                        priceNoteLabel.setVisible(false);
-                    }
-                }
-
+            trTypeField.setText(t.getType());
+            trCapField.setText(t.getCapacite());
+            trTarifField.setText(String.valueOf(t.getTarif()));
+            trDepartField.setText(t.getDepart());
+            trArriveeField.setText(t.getArrivee());
+            if (t.getDateDepart() != null) {
+                trDateField.setValue(t.getDateDepart().toLocalDate());
+            }
         }
     }
 
@@ -446,69 +505,128 @@ public class MixedFX {
         Alert alert = new Alert(type); alert.setTitle(title); alert.setHeaderText(null); alert.setContentText(message); alert.showAndWait();
     }
 
-    @FXML private void handleEdit() { /* Ton code original handleEdit */ }
-    @FXML private void handleDelete() { /* Ton code original handleDelete */ }
+    @FXML private void handleEdit() {
+        if (selectedItem == null) {
+            System.out.println("❌ Aucun élément sélectionné pour la modification.");
+            return;
+        }
+
+        try {
+            if (showingReservations && selectedItem instanceof Reservation r) {
+                // Update the object from the text fields
+                r.setUser(resUserField.getText());
+                r.setExp(resExpField.getText());
+                r.setStatut(resStatutField.getText());
+                if (resDateField.getValue() != null) {
+                    r.setDate(java.sql.Timestamp.valueOf(resDateField.getValue().atStartOfDay()));
+                }
+                // Call CRUD
+                reservationService.modifier(r);
+
+            } else if (!showingReservations && selectedItem instanceof Transport t) {
+                // Update the object from the text fields
+                t.setType(trTypeField.getText());
+                t.setCapacite(trCapField.getText());
+                t.setTarif(Float.parseFloat(trTarifField.getText()));
+                t.setDepart(trDepartField.getText());
+                t.setArrivee(trArriveeField.getText());
+                if (trDateField.getValue() != null) {
+                    t.setDateDepart(trDateField.getValue().atStartOfDay());
+                }
+                // Call CRUD
+                transportService.modifier(t);
+            }
+
+            formOverlay.setVisible(false); // Close popup
+            reloadCurrent(); // Refresh the list
+            System.out.println("✅ Modification réussie !");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+    @FXML private void handleDelete() {
+        if (selectedItem == null) {
+            System.out.println("❌ Aucun élément sélectionné pour la suppression.");
+            return;
+        }
+
+        try {
+            if (showingReservations && selectedItem instanceof Reservation r) {
+                reservationService.supprimer(r.getId());
+            } else if (!showingReservations && selectedItem instanceof Transport t) {
+                transportService.supprimer(t.getId());
+            }
+
+            clearForm();    // Reset the fields
+            reloadCurrent(); // Refresh the UI
+            System.out.println("🗑️ Suppression réussie !");
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
 
     @FXML
     private void clearForm() {
         selectedItem = null;
-        if (showingReservations) { resUserField.clear(); resExpField.clear(); resStatutField.clear(); resDateField.setValue(null); }
-        else { trTypeField.clear(); trCapField.clear(); trTarifField.clear(); trDepartField.clear(); trArriveeField.clear(); trDateField.setValue(null); }
+        if (showingReservations) {
+            resUserField.clear();
+            resExpField.clear();
+            resStatutField.clear();
+            resDateField.setValue(null);
+        } else {
+            trTypeField.clear();
+            trCapField.clear();
+            trTarifField.clear();
+            trDepartField.clear();
+            trArriveeField.clear();
+            trDateField.setValue(null);
+        }
     }
 
-    private void reloadCurrent() { if (showingReservations) loadReservations(); else loadTransports(); populateForm(); }
 
-    private void showDetails(Object item) {
-        selectedItem = item;
-
-        // 1. Affichage des panneaux
-        listScroll.setVisible(false); listScroll.setManaged(false);
-        detailScroll.setVisible(true); detailScroll.setManaged(true);
-
-        // 2. Nettoyage
-        detailGrid.getChildren().clear();
-        String qrData = "";
-
-        // 3. Remplissage des textes et préparation du contenu QR
-        if (showingReservations && item instanceof Reservation r) {
-            detailGrid.addRow(0, createStyledLabel("Passager:"), new Label(r.getUser()));
-            detailGrid.addRow(1, createStyledLabel("Statut:"), new Label(r.getStatut()));
-            qrData = "WinGo-RES-" + r.getId() + "\nClient: " + r.getUser();
-
-        } else if (item instanceof Transport t) {
-            detailGrid.addRow(0, createStyledLabel("Type:"), new Label(t.getType()));
-            detailGrid.addRow(1, createStyledLabel("Trajet:"), new Label(t.getDepart() + " -> " + t.getArrivee()));
-
-            // On affiche le prix dynamique aussi ici pour le style
-            float prixFinal = BusinessLogic.calculerPrixDynamique(t);
-            detailGrid.addRow(2, createStyledLabel("Prix Final:"), new Label(prixFinal + " TND"));
-
-            qrData = "WinGo-TR-" + t.getId() + "\nDe: " + t.getDepart() + "\nA: " + t.getArrivee();
+    private void reloadCurrent() {
+        if (showingReservations) {
+            loadReservations();
+        } else {
+            loadTransports();
         }
+    }
 
-        // 4. AFFICHAGE DU QR CODE
-        if (qrCodeView != null && !qrData.isEmpty()) {
-            System.out.println("Génération du QR pour : " + qrData); // Vérification console
-            Image img = BusinessLogic.generateQRCode(qrData);
-            if (img != null) {
-                qrCodeView.setImage(img);
-                System.out.println("✅ Image QR appliquée à l'ImageView");
-            } else {
-                System.out.println("❌ Erreur : BusinessLogic a retourné une image NULL");
-            }
+    private void showDetails(Object obj) {
+        // 1. Clear interference
+        formOverlay.setVisible(false);
+        listScroll.setVisible(false);
+        listScroll.setManaged(false);
+
+        // 2. Bring Detail Page to the absolute front
+        detailScroll.setVisible(true);
+        detailScroll.setManaged(true);
+        detailScroll.toFront();
+
+        detailGrid.getChildren().clear();
+
+        if (obj instanceof Reservation r) {
+            detailGrid.add(createStyledLabel("ID Réservation: " + r.getId()), 0, 0);
+            detailGrid.add(createStyledLabel("Passager: " + r.getUser()), 0, 1);
+            qrCodeView.setImage(generateQRCode("RES-" + r.getId() + "-" + r.getUser()));
+        } else if (obj instanceof Transport t) {
+            detailGrid.add(createStyledLabel("ID Transport: " + t.getId()), 0, 0);
+            detailGrid.add(createStyledLabel("Trajet: " + t.getDepart() + " -> " + t.getArrivee()), 0, 1);
+            qrCodeView.setImage(generateQRCode("TR-" + t.getId() + "-" + t.getType()));
         }
     }
 
     @FXML
+
     private void backToList() {
-        detailScroll.setVisible(false); detailScroll.setManaged(false);
-        listScroll.setVisible(true); listScroll.setManaged(true);
-    }
-    private void updateWishlistButtonStyle(Button btn, boolean isFavorite) {
-        if (isFavorite) {
-            btn.setStyle("-fx-background-color: transparent; -fx-text-fill: #EF4444; -fx-font-size: 20px; -fx-cursor: hand;");
-        } else {
-            btn.setStyle("-fx-background-color: transparent; -fx-text-fill: #CBD5E1; -fx-font-size: 20px; -fx-cursor: hand;");
-        }
+        detailScroll.setVisible(false);
+        detailScroll.setManaged(false);
+
+        listScroll.setVisible(true);
+        listScroll.setManaged(true);
+        listScroll.toFront(); // Ensure the list is back on top
+
+        formOverlay.setVisible(false);
     }
 }
