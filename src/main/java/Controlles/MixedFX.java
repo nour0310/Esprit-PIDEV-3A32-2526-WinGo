@@ -377,6 +377,29 @@ public class MixedFX {
             }
         }
     }
+    public float calculateDistanceBasedPrice(Transport t, String apiResponse) {
+        float pricePerKm = 0.8f; // Adjust this value (e.g., 0.8 TND per kilometer)
+        float distance = 0;
+
+        try {
+            // Extracts the first number from a string like "120 km - 1h 30min"
+            String distanceStr = apiResponse.split(" ")[0].replace(",", ".");
+            distance = Float.parseFloat(distanceStr);
+        } catch (Exception e) {
+            System.out.println("⚠️ Could not parse distance from API, using base tariff.");
+            return t.getTarif();
+        }
+
+        float calculatedPrice = distance * pricePerKm;
+
+        // Apply your existing Rush Hour Logic (+25%)
+        int heure = t.getDateDepart().getHour();
+        if ((heure >= 7 && heure <= 9) || (heure >= 17 && heure <= 19)) {
+            calculatedPrice *= 1.25;
+        }
+
+        return calculatedPrice;
+    }
     private void updatePriceDisplay(Transport t) {
         if (priceNoteLabel == null) return;
 
