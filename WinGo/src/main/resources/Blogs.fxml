@@ -97,9 +97,7 @@
                             style="-fx-background-color: #A3B1FF; -fx-text-fill: white; -fx-font-size: 15px; -fx-font-weight: bold; -fx-background-radius: 20; -fx-padding: 10 12; -fx-cursor: hand; -fx-alignment: CENTER_LEFT; -fx-pref-width: 130;" />
                     <Button text="🔄 Reclaim" onAction="#goSettings"
                             style="-fx-background-color: transparent; -fx-text-fill: #94A3B8; -fx-font-size: 15px; -fx-background-radius: 20; -fx-padding: 10 12; -fx-cursor: hand; -fx-alignment: CENTER_LEFT; -fx-pref-width: 130;" />
-                    <!-- Lien Admin / Back-Office -->
-                    <Button text="⚙️ Back-Office" onAction="#goBackOffice"
-                            style="-fx-background-color: transparent; -fx-text-fill: #1E293B; -fx-font-size: 14px; -fx-font-weight: bold; -fx-background-radius: 20; -fx-padding: 10 12; -fx-cursor: hand; -fx-alignment: CENTER_LEFT; -fx-pref-width: 130; -fx-border-color: #E2E8F0; -fx-border-radius: 20;" />
+                    <!-- Bouton Back-Office supprimé -->
                 </VBox>
 
                 <Region VBox.vgrow="ALWAYS" />

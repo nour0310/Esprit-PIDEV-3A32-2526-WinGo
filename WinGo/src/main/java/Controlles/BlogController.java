@@ -2532,20 +2532,4 @@ public class BlogController implements Initializable {
     @FXML private void goBlog() { showListView(); }
     @FXML private void goCommentaires() { System.out.println("Commentaires"); }
     @FXML private void goSettings() { System.out.println("Settings"); }
-    
-    @FXML private void goBackOffice() {
-        try {
-            javafx.fxml.FXMLLoader loader = new javafx.fxml.FXMLLoader(getClass().getResource("/BlogsBackOffice.fxml"));
-            javafx.scene.Scene scene = new javafx.scene.Scene(loader.load());
-            javafx.stage.Stage stage = (javafx.stage.Stage) rootPane.getScene().getWindow();
-            stage.setTitle("WinGo - Back Office (Admin)");
-            stage.setScene(scene);
-            stage.setWidth(1300);
-            stage.setHeight(850);
-            stage.show();
-        } catch (java.io.IOException e) {
-            e.printStackTrace();
-            showError("Navigation", "Impossible d'ouvrir le Back Office.");
-        }
-    }
 }
