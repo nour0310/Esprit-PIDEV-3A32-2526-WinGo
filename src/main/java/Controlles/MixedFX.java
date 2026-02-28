@@ -820,7 +820,7 @@ public class MixedFX {
         stage.initStyle(StageStyle.TRANSPARENT);
 
         WebView webView = new WebView();
-        webView.setPrefSize(450, 650);
+        webView.setPrefSize(500, 650);
 
         String title = (obj instanceof Reservation) ? "Réservation Confirmée !" : "Transport Prêt !";
         String details = (obj instanceof Reservation r) ? r.getUser() : "Bon voyage !";
