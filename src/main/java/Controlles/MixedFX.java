@@ -854,7 +854,7 @@ public class MixedFX {
 
             <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
             <script>
-                var map = L.map('map', {zoomControl: false}).setView([70.0, 9.5], 100);
+                var map = L.map('map', {zoomControl: false}).setView([34.0, 9.5], 6);
                 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
                 L.marker([36.8065, 10.1815]).addTo(map).bindPopup('Départ: Tunis').openPopup();
                 L.marker([33.8869, 9.5375]).addTo(map).bindPopup('Explorez la Tunisie 🇹🇳');
