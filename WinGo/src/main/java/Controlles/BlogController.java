@@ -109,13 +109,11 @@ public class BlogController implements Initializable {
     @FXML private ComboBox<String> categorieField;
     @FXML private TextField tagsField;
     @FXML private Label auteurLabel;
-    @FXML private TextField newCommentField;
     @FXML private Button choisirImageBtn;
     @FXML private Button ajouterBtn;
     @FXML private Button modifierBtn;
     @FXML private Button supprimerBtn;
     @FXML private Button clearBtn;
-    @FXML private Button addCommentBtn;
     @FXML private Label statusLabel;
 
     // Labels d'erreur pour la validation
@@ -137,7 +135,7 @@ public class BlogController implements Initializable {
     @FXML private Label detailContenuLabel;
     @FXML private FlowPane detailCommentairesPane;
     @FXML private TextField detailNewCommentField;
-    @FXML private Button detailAddCommentBtn;
+    @FXML private Button detailAddCommentBtn;  // <-- déclaration présente
     @FXML private Label detailStatusLabel;
     @FXML private Label detailConnectedUserLabel;
     @FXML private Button detailLikeButton;
@@ -173,7 +171,7 @@ public class BlogController implements Initializable {
     // ScrollPanes
     @FXML private ScrollPane listViewScroll;
     @FXML private ScrollPane detailViewScroll;
-    @FXML private ScrollPane articleFormScroll;  // Nouveau
+    @FXML private ScrollPane articleFormScroll;
 
     // Composants pour le résumé réactif
     @FXML private VBox resumeContainer;
@@ -1917,88 +1915,6 @@ public class BlogController implements Initializable {
             return;
         }
         supprimerBlog(selectedBlog);
-    }
-
-    @FXML
-    private void ajouterCommentaire() {
-        if (selectedBlog == null) {
-            showWarning("Sélectionnez un article pour commenter.");
-            return;
-        }
-        if (currentUser == null) {
-            showWarning("Aucun utilisateur connecté.");
-            return;
-        }
-        String contenu = newCommentField.getText();
-        if (contenu == null || contenu.trim().isEmpty()) {
-            showWarning("Le commentaire ne peut pas être vide.");
-            return;
-        }
-        Commentaire c = new Commentaire();
-        c.setContenu(contenu.trim());
-        c.setUtilisateur(currentUser.getId());
-        c.setArticleId(selectedBlog.getId());
-        try {
-            commentaireCRUD.ajouter(c);
-            newCommentField.clear();
-            loadAllComments();
-            showInfo("Commentaire ajouté.");
-        } catch (SQLException e) {
-            showError("Erreur ajout commentaire", e.getMessage());
-        }
-    }
-
-    @FXML
-    private void ajouterCommentaireDetail() {
-        if (displayedDetailBlog == null) return;
-        if (currentUser == null) {
-            detailStatusLabel.setText("❌ Vous devez être connecté.");
-            return;
-        }
-        String contenu = detailNewCommentField.getText();
-        if (contenu == null || contenu.trim().isEmpty()) {
-            detailStatusLabel.setText("❌ Le commentaire ne peut pas être vide.");
-            return;
-        }
-
-        List<Integer> mentionsIds = detecterMentions(contenu);
-
-        Commentaire c = new Commentaire();
-        c.setContenu(contenu.trim());
-        c.setUtilisateur(currentUser.getId());
-        c.setArticleId(displayedDetailBlog.getId());
-
-        try {
-            commentaireCRUD.ajouter(c);
-            System.out.println("Commentaire ajouté avec ID : " + c.getId());
-
-            if (!mentionsIds.isEmpty()) {
-                String lien = "/article/" + displayedDetailBlog.getId() + "#commentaire-" + c.getId();
-                String message = currentUser.getPrenom() + " " + currentUser.getNom() +
-                        " vous a mentionné dans un commentaire";
-                envoyerNotificationsMention(mentionsIds, "mention", message, lien);
-            }
-
-            if (c.getParentId() != null) {
-                Commentaire parent = commentaireCRUD.getOne(c.getParentId());
-                if (parent != null && parent.getUtilisateur() != currentUser.getId()) {
-                    String lien = "/article/" + displayedDetailBlog.getId() + "#commentaire-" + c.getId();
-                    String message = currentUser.getPrenom() + " " + currentUser.getNom() +
-                            " a répondu à votre commentaire";
-                    List<Integer> dest = new ArrayList<>();
-                    dest.add(parent.getUtilisateur());
-                    envoyerNotificationsMention(dest, "reponse", message, lien);
-                }
-            }
-
-            detailNewCommentField.clear();
-            afficherCommentairesDetail();
-            detailStatusLabel.setText("✅ Commentaire ajouté.");
-            loadNotifications();
-        } catch (SQLException e) {
-            detailStatusLabel.setText("❌ Erreur : " + e.getMessage());
-            e.printStackTrace();
-        }
     }
 
     @FXML
