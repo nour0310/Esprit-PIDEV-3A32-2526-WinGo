@@ -133,7 +133,7 @@ public class BlogController implements Initializable {
     @FXML private Label detailAuteurLabel;
     @FXML private Label detailDateLabel;
     @FXML private Label detailContenuLabel;
-    @FXML private FlowPane detailCommentairesPane;
+    @FXML private VBox detailCommentairesPane;
     @FXML private TextField detailNewCommentField;
     @FXML private Button detailAddCommentBtn;
     @FXML private Label detailStatusLabel;
@@ -1550,16 +1550,15 @@ public class BlogController implements Initializable {
         Matcher matcher = pattern.matcher(texte);
         int lastEnd = 0;
         while (matcher.find()) {
-            if (matcher.start() > lastEnd) {
-                String avant = texte.substring(lastEnd, matcher.start());
+            String avant = texte.substring(lastEnd, matcher.start());
+            if (!avant.isEmpty()) {
                 Text textAvant = new Text(avant);
-                textAvant.setFill(Color.WHITE);
+                textAvant.setStyle("-fx-fill: #334155; -fx-font-size: 14px;");
                 textFlow.getChildren().add(textAvant);
             }
             String mention = matcher.group();
             Text mentionText = new Text(mention);
-            mentionText.setFill(Color.CORNFLOWERBLUE);
-            mentionText.setFont(Font.font(null, FontWeight.BOLD, 14));
+            mentionText.setStyle("-fx-fill: #6366F1; -fx-font-size: 14px; -fx-font-weight: bold;");
             textFlow.getChildren().add(mentionText);
 
             lastEnd = matcher.end();
@@ -1567,7 +1566,7 @@ public class BlogController implements Initializable {
         if (lastEnd < texte.length()) {
             String reste = texte.substring(lastEnd);
             Text textReste = new Text(reste);
-            textReste.setFill(Color.WHITE);
+            textReste.setStyle("-fx-fill: #334155; -fx-font-size: 14px;");
             textFlow.getChildren().add(textReste);
         }
         return textFlow;
@@ -1581,16 +1580,26 @@ public class BlogController implements Initializable {
 
         TextField replyField = new TextField();
         replyField.setPromptText("Écrire une réponse...");
-        replyField.setStyle("-fx-background-color: rgba(255,255,255,0.2); -fx-text-fill: white; -fx-prompt-text-fill: rgba(255,255,255,0.7); -fx-background-radius: 15; -fx-border-color: rgba(255,255,255,0.4); -fx-border-radius: 15; -fx-padding: 8;");
+        replyField.setStyle(
+            "-fx-background-color: #F8FAFF;" +
+            "-fx-text-fill: #1E293B;" +
+            "-fx-prompt-text-fill: #94A3B8;" +
+            "-fx-background-radius: 20;" +
+            "-fx-border-color: #C7D2FE;" +
+            "-fx-border-radius: 20;" +
+            "-fx-padding: 8 14;"
+        );
+        HBox.setHgrow(replyField, Priority.ALWAYS);
 
-        Button sendReplyBtn = new Button("Envoyer");
-        sendReplyBtn.setStyle("-fx-background-color: #28a745; -fx-text-fill: white; -fx-background-radius: 20; -fx-cursor: hand; -fx-padding: 6 15; -fx-font-size: 12px;");
-        Button cancelReplyBtn = new Button("Annuler");
-        cancelReplyBtn.setStyle("-fx-background-color: #6c757d; -fx-text-fill: white; -fx-background-radius: 20; -fx-cursor: hand; -fx-padding: 6 15; -fx-font-size: 12px;");
+        Button sendReplyBtn = new Button("↩ Envoyer");
+        sendReplyBtn.setStyle("-fx-background-color: #6366F1; -fx-text-fill: white; -fx-background-radius: 20; -fx-cursor: hand; -fx-padding: 7 16; -fx-font-size: 12px; -fx-font-weight: bold;");
+        Button cancelReplyBtn = new Button("✕");
+        cancelReplyBtn.setStyle("-fx-background-color: #F1F5F9; -fx-text-fill: #64748B; -fx-background-radius: 20; -fx-cursor: hand; -fx-padding: 7 12; -fx-font-size: 12px;");
 
         HBox replyInputBox = new HBox(10, replyField, sendReplyBtn, cancelReplyBtn);
         replyInputBox.setAlignment(Pos.CENTER_LEFT);
-        replyInputBox.setPadding(new Insets(5, 0, 5, 20));
+        replyInputBox.setPadding(new Insets(8, 0, 4, 0));
+        replyInputBox.setStyle("-fx-background-color: #EEF2FF; -fx-background-radius: 14; -fx-padding: 8 12;");
 
         parentCard.getChildren().add(replyInputBox);
 
@@ -1618,17 +1627,25 @@ public class BlogController implements Initializable {
         cancelReplyBtn.setOnAction(e -> parentCard.getChildren().remove(replyInputBox));
     }
 
-    private void showEditComment(Commentaire commentaire, VBox card, TextFlow contenuFlow, HBox meta, HBox actions, int level) {
+    private void showEditComment(Commentaire commentaire, VBox card, TextFlow contenuFlow, HBox headerOrMeta, HBox actions, int level) {
         card.getChildren().clear();
 
         TextField editField = new TextField(commentaire.getContenu());
-        editField.setStyle("-fx-background-color: rgba(255,255,255,0.2); -fx-text-fill: white; -fx-prompt-text-fill: rgba(255,255,255,0.7); -fx-background-radius: 15; -fx-border-color: rgba(255,255,255,0.4); -fx-border-radius: 15; -fx-padding: 8;");
+        editField.setStyle(
+            "-fx-background-color: #F8FAFF;" +
+            "-fx-text-fill: #1E293B;" +
+            "-fx-background-radius: 14;" +
+            "-fx-border-color: #C7D2FE;" +
+            "-fx-border-radius: 14;" +
+            "-fx-padding: 10 14;"
+        );
+        HBox.setHgrow(editField, Priority.ALWAYS);
 
         HBox editActions = new HBox(10);
         editActions.setAlignment(Pos.CENTER_RIGHT);
 
         Button saveBtn = new Button("✓ Enregistrer");
-        saveBtn.setStyle("-fx-background-color: #27ae60; -fx-text-fill: white; -fx-background-radius: 20; -fx-cursor: hand; -fx-padding: 6 15; -fx-font-size: 12px;");
+        saveBtn.setStyle("-fx-background-color: #10B981; -fx-text-fill: white; -fx-background-radius: 20; -fx-cursor: hand; -fx-padding: 7 18; -fx-font-size: 12px; -fx-font-weight: bold;");
         saveBtn.setOnAction(e -> {
             String newContent = editField.getText().trim();
             if (!newContent.isEmpty()) {
@@ -1644,11 +1661,11 @@ public class BlogController implements Initializable {
         });
 
         Button cancelBtn = new Button("✕ Annuler");
-        cancelBtn.setStyle("-fx-background-color: #e74c3c; -fx-text-fill: white; -fx-background-radius: 20; -fx-cursor: hand; -fx-padding: 6 15; -fx-font-size: 12px;");
+        cancelBtn.setStyle("-fx-background-color: #F1F5F9; -fx-text-fill: #64748B; -fx-background-radius: 20; -fx-cursor: hand; -fx-padding: 7 18; -fx-font-size: 12px;");
         cancelBtn.setOnAction(e -> afficherCommentairesDetail());
 
         editActions.getChildren().addAll(saveBtn, cancelBtn);
-        card.getChildren().addAll(editField, meta, editActions);
+        card.getChildren().addAll(headerOrMeta, editField, editActions);
     }
 
     private void supprimerCommentaireDetail(Commentaire commentaire) {
