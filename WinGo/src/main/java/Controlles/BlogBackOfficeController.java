@@ -45,7 +45,7 @@ public class BlogBackOfficeController implements Initializable {
     // Dashboard Stats
     @FXML private Label statTotalBlogs, statTotalComments, statEngagement;
     @FXML private PieChart regionChart;
-    @FXML private VBox recentActivityContainer;
+    @FXML private VBox topArticlesContainer;
 
     // Blogs List
     @FXML private VBox articlesContainer;
@@ -125,8 +125,8 @@ public class BlogBackOfficeController implements Initializable {
             // Chart
             updateRegionChart(allBlogs);
 
-            // Recent Activity
-            updateRecentActivity(allComments);
+            // Top Articles
+            updateTopArticles(allBlogs, allComments);
 
             // If we are on blogs view, re-render
             if (viewBlogs.isVisible()) renderArticlesList(allBlogs);
@@ -146,28 +146,44 @@ public class BlogBackOfficeController implements Initializable {
         regionChart.setData(pieData);
     }
 
-    private void updateRecentActivity(List<Commentaire> comments) {
-        recentActivityContainer.getChildren().clear();
-        int limit = Math.min(comments.size(), 6);
-        for (int i = 0; i < limit; i++) {
-            Commentaire c = comments.get(i);
+    private void updateTopArticles(List<Blog> blogs, List<Commentaire> comments) {
+        topArticlesContainer.getChildren().clear();
+        
+        // Count comments per article
+        Map<Integer, Long> commentCounts = comments.stream()
+                .collect(Collectors.groupingBy(Commentaire::getArticleId, Collectors.counting()));
+
+        // Sort blogs by count
+        List<Blog> topBlogs = blogs.stream()
+                .sorted((b1, b2) -> Long.compare(
+                        commentCounts.getOrDefault(b2.getId(), 0L),
+                        commentCounts.getOrDefault(b1.getId(), 0L)))
+                .limit(5)
+                .collect(Collectors.toList());
+
+        for (Blog b : topBlogs) {
             HBox row = new HBox(12);
             row.setAlignment(Pos.CENTER_LEFT);
-            row.setPadding(new Insets(10));
-            row.setStyle("-fx-background-color: #F8FAFC; -fx-background-radius: 10;");
+            row.setPadding(new Insets(10, 15, 10, 15));
+            row.setStyle("-fx-background-color: #F8FAFC; -fx-background-radius: 12;");
 
-            Circle dot = new Circle(4, Color.web("#6366F1"));
             VBox text = new VBox(2);
-            Label user = new Label(c.getUtilisateurNom());
-            user.setStyle("-fx-font-weight: bold; -fx-font-size: 13px; -fx-text-fill: #1E293B;");
-            Label msg = new Label(c.getContenu());
-            msg.setStyle("-fx-text-fill: #64748B; -fx-font-size: 12px;");
-            msg.setWrapText(false);
-            msg.setMaxWidth(250);
-            text.getChildren().addAll(user, msg);
+            HBox.setHgrow(text, Priority.ALWAYS);
+            Label title = new Label(b.getTitre());
+            title.setStyle("-fx-font-weight: 800; -fx-font-size: 13px; -fx-text-fill: #1E293B;");
+            title.setWrapText(false);
+            title.setMaxWidth(220);
+            
+            Label subtitle = new Label(commentCounts.getOrDefault(b.getId(), 0L) + " commentaires • " + b.getRegion());
+            subtitle.setStyle("-fx-text-fill: #94A3B8; -fx-font-size: 11px; -fx-font-weight: bold;");
+            
+            text.getChildren().addAll(title, subtitle);
 
-            row.getChildren().addAll(dot, text);
-            recentActivityContainer.getChildren().add(row);
+            Label badge = new Label(b.getCategorie());
+            badge.setStyle("-fx-background-color: #EEF2FF; -fx-text-fill: #6366F1; -fx-font-size: 10px; -fx-font-weight: 900; -fx-padding: 3 8; -fx-background-radius: 6;");
+
+            row.getChildren().addAll(text, badge);
+            topArticlesContainer.getChildren().add(row);
         }
     }
 
