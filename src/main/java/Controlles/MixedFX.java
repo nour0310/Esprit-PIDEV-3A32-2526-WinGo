@@ -833,96 +833,98 @@ public class MixedFX {
                                <meta charset="UTF-8">
                                <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
                                <style>
-                                   body {\s
-                                       font-family: 'Segoe UI', sans-serif;\s
-                                       background: #f5f7ff;\s
-                                       display: flex;\s
-                                       justify-content: center;\s
-                                       align-items: center;\s
-                                       height: 100vh;\s
-                                       margin: 0;\s
-                                   }
+                                   body, html { margin: 0; padding: 0; height: 100%; overflow: hidden; font-family: 'Segoe UI', sans-serif; }
                 
-                                   /* Le carreau principal avec coins arrondis */
-                                   .card-container {
-                                       width: 380px;
-                                       height: 550px;
-                                       background: white;
-                                       border-radius: 40px;
-                                       overflow: hidden; /* Empêche la map de dépasser des coins */
-                                       box-shadow: 0 20px 50px rgba(0,0,0,0.1);
+                                   .card {
+                                       width: 100%;
+                                       height: 100vh;
                                        display: flex;
                                        flex-direction: column;
-                                       border: 1px solid #eee;
+                                       background: #fff;
                                    }
                 
-                                   /* Header avec infos */
-                                   .header { padding: 20px; background: white; z-index: 10; }
-                                   .header h1 { margin: 0; font-size: 20px; color: #A3B1FF; }
+                                   /* HEADER */
+                                   .header { padding: 25px; z-index: 10; background: white; border-bottom: 1px solid #f0f0f0; }
+                                   .header h1 { margin: 0; font-size: 24px; color: #A3B1FF; font-weight: 800; }
                 
-                                   /* LA ZONE MAP : Elle prend tout l'espace central du carreau */
-                                   #map {
-                                       flex-grow: 1; /* Remplit tout l'espace entre le header et le bouton */
+                                   /* MAP AREA - Le Secret est ici */
+                                   #map-container {
+                                       flex: 1; /* Prend tout l'espace restant */
+                                       position: relative;
                                        width: 100%;
-                                       background: #e0e0e0; /* Couleur d'attente plus douce que le gris foncé */
+                                       background: #f8f9fa;
                                    }
                 
-                                   /* Footer avec le bouton arrondi */
-                                   .footer { padding: 20px; background: white; z-index: 10; }
-                                   .btn-ready {
+                                   #map {
+                                       position: absolute;
+                                       top: 0;
+                                       bottom: 0;
+                                       width: 100%;
+                                       height: 100%;
+                                       z-index: 1;
+                                   }
+                
+                                   /* FOOTER */
+                                   .footer { padding: 30px; z-index: 10; background: white; box-shadow: 0 -10px 20px rgba(0,0,0,0.05); }
+                                   .btn {
                                        background: #A3B1FF;
                                        color: white;
                                        border: none;
-                                       padding: 15px;
+                                       padding: 18px;
                                        width: 100%;
-                                       border-radius: 30px;
+                                       border-radius: 35px;
+                                       font-size: 18px;
                                        font-weight: bold;
-                                       font-size: 16px;
                                        cursor: pointer;
-                                       box-shadow: 0 8px 20px rgba(163, 177, 255, 0.4);
+                                       box-shadow: 0 10px 20px rgba(163, 177, 255, 0.4);
                                    }
                                </style>
                            </head>
                            <body>
                 
-                           <div class="card-container">
+                           <div class="card">
                                <div class="header">
                                    <h1>TripLove ✨</h1>
-                                   <p style="margin:5px 0 0; font-size: 13px; color: #64748B;">Votre trajet personnalisé</p>
+                                   <p style="color:#64748b; margin: 5px 0 0;">Votre voyage en Tunisie</p>
                                </div>
                 
-                               <div id="map"></div>
+                               <div id="map-container">
+                                   <div id="map"></div>
+                               </div>
                 
                                <div class="footer">
-                                   <button class="btn-ready">Prêt pour le départ ! ✨</button>
+                                   <button class="btn" onclick="window.close()">Prêt pour le départ ! ✨</button>
                                </div>
                            </div>
                 
                            <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
                            <script>
-                               // Initialisation
+                               // 1. Initialisation avec des options de performance
                                var map = L.map('map', {
                                    zoomControl: false,
-                                   attributionControl: false
-                               }).setView([34.0, 9.5], 6.5);
+                                   attributionControl: false,
+                                   fadeAnimation: true,
+                                   markerZoomAnimation: true
+                               }).setView([34.5, 9.5], 6.5);
                 
-                               // Utilisation de tuiles fluides
+                               // 2. Utilisation d'un serveur de tuiles fiable
                                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
                 
-                               // Marqueur
+                               // 3. Marqueur de départ
                                L.marker([36.8065, 10.1815]).addTo(map)
-                                   .bindPopup("<b>Départ: Tunis</b>")
+                                   .bindPopup("<b>Départ: Tunis</b>", { autoClose: false })
                                    .openPopup();
                 
-                               // --- SOLUTION POUR LE RENDU COMPLET ---
-                               // Cette partie est CRITIQUE : elle attend que le CSS soit appliqué
-                               // pour recalculer les dimensions et afficher la map entière.
-                               function fixMap() {
-                                   map.invalidateSize();
+                               // 4. LE FIX CRITIQUE : Force le rendu complet
+                               // On attend que la fenêtre soit prête, puis on force Leaflet à recalculer
+                               function refreshMap() {
+                                   map.invalidateSize(true);\s
                                }
                 
                                window.onload = function() {
-                                   setTimeout(fixMap, 300); // Un petit délai assure que le carreau est prêt
+                                   // Double sécurité : rafraîchissement immédiat et un second après 300ms
+                                   refreshMap();
+                                   setTimeout(refreshMap, 400);
                                };
                            </script>
                 
