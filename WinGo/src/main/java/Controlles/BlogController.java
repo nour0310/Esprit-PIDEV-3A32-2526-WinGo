@@ -184,13 +184,13 @@ public class BlogController implements Initializable {
     @FXML private StackPane rootPane;
     @FXML private Button darkModeBtn;
     @FXML private Label sidebarUserName;
+    @FXML private Pane backgroundPane;  // Ajout pour le Dark Mode
 
     private final DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
     private final DateTimeFormatter dateShortFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
     // Patterns de validation
     private static final Pattern TITLE_PATTERN = Pattern.compile("^[a-zA-ZÀ-ÿ\\s\\-']{3,50}$");
-    // MODIFICATION : suppression de la limite supérieure (500 max) → seulement 10 caractères minimum
     private static final Pattern CONTENT_PATTERN = Pattern.compile("^[\\w\\s\\p{Punct}À-ÿ]{10,}$");
 
     // Popup pour l'auto-complétion des mentions
@@ -276,7 +276,7 @@ public class BlogController implements Initializable {
                 auteurLabel.setText(nomComplet);
                 connectedUserLabel.setText(nomComplet);
                 detailConnectedUserLabel.setText(nomComplet);
-                sidebarUserName.setText(nomComplet); // Mise à jour du nom dans la sidebar
+                sidebarUserName.setText(nomComplet);
                 loadNotifications();
                 loadFavoris();
             } else {
@@ -540,7 +540,6 @@ public class BlogController implements Initializable {
             showError(contenuError, "Le contenu ne peut pas être vide.");
             return false;
         } else if (!CONTENT_PATTERN.matcher(contenu).matches()) {
-            // Le message précise seulement le minimum, car il n'y a plus de maximum
             showError(contenuError, "Le contenu doit contenir au moins 10 caractères.");
             return false;
         } else {
@@ -1037,9 +1036,8 @@ public class BlogController implements Initializable {
         detailDateLabel.setText(blog.getDatePublication() != null ? blog.getDatePublication().format(dateShortFormatter) : "");
         detailContenuLabel.setText(blog.getContenu() != null ? blog.getContenu() : "");
 
-        currentTTSLang = "fr"; // réinitialiser la langue
+        currentTTSLang = "fr";
 
-        // Masquer la zone de résumé pour le nouvel article
         resumeContainer.setVisible(false);
         resumeContainer.setManaged(false);
 
@@ -1057,7 +1055,6 @@ public class BlogController implements Initializable {
         detailImageView.fitWidthProperty().bind(detailImageContainer.widthProperty());
         detailImageView.setFitHeight(300);
 
-        // Mise à jour du like
         boolean isLiked = likedByCurrentUser.contains(blog.getId());
         if (heartFullImage != null && heartEmptyImage != null) {
             detailLikeImageView.setImage(isLiked ? heartFullImage : heartEmptyImage);
@@ -1071,17 +1068,14 @@ public class BlogController implements Initializable {
         detailLikeCountLabel.setText(likes + (likes > 1 ? " likes" : " like"));
         detailLikeButton.setOnAction(e -> toggleLikeDetail(blog));
 
-        // Mise à jour du favori (signet)
         boolean estFavori = favorisUtilisateur.contains(blog.getId());
         detailFavButton.setText("🔖");
         detailFavButton.setStyle("-fx-background-color: transparent; -fx-cursor: hand; -fx-font-size: 24px;");
         detailFavButton.setTextFill(estFavori ? Color.GOLD : Color.GRAY);
         detailFavButton.setOnAction(e -> toggleFavori(blog, detailFavButton));
 
-        // Mise à jour des étoiles
         updateDetailStars();
 
-        // Mise à jour des boutons de partage
         detailShareBox.getChildren().clear();
         Button whatsappBtn = createShareButton("WhatsApp", "/images/whatsapp.png", "#25D366", blog, null);
         Button facebookBtn = createShareButton("Facebook", "/images/facebook.png", "#4267B2", blog, null);
@@ -1091,7 +1085,6 @@ public class BlogController implements Initializable {
         instagramBtn.setOnAction(e -> share("Instagram", blog));
         detailShareBox.getChildren().addAll(whatsappBtn, facebookBtn, instagramBtn);
 
-        // Affichage des tags dans la vue détail
         VBox tagsBox = new VBox(5);
         tagsBox.setAlignment(Pos.CENTER);
         tagsBox.setPadding(new Insets(10, 20, 10, 20));
@@ -1105,7 +1098,6 @@ public class BlogController implements Initializable {
             }
             tagsBox.getChildren().add(tagsContainer);
         }
-        // Insérer tagsBox après le contenu et avant les commentaires
         int index = detailView.getChildren().indexOf(detailCommentairesPane);
         if (index > 0) {
             detailView.getChildren().add(index, tagsBox);
@@ -1113,7 +1105,6 @@ public class BlogController implements Initializable {
             detailView.getChildren().add(tagsBox);
         }
 
-        // --- MÉTÉO DANS LA VUE DÉTAIL ---
         if (blog.getRegion() != null && !blog.getRegion().isEmpty()) {
             detailMeteoLabel.setText("⏳ Chargement météo...");
             detailMeteoIcon.setImage(null);
@@ -1135,7 +1126,6 @@ public class BlogController implements Initializable {
             detailMeteoLabel.setText("🌍 Région non spécifiée");
             detailMeteoIcon.setImage(null);
         }
-        // --- FIN MÉTÉO ---
 
         afficherCommentairesDetail();
         listViewScroll.setVisible(false);
@@ -2101,12 +2091,11 @@ public class BlogController implements Initializable {
         if (rootPane.getStyleClass().contains("dark")) {
             rootPane.getStyleClass().remove("dark");
             darkModeBtn.setText("🌙 Dark Mode");
-            // Optionnel : changer le fond principal
-            rootPane.setStyle("-fx-background-color: #F4F7FB;");
+            backgroundPane.setStyle("-fx-background-color: #F4F7FB;");
         } else {
             rootPane.getStyleClass().add("dark");
             darkModeBtn.setText("☀️ Light Mode");
-            rootPane.setStyle("-fx-background-color: #1E293B;");
+            backgroundPane.setStyle("-fx-background-color: #1E293B;");
         }
     }
 
@@ -2120,7 +2109,7 @@ public class BlogController implements Initializable {
                 connectedUserLabel.setText("Non connecté");
                 detailConnectedUserLabel.setText("Non connecté");
                 sidebarUserName.setText("Invité");
-                // Optionnel : charger l'écran de connexion (exemple commenté)
+                // Optionnel : charger l'écran de connexion
                 // try {
                 //     Parent root = FXMLLoader.load(getClass().getResource("/Login.fxml"));
                 //     Stage stage = (Stage) darkModeBtn.getScene().getWindow();
