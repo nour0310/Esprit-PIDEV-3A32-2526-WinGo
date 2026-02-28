@@ -7,6 +7,8 @@ import java.sql.*;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 public class CommentaireCRUD {
 
@@ -102,16 +104,18 @@ public class CommentaireCRUD {
 
         // 2. Construire l'arbre : séparer les racines et attacher les réponses
         List<Commentaire> roots = new ArrayList<>();
-        java.util.Map<Integer, Commentaire> map = new java.util.HashMap<>();
+        Map<Integer, Commentaire> map = new HashMap<>();
 
         // Indexer tous les commentaires par ID
         for (Commentaire c : allComments) {
             map.put(c.getId(), c);
+            // Initialiser la liste des réponses
+            c.setReplies(new ArrayList<>());
         }
 
         // Organiser les relations parent-enfant
         for (Commentaire c : allComments) {
-            if (c.getParentId() == null) {
+            if (c.getParentId() == null || c.getParentId() == 0) {
                 roots.add(c);
             } else {
                 Commentaire parent = map.get(c.getParentId());
@@ -125,6 +129,35 @@ public class CommentaireCRUD {
         }
 
         return roots;
+    }
+
+    // Récupérer un commentaire par son ID
+    public Commentaire getOne(int id) throws SQLException {
+        String req = "SELECT c.*, u.nom, u.prenom FROM commentaire c LEFT JOIN utilisateur u ON c.utilisateur = u.id WHERE c.id = ?";
+        try (PreparedStatement ps = conn.prepareStatement(req)) {
+            ps.setInt(1, id);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return mapResultSetToCommentaire(rs);
+                }
+            }
+        }
+        return null;
+    }
+
+    // Récupérer les N derniers commentaires (pour l'activité récente)
+    public List<Commentaire> getRecentComments(int limit) throws SQLException {
+        String req = "SELECT c.*, u.nom, u.prenom FROM commentaire c LEFT JOIN utilisateur u ON c.utilisateur = u.id ORDER BY c.date_commentaire DESC LIMIT ?";
+        try (PreparedStatement ps = conn.prepareStatement(req)) {
+            ps.setInt(1, limit);
+            try (ResultSet rs = ps.executeQuery()) {
+                List<Commentaire> liste = new ArrayList<>();
+                while (rs.next()) {
+                    liste.add(mapResultSetToCommentaire(rs));
+                }
+                return liste;
+            }
+        }
     }
 
     // Récupérer tous les commentaires (pour l'affichage global)
@@ -157,17 +190,15 @@ public class CommentaireCRUD {
 
         String nom = rs.getString("nom");
         String prenom = rs.getString("prenom");
-        String utilisateurNom;
         if (prenom != null && nom != null) {
-            utilisateurNom = prenom + " " + nom;
+            c.setUtilisateurNom(prenom + " " + nom);
         } else if (prenom != null) {
-            utilisateurNom = prenom;
+            c.setUtilisateurNom(prenom);
         } else if (nom != null) {
-            utilisateurNom = nom;
+            c.setUtilisateurNom(nom);
         } else {
-            utilisateurNom = "Utilisateur " + rs.getInt("utilisateur");
+            c.setUtilisateurNom("Utilisateur " + rs.getInt("utilisateur"));
         }
-        c.setUtilisateurNom(utilisateurNom);
 
         return c;
     }

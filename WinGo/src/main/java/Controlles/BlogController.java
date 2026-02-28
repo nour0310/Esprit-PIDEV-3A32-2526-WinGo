@@ -175,16 +175,20 @@ public class BlogController implements Initializable {
     @FXML private ScrollPane listViewScroll;
     @FXML private ScrollPane detailViewScroll;
 
-    // NOUVEAUX composants pour le résumé réactif
+    // Composants pour le résumé réactif
     @FXML private VBox resumeContainer;
     @FXML private TextArea resumeTextArea;
     @FXML private Label resumeStatusLabel;
 
-    // Nouveaux composants pour la sidebar enrichie
+    // Composants pour la sidebar enrichie
     @FXML private StackPane rootPane;
     @FXML private Button darkModeBtn;
     @FXML private Label sidebarUserName;
-    @FXML private Pane backgroundPane;  // Ajout pour le Dark Mode
+    @FXML private Pane backgroundPane;
+
+    // NOUVEAUX composants pour la colonne de droite
+    @FXML private FlowPane popularTagsFlowPane;
+    @FXML private VBox recentActivityBox;
 
     private final DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
     private final DateTimeFormatter dateShortFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
@@ -333,33 +337,89 @@ public class BlogController implements Initializable {
         try {
             List<Notification> notifs = notificationCRUD.getNotificationsByUser(currentUser.getId());
             Popup notifPopup = new Popup();
-            VBox content = new VBox(5);
-            content.setStyle("-fx-background-color: white; -fx-background-radius: 10; -fx-padding: 10; -fx-border-color: #ddd; -fx-border-radius: 10;");
-            content.setMaxWidth(300);
-            Label title = new Label("Notifications");
-            title.setStyle("-fx-font-weight: bold;");
-            content.getChildren().add(title);
 
+            // Conteneur principal avec style glassmorphisme
+            VBox content = new VBox(10);
+            content.setStyle(
+                    "-fx-background-color: rgba(255,255,255,0.95);" +
+                            "-fx-background-radius: 20;" +
+                            "-fx-padding: 15;" +
+                            "-fx-border-color: rgba(255,255,255,0.3);" +
+                            "-fx-border-radius: 20;" +
+                            "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.2), 20, 0.5, 0, 5);"
+            );
+            content.setMaxWidth(350);
+            content.setMaxHeight(400);
+
+            // Titre avec icône
+            HBox titleBox = new HBox(10);
+            titleBox.setAlignment(Pos.CENTER_LEFT);
+            Label titleIcon = new Label("🔔");
+            titleIcon.setStyle("-fx-font-size: 20px;");
+            Label title = new Label("Notifications");
+            title.setStyle("-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #1E293B;");
+            titleBox.getChildren().addAll(titleIcon, title);
+
+            // Liste des notifications
             ListView<Notification> listView = new ListView<>();
-            listView.setPrefHeight(200);
+            listView.setPrefHeight(250);
+            listView.setStyle("-fx-background-color: transparent; -fx-background: transparent;");
             listView.setCellFactory(lv -> new ListCell<Notification>() {
                 @Override
                 protected void updateItem(Notification item, boolean empty) {
                     super.updateItem(item, empty);
                     if (empty || item == null) {
                         setText(null);
+                        setGraphic(null);
                     } else {
-                        setText(item.getContenu() + " (" + item.getDateCreation().format(DateTimeFormatter.ofPattern("dd/MM HH:mm")) + ")");
-                        if (!item.isLu()) setStyle("-fx-font-weight: bold;");
-                        else setStyle("-fx-font-weight: normal;");
+                        HBox card = new HBox(10);
+                        card.setPadding(new Insets(8));
+                        card.setStyle("-fx-background-color: " + (item.isLu() ? "#F8FAFC" : "#E0F2FE") + ";" +
+                                "-fx-background-radius: 10;" +
+                                "-fx-border-color: #E2E8F0;" +
+                                "-fx-border-radius: 10;");
+
+                        Label icon = new Label();
+                        icon.setStyle("-fx-font-size: 18px;");
+                        if ("mention".equals(item.getType())) {
+                            icon.setText("📢");
+                        } else if ("reponse".equals(item.getType())) {
+                            icon.setText("💬");
+                        } else {
+                            icon.setText("🔔");
+                        }
+
+                        VBox textBox = new VBox(3);
+                        Label contenu = new Label(item.getContenu());
+                        contenu.setWrapText(true);
+                        contenu.setStyle("-fx-font-weight: " + (item.isLu() ? "normal" : "bold") + ";" +
+                                "-fx-text-fill: #1E293B;");
+                        Label date = new Label(item.getDateCreation().format(DateTimeFormatter.ofPattern("dd/MM HH:mm")));
+                        date.setStyle("-fx-text-fill: #64748B; -fx-font-size: 11px;");
+                        textBox.getChildren().addAll(contenu, date);
+
+                        card.getChildren().addAll(icon, textBox);
+                        HBox.setHgrow(textBox, Priority.ALWAYS);
+
+                        setGraphic(card);
+                        setText(null);
                     }
                 }
             });
+
             ObservableList<Notification> items = FXCollections.observableArrayList(notifs);
             listView.setItems(items);
-            content.getChildren().add(listView);
 
-            Button marquerLu = new Button("Tout marquer comme lu");
+            Button marquerLu = new Button("✓ Tout marquer comme lu");
+            marquerLu.setStyle(
+                    "-fx-background-color: #A3B1FF;" +
+                            "-fx-text-fill: white;" +
+                            "-fx-background-radius: 30;" +
+                            "-fx-padding: 8 15;" +
+                            "-fx-font-weight: bold;" +
+                            "-fx-cursor: hand;"
+            );
+            marquerLu.setMaxWidth(Double.MAX_VALUE);
             marquerLu.setOnAction(ev -> {
                 try {
                     for (Notification n : notifs) {
@@ -371,11 +431,13 @@ public class BlogController implements Initializable {
                     ex.printStackTrace();
                 }
             });
-            content.getChildren().add(marquerLu);
 
+            content.getChildren().addAll(titleBox, listView, marquerLu);
             notifPopup.getContent().add(content);
             notifPopup.setAutoHide(true);
-            notifPopup.show(notificationButton, notificationButton.localToScreen(0, notificationButton.getHeight()).getX(), notificationButton.localToScreen(0, notificationButton.getHeight()).getY());
+            notifPopup.show(notificationButton,
+                    notificationButton.localToScreen(0, notificationButton.getHeight()).getX(),
+                    notificationButton.localToScreen(0, notificationButton.getHeight()).getY());
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -638,6 +700,9 @@ public class BlogController implements Initializable {
             loadFavoris();
             loadBlogs();
             updateStats();
+            // Charger les widgets de la colonne droite
+            loadPopularTags();
+            loadRecentActivity();
             statusLabel.setText("✅ Prêt, " + blogList.size() + " articles chargés.");
         } catch (SQLException e) {
             showError("Erreur de chargement", e.getMessage());
@@ -1863,6 +1928,7 @@ public class BlogController implements Initializable {
             commentaireCRUD.ajouter(c);
             newCommentField.clear();
             loadAllComments();
+            loadRecentActivity(); // Mettre à jour l'activité récente
             showInfo("Commentaire ajouté.");
         } catch (SQLException e) {
             showError("Erreur ajout commentaire", e.getMessage());
@@ -1893,6 +1959,7 @@ public class BlogController implements Initializable {
             commentaireCRUD.ajouter(c);
             System.out.println("Commentaire ajouté avec ID : " + c.getId());
 
+            // Envoyer les notifications pour les mentions
             if (!mentionsIds.isEmpty()) {
                 String lien = "/article/" + displayedDetailBlog.getId() + "#commentaire-" + c.getId();
                 String message = currentUser.getPrenom() + " " + currentUser.getNom() +
@@ -1900,8 +1967,22 @@ public class BlogController implements Initializable {
                 envoyerNotificationsMention(mentionsIds, "mention", message, lien);
             }
 
+            // Si c'est une réponse (parentId != null), notifier l'auteur du commentaire parent
+            if (c.getParentId() != null) {
+                Commentaire parent = commentaireCRUD.getOne(c.getParentId()); // Nécessite cette méthode dans CommentaireCRUD
+                if (parent != null && parent.getUtilisateur() != currentUser.getId()) {
+                    String lien = "/article/" + displayedDetailBlog.getId() + "#commentaire-" + c.getId();
+                    String message = currentUser.getPrenom() + " " + currentUser.getNom() +
+                            " a répondu à votre commentaire";
+                    List<Integer> dest = new ArrayList<>();
+                    dest.add(parent.getUtilisateur());
+                    envoyerNotificationsMention(dest, "reponse", message, lien);
+                }
+            }
+
             detailNewCommentField.clear();
             afficherCommentairesDetail();
+            loadRecentActivity(); // Mettre à jour l'activité récente
             detailStatusLabel.setText("✅ Commentaire ajouté.");
             loadNotifications();
         } catch (SQLException e) {
@@ -1959,6 +2040,8 @@ public class BlogController implements Initializable {
         loadRatings();
         loadFavoris();
         filterArticles();
+        loadPopularTags();    // Rafraîchir les tags
+        loadRecentActivity(); // Rafraîchir l'activité
         if (selectedBlog != null) {
             blogList.stream()
                     .filter(b -> b.getId() == selectedBlog.getId())
@@ -2085,6 +2168,74 @@ public class BlogController implements Initializable {
         }
     }
 
+    // ========== NOUVELLES MÉTHODES POUR LA COLONNE DE DROITE ==========
+    private void loadPopularTags() {
+        popularTagsFlowPane.getChildren().clear();
+        // Compter les occurrences de chaque tag dans tous les blogs
+        Map<Tag, Integer> tagCount = new HashMap<>();
+        for (Blog b : blogList) {
+            for (Tag t : b.getTags()) {
+                tagCount.put(t, tagCount.getOrDefault(t, 0) + 1);
+            }
+        }
+        // Trier par nombre décroissant et prendre les 10 premiers
+        List<Map.Entry<Tag, Integer>> sorted = tagCount.entrySet().stream()
+                .sorted(Map.Entry.<Tag, Integer>comparingByValue().reversed())
+                .limit(10)
+                .collect(Collectors.toList());
+
+        for (Map.Entry<Tag, Integer> entry : sorted) {
+            Button tagBtn = new Button("#" + entry.getKey().getNom() + " (" + entry.getValue() + ")");
+            tagBtn.setStyle("-fx-background-color: #E2E8F0; -fx-text-fill: #1E293B; -fx-background-radius: 30; -fx-padding: 5 12; -fx-cursor: hand; -fx-font-size: 12px;");
+            tagBtn.setOnAction(e -> filterByTag(entry.getKey().getNom()));
+            popularTagsFlowPane.getChildren().add(tagBtn);
+        }
+    }
+
+    private void filterByTag(String tagName) {
+        searchField.setText("#" + tagName);
+        filterArticles();
+    }
+
+    private void loadRecentActivity() {
+        recentActivityBox.getChildren().clear();
+        try {
+            // Récupérer les 5 derniers commentaires
+            List<Commentaire> recentComments = commentaireCRUD.getRecentComments(5);
+            for (Commentaire c : recentComments) {
+                HBox item = new HBox(8);
+                item.setAlignment(Pos.CENTER_LEFT);
+                Label icon = new Label("💬");
+                icon.setStyle("-fx-font-size: 16px;");
+                String user = c.getUtilisateurNom() != null ? c.getUtilisateurNom() : "Utilisateur";
+                String texte = c.getContenu().length() > 30 ? c.getContenu().substring(0, 30) + "..." : c.getContenu();
+                Label text = new Label(user + " a commenté : " + texte);
+                text.setWrapText(true);
+                text.setStyle("-fx-font-size: 12px; -fx-text-fill: #1E293B;");
+                Region spacer = new Region();
+                HBox.setHgrow(spacer, Priority.ALWAYS);
+                Label time = new Label(c.getDateCommentaire().format(DateTimeFormatter.ofPattern("HH:mm")));
+                time.setStyle("-fx-font-size: 10px; -fx-text-fill: #94A3B8;");
+                item.getChildren().addAll(icon, text, spacer, time);
+                recentActivityBox.getChildren().add(item);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @FXML
+    private void showAllTags() {
+        searchField.setText("#");
+        filterArticles();
+    }
+
+    @FXML
+    private void showMoreActivity() {
+        // Pour l'instant, simple redirection vers la vue des commentaires (à implémenter)
+        System.out.println("Afficher plus d'activité...");
+    }
+
     // ========== NOUVELLES MÉTHODES POUR LA SIDEBAR ==========
     @FXML
     private void toggleDarkMode() {
@@ -2109,12 +2260,6 @@ public class BlogController implements Initializable {
                 connectedUserLabel.setText("Non connecté");
                 detailConnectedUserLabel.setText("Non connecté");
                 sidebarUserName.setText("Invité");
-                // Optionnel : charger l'écran de connexion
-                // try {
-                //     Parent root = FXMLLoader.load(getClass().getResource("/Login.fxml"));
-                //     Stage stage = (Stage) darkModeBtn.getScene().getWindow();
-                //     stage.setScene(new Scene(root));
-                // } catch (IOException e) { e.printStackTrace(); }
                 showInfo("Déconnexion réussie.");
             }
         });
