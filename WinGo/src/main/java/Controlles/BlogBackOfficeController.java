@@ -518,24 +518,23 @@ public class BlogBackOfficeController implements Initializable {
         File selectedFile = fileChooser.showOpenDialog(viewBlogForm.getScene().getWindow());
         if (selectedFile != null) {
             try {
-                // Créer le dossier images s'il n'existe pas dans le projet (optionnel mais recommandé)
                 Path targetDir = Paths.get("src/main/resources/images");
                 if (!Files.exists(targetDir)) {
                     Files.createDirectories(targetDir);
                 }
                 
-                // On copie le fichier
                 Path targetPath = targetDir.resolve(selectedFile.getName());
                 Files.copy(selectedFile.toPath(), targetPath, StandardCopyOption.REPLACE_EXISTING);
                 
-                // On met à jour le champ texte avec le nom relatif ou absolu
-                // Ici on met "images/nom.png" pour que ce soit compatible avec nos ressources
+                // Mettre à jour le texte
                 formImage.setText("images/" + selectedFile.getName());
                 
+                // Forcer l'aperçu immédiat avec le fichier local pour un retour visuel instantané
+                previewImage.setImage(new Image(selectedFile.toURI().toString()));
+                
             } catch (IOException e) {
-                e.printStackTrace();
-                // En cas d'erreur on met au moins le chemin absolu
                 formImage.setText(selectedFile.getAbsolutePath());
+                previewImage.setImage(new Image(selectedFile.toURI().toString()));
             }
         }
     }
@@ -543,24 +542,24 @@ public class BlogBackOfficeController implements Initializable {
     private Image loadImage(String path) {
         if (path == null || path.isEmpty()) return null;
         try {
-            // Tentative 1: Chemin local
-            File file = new File(path);
-            if (file.exists()) {
-                return new Image(file.toURI().toString(), true);
-            }
-            
-            // Tentative 2: URL directe
-            if (path.startsWith("http") || path.startsWith("file:")) {
-                return new Image(path, true);
+            // Tentative 1: Chemin absolu ou URI direct
+            if (path.startsWith("http") || path.startsWith("file:") || path.contains(":/") || path.contains(":\\")) {
+                return new Image(path.startsWith("http") || path.startsWith("file:") ? path : new File(path).toURI().toString(), true);
             }
 
-            // Tentative 3: Ressource (si c'est juste un nom de fichier dans le classpath)
-            InputStream is = getClass().getResourceAsStream("/" + path);
+            // Tentative 2: Dans le dossier src/main/resources (pour le dev)
+            File devFile = new File("src/main/resources/" + path);
+            if (devFile.exists()) {
+                return new Image(devFile.toURI().toString(), true);
+            }
+
+            // Tentative 3: Ressource classique (runtime)
+            InputStream is = getClass().getResourceAsStream("/" + (path.startsWith("/") ? path.substring(1) : path));
             if (is != null) {
                 return new Image(is);
             }
         } catch (Exception e) {
-            // Ignorer
+            System.err.println("Erreur chargement image: " + path);
         }
         return null;
     }
