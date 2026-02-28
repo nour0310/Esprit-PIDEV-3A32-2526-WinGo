@@ -1,0 +1,253 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.image.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.*?>
+<?import javafx.scene.text.*?>
+<?import javafx.scene.effect.*?>
+
+<ScrollPane fitToWidth="true" prefHeight="720" prefWidth="1200"
+            xmlns="http://javafx.com/javafx/17"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="Controlles.HomeController"
+            stylesheets="@style.css">
+    <content>
+        <VBox style="-fx-background-color: #FDFBFF;">
+            
+            <VBox styleClass="navbar-glass" style="-fx-padding: 0 40;">
+                <HBox alignment="CENTER_LEFT" spacing="25" prefHeight="80">
+                    <!-- Logo Section -->
+                    <HBox alignment="CENTER_LEFT" spacing="10">
+                        <StackPane>
+                            <javafx.scene.shape.Circle fill="#390099" radius="18"/>
+                            <Label text="W" style="-fx-text-fill: white; -fx-font-size: 18px; -fx-font-weight: 900;" />
+                        </StackPane>
+                        <Label text="WinGo" style="-fx-font-size: 26px; -fx-font-weight: 900; -fx-text-fill: #390099;" />
+                    </HBox>
+
+                    <Region HBox.hgrow="ALWAYS" />
+
+                    <!-- Navigation Links -->
+                    <HBox spacing="35" alignment="CENTER">
+                        <Label text="Home" onMouseClicked="#goToHome" style="-fx-font-weight: bold; -fx-text-fill: #390099; -fx-cursor: hand; -fx-font-size: 15px;" />
+                        <Label text="Services" style="-fx-text-fill: #64748B; -fx-font-size: 15px; -fx-cursor: hand; -fx-font-weight: 600;" />
+                        <Label text="Shop" style="-fx-text-fill: #64748B; -fx-font-size: 15px; -fx-cursor: hand; -fx-font-weight: 600;" />
+                        <Label text="Events" style="-fx-text-fill: #64748B; -fx-font-size: 15px; -fx-cursor: hand; -fx-font-weight: 600;" />
+                        <Label text="Support" onMouseClicked="#goToSupport" style="-fx-text-fill: #64748B; -fx-font-size: 15px; -fx-cursor: hand; -fx-font-weight: 600;" />
+                    </HBox>
+
+                    <Region HBox.hgrow="ALWAYS" />
+
+                    <!-- User Actions -->
+                    <HBox alignment="CENTER_RIGHT" spacing="25">
+                        <Button fx:id="adminDashboardBtn" text="👑 Admin" onAction="#goToAdminDashboard"
+                                visible="false" managed="false"
+                                styleClass="btn-primary" />
+                        
+                        <HBox fx:id="userProfileBox" alignment="CENTER_LEFT" spacing="15" onMouseClicked="#goToProfile" style="-fx-cursor: hand; -fx-background-color: rgba(57,0,153,0.05); -fx-background-radius: 30; -fx-padding: 5 15 5 5;">
+                            <StackPane>
+                                <javafx.scene.shape.Circle fill="white" radius="22"/>
+                                <ImageView fx:id="userAvatarView" fitHeight="40" fitWidth="40">
+                                    <clip>
+                                        <javafx.scene.shape.Circle centerX="20" centerY="20" radius="20" />
+                                    </clip>
+                                </ImageView>
+                            </StackPane>
+                            <VBox alignment="CENTER_LEFT" spacing="0">
+                                <Label fx:id="userNameLabel" text="Traveler" style="-fx-font-weight: 900; -fx-text-fill: #1E293B; -fx-font-size: 14px;" />
+                                <Label text="Settings" style="-fx-text-fill: #64748B; -fx-font-size: 11px; -fx-font-weight: bold;" />
+                            </VBox>
+                        </HBox>
+                    </HBox>
+                </HBox>
+            </VBox>
+
+            <StackPane>
+                <!-- 1) MAIN HOME CONTENT -->
+                <VBox fx:id="mainContentPane" spacing="0">
+                    <!-- NEW REFINED HERO SECTION -->
+                    <StackPane styleClass="hero-container">
+                        <ImageView fitWidth="1400" styleClass="hero-image-view">
+                            <image><Image url="@images/hero_v2.png"/></image>
+                        </ImageView>
+                        <HBox style="-fx-background-color: linear-gradient(to right, rgba(26,0,68,0.7), rgba(26,0,68,0.1));">
+                            <VBox spacing="25" alignment="CENTER_LEFT" style="-fx-padding: 80 100;">
+                                <VBox spacing="5">
+                                    <Label text="JOURNEY TO ANTIQUITY" style="-fx-text-fill: #FFBD00; -fx-font-weight: 900; -fx-letter-spacing: 2px; -fx-font-size: 14px;"/>
+                                    <Label text="Experience Tunisia" style="-fx-font-size: 56; -fx-font-weight: 900; -fx-text-fill: white;"/>
+                                    <Label text="Like Never Before." style="-fx-font-size: 56; -fx-font-weight: 900; -fx-text-fill: white; -fx-translate-y: -10;"/>
+                                </VBox>
+                                <Label text="Discover regions, experiences and authentic culture all in one smart travel app."
+                                       wrapText="true" styleClass="hero-subtitle" maxWidth="500"/>
+                                <HBox spacing="20" style="-fx-padding: 10 0 0 0;">
+                                    <Button text="Start Exploring" styleClass="btn-primary" prefHeight="50" prefWidth="180"/>
+                                    <Button text="Watch Video" style="-fx-background-color: rgba(255,255,255,0.1); -fx-text-fill: white; -fx-border-color: white; -fx-border-radius: 12; -fx-background-radius: 12; -fx-cursor: hand; -fx-font-weight: bold;" prefHeight="50" prefWidth="160"/>
+                                </HBox>
+                            </VBox>
+                        </HBox>
+                    </StackPane>
+
+                    <!-- STATS SECTION -->
+                    <HBox alignment="CENTER" spacing="0" style="-fx-background-color: white; -fx-padding: 40 0;">
+                        <HBox styleClass="stats-container" spacing="80">
+                            <VBox alignment="CENTER" styleClass="stat-item">
+                                <Label text="25+" styleClass="stat-value"/>
+                                <Label text="REGIONS" styleClass="stat-label"/>
+                            </VBox>
+                            <Separator orientation="VERTICAL" opacity="0.1" prefHeight="40"/>
+                            <VBox alignment="CENTER" styleClass="stat-item">
+                                <Label text="15k" styleClass="stat-value"/>
+                                <Label text="TRAVELERS" styleClass="stat-label"/>
+                            </VBox>
+                            <Separator orientation="VERTICAL" opacity="0.1" prefHeight="40"/>
+                            <VBox alignment="CENTER" styleClass="stat-item">
+                                <Label text="4.9/5" styleClass="stat-value"/>
+                                <Label text="RATING" styleClass="stat-label"/>
+                            </VBox>
+                        </HBox>
+                    </HBox>
+
+                    <!-- REFINED SERVICES GRID -->
+                    <VBox spacing="60" style="-fx-padding: 80 120; -fx-background-color: #FDFBFF;">
+                        <VBox alignment="CENTER" spacing="10">
+                            <Label text="OUR SERVICES" style="-fx-text-fill: #FF0054; -fx-font-weight: 900; -fx-letter-spacing: 2px; -fx-font-size: 14px;"/>
+                            <Label text="Tailored Experiences" styleClass="section-title"/>
+                        </VBox>
+
+                        <GridPane hgap="40" vgap="40" alignment="CENTER">
+                            <!-- Large Profile Card -->
+                            <HBox spacing="40" alignment="CENTER" styleClass="feature-card" GridPane.columnIndex="0" GridPane.rowIndex="0" GridPane.columnSpan="2">
+                                <VBox spacing="20" prefWidth="450" alignment="CENTER_LEFT">
+                                    <Label text="Personalized Journey" styleClass="section-title" style="-fx-font-size: 28;"/>
+                                    <Label text="Create your account to track activities and customize your travel experience." wrapText="true" styleClass="section-description"/>
+                                    <Button fx:id="getStartedBtn" text="Get Started" styleClass="btn-primary" onAction="#goToProfileFromBtn"/>
+                                </VBox>
+                                <ImageView fitWidth="300" preserveRatio="true">
+                                    <image><Image url="@images/profile.png"/></image>
+                                </ImageView>
+                            </HBox>
+
+                            <!-- Smaller Icon-based Cards -->
+                            <VBox spacing="20" alignment="CENTER" styleClass="feature-card" GridPane.columnIndex="0" GridPane.rowIndex="1" prefWidth="400">
+                                <ImageView fitWidth="80" preserveRatio="true"><image><Image url="@images/events.png"/></image></ImageView>
+                                <Label text="Cultural Events" style="-fx-font-size: 20; -fx-font-weight: bold;"/>
+                                <Label text="Discover festivals and local traditions." alignment="CENTER" wrapText="true" styleClass="section-description" style="-fx-font-size: 14;"/>
+                            </VBox>
+
+                            <VBox spacing="20" alignment="CENTER" styleClass="feature-card" GridPane.columnIndex="1" GridPane.rowIndex="1" prefWidth="400">
+                                <ImageView fitWidth="80" preserveRatio="true"><image><Image url="@images/products.png"/></image></ImageView>
+                                <Label text="Local Shop" style="-fx-font-size: 20; -fx-font-weight: bold;"/>
+                                <Label text="Authentic Tunisian handmade products." alignment="CENTER" wrapText="true" styleClass="section-description" style="-fx-font-size: 14;"/>
+                            </VBox>
+
+                            <VBox spacing="20" alignment="CENTER" styleClass="feature-card" GridPane.columnIndex="0" GridPane.rowIndex="2" prefWidth="400">
+                                <ImageView fitWidth="80" preserveRatio="true"><image><Image url="@images/booking.png"/></image></ImageView>
+                                <Label text="Fast Booking" style="-fx-font-size: 20; -fx-font-weight: bold;"/>
+                                <Label text="Reserve activities in just a few clicks." alignment="CENTER" wrapText="true" styleClass="section-description" style="-fx-font-size: 14;"/>
+                            </VBox>
+
+                            <VBox spacing="20" alignment="CENTER" styleClass="feature-card" GridPane.columnIndex="1" GridPane.rowIndex="2" prefWidth="400">
+                                <ImageView fitWidth="80" preserveRatio="true"><image><Image url="@images/transport.png"/></image></ImageView>
+                                <Label text="Transport" style="-fx-font-size: 20; -fx-font-weight: bold;"/>
+                                <Label text="Best ways to travel across the country." alignment="CENTER" wrapText="true" styleClass="section-description" style="-fx-font-size: 14;"/>
+                            </VBox>
+                        </GridPane>
+                    </VBox>
+
+                    <!-- TESTIMONIALS SECTION -->
+                    <VBox spacing="50" style="-fx-padding: 100 150; -fx-background-color: white;">
+                        <VBox alignment="CENTER" spacing="10">
+                            <Label text="REVIEWS" style="-fx-text-fill: #FF0054; -fx-font-weight: 900; -fx-letter-spacing: 2px; -fx-font-size: 14px;"/>
+                            <Label text="Traveler Stories" styleClass="section-title"/>
+                        </VBox>
+                        <HBox spacing="40" alignment="CENTER">
+                            <VBox spacing="20" styleClass="testimonial-card" prefWidth="400">
+                                <Label text="⭐⭐⭐⭐⭐" style="-fx-font-size: 18;"/>
+                                <Label text="&quot;WinGo made my trip to Sidi Bou Said absolutely effortless. The local product shop is a gem!&quot;" wrapText="true" styleClass="testimonial-text"/>
+                                <Label text="- Sarah M." styleClass="testimonial-author"/>
+                            </VBox>
+                            <VBox spacing="20" styleClass="testimonial-card" prefWidth="400">
+                                <Label text="⭐⭐⭐⭐⭐" style="-fx-font-size: 18;"/>
+                                <Label text="&quot;The event calendar is so accurate. I discovered a small pottery festival I would have missed.&quot;" wrapText="true" styleClass="testimonial-text"/>
+                                <Label text="- Ahmed R." styleClass="testimonial-author"/>
+                            </VBox>
+                        </HBox>
+                    </VBox>
+
+                    <!-- FOOTER -->
+                    <VBox alignment="CENTER" spacing="30" style="-fx-background-color: #1A0044; -fx-padding: 80 100;">
+                        <HBox alignment="CENTER" spacing="100">
+                             <VBox spacing="20">
+                                <Label text="WinGo" style="-fx-text-fill: white; -fx-font-size: 32; -fx-font-weight: 900;"/>
+                                <Label text="Your ultimate travel companion in Tunisia." style="-fx-text-fill: #94A3B8; -fx-font-size: 14;"/>
+                             </VBox>
+                             <VBox spacing="15">
+                                <Label text="QUICK LINKS" style="-fx-text-fill: white; -fx-font-weight: bold;"/>
+                                <Label text="About Us" style="-fx-text-fill: #94A3B8; -fx-cursor: hand;"/>
+                                <Label text="Services" style="-fx-text-fill: #94A3B8; -fx-cursor: hand;"/>
+                                <Label text="Support" style="-fx-text-fill: #94A3B8; -fx-cursor: hand;"/>
+                             </VBox>
+                             <VBox spacing="15">
+                                <Label text="SOCIAL" style="-fx-text-fill: white; -fx-font-weight: bold;"/>
+                                <Label text="Instagram" style="-fx-text-fill: #94A3B8; -fx-cursor: hand;"/>
+                                <Label text="Facebook" style="-fx-text-fill: #94A3B8; -fx-cursor: hand;"/>
+                                <Label text="Twitter" style="-fx-text-fill: #94A3B8; -fx-cursor: hand;"/>
+                             </VBox>
+                        </HBox>
+                        <Separator opacity="0.1" maxWidth="1000"/>
+                        <Label text="© 2026 WinGo Travel. Designed with ❤️ for Tunisia." style="-fx-text-fill: #64748B; -fx-font-size: 12;"/>
+                    </VBox>
+                </VBox>
+
+                <!-- 2) PROFILE MODIFICATION REPLICA (Initially Hidden) -->
+                <VBox fx:id="profilePane" spacing="0" alignment="TOP_CENTER" visible="false" managed="false"
+                      style="-fx-background-color: #F8FAFC;">
+                    <VBox maxWidth="800" spacing="40" style="-fx-padding: 80 40;">
+                        <!-- Header Area -->
+                        <VBox spacing="10">
+                            <Label text="Account Settings" style="-fx-font-size: 42px; -fx-font-weight: 900; -fx-text-fill: #1E293B;" />
+                            <Label text="Manage your profile information and travel preferences." style="-fx-text-fill: #64748B; -fx-font-size: 16px; -fx-font-weight: 500;" />
+                        </VBox>
+
+                        <Separator opacity="0.1" />
+
+                        <!-- Form Sections -->
+                        <VBox spacing="35">
+                             <HBox spacing="40">
+                                <VBox spacing="12" HBox.hgrow="ALWAYS">
+                                    <Label text="Bio Description" style="-fx-font-weight: 800; -fx-text-fill: #1E293B; -fx-font-size: 14px;" />
+                                    <TextArea fx:id="profileBioField" prefRowCount="5" promptText="Tell the world about your Tunisian adventures..."
+                                              wrapText="true"
+                                              style="-fx-background-color: white; -fx-background-radius: 16; -fx-border-color: #E2E8F0; -fx-border-radius: 16; -fx-padding: 15; -fx-font-size: 14px;" />
+                                </VBox>
+                                <VBox spacing="12" prefWidth="300">
+                                    <Label text="Profile Image" style="-fx-font-weight: 800; -fx-text-fill: #1E293B; -fx-font-size: 14px;" />
+                                    <VBox alignment="CENTER" spacing="15" style="-fx-background-color: white; -fx-padding: 25; -fx-background-radius: 16; -fx-border-color: #E2E8F0; -fx-border-radius: 16;">
+                                        <StackPane>
+                                            <javafx.scene.shape.Circle fill="#F1F5F9" radius="60"/>
+                                            <ImageView fx:id="profilePreviewImg" fitHeight="120" fitWidth="120">
+                                                <clip><javafx.scene.shape.Circle centerX="60" centerY="60" radius="60" /></clip>
+                                            </ImageView>
+                                        </StackPane>
+                                        <TextField fx:id="profileImageField" promptText="Image URL (HTTPS)" styleClass="text-field-premium" />
+                                    </VBox>
+                                </VBox>
+                             </HBox>
+                        </VBox>
+
+                        <Label fx:id="profileStatusLabel" text="" style="-fx-font-weight: bold; -fx-font-size: 14px;" />
+
+                        <Separator opacity="0.1" />
+
+                        <!-- Actions -->
+                        <HBox spacing="20" alignment="CENTER_LEFT">
+                            <Button text="Save Changes" onAction="#saveProfile" styleClass="btn-primary" prefHeight="50" prefWidth="180" />
+                            <Button text="Cancel" onAction="#goToHome" style="-fx-background-color: transparent; -fx-text-fill: #64748B; -fx-font-weight: bold; -fx-cursor: hand; -fx-font-size: 14px;" />
+                        </HBox>
+                    </VBox>
+                </VBox>
+            </StackPane>
+        </VBox>
+    </content>
+</ScrollPane>

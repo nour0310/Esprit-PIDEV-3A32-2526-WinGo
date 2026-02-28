@@ -1,65 +1,193 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
+<?import javafx.scene.effect.DropShadow?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.*?>
+<?import javafx.scene.shape.Circle?>
 
-<AnchorPane xmlns:fx="http://javafx.com/fxml"
-            fx:controller="Controlles.AdminDashboardController"
-            prefWidth="800" prefHeight="500"
-            style="-fx-background-color: linear-gradient(to bottom right, #1e1e2f, #2b2b45);">
+<StackPane prefHeight="900" prefWidth="1400"
+           xmlns="http://javafx.com/javafx/17"
+           xmlns:fx="http://javafx.com/fxml/1"
+           fx:controller="Controlles.AdminDashboardController"
+           style="-fx-background-color: #F4F7FB;">
 
-    <children>
+    <!-- Main BorderPane -->
+    <BorderPane maxHeight="870" maxWidth="1380" style="-fx-background-color: transparent;">
 
-        <VBox spacing="20" alignment="CENTER"
-              AnchorPane.topAnchor="40"
-              AnchorPane.leftAnchor="40"
-              AnchorPane.rightAnchor="40">
+        <!-- TOP HEADER BAR -->
+        <top>
+            <HBox alignment="CENTER_LEFT" spacing="25" style="-fx-padding: 15 30 25 30;">
+                <HBox alignment="CENTER_LEFT" spacing="15">
+                    <ImageView fitHeight="50" fitWidth="50" preserveRatio="true">
+                        <Image url="@images/profile.png" />
+                    </ImageView>
+                    <Label text="Admin Dashboard" style="-fx-text-fill: #1E293B; -fx-font-size: 26px; -fx-font-weight: 900;" />
+                </HBox>
 
-            <Label text="👑 Admin Dashboard"
-                   style="-fx-text-fill: white;
-                          -fx-font-size: 30px;
-                          -fx-font-weight: bold;" />
+                <Region HBox.hgrow="ALWAYS" />
 
-            <HBox spacing="30" alignment="CENTER">
-
-                <Button fx:id="manageUsersButton" text="👥 Manage Users"
-                        onAction="#openUsers"
-                        prefWidth="180" prefHeight="100"
-                        style="-fx-background-color: linear-gradient(to right, #ff512f, #dd2476);
-                               -fx-text-fill: white;
-                               -fx-font-size: 16px;
-                               -fx-font-weight: bold;
-                               -fx-background-radius: 20;" />
-
-                <Button text="📝 Manage Profiles"
-                        onAction="#openProfiles"
-                        prefWidth="180" prefHeight="100"
-                        style="-fx-background-color: linear-gradient(to right, #11998e, #38ef7d);
-                               -fx-text-fill: white;
-                               -fx-font-size: 16px;
-                               -fx-font-weight: bold;
-                               -fx-background-radius: 20;" />
-
-                <Button fx:id="backToShopButton" text="🛒 WinGo Shop"
-                        onAction="#backToShop"
-                        prefWidth="180" prefHeight="100"
-                        style="-fx-background-color: linear-gradient(to right, #FFBD00, #ff9500);
-                               -fx-text-fill: #390099;
-                               -fx-font-size: 16px;
-                               -fx-font-weight: bold;
-                               -fx-background-radius: 20;" />
-
-                <Button text="🚪 Logout"
-                        onAction="#logout"
-                        prefWidth="150" prefHeight="100"
-                        style="-fx-background-color: linear-gradient(to right, #e53935, #e35d5b);
-                               -fx-text-fill: white;
-                               -fx-font-weight: bold;
-                               -fx-background-radius: 20;" />
-
+                <HBox spacing="35" alignment="CENTER">
+                    <Label text="Home" style="-fx-text-fill: #1E293B; -fx-font-weight: bold; -fx-cursor: hand;" onMouseClicked="#goToHome" />
+                </HBox>
             </HBox>
+        </top>
 
+        <!-- LEFT SIDEBAR -->
+        <left>
+            <VBox prefWidth="90" spacing="30" alignment="TOP_CENTER" 
+                  style="-fx-background-color: #FFFFFF; -fx-background-radius: 35; -fx-padding: 40 10;">
+                <BorderPane.margin>
+                    <Insets top="10" left="25" bottom="25" right="25"/>
+                </BorderPane.margin>
+                <effect><DropShadow color="#0000000E" offsetY="10" radius="25" /></effect>
+
+                <Button fx:id="userTabBtn" onAction="#showUsersTab" 
+                        style="-fx-background-color: #A3B1FF; -fx-text-fill: white; -fx-font-size: 22px; -fx-background-radius: 20; -fx-padding: 15 15;" 
+                        text="👥" />
+
+                <Button fx:id="profileTabBtn" onAction="#showProfilesTab" 
+                        style="-fx-background-color: transparent; -fx-text-fill: #94A3B8; -fx-font-size: 22px; -fx-background-radius: 20; -fx-padding: 15 15;" 
+                        text="🖼️" />
+
+                <Region VBox.vgrow="ALWAYS" />
+                
+                <Button onAction="#goToHome" 
+                        style="-fx-background-color: transparent; -fx-text-fill: #EF4444; -fx-font-size: 22px; -fx-background-radius: 20; -fx-padding: 15 15;" 
+                        text="🚪" />
+            </VBox>
+        </left>
+
+        <!-- CENTER CONTENT -->
+        <center>
+            <VBox spacing="30" style="-fx-padding: 0 20 20 10;">
+                <VBox spacing="10">
+                    <HBox alignment="CENTER_LEFT" spacing="20">
+                        <Label fx:id="mainTitle" text="Gestion des Utilisateurs" 
+                               style="-fx-text-fill: #1E293B; -fx-font-size: 42px; -fx-font-weight: 900;" />
+                        <Button text="➕" onAction="#handleAddAction"
+                                style="-fx-background-color: #390099; -fx-text-fill: white; -fx-font-size: 20px; -fx-background-radius: 50; -fx-padding: 5 15; -fx-cursor: hand;" />
+                    </HBox>
+                    <Label fx:id="mainSubtitle" text="Gérez les comptes et les profils utilisateurs" 
+                           style="-fx-text-fill: #64748B; -fx-font-size: 16px;" />
+                </VBox>
+
+                <StackPane VBox.vgrow="ALWAYS">
+                    <!-- PANEL UTILISATEURS -->
+                    <ScrollPane fx:id="userPanel" fitToWidth="true"
+                                style="-fx-background: transparent; -fx-background-color: transparent;">
+                        <VBox spacing="25" style="-fx-padding: 5 20 20 0;">
+                            <VBox spacing="10">
+                                <Label text="Rechercher par nom :" style="-fx-text-fill: #64748B; -fx-font-weight: bold;"/>
+                                <TextField fx:id="userSearchField" promptText="Rechercher un utilisateur (Nom/Prénom)..." 
+                                           style="-fx-background-radius: 12; -fx-padding: 12; -fx-border-color: #E2E8F0; -fx-border-radius: 12;"/>
+                            </VBox>
+                            
+                            <TableView fx:id="userTable" prefHeight="400" VBox.vgrow="ALWAYS">
+                                <columns>
+                                    <TableColumn fx:id="userColId" text="ID" prefWidth="50"/>
+                                    <TableColumn fx:id="userColNom" text="Nom" prefWidth="120"/>
+                                    <TableColumn fx:id="userColPrenom" text="Prénom" prefWidth="120"/>
+                                    <TableColumn fx:id="userColEmail" text="Email" prefWidth="200"/>
+                                    <TableColumn fx:id="userColType" text="Type" prefWidth="80"/>
+                                    <TableColumn fx:id="userColTelephone" text="Téléphone" prefWidth="120"/>
+                                    <TableColumn fx:id="userColAge" text="Âge" prefWidth="60"/>
+                                </columns>
+                            </TableView>
+
+                            <VBox spacing="15" style="-fx-background-color: white; -fx-padding: 20; -fx-background-radius: 15;">
+                                <Label text="Modifier Utilisateur" style="-fx-font-weight: bold;"/>
+                                <HBox spacing="10">
+                                    <TextField fx:id="userNomField" promptText="Nom" HBox.hgrow="ALWAYS"/>
+                                    <TextField fx:id="userPrenomField" promptText="Prénom" HBox.hgrow="ALWAYS"/>
+                                    <TextField fx:id="userTypeField" promptText="Type (admin/user)" HBox.hgrow="ALWAYS"/>
+                                </HBox>
+                                <HBox spacing="10" alignment="CENTER_RIGHT">
+                                    <Button text="🗑️ Supprimer" onAction="#deleteUser" style="-fx-background-color: #EF4444; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 8; -fx-padding: 10 20; -fx-cursor: hand;"/>
+                                    <Button text="💾 Enregistrer" onAction="#updateUser" style="-fx-background-color: #A3B1FF; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 8; -fx-padding: 10 20; -fx-cursor: hand;"/>
+                                </HBox>
+                            </VBox>
+                        </VBox>
+                    </ScrollPane>
+
+                    <!-- PANEL PROFILS -->
+                    <ScrollPane fx:id="profilePanel" fitToWidth="true" visible="false" managed="false"
+                                style="-fx-background: transparent; -fx-background-color: transparent;">
+                        <VBox spacing="25" style="-fx-padding: 5 20 20 0;">
+                            <TableView fx:id="profileTable" prefHeight="400" VBox.vgrow="ALWAYS">
+                                <columns>
+                                    <TableColumn fx:id="profColId" text="ID" prefWidth="50"/>
+                                    <TableColumn fx:id="profColUser" text="User ID" prefWidth="100"/>
+                                    <TableColumn fx:id="profColBio" text="Bio" prefWidth="250"/>
+                                    <TableColumn fx:id="profColImage" text="Image URL" prefWidth="200"/>
+                                </columns>
+                            </TableView>
+
+                            <VBox spacing="15" style="-fx-background-color: white; -fx-padding: 20; -fx-background-radius: 15;">
+                                <Label text="Modifier Profil" style="-fx-font-weight: bold;"/>
+                                <TextArea fx:id="profBioArea" promptText="Bio" prefRowCount="2"/>
+                                <HBox spacing="10" alignment="CENTER_RIGHT">
+                                    <Button text="Supprimer" onAction="#deleteProfile" style="-fx-background-color: #EF4444; -fx-text-fill: white;"/>
+                                    <Button text="Enregistrer" onAction="#updateProfile" style="-fx-background-color: #A3B1FF; -fx-text-fill: white;"/>
+                                </HBox>
+                            </VBox>
+                        </VBox>
+                    </ScrollPane>
+                </StackPane>
+            </VBox>
+        </center>
+    </BorderPane>
+
+    <!-- ADD USER FORM OVERLAY -->
+    <StackPane fx:id="addUserOverlay" visible="false" style="-fx-background-color: rgba(0,0,0,0.6);">
+        <VBox alignment="CENTER" spacing="20" maxWidth="450" maxHeight="750"
+              style="-fx-background-color: white; -fx-background-radius: 25; -fx-padding: 40; -fx-border-color: #eeeeee; -fx-border-radius: 25;">
+            <effect><DropShadow radius="30" offsetY="15" color="#00000066"/></effect>
+
+            <Label text="Ajouter un Utilisateur" style="-fx-font-size: 28px; -fx-font-weight: 900; -fx-text-fill: #390099;" />
+            
+            <VBox spacing="10" alignment="CENTER">
+                <TextField fx:id="newNomField" promptText="Nom" style="-fx-background-radius: 10; -fx-padding: 12; -fx-border-color: #dddddd; -fx-border-radius: 10;"/>
+                <TextField fx:id="newPrenomField" promptText="Prénom" style="-fx-background-radius: 10; -fx-padding: 12; -fx-border-color: #dddddd; -fx-border-radius: 10;"/>
+                <TextField fx:id="newEmailField" promptText="Email" style="-fx-background-radius: 10; -fx-padding: 12; -fx-border-color: #dddddd; -fx-border-radius: 10;"/>
+                <TextField fx:id="newTelephoneField" promptText="Téléphone" style="-fx-background-radius: 10; -fx-padding: 12; -fx-border-color: #dddddd; -fx-border-radius: 10;"/>
+                <TextField fx:id="newAgeField" promptText="Âge" style="-fx-background-radius: 10; -fx-padding: 12; -fx-border-color: #dddddd; -fx-border-radius: 10;"/>
+                <PasswordField fx:id="newPasswordField" promptText="Mot de passe" style="-fx-background-radius: 10; -fx-padding: 12; -fx-border-color: #dddddd; -fx-border-radius: 10;"/>
+                <ComboBox fx:id="newTypeCombo" promptText="Type d'utilisateur" maxWidth="Infinity" style="-fx-background-radius: 10; -fx-padding: 8; -fx-border-color: #dddddd; -fx-border-radius: 10;"/>
+            </VBox>
+
+            <Label fx:id="addErrorMessage" text="" style="-fx-text-fill: #FF5400; -fx-font-weight: bold;" />
+
+            <HBox spacing="15" alignment="CENTER">
+                <Button text="Annuler" onAction="#hideAddUserForm" style="-fx-background-color: #F1F5F9; -fx-text-fill: #475569; -fx-font-weight: bold; -fx-background-radius: 10; -fx-padding: 12 30; -fx-cursor: hand;" />
+                <Button text="Créer Compte" onAction="#addUser" style="-fx-background-color: #FF0054; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 10; -fx-padding: 12 40; -fx-cursor: hand;" />
+            </HBox>
         </VBox>
+    </StackPane>
+    
+    <!-- ADD PROFILE FORM OVERLAY -->
+    <StackPane fx:id="addProfileOverlay" visible="false" style="-fx-background-color: rgba(0,0,0,0.6);">
+        <VBox alignment="CENTER" spacing="20" maxWidth="450" maxHeight="600"
+              style="-fx-background-color: white; -fx-background-radius: 25; -fx-padding: 40; -fx-border-color: #eeeeee; -fx-border-radius: 25;">
+            <effect><DropShadow radius="30" offsetY="15" color="#00000066"/></effect>
 
-    </children>
-</AnchorPane>
+            <Label text="Ajouter un Profil" style="-fx-font-size: 28px; -fx-font-weight: 900; -fx-text-fill: #390099;" />
+            
+            <VBox spacing="10" alignment="CENTER">
+                <TextField fx:id="newProfUserIdField" promptText="ID Utilisateur" style="-fx-background-radius: 10; -fx-padding: 12; -fx-border-color: #dddddd; -fx-border-radius: 10;"/>
+                <TextArea fx:id="newProfBioArea" promptText="Bio" prefRowCount="3" style="-fx-background-radius: 10; -fx-padding: 10; -fx-border-color: #dddddd; -fx-border-radius: 10;"/>
+                <TextField fx:id="newProfImageField" promptText="URL Image" style="-fx-background-radius: 10; -fx-padding: 12; -fx-border-color: #dddddd; -fx-border-radius: 10;"/>
+            </VBox>
+
+            <Label fx:id="addProfErrorMessage" text="" style="-fx-text-fill: #FF5400; -fx-font-weight: bold;" />
+
+            <HBox spacing="15" alignment="CENTER">
+                <Button text="Annuler" onAction="#hideAddProfileForm" style="-fx-background-color: #F1F5F9; -fx-text-fill: #475569; -fx-font-weight: bold; -fx-background-radius: 10; -fx-padding: 12 30; -fx-cursor: hand;" />
+                <Button text="Créer Profil" onAction="#addProfile" style="-fx-background-color: #FF0054; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 10; -fx-padding: 12 40; -fx-cursor: hand;" />
+            </HBox>
+        </VBox>
+    </StackPane>
+
+</StackPane>

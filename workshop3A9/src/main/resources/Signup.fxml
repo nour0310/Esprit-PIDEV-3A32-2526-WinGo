@@ -2,77 +2,179 @@
 
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
+<?import javafx.scene.effect.DropShadow?>
 <?import javafx.scene.layout.*?>
 
-<AnchorPane xmlns:fx="http://javafx.com/fxml"
+<StackPane xmlns="http://javafx.com/javafx/17"
+            xmlns:fx="http://javafx.com/fxml"
             fx:controller="Controlles.SignupController"
-            prefWidth="550" prefHeight="600"
-            style="-fx-background-color: linear-gradient(to bottom right, #1e1e2f, #2b2b45);">
+            prefHeight="720" prefWidth="1200">
 
-    <children>
+    <!-- BACKGROUND IMAGE -->
+
+    <Pane mouseTransparent="true"
+          style="-fx-background-image: url('/images/tunisia.png');
+                 -fx-background-size: cover;
+                 -fx-background-position: center;" />
+
+    <!-- DARK OVERLAY -->
+
+    <Pane mouseTransparent="true"
+          style="-fx-background-color: rgba(0,0,0,0.25);" />
+
+
+    <HBox>
+
+        <!-- LEFT BRAND SECTION -->
+
+        <VBox alignment="CENTER_LEFT"
+              spacing="20"
+              prefWidth="600"
+              style="-fx-padding:80;
+                     -fx-background-color: rgba(30, 41, 59, 0.75);">
+
+            <Label text="WinGo"
+                   style="-fx-text-fill:white;
+                          -fx-font-size:48px;
+                          -fx-font-weight:bold;" />
+
+            <Label text="Explore Tunisia Smarter"
+                   style="-fx-text-fill:#FFBD00;
+                          -fx-font-size:24px;
+                          -fx-font-weight:bold;" />
+
+            <Label text="Discover Tunisia like never before.
+
+Personalized regions
+Authentic experiences
+Local products
+
+Plan your journey with WinGo."
+                   wrapText="true"
+                   style="-fx-text-fill:white;
+                          -fx-font-size:16;" />
+
+        </VBox>
+
+
+        <!-- RIGHT SIGNUP SECTION -->
 
         <VBox alignment="CENTER"
-              spacing="20"
-              AnchorPane.topAnchor="40"
-              AnchorPane.leftAnchor="80"
-              AnchorPane.rightAnchor="80">
+              spacing="15"
+              prefWidth="600">
 
-            <!-- Title -->
-            <Label text="📝 Create Account"
-                   style="-fx-text-fill: white;
-                          -fx-font-size: 28px;
-                          -fx-font-weight: bold;" />
 
-            <!-- Card Container -->
-            <VBox spacing="15"
-                  style="-fx-background-color: #2f2f4f;
-                         -fx-padding: 30;
-                         -fx-background-radius: 20;">
+            <!-- SIGNUP CARD -->
+
+            <VBox alignment="CENTER"
+                  spacing="12"
+                  maxWidth="420"
+                  style="-fx-background-color:white;
+                         -fx-background-radius:20;
+                         -fx-padding:40;
+                         -fx-border-radius:20;
+                         -fx-border-color:#eeeeee;">
+
+                <effect>
+                    <DropShadow radius="25"
+                                offsetY="10"
+                                color="#00000044"/>
+                </effect>
+
+
+                <Label text="Create Account"
+                       style="-fx-font-size:26;
+                              -fx-text-fill:#390099;
+                              -fx-font-weight:bold;" />
+
+                <Label text="Join the WinGo adventure"
+                       style="-fx-text-fill:#777777;" />
+
 
                 <TextField fx:id="nomField"
-                           promptText="👤 Nom"
-                           style="-fx-background-radius: 10;" />
+                           promptText="Last Name"
+                           style="-fx-background-radius:10;
+                                  -fx-border-radius:10;
+                                  -fx-padding:12;
+                                  -fx-border-color:#dddddd;
+                                  -fx-max-width:320;" />
+
 
                 <TextField fx:id="prenomField"
-                           promptText="👤 Prenom"
-                           style="-fx-background-radius: 10;" />
+                           promptText="First Name"
+                           style="-fx-background-radius:10;
+                                  -fx-border-radius:10;
+                                  -fx-padding:12;
+                                  -fx-border-color:#dddddd;
+                                  -fx-max-width:320;" />
+
 
                 <TextField fx:id="telephoneField"
-                           promptText="📱 Telephone"
-                           style="-fx-background-radius: 10;" />
+                           promptText="Phone Number"
+                           style="-fx-background-radius:10;
+                                  -fx-border-radius:10;
+                                  -fx-padding:12;
+                                  -fx-border-color:#dddddd;
+                                  -fx-max-width:320;" />
+
 
                 <TextField fx:id="ageField"
-                           promptText="🎂 Age"
-                           style="-fx-background-radius: 10;" />
+                           promptText="Age"
+                           style="-fx-background-radius:10;
+                                  -fx-border-radius:10;
+                                  -fx-padding:12;
+                                  -fx-border-color:#dddddd;
+                                  -fx-max-width:320;" />
+
 
                 <TextField fx:id="emailField"
-                           promptText="📧 Email"
-                           style="-fx-background-radius: 10;" />
+                           promptText="Email"
+                           style="-fx-background-radius:10;
+                                  -fx-border-radius:10;
+                                  -fx-padding:12;
+                                  -fx-border-color:#dddddd;
+                                  -fx-max-width:320;" />
+
 
                 <PasswordField fx:id="passwordField"
-                               promptText="🔑 Password"
-                               style="-fx-background-radius: 10;" />
+                               promptText="Password"
+                               style="-fx-background-radius:10;
+                                      -fx-border-radius:10;
+                                      -fx-padding:12;
+                                      -fx-border-color:#dddddd;
+                                      -fx-max-width:320;" />
 
-                <!-- Register Button -->
-                <Button text="✅ Register"
-                        onAction="#register"
-                        style="-fx-background-color: linear-gradient(to right, #6a11cb, #2575fc);
-                               -fx-text-fill: white;
-                               -fx-font-weight: bold;
-                               -fx-background-radius: 15;" />
 
-                <!-- Back Button -->
-                <Button text="⬅ Back to Login"
-                        onAction="#backToLogin"
-                        style="-fx-background-color: #444;
-                               -fx-text-fill: white;
-                               -fx-background-radius: 15;" />
-
-                <!-- Message Label -->
                 <Label fx:id="messageLabel"
-                       style="-fx-text-fill: red;" />
+                       text=""
+                       style="-fx-text-fill:#FF5400;
+                              -fx-font-weight:bold;" />
+
+
+                <Button text="Create Account"
+                        onAction="#register"
+                        style="-fx-background-color:#FF0054;
+                               -fx-text-fill:white;
+                               -fx-font-size:14;
+                               -fx-background-radius:8;
+                               -fx-padding:12 40;
+                               -fx-font-weight:bold;" />
+
+
+                <Label text="Already have an account?"
+                       style="-fx-text-fill:#777777;" />
+
+
+                <Button text="Back to Login"
+                        onAction="#backToLogin"
+                        style="-fx-background-color:transparent;
+                               -fx-text-fill:#FF0054;
+                               -fx-font-weight:bold;
+                               -fx-font-size:14;" />
 
             </VBox>
+
         </VBox>
-    </children>
-</AnchorPane>
+
+    </HBox>
+</StackPane>

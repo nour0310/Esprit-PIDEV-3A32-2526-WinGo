@@ -19,13 +19,20 @@ import javafx.scene.control.TextFormatter;
 
 public class SignupController implements Initializable {
 
-    @FXML private TextField nomField;
-    @FXML private TextField prenomField;
-    @FXML private TextField telephoneField;
-    @FXML private TextField ageField;
-    @FXML private TextField emailField;
-    @FXML private PasswordField passwordField;
-    @FXML private Label messageLabel;
+    @FXML
+    private TextField nomField;
+    @FXML
+    private TextField prenomField;
+    @FXML
+    private TextField telephoneField;
+    @FXML
+    private TextField ageField;
+    @FXML
+    private TextField emailField;
+    @FXML
+    private PasswordField passwordField;
+    @FXML
+    private Label messageLabel;
 
     private UtilisateurCRUD service = new UtilisateurCRUD();
 
@@ -38,12 +45,14 @@ public class SignupController implements Initializable {
         // Control de saisie: restrict input by field type
         UnaryOperator<TextFormatter.Change> digitsOnly = change -> {
             String text = change.getText();
-            if (text.matches("[0-9]*")) return change;
+            if (text.matches("[0-9]*"))
+                return change;
             return null;
         };
         UnaryOperator<TextFormatter.Change> lettersOnly = change -> {
             String text = change.getText();
-            if (text.matches("[a-zA-ZÀ-ÿ\\s'-]*")) return change;
+            if (text.matches("[a-zA-ZÀ-ÿ\\s'-]*"))
+                return change;
             return null;
         };
         ageField.setTextFormatter(new TextFormatter<>(digitsOnly));
@@ -64,7 +73,7 @@ public class SignupController implements Initializable {
 
         // Check empty fields
         if (nom.isEmpty() || prenom.isEmpty() || telephone.isEmpty() || ageStr.isEmpty() ||
-            email.isEmpty() || password.isEmpty()) {
+                email.isEmpty() || password.isEmpty()) {
             showError("⚠ Please fill all fields");
             return;
         }
@@ -121,13 +130,23 @@ public class SignupController implements Initializable {
                 }
             }
 
+            // Generate verification code
+            String verificationCode = String.format("%06d", new java.util.Random().nextInt(1000000));
+
             Utilisateur user = new Utilisateur(nom, prenom, email, password, "user", telephone, age);
+            user.setVerified(false);
+            user.setVerificationCode(verificationCode);
+
             service.ajouter(user);
 
+            // Send verification email
+            new Services.EmailService().envoyerCodeVerification(email, verificationCode);
+
             messageLabel.setStyle("-fx-text-fill: lightgreen;");
-            messageLabel.setText("✅ Account created successfully!");
-            clearFields();
-            goToWinGoShop();
+            messageLabel.setText("✅ Account created! Please verify your email.");
+
+            // Navigate to verification page
+            goToVerification(email, verificationCode);
 
         } catch (SQLException e) {
             if (e.getMessage() != null && e.getMessage().contains("Data truncated")) {
@@ -150,7 +169,7 @@ public class SignupController implements Initializable {
     @FXML
     public void backToLogin() {
         try {
-            Parent root = FXMLLoader.load(getClass().getResource("/WinGoShop.fxml"));
+            Parent root = FXMLLoader.load(getClass().getResource("/Login.fxml"));
             Stage stage = (Stage) nomField.getScene().getWindow();
             stage.setScene(new Scene(root));
             stage.show();
@@ -159,23 +178,21 @@ public class SignupController implements Initializable {
         }
     }
 
-    private void goToWinGoShop() {
+    private void goToVerification(String email, String code) {
         try {
-            Parent root = FXMLLoader.load(getClass().getResource("/WinGoShop.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/VerifyEmail.fxml"));
+            Parent root = loader.load();
+
+            VerifyEmailController controller = loader.getController();
+            controller.setUserEmail(email, code);
+
             Stage stage = (Stage) nomField.getScene().getWindow();
             stage.setScene(new Scene(root));
             stage.show();
         } catch (Exception e) {
             e.printStackTrace();
+            showError("❌ Error navigating to verification: " + e.getMessage());
         }
     }
 
-    private void clearFields() {
-        nomField.clear();
-        prenomField.clear();
-        telephoneField.clear();
-        ageField.clear();
-        emailField.clear();
-        passwordField.clear();
-    }
 }

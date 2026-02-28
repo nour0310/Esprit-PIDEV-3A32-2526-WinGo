@@ -17,14 +17,15 @@ public class UtilisateurCRUD {
 
     private void checkConnection() throws SQLException {
         if (cnx == null) {
-            throw new SQLException("Database connection failed. Is MySQL running on localhost:3306? Database 'wingo' exists?");
+            throw new SQLException(
+                    "Database connection failed. Is MySQL running on localhost:3306? Database 'wingo' exists?");
         }
     }
 
     // ADD
     public void ajouter(Utilisateur u) throws SQLException {
         checkConnection();
-        String req = "INSERT INTO utilisateur(nom, prenom, email, mot_de_passe, type, telephone, age) VALUES (?, ?, ?, ?, ?, ?, ?)";
+        String req = "INSERT INTO utilisateur(nom, prenom, email, mot_de_passe, type, telephone, age, is_verified, verification_code) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
         PreparedStatement ps = cnx.prepareStatement(req);
         ps.setString(1, u.getNom());
@@ -34,6 +35,8 @@ public class UtilisateurCRUD {
         ps.setString(5, u.getType());
         ps.setString(6, u.getTelephone());
         ps.setInt(7, u.getAge());
+        ps.setBoolean(8, u.isVerified());
+        ps.setString(9, u.getVerificationCode());
 
         ps.executeUpdate();
         System.out.println("Utilisateur ajouté !");
@@ -57,6 +60,8 @@ public class UtilisateurCRUD {
             u.setType(rs.getString("type"));
             u.setTelephone(rs.getString("telephone"));
             u.setAge(rs.getInt("age"));
+            u.setVerified(rs.getBoolean("is_verified"));
+            u.setVerificationCode(rs.getString("verification_code"));
 
             list.add(u);
         }
@@ -67,7 +72,7 @@ public class UtilisateurCRUD {
     // UPDATE
     public void modifier(Utilisateur u) throws SQLException {
         checkConnection();
-        String req = "UPDATE utilisateur SET nom=?, prenom=?, email=?, mot_de_passe=?, type=?, telephone=?, age=? WHERE id=?";
+        String req = "UPDATE utilisateur SET nom=?, prenom=?, email=?, mot_de_passe=?, type=?, telephone=?, age=?, is_verified=?, verification_code=? WHERE id=?";
 
         PreparedStatement ps = cnx.prepareStatement(req);
         ps.setString(1, u.getNom());
@@ -77,7 +82,9 @@ public class UtilisateurCRUD {
         ps.setString(5, u.getType());
         ps.setString(6, u.getTelephone());
         ps.setInt(7, u.getAge());
-        ps.setInt(8, u.getId());
+        ps.setBoolean(8, u.isVerified());
+        ps.setString(9, u.getVerificationCode());
+        ps.setInt(10, u.getId());
 
         ps.executeUpdate();
         System.out.println("Utilisateur modifié !");

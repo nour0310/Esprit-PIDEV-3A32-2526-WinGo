@@ -10,7 +10,7 @@ public class MainFX extends Application {
 
     @Override
     public void start(Stage primaryStage) throws Exception {
-        Parent root = FXMLLoader.load(getClass().getResource("/WinGoShop.fxml"));
+        Parent root = FXMLLoader.load(getClass().getResource("/Login.fxml"));
         primaryStage.setTitle("WinGo Travel");
         primaryStage.setScene(new Scene(root));
         primaryStage.show();
