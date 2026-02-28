@@ -135,7 +135,7 @@ public class BlogController implements Initializable {
     @FXML private Label detailContenuLabel;
     @FXML private FlowPane detailCommentairesPane;
     @FXML private TextField detailNewCommentField;
-    @FXML private Button detailAddCommentBtn;  // <-- déclaration présente
+    @FXML private Button detailAddCommentBtn;
     @FXML private Label detailStatusLabel;
     @FXML private Label detailConnectedUserLabel;
     @FXML private Button detailLikeButton;
@@ -1228,6 +1228,40 @@ public class BlogController implements Initializable {
             }
         } catch (SQLException e) {
             detailStatusLabel.setText("❌ Erreur chargement commentaires");
+        }
+    }
+
+    private void ajouterCommentaireDetail() {
+        if (displayedDetailBlog == null) {
+            detailStatusLabel.setText("❌ Aucun article sélectionné.");
+            return;
+        }
+        if (currentUser == null) {
+            detailStatusLabel.setText("❌ Vous devez être connecté pour commenter.");
+            return;
+        }
+        String contenu = detailNewCommentField.getText();
+        if (contenu == null || contenu.trim().isEmpty()) {
+            detailStatusLabel.setText("❌ Le commentaire ne peut pas être vide.");
+            return;
+        }
+        try {
+            Commentaire commentaire = new Commentaire(contenu.trim(), currentUser.getId(), displayedDetailBlog.getId());
+            commentaireCRUD.ajouter(commentaire);
+            // Detect and notify mentions
+            List<Integer> mentionIds = detecterMentions(contenu.trim());
+            if (!mentionIds.isEmpty()) {
+                String lien = "/blogs/" + displayedDetailBlog.getId();
+                envoyerNotificationsMention(mentionIds, "mention",
+                        currentUser.getPrenom() + " " + currentUser.getNom() + " vous a mentionné dans un commentaire.", lien);
+            }
+            detailNewCommentField.clear();
+            afficherCommentairesDetail();
+            loadAllComments();
+            updateStats();
+            detailStatusLabel.setText("✅ Commentaire ajouté.");
+        } catch (SQLException e) {
+            detailStatusLabel.setText("❌ Erreur : " + e.getMessage());
         }
     }
 
