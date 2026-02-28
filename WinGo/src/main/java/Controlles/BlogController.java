@@ -1,4 +1,4 @@
-﻿package Controlles;
+package Controlles;
 
 import Entites.Blog;
 import Entites.Commentaire;
@@ -2545,7 +2545,7 @@ public class BlogController implements Initializable {
             stage.show();
         } catch (java.io.IOException e) {
             e.printStackTrace();
-            afficherErreur("Navigation", "Impossible d'ouvrir le Back Office.");
+            showError("Navigation", "Impossible d'ouvrir le Back Office.");
         }
     }
 }

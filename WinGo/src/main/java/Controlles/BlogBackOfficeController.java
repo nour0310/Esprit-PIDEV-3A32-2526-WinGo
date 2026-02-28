@@ -135,8 +135,8 @@ public class BlogBackOfficeController implements Initializable {
         Blog newBlog = new Blog(
                 titreField.getText(),
                 contenuField.getText(),
-                imageField.getText(),
-                1,
+                1, // auteur (int)
+                imageField.getText(), // image (String)
                 regionField.getValue(),
                 categorieField.getValue()
         );
