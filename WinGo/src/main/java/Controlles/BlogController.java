@@ -185,7 +185,8 @@ public class BlogController implements Initializable {
 
     // Patterns de validation
     private static final Pattern TITLE_PATTERN = Pattern.compile("^[a-zA-ZÀ-ÿ\\s\\-']{3,50}$");
-    private static final Pattern CONTENT_PATTERN = Pattern.compile("^[\\w\\s\\p{Punct}À-ÿ]{10,500}$");
+    // MODIFICATION : suppression de la limite supérieure (500 max) → seulement 10 caractères minimum
+    private static final Pattern CONTENT_PATTERN = Pattern.compile("^[\\w\\s\\p{Punct}À-ÿ]{10,}$");
 
     // Popup pour l'auto-complétion des mentions
     private Popup suggestionsPopup;
@@ -318,7 +319,7 @@ public class BlogController implements Initializable {
         notificationButton.setOnAction(e -> afficherNotifications());
         traduireBtn.setOnAction(e -> traduireArticle());
         ecouterBtn.setOnAction(e -> ecouterArticle());
-        resumerBtn.setOnAction(e -> resumerArticle()); // NOUVEAU listener
+        resumerBtn.setOnAction(e -> resumerArticle());
     }
 
     private void afficherNotifications() {
@@ -409,7 +410,7 @@ public class BlogController implements Initializable {
                     javafx.application.Platform.runLater(() -> {
                         detailContenuLabel.setText(texteTraduit);
                         detailStatusLabel.setText("✅ Traduit en " + langueChoisie);
-                        currentTTSLang = codeLangue; // mettre à jour la langue pour la synthèse
+                        currentTTSLang = codeLangue;
                     });
                 })
                 .exceptionally(ex -> {
@@ -420,7 +421,6 @@ public class BlogController implements Initializable {
         MyMemoryService.translateAsync(titreOriginal, "fr", codeLangue)
                 .thenAccept(titreTraduit -> javafx.application.Platform.runLater(() -> detailTitreLabel.setText(titreTraduit)));
     }
-    // ========== FIN TRADUCTION ==========
 
     // ========== SYNTHÈSE VOCALE ==========
     private void ecouterArticle() {
@@ -458,7 +458,6 @@ public class BlogController implements Initializable {
                     return null;
                 });
     }
-    // ========== FIN SYNTHÈSE VOCALE ==========
 
     // ========== RÉSUMÉ AUTOMATIQUE RÉACTIF ==========
     private void resumerArticle() {
@@ -469,13 +468,11 @@ public class BlogController implements Initializable {
         String texte = detailContenuLabel.getText();
         if (texte == null || texte.trim().isEmpty()) return;
 
-        // Afficher le conteneur de résumé et le statut
         resumeContainer.setVisible(true);
         resumeContainer.setManaged(true);
         resumeStatusLabel.setText("⏳ Génération du résumé...");
         resumeTextArea.clear();
 
-        // Désactiver le bouton
         resumerBtn.setDisable(true);
         resumerBtn.setText("⏳ Résumé...");
         detailStatusLabel.setText("⏳ Génération du résumé...");
@@ -483,7 +480,7 @@ public class BlogController implements Initializable {
         HuggingFaceSummaryService.summarizeAsync(texte)
                 .thenAccept(result -> {
                     javafx.application.Platform.runLater(() -> {
-                        resumeStatusLabel.setText(""); // effacer le statut
+                        resumeStatusLabel.setText("");
                         if (result != null && !result.isEmpty()) {
                             resumeTextArea.setText(result);
                             detailStatusLabel.setText("✅ Résumé généré.");
@@ -506,7 +503,6 @@ public class BlogController implements Initializable {
                     return null;
                 });
     }
-    // ========== FIN RÉSUMÉ ==========
 
     // ========== VALIDATION ==========
     private void setupValidationListeners() {
@@ -537,7 +533,8 @@ public class BlogController implements Initializable {
             showError(contenuError, "Le contenu ne peut pas être vide.");
             return false;
         } else if (!CONTENT_PATTERN.matcher(contenu).matches()) {
-            showError(contenuError, "Le contenu doit faire entre 10 et 500 caractères.");
+            // Le message précise seulement le minimum, car il n'y a plus de maximum
+            showError(contenuError, "Le contenu doit contenir au moins 10 caractères.");
             return false;
         } else {
             clearError(contenuError);
@@ -614,7 +611,6 @@ public class BlogController implements Initializable {
         clearError(categorieError);
         clearError(imageError);
     }
-    // ========== FIN VALIDATION ==========
 
     private void choisirImage() {
         FileChooser fileChooser = new FileChooser();
