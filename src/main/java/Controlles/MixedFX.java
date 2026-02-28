@@ -371,33 +371,38 @@ public class MixedFX {
     public float calculateDistanceBasedPrice(Transport t, String apiResponse) {
         float pricePerKm = 0.85f;
 
-        // Check if API actually returned something
-        if (apiResponse == null || apiResponse.trim().isEmpty() || apiResponse.contains("indisponible")) {
-            System.err.println("❌ Error: API returned empty or unavailable data.");
-            return -2;
-        }
-
         try {
-            // Log exactly what we are trying to parse for debugging
-            System.out.println("DEBUG: Parsing API String -> " + apiResponse);
+            // 1. Clean the string to find the first number
+            // We look for the first part before " km"
+            String distancePart = apiResponse.split(" km")[0];
 
-            // Extract numbers. Handles "120 km", "120.5km", or "120,5 km"
-            String firstPart = apiResponse.split(" ")[0];
-            String numericOnly = firstPart.replaceAll("[^0-9.,]", "").replace(",", ".");
+            // 2. Remove any remaining emojis or text if the split wasn't perfect
+            String numericOnly = distancePart.replaceAll("[^0-9.]", "");
+
+            if (numericOnly.isEmpty()) {
+                System.err.println("⚠️ No distance found in API response, using base tarif.");
+                return t.getTarif();
+            }
 
             float distance = Float.parseFloat(numericOnly);
             float calculated = distance * pricePerKm;
 
-            // Rush Hour Logic
-            int heure = t.getDateDepart().getHour();
-            if ((heure >= 7 && heure <= 9) || (heure >= 17 && heure <= 19)) {
+            // 3. Apply Rush Hour (+25%)
+            int hour = t.getDateDepart().getHour();
+            if ((hour >= 7 && hour <= 9) || (hour >= 17 && hour <= 19)) {
                 calculated *= 1.25;
             }
 
+            // 4. Apply Premium Type
+            if (t.getType().equalsIgnoreCase("Luxe") || t.getType().equalsIgnoreCase("Avion")) {
+                calculated += 50.0;
+            }
+
             return calculated;
+
         } catch (Exception e) {
-            System.err.println("❌ Parsing Error: Could not convert '" + apiResponse + "' to a number.");
-            return -1;
+            System.err.println("❌ Price Calculation Error: " + e.getMessage());
+            return t.getTarif(); // Emergency fallback to DB price
         }
     }
     private void updatePriceDisplay(Transport t) {

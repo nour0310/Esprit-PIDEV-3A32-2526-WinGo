@@ -30,7 +30,7 @@ public class TransportAPI {
             trajet = getDistanceAndTime(coordsDepart[0], coordsDepart[1], coordsArrivee[0], coordsArrivee[1]);
         }
 
-        return "⛅ Météo à l'arrivée : " + meteo + "\n🚗 Trajet : " + trajet;
+        return trajet + " | ⛅ Météo: " + meteo;
     }
 
     // --- SOUS-MÉTHODES (Appels aux différentes APIs) ---
@@ -120,12 +120,26 @@ public class TransportAPI {
 
     // Outil pour lire le JSON proprement
     private static String extractJsonValue(String json, String key) {
-        int startIndex = json.indexOf(key) + key.length();
-        int endIndex = json.indexOf("\"", startIndex);
-        if (endIndex == -1 || key.endsWith(":")) {
-            endIndex = json.indexOf(",", startIndex);
-            if (endIndex == -1) endIndex = json.indexOf("}", startIndex);
+        try {
+            if (json == null || !json.contains(key)) return "0";
+
+            int startIndex = json.indexOf(key) + key.length();
+            // Look for the next quote, comma, or closing bracket
+            int endIndex = json.indexOf("\"", startIndex);
+
+            if (endIndex == -1 || json.charAt(startIndex - 1) == ':') {
+                int endComma = json.indexOf(",", startIndex);
+                int endBracket = json.indexOf("}", startIndex);
+                if (endComma != -1 && endBracket != -1) endIndex = Math.min(endComma, endBracket);
+                else if (endComma != -1) endIndex = endComma;
+                else endIndex = endBracket;
+            }
+
+            if (endIndex == -1) return "0";
+
+            return json.substring(startIndex, endIndex).replace("\"", "").trim();
+        } catch (Exception e) {
+            return "0";
         }
-        return json.substring(startIndex, endIndex).trim().replace("\"", "");
     }
 }
