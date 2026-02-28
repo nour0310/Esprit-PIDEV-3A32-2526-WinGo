@@ -344,14 +344,14 @@ public class BlogBackOfficeController implements Initializable {
     private void showBlogForm(Blog blog) {
         editingBlog = blog;
         if (blog == null) {
-            formTitle.setText("Rédaction Créative");
+            formTitle.setText("Ajouter un blog");
             formTitre.clear();
             formContenu.clear();
             formImage.clear();
             formRegion.getSelectionModel().select(0);
             formCategorie.getSelectionModel().select(0);
         } else {
-            formTitle.setText("Modification Créative");
+            formTitle.setText("Modifier un blog");
             formTitre.setText(blog.getTitre());
             formContenu.setText(blog.getContenu());
             formImage.setText(blog.getImage());

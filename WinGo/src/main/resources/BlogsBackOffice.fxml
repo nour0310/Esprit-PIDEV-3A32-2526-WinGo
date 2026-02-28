@@ -12,7 +12,7 @@
 <HBox prefHeight="850" prefWidth="1300" style="-fx-background-color: #F8FAFC;" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Controlles.BlogBackOfficeController">
 
     <!-- Sidebar (Modern Dark) -->
-    <VBox prefWidth="300" spacing="10" style="-fx-background-color: #0F172A; -fx-padding: 30 18 30 18;">
+    <VBox prefWidth="350" spacing="10" style="-fx-background-color: #0F172A; -fx-padding: 30 18 30 18;">
         <effect><DropShadow color="#00000040" radius="25" /></effect>
         
         <HBox alignment="CENTER_LEFT" spacing="15" style="-fx-padding: 0 0 40 10;">
@@ -29,16 +29,16 @@
 
         <Label text="MENU PRINCIPAL" style="-fx-text-fill: #334155; -fx-font-size: 11px; -fx-font-weight: 800; -fx-padding: 15 0 10 15;" />
 
-        <ToggleButton fx:id="btnDashboard" mnemonicParsing="false" onAction="#switchToDashboard" prefWidth="264" selected="true" style="-fx-background-color: #6366F1; -fx-text-fill: white; -fx-alignment: CENTER_LEFT; -fx-padding: 14 22; -fx-background-radius: 14; -fx-cursor: hand; -fx-font-weight: bold; -fx-font-size: 14px;" text="📊  Dashboard">
+        <ToggleButton fx:id="btnDashboard" mnemonicParsing="false" onAction="#switchToDashboard" prefWidth="314" selected="true" style="-fx-background-color: #6366F1; -fx-text-fill: white; -fx-alignment: CENTER_LEFT; -fx-padding: 14 22; -fx-background-radius: 14; -fx-cursor: hand; -fx-font-weight: bold; -fx-font-size: 14px;" text="📊  Dashboard">
             <toggleGroup>
                 <ToggleGroup fx:id="navGroup" />
             </toggleGroup>
             <effect><DropShadow color="#6366F14D" radius="10" offsetY="4" /></effect>
         </ToggleButton>
 
-        <ToggleButton fx:id="btnBlogs" mnemonicParsing="false" onAction="#switchToBlogs" prefWidth="264" style="-fx-background-color: transparent; -fx-text-fill: #94A3B8; -fx-alignment: CENTER_LEFT; -fx-padding: 14 22; -fx-background-radius: 14; -fx-cursor: hand; -fx-font-weight: bold; -fx-font-size: 14px;" text="📰  Articles &amp; Blogs" toggleGroup="$navGroup" />
+        <ToggleButton fx:id="btnBlogs" mnemonicParsing="false" onAction="#switchToBlogs" prefWidth="314" style="-fx-background-color: transparent; -fx-text-fill: #94A3B8; -fx-alignment: CENTER_LEFT; -fx-padding: 14 22; -fx-background-radius: 14; -fx-cursor: hand; -fx-font-weight: bold; -fx-font-size: 14px;" text="📰  Articles" toggleGroup="$navGroup" />
 
-        <ToggleButton fx:id="btnComments" mnemonicParsing="false" onAction="#switchToComments" prefWidth="264" style="-fx-background-color: transparent; -fx-text-fill: #94A3B8; -fx-alignment: CENTER_LEFT; -fx-padding: 14 22; -fx-background-radius: 14; -fx-cursor: hand; -fx-font-weight: bold; -fx-font-size: 14px;" text="💬  Commentaires" toggleGroup="$navGroup" />
+        <ToggleButton fx:id="btnComments" mnemonicParsing="false" onAction="#switchToComments" prefWidth="314" style="-fx-background-color: transparent; -fx-text-fill: #94A3B8; -fx-alignment: CENTER_LEFT; -fx-padding: 14 22; -fx-background-radius: 14; -fx-cursor: hand; -fx-font-weight: bold; -fx-font-size: 14px;" text="💬  Commentaires" toggleGroup="$navGroup" />
 
         <Region VBox.vgrow="ALWAYS" />
         
@@ -156,7 +156,7 @@
             
             <HBox alignment="CENTER_LEFT">
                 <VBox spacing="5">
-                    <Label fx:id="formTitle" text="Rédaction Créative" style="-fx-text-fill: #1E293B; -fx-font-size: 30px; -fx-font-weight: 900;" />
+                    <Label fx:id="formTitle" text="Ajouter un article" style="-fx-text-fill: #1E293B; -fx-font-size: 30px; -fx-font-weight: 900;" />
                     <Label text="Donnez vie à vos idées en temps réel" style="-fx-text-fill: #94A3B8; -fx-font-size: 15px; -fx-font-weight: 500;" />
                 </VBox>
                 <Region HBox.hgrow="ALWAYS" />
