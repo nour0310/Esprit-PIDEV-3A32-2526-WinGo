@@ -280,13 +280,19 @@ public class BlogController implements Initializable {
             if (currentUser != null) {
                 String nomComplet = currentUser.getPrenom() + " " + currentUser.getNom();
                 auteurLabel.setText(nomComplet);
-                detailConnectedUserLabel.setText(nomComplet);
+                // Avatar bubble: show initials
+                String initials = "";
+                if (currentUser.getPrenom() != null && !currentUser.getPrenom().isEmpty())
+                    initials += currentUser.getPrenom().charAt(0);
+                if (currentUser.getNom() != null && !currentUser.getNom().isEmpty())
+                    initials += currentUser.getNom().charAt(0);
+                detailConnectedUserLabel.setText(initials.toUpperCase());
                 sidebarUserName.setText(nomComplet);
                 loadNotifications();
                 loadFavoris();
             } else {
                 auteurLabel.setText("Utilisateur inconnu");
-                detailConnectedUserLabel.setText("Utilisateur inconnu");
+                detailConnectedUserLabel.setText("?");
                 sidebarUserName.setText("Invité");
             }
         } catch (SQLException e) {
@@ -336,87 +342,212 @@ public class BlogController implements Initializable {
     private void afficherNotifications() {
         try {
             List<Notification> notifs = notificationCRUD.getNotificationsByUser(currentUser.getId());
+            long nonLues = notifs.stream().filter(n -> !n.isLu()).count();
             Popup notifPopup = new Popup();
 
-            VBox content = new VBox(10);
+            // ── Outer container ──────────────────────────────────────────────────
+            VBox content = new VBox(0);
+            content.setMinWidth(370);
+            content.setMaxWidth(370);
             content.setStyle(
-                    "-fx-background-color: rgba(255,255,255,0.95);" +
-                            "-fx-background-radius: 20;" +
-                            "-fx-padding: 15;" +
-                            "-fx-border-color: rgba(255,255,255,0.3);" +
-                            "-fx-border-radius: 20;" +
-                            "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.2), 20, 0.5, 0, 5);"
+                    "-fx-background-color: #FFFFFF;" +
+                    "-fx-background-radius: 24;" +
+                    "-fx-effect: dropshadow(gaussian, rgba(60,60,120,0.22), 28, 0.5, 0, 8);"
             );
-            content.setMaxWidth(350);
-            content.setMaxHeight(400);
 
-            HBox titleBox = new HBox(10);
-            titleBox.setAlignment(Pos.CENTER_LEFT);
-            Label titleIcon = new Label("🔔");
-            titleIcon.setStyle("-fx-font-size: 20px;");
-            Label title = new Label("Notifications");
-            title.setStyle("-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #1E293B;");
-            titleBox.getChildren().addAll(titleIcon, title);
+            // ── Gradient header ──────────────────────────────────────────────────
+            VBox header = new VBox(4);
+            header.setPadding(new Insets(18, 22, 14, 22));
+            header.setStyle(
+                    "-fx-background-color: linear-gradient(to right, #6366F1, #A3B1FF);" +
+                    "-fx-background-radius: 24 24 0 0;"
+            );
 
-            ListView<Notification> listView = new ListView<>();
-            listView.setPrefHeight(250);
-            listView.setStyle("-fx-background-color: transparent; -fx-background: transparent;");
-            listView.setCellFactory(lv -> new ListCell<Notification>() {
-                @Override
-                protected void updateItem(Notification item, boolean empty) {
-                    super.updateItem(item, empty);
-                    if (empty || item == null) {
-                        setText(null);
-                        setGraphic(null);
-                    } else {
-                        HBox card = new HBox(10);
-                        card.setPadding(new Insets(8));
-                        card.setStyle("-fx-background-color: " + (item.isLu() ? "#F8FAFC" : "#E0F2FE") + ";" +
-                                "-fx-background-radius: 10;" +
-                                "-fx-border-color: #E2E8F0;" +
-                                "-fx-border-radius: 10;");
+            HBox headerRow = new HBox(10);
+            headerRow.setAlignment(Pos.CENTER_LEFT);
 
-                        Label icon = new Label();
-                        icon.setStyle("-fx-font-size: 18px;");
-                        if ("mention".equals(item.getType())) {
-                            icon.setText("📢");
-                        } else if ("reponse".equals(item.getType())) {
-                            icon.setText("💬");
-                        } else {
-                            icon.setText("🔔");
-                        }
+            StackPane bellWrap = new StackPane();
+            Label bellLbl = new Label("🔔");
+            bellLbl.setStyle("-fx-font-size: 22px;");
+            if (nonLues > 0) {
+                Label badge = new Label(String.valueOf(nonLues));
+                badge.setStyle(
+                        "-fx-background-color: #EF4444;" +
+                        "-fx-text-fill: white;" +
+                        "-fx-background-radius: 10;" +
+                        "-fx-padding: 1 5;" +
+                        "-fx-font-size: 9px;" +
+                        "-fx-font-weight: bold;"
+                );
+                StackPane.setAlignment(badge, Pos.TOP_RIGHT);
+                bellWrap.getChildren().addAll(bellLbl, badge);
+            } else {
+                bellWrap.getChildren().add(bellLbl);
+            }
 
-                        VBox textBox = new VBox(3);
-                        Label contenu = new Label(item.getContenu());
-                        contenu.setWrapText(true);
-                        contenu.setStyle("-fx-font-weight: " + (item.isLu() ? "normal" : "bold") + ";" +
-                                "-fx-text-fill: #1E293B;");
-                        Label date = new Label(item.getDateCreation().format(DateTimeFormatter.ofPattern("dd/MM HH:mm")));
-                        date.setStyle("-fx-text-fill: #64748B; -fx-font-size: 11px;");
-                        textBox.getChildren().addAll(contenu, date);
+            VBox titleBlock = new VBox(2);
+            Label titleLbl = new Label("Notifications");
+            titleLbl.setStyle("-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: white;");
+            Label subLbl = new Label(nonLues > 0 ? nonLues + " non lue(s)" : "Tout est à jour ✓");
+            subLbl.setStyle("-fx-font-size: 12px; -fx-text-fill: rgba(255,255,255,0.75);");
+            titleBlock.getChildren().addAll(titleLbl, subLbl);
 
-                        card.getChildren().addAll(icon, textBox);
-                        HBox.setHgrow(textBox, Priority.ALWAYS);
+            Region hSpacer = new Region();
+            HBox.setHgrow(hSpacer, Priority.ALWAYS);
 
-                        setGraphic(card);
-                        setText(null);
-                    }
-                }
-            });
+            Button closeBtn = new Button("✕");
+            closeBtn.setStyle(
+                    "-fx-background-color: rgba(255,255,255,0.18);" +
+                    "-fx-text-fill: white;" +
+                    "-fx-background-radius: 20;" +
+                    "-fx-padding: 4 10;" +
+                    "-fx-cursor: hand;" +
+                    "-fx-font-size: 13px;"
+            );
+            closeBtn.setOnAction(ev -> notifPopup.hide());
 
-            ObservableList<Notification> items = FXCollections.observableArrayList(notifs);
-            listView.setItems(items);
+            headerRow.getChildren().addAll(bellWrap, titleBlock, hSpacer, closeBtn);
+            header.getChildren().add(headerRow);
 
-            Button marquerLu = new Button("✓ Tout marquer comme lu");
-            marquerLu.setStyle(
-                    "-fx-background-color: #A3B1FF;" +
-                            "-fx-text-fill: white;" +
-                            "-fx-background-radius: 30;" +
-                            "-fx-padding: 8 15;" +
-                            "-fx-font-weight: bold;" +
+            // ── Body ─────────────────────────────────────────────────────────────
+            VBox body = new VBox(0);
+            body.setPadding(new Insets(10, 12, 10, 12));
+            body.setStyle("-fx-background-color: #FAFAFE;");
+
+            if (notifs.isEmpty()) {
+                // Empty state
+                VBox emptyState = new VBox(10);
+                emptyState.setAlignment(Pos.CENTER);
+                emptyState.setPadding(new Insets(30, 0, 30, 0));
+                Label emptyIcon = new Label("🎉");
+                emptyIcon.setStyle("-fx-font-size: 40px;");
+                Label emptyLbl = new Label("Aucune notification");
+                emptyLbl.setStyle("-fx-text-fill: #94A3B8; -fx-font-size: 14px;");
+                Label emptyHint = new Label("Vous êtes à jour !");
+                emptyHint.setStyle("-fx-text-fill: #CBD5E1; -fx-font-size: 12px;");
+                emptyState.getChildren().addAll(emptyIcon, emptyLbl, emptyHint);
+                body.getChildren().add(emptyState);
+            } else {
+                ScrollPane scrollPane = new ScrollPane();
+                scrollPane.setFitToWidth(true);
+                scrollPane.setPrefHeight(260);
+                scrollPane.setStyle("-fx-background: transparent; -fx-background-color: transparent; -fx-border-color: transparent;");
+
+                VBox notifList = new VBox(8);
+                notifList.setPadding(new Insets(5, 4, 5, 4));
+
+                for (Notification n : notifs) {
+                    HBox card = new HBox(12);
+                    card.setAlignment(Pos.CENTER_LEFT);
+                    card.setPadding(new Insets(11, 14, 11, 14));
+                    boolean unread = !n.isLu();
+                    card.setStyle(
+                            "-fx-background-color: " + (unread ? "#EEF2FF" : "#FFFFFF") + ";" +
+                            "-fx-background-radius: 14;" +
+                            "-fx-border-color: " + (unread ? "#C7D2FE" : "#E2E8F0") + ";" +
+                            "-fx-border-radius: 14;" +
+                            "-fx-border-width: 1.2;" +
                             "-fx-cursor: hand;"
+                    );
+
+                    // Type icon bubble
+                    StackPane iconBubble = new StackPane();
+                    iconBubble.setMinSize(38, 38);
+                    iconBubble.setMaxSize(38, 38);
+                    String bubbleColor, iconText;
+                    if ("mention".equals(n.getType())) {
+                        bubbleColor = "linear-gradient(to bottom right, #F472B6, #EC4899)";
+                        iconText = "📢";
+                    } else if ("reponse".equals(n.getType())) {
+                        bubbleColor = "linear-gradient(to bottom right, #34D399, #10B981)";
+                        iconText = "💬";
+                    } else {
+                        bubbleColor = "linear-gradient(to bottom right, #A78BFA, #7C3AED)";
+                        iconText = "🔔";
+                    }
+                    iconBubble.setStyle(
+                            "-fx-background-color: " + bubbleColor + ";" +
+                            "-fx-background-radius: 19;"
+                    );
+                    Label iconLbl = new Label(iconText);
+                    iconLbl.setStyle("-fx-font-size: 16px;");
+                    iconBubble.getChildren().add(iconLbl);
+
+                    // Text block
+                    VBox textBlock = new VBox(3);
+                    HBox.setHgrow(textBlock, Priority.ALWAYS);
+
+                    Label msgLbl = new Label(n.getContenu());
+                    msgLbl.setWrapText(true);
+                    msgLbl.setMaxWidth(220);
+                    msgLbl.setStyle(
+                            "-fx-font-size: 13px;" +
+                            "-fx-text-fill: #1E293B;" +
+                            "-fx-font-weight: " + (unread ? "bold" : "normal") + ";"
+                    );
+
+                    // Time-ago label
+                    java.time.LocalDateTime now2 = java.time.LocalDateTime.now();
+                    long minutes = java.time.Duration.between(n.getDateCreation(), now2).toMinutes();
+                    String timeAgo;
+                    if (minutes < 1) timeAgo = "À l'instant";
+                    else if (minutes < 60) timeAgo = minutes + " min";
+                    else if (minutes < 1440) timeAgo = (minutes / 60) + " h";
+                    else timeAgo = (minutes / 1440) + " j";
+
+                    HBox metaRow = new HBox(6);
+                    metaRow.setAlignment(Pos.CENTER_LEFT);
+                    Label typeLbl = new Label(n.getType() != null ? n.getType().toUpperCase() : "INFO");
+                    typeLbl.setStyle(
+                            "-fx-background-color: " + (unread ? "#C7D2FE" : "#E2E8F0") + ";" +
+                            "-fx-text-fill: " + (unread ? "#4F46E5" : "#64748B") + ";" +
+                            "-fx-background-radius: 6;" +
+                            "-fx-padding: 1 6;" +
+                            "-fx-font-size: 9px;" +
+                            "-fx-font-weight: bold;"
+                    );
+                    Label timeLbl = new Label("· " + timeAgo);
+                    timeLbl.setStyle("-fx-text-fill: #94A3B8; -fx-font-size: 11px;");
+                    metaRow.getChildren().addAll(typeLbl, timeLbl);
+
+                    if (unread) {
+                        Label dotLbl = new Label("●");
+                        dotLbl.setStyle("-fx-text-fill: #6366F1; -fx-font-size: 8px;");
+                        metaRow.getChildren().add(dotLbl);
+                    }
+                    textBlock.getChildren().addAll(msgLbl, metaRow);
+
+                    card.getChildren().addAll(iconBubble, textBlock);
+                    notifList.getChildren().add(card);
+                }
+
+                scrollPane.setContent(notifList);
+                body.getChildren().add(scrollPane);
+            }
+
+            // ── Footer ───────────────────────────────────────────────────────────
+            HBox footer = new HBox(10);
+            footer.setAlignment(Pos.CENTER);
+            footer.setPadding(new Insets(12, 18, 16, 18));
+            footer.setStyle(
+                    "-fx-background-color: #FFFFFF;" +
+                    "-fx-background-radius: 0 0 24 24;" +
+                    "-fx-border-color: #E2E8F0;" +
+                    "-fx-border-width: 1 0 0 0;"
+            );
+
+            Button marquerLu = new Button("✓  Tout marquer lu");
+            marquerLu.setStyle(
+                    "-fx-background-color: linear-gradient(to right, #6366F1, #A3B1FF);" +
+                    "-fx-text-fill: white;" +
+                    "-fx-background-radius: 30;" +
+                    "-fx-padding: 9 22;" +
+                    "-fx-font-weight: bold;" +
+                    "-fx-cursor: hand;" +
+                    "-fx-font-size: 13px;"
             );
             marquerLu.setMaxWidth(Double.MAX_VALUE);
+            HBox.setHgrow(marquerLu, Priority.ALWAYS);
             marquerLu.setOnAction(ev -> {
                 try {
                     for (Notification n : notifs) {
@@ -429,12 +560,14 @@ public class BlogController implements Initializable {
                 }
             });
 
-            content.getChildren().addAll(titleBox, listView, marquerLu);
+            footer.getChildren().add(marquerLu);
+
+            content.getChildren().addAll(header, body, footer);
             notifPopup.getContent().add(content);
             notifPopup.setAutoHide(true);
-            notifPopup.show(notificationButton,
-                    notificationButton.localToScreen(0, notificationButton.getHeight()).getX(),
-                    notificationButton.localToScreen(0, notificationButton.getHeight()).getY());
+            double x = notificationButton.localToScreen(0, 0).getX() - 370 + notificationButton.getWidth();
+            double y = notificationButton.localToScreen(0, notificationButton.getHeight()).getY() + 6;
+            notifPopup.show(notificationButton, x, y);
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -1266,77 +1399,140 @@ public class BlogController implements Initializable {
     }
 
     private VBox createCommentCard(Commentaire commentaire, int level) {
-        VBox card = new VBox(8);
-        card.setPadding(new Insets(12));
-        card.setStyle("-fx-background-color: rgba(255,255,255,0.15); -fx-background-radius: 20; -fx-border-color: rgba(255,255,255,0.3); -fx-border-radius: 20; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.2), 10, 0.3, 0, 5);");
-        card.setPrefWidth(250 + level * 20);
-        card.setMaxWidth(250 + level * 20);
+        VBox card = new VBox(10);
+        card.setPadding(new Insets(14, 16, 14, 16));
+        // Solid white background — fully readable on any parent
+        String borderLeft = level > 0 ? "-fx-border-color: transparent transparent transparent #6366F1; -fx-border-width: 0 0 0 3;" : "";
+        card.setStyle(
+            "-fx-background-color: #FFFFFF;" +
+            "-fx-background-radius: 18;" +
+            "-fx-effect: dropshadow(gaussian, rgba(99,102,241,0.10), 12, 0.3, 0, 4);" +
+            borderLeft
+        );
+        card.setPrefWidth(Double.MAX_VALUE);
+        card.setMaxWidth(Double.MAX_VALUE);
+        if (level > 0) {
+            VBox.setMargin(card, new Insets(0, 0, 0, 22));
+        }
 
+        // ── Header row: avatar + author + time ──────────────────────────────
+        HBox header = new HBox(10);
+        header.setAlignment(Pos.CENTER_LEFT);
+
+        // Initials avatar
+        String rawName = commentaire.getUtilisateurNom() != null
+                ? commentaire.getUtilisateurNom()
+                : "U" + commentaire.getUtilisateur();
+        String[] parts = rawName.trim().split("\\s+");
+        String initials = "";
+        if (parts.length >= 2)
+            initials = String.valueOf(parts[0].charAt(0)).toUpperCase() + String.valueOf(parts[1].charAt(0)).toUpperCase();
+        else if (parts.length == 1 && !parts[0].isEmpty())
+            initials = String.valueOf(parts[0].charAt(0)).toUpperCase();
+        else initials = "?";
+
+        // Pick a deterministic colour from a palette based on user id
+        String[] avatarGradients = {
+            "linear-gradient(to bottom right,#6366F1,#8B5CF6)",
+            "linear-gradient(to bottom right,#EC4899,#F472B6)",
+            "linear-gradient(to bottom right,#10B981,#34D399)",
+            "linear-gradient(to bottom right,#F59E0B,#FBBF24)",
+            "linear-gradient(to bottom right,#3B82F6,#60A5FA)"
+        };
+        String grad = avatarGradients[Math.abs(commentaire.getUtilisateur()) % avatarGradients.length];
+
+        StackPane avatarPane = new StackPane();
+        avatarPane.setMinSize(40, 40);
+        avatarPane.setMaxSize(40, 40);
+        avatarPane.setStyle("-fx-background-color: " + grad + "; -fx-background-radius: 20;");
+        Label avatarLbl = new Label(initials);
+        avatarLbl.setStyle("-fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 14px;");
+        avatarPane.getChildren().add(avatarLbl);
+
+        // Author + time column
+        VBox authorCol = new VBox(2);
+        HBox.setHgrow(authorCol, Priority.ALWAYS);
+        Label authorLbl = new Label(rawName);
+        authorLbl.setStyle("-fx-text-fill: #1E293B; -fx-font-weight: bold; -fx-font-size: 13px;");
+
+        // Time-ago
+        String timeAgo = "";
+        if (commentaire.getDateCommentaire() != null) {
+            long mins = java.time.Duration.between(commentaire.getDateCommentaire(), java.time.LocalDateTime.now()).toMinutes();
+            if (mins < 1) timeAgo = "À l'instant";
+            else if (mins < 60) timeAgo = mins + " min";
+            else if (mins < 1440) timeAgo = (mins / 60) + " h";
+            else timeAgo = commentaire.getDateCommentaire().format(dateShortFormatter);
+        }
+        Label timeLbl = new Label(timeAgo);
+        timeLbl.setStyle("-fx-text-fill: #94A3B8; -fx-font-size: 11px;");
+        authorCol.getChildren().addAll(authorLbl, timeLbl);
+
+        header.getChildren().addAll(avatarPane, authorCol);
+
+        // ── Content ──────────────────────────────────────────────────────────
         TextFlow contenuFlow = formaterTexteAvecMentions(commentaire.getContenu());
-        contenuFlow.setPrefWidth(230 + level * 20);
+        // Force all plain Text nodes to be dark and readable
+        contenuFlow.getChildren().forEach(node -> {
+            if (node instanceof javafx.scene.text.Text t) {
+                t.setStyle("-fx-fill: #334155; -fx-font-size: 14px;");
+            }
+        });
+        contenuFlow.setPrefWidth(Double.MAX_VALUE);
+        contenuFlow.setMaxWidth(Double.MAX_VALUE);
 
-        HBox meta = new HBox(10);
-        meta.setAlignment(Pos.CENTER_LEFT);
-
-        StackPane userIconContainer = new StackPane();
-        userIconContainer.setPrefSize(24, 24);
-        userIconContainer.setStyle("-fx-background-color: #FFBD00; -fx-background-radius: 12;");
-        Label userIcon = new Label("👤");
-        userIcon.setStyle("-fx-font-size: 14px; -fx-text-fill: #390099;");
-        userIconContainer.getChildren().add(userIcon);
-
-        String utilisateurNom = commentaire.getUtilisateurNom() != null ? commentaire.getUtilisateurNom() : "Utilisateur " + commentaire.getUtilisateur();
-        Label auteurLabel = new Label(utilisateurNom);
-        auteurLabel.setStyle("-fx-text-fill: #FFBD00; -fx-font-size: 12px; -fx-font-weight: bold;");
-
-        HBox auteurBox = new HBox(5, userIconContainer, auteurLabel);
-        auteurBox.setAlignment(Pos.CENTER_LEFT);
-
-        StackPane dateIconContainer = new StackPane();
-        dateIconContainer.setPrefSize(24, 24);
-        dateIconContainer.setStyle("-fx-background-color: rgba(255,255,255,0.2); -fx-background-radius: 12;");
-        Label dateIcon = new Label("📅");
-        dateIcon.setStyle("-fx-font-size: 14px; -fx-text-fill: white;");
-        dateIconContainer.getChildren().add(dateIcon);
-
-        Label dateLabel = new Label(commentaire.getDateCommentaire() != null ? commentaire.getDateCommentaire().format(dateFormatter) : "");
-        dateLabel.setStyle("-fx-text-fill: rgba(255,255,255,0.7); -fx-font-size: 11px;");
-
-        HBox dateBox = new HBox(5, dateIconContainer, dateLabel);
-        dateBox.setAlignment(Pos.CENTER_LEFT);
-
-        Region spacer = new Region();
-        HBox.setHgrow(spacer, Priority.ALWAYS);
-
-        meta.getChildren().addAll(auteurBox, spacer, dateBox);
-
-        HBox actions = new HBox(10);
+        // ── Actions row ──────────────────────────────────────────────────────
+        HBox actions = new HBox(8);
         actions.setAlignment(Pos.CENTER_RIGHT);
 
         if (currentUser != null) {
-            Button replyBtn = new Button("↩️ Répondre");
-            replyBtn.setStyle("-fx-background-color: #17a2b8; -fx-text-fill: white; -fx-background-radius: 20; -fx-cursor: hand; -fx-padding: 5 12; -fx-font-size: 11px;");
+            Button replyBtn = new Button("↩ Répondre");
+            replyBtn.setStyle(
+                "-fx-background-color: #EEF2FF;" +
+                "-fx-text-fill: #6366F1;" +
+                "-fx-background-radius: 20;" +
+                "-fx-padding: 5 14;" +
+                "-fx-font-size: 12px;" +
+                "-fx-font-weight: bold;" +
+                "-fx-cursor: hand;"
+            );
             replyBtn.setOnAction(e -> showReplyField(commentaire, card, level));
             actions.getChildren().add(replyBtn);
         }
 
         if (currentUser != null && commentaire.getUtilisateur() == currentUser.getId()) {
-            Button editBtn = new Button("✏️");
-            editBtn.setStyle("-fx-background-color: #f39c12; -fx-text-fill: white; -fx-background-radius: 20; -fx-cursor: hand; -fx-padding: 5 12; -fx-border-color: rgba(255,255,255,0.4); -fx-border-radius: 20;");
-            editBtn.setOnAction(e -> showEditComment(commentaire, card, contenuFlow, meta, actions, level));
+            Button editBtn = new Button("✏ Modifier");
+            editBtn.setStyle(
+                "-fx-background-color: #FEF3C7;" +
+                "-fx-text-fill: #D97706;" +
+                "-fx-background-radius: 20;" +
+                "-fx-padding: 5 14;" +
+                "-fx-font-size: 12px;" +
+                "-fx-font-weight: bold;" +
+                "-fx-cursor: hand;"
+            );
+            editBtn.setOnAction(e -> showEditComment(commentaire, card, contenuFlow, header, actions, level));
 
-            Button deleteBtn = new Button("🗑️");
-            deleteBtn.setStyle("-fx-background-color: #e74c3c; -fx-text-fill: white; -fx-background-radius: 20; -fx-cursor: hand; -fx-padding: 5 12; -fx-border-color: rgba(255,255,255,0.4); -fx-border-radius: 20;");
+            Button deleteBtn = new Button("🗑 Supprimer");
+            deleteBtn.setStyle(
+                "-fx-background-color: #FEE2E2;" +
+                "-fx-text-fill: #EF4444;" +
+                "-fx-background-radius: 20;" +
+                "-fx-padding: 5 14;" +
+                "-fx-font-size: 12px;" +
+                "-fx-font-weight: bold;" +
+                "-fx-cursor: hand;"
+            );
             deleteBtn.setOnAction(e -> supprimerCommentaireDetail(commentaire));
-
             actions.getChildren().addAll(editBtn, deleteBtn);
         }
 
-        card.getChildren().addAll(contenuFlow, meta, actions);
+        card.getChildren().addAll(header, contenuFlow, actions);
 
+        // ── Replies ──────────────────────────────────────────────────────────
         if (!commentaire.getReplies().isEmpty()) {
-            VBox repliesBox = new VBox(8);
-            repliesBox.setPadding(new Insets(10, 0, 0, 20));
+            VBox repliesBox = new VBox(10);
+            repliesBox.setPadding(new Insets(8, 0, 0, 0));
             for (Commentaire reply : commentaire.getReplies()) {
                 repliesBox.getChildren().add(createCommentCard(reply, level + 1));
             }
@@ -2147,7 +2343,7 @@ public class BlogController implements Initializable {
             if (response == ButtonType.YES) {
                 currentUser = null;
                 auteurLabel.setText("Non connecté");
-                detailConnectedUserLabel.setText("Non connecté");
+                detailConnectedUserLabel.setText("?");
                 sidebarUserName.setText("Invité");
                 showInfo("Déconnexion réussie.");
             }

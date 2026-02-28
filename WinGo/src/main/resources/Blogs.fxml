@@ -269,23 +269,52 @@
                             </VBox>
 
                             <!-- Commentaires -->
-                            <VBox spacing="15" style="-fx-padding: 0 20 20 20;">
-                                <Label text="💬 Commentaires" style="-fx-font-size: 20px; -fx-font-weight: bold;" />
-                                <ScrollPane fitToWidth="true" prefHeight="200" style="-fx-background: transparent;">
-                                    <FlowPane fx:id="detailCommentairesPane" hgap="10" vgap="10" />
-                                </ScrollPane>
+                            <VBox spacing="0" style="-fx-padding: 0 20 10 20;">
+                                <!-- Section header -->
+                                <HBox alignment="CENTER_LEFT" spacing="10"
+                                      style="-fx-background-color: linear-gradient(to right, #6366F1, #A3B1FF); -fx-background-radius: 20 20 0 0; -fx-padding: 14 20;">
+                                    <Label text="💬" style="-fx-font-size: 20px;" />
+                                    <Label text="Commentaires" style="-fx-font-size: 17px; -fx-font-weight: bold; -fx-text-fill: white;" />
+                                </HBox>
+                                <!-- Comments list -->
+                                <VBox style="-fx-background-color: #F8FAFF; -fx-background-radius: 0 0 20 20; -fx-padding: 12;">
+                                    <ScrollPane fitToWidth="true" prefHeight="210"
+                                                style="-fx-background: transparent; -fx-background-color: transparent; -fx-border-color: transparent;">
+                                        <FlowPane fx:id="detailCommentairesPane" hgap="10" vgap="10" style="-fx-background-color: transparent;" />
+                                    </ScrollPane>
+                                </VBox>
                             </VBox>
 
                             <!-- Ajout commentaire dans détail -->
-                            <HBox spacing="10" alignment="CENTER_LEFT" style="-fx-padding: 0 20 20 20;">
-                                <TextField fx:id="detailNewCommentField" promptText="Votre commentaire..." HBox.hgrow="ALWAYS"
-                                           style="-fx-background-color: #F1F5F9; -fx-background-radius: 30; -fx-padding: 12 15;" />
-                                <Label fx:id="detailConnectedUserLabel" text="(connexion...)"
-                                       style="-fx-background-color: #E2E8F0; -fx-background-radius: 30; -fx-padding: 12 20;" />
-                                <Button fx:id="detailAddCommentBtn" text="Envoyer"
-                                        style="-fx-background-color: #3B82F6; -fx-text-fill: white; -fx-background-radius: 30; -fx-padding: 12 25; -fx-font-weight: bold;" />
-                            </HBox>
-                            <Label fx:id="detailStatusLabel" style="-fx-text-fill: #10B981; -fx-padding: 0 20 20 20;" />
+                            <VBox spacing="8" style="-fx-padding: 0 20 20 20;">
+                                <HBox alignment="CENTER_LEFT" spacing="10"
+                                      style="-fx-background-color: #FFFFFF; -fx-background-radius: 20; -fx-padding: 10 14;
+                                             -fx-border-color: #E2E8F0; -fx-border-radius: 20; -fx-border-width: 1.5;
+                                             -fx-effect: dropshadow(gaussian, rgba(99,102,241,0.08), 12, 0.4, 0, 4);">
+                                    <!-- User avatar bubble -->
+                                    <StackPane minWidth="36" minHeight="36" maxWidth="36" maxHeight="36"
+                                               style="-fx-background-color: linear-gradient(to bottom right,#A3B1FF,#6366F1); -fx-background-radius: 18;">
+                                        <Label fx:id="detailConnectedUserLabel" text="👤"
+                                               style="-fx-text-fill: white; -fx-font-size: 13px; -fx-font-weight: bold; -fx-padding: 0;
+                                                      -fx-background-color: transparent; -fx-background-radius: 0;" />
+                                    </StackPane>
+                                    <!-- Text input -->
+                                    <TextField fx:id="detailNewCommentField" promptText="Partagez votre avis..." HBox.hgrow="ALWAYS"
+                                               style="-fx-background-color: #F8FAFF; -fx-background-radius: 30;
+                                                      -fx-border-color: transparent; -fx-padding: 10 16;
+                                                      -fx-font-size: 13px; -fx-text-fill: #1E293B;
+                                                      -fx-prompt-text-fill: #94A3B8;" />
+                                    <!-- Send button -->
+                                    <Button fx:id="detailAddCommentBtn" text="✈"
+                                            style="-fx-background-color: linear-gradient(to right,#6366F1,#A3B1FF);
+                                                   -fx-text-fill: white; -fx-background-radius: 20;
+                                                   -fx-padding: 9 16; -fx-font-size: 15px; -fx-cursor: hand;
+                                                   -fx-effect: dropshadow(gaussian, rgba(99,102,241,0.35), 8, 0.4, 0, 3);" />
+                                </HBox>
+                                <!-- Status label -->
+                                <Label fx:id="detailStatusLabel"
+                                       style="-fx-text-fill: #6366F1; -fx-font-size: 12px; -fx-padding: 0 4;" />
+                            </VBox>
                         </VBox>
                     </ScrollPane>
 
