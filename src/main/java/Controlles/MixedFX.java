@@ -4,6 +4,9 @@ import com.google.zxing.BarcodeFormat;
 import com.google.zxing.client.j2se.MatrixToImageWriter;
 import com.google.zxing.common.BitMatrix;
 import com.google.zxing.qrcode.QRCodeWriter;
+import javafx.geometry.Pos;
+import javafx.scene.Scene;
+import javafx.scene.effect.GaussianBlur;
 import javafx.scene.image.Image;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -25,6 +28,10 @@ import java.time.LocalDate;
 import java.util.List;
 import javafx.scene.web.WebView;
 import javafx.scene.web.WebEngine;
+import javafx.stage.Modality;
+import javafx.stage.Stage;
+import javafx.stage.StageStyle;
+
 public class MixedFX {
 
     @FXML private Button reservationToggleBtn, transportToggleBtn;
@@ -312,11 +319,24 @@ public class MixedFX {
 
             if (card != null) {
                 Pane topPane = (Pane) card.getChildren().get(0);
-                Button currencyBtn = new Button("🪙");
-                currencyBtn.setTranslateX(50); // Ajuste la position
-                currencyBtn.setTranslateY(10);
-                currencyBtn.setStyle("-fx-background-color: #FBBF24; -fx-text-fill: white; -fx-background-radius: 10; -fx-font-weight: bold;");
+                // Dans populateItems, là où tu ajoutes les boutons (🗑, 👁, ❤)
 
+                Button currencyBtn = new Button("💰"); // Ou une icône de monnaie si tu as une image
+                currencyBtn.setTranslateX(50); // Ajuste selon tes autres boutons
+                currencyBtn.setTranslateY(10);
+
+// Style CUTE pour le bouton de la carte
+                currencyBtn.setStyle("-fx-background-color: #FFFFFF; -fx-text-fill: #A3B1FF; " +
+                        "-fx-background-radius: 50; -fx-border-color: #EEF2FF; " +
+                        "-fx-border-width: 2; -fx-font-size: 18px; -fx-padding: 5;");
+
+                currencyBtn.setOnAction(e -> {
+                    if (obj instanceof Transport) {
+                        showCurrencyPopup((Transport) obj);
+                    }
+                    e.consume(); // Empêche le clic d'ouvrir la carte complète
+                });
+                topPane.getChildren().add(currencyBtn);
                 currencyBtn.setOnAction(e -> {
                     if (obj instanceof Transport) {
                         showCurrencyPopup((Transport) obj);
@@ -379,6 +399,103 @@ public class MixedFX {
                 itemsFlowPane.getChildren().add(card);
             }
         }
+    }
+    private void showCurrencyPopup(Transport t) {
+        // 1. Appliquer l'effet de flou à l'arrière-plan
+        GaussianBlur blur = new GaussianBlur(15);
+        itemsFlowPane.getParent().setEffect(blur); // Floute le conteneur principal
+
+        new Thread(() -> {
+            try {
+                // Calcul du prix réel via l'API
+                String infos = Services.TransportAPI.getInfosTrajet(t.getDepart(), t.getArrivee());
+                float priceInTND = calculateDistanceBasedPrice(t, infos);
+
+                javafx.application.Platform.runLater(() -> {
+                    // 2. Créer la fenêtre Pop-up (Stage)
+                    Stage popupStage = new Stage();
+                    popupStage.initModality(Modality.APPLICATION_MODAL);
+                    popupStage.initStyle(StageStyle.TRANSPARENT); // Pour des coins vraiment arrondis
+
+                    // 3. Conteneur principal (Layout)
+                    VBox layout = new VBox(20);
+                    layout.setPadding(new Insets(30));
+                    layout.setAlignment(Pos.CENTER);
+
+                    // Style CUTE : Fond blanc, coins très arrondis, ombre douce, bordure légère
+                    layout.setStyle("-fx-background-color: #FFFFFF; -fx-background-radius: 30; " +
+                            "-fx-border-color: #EEF2FF; -fx-border-radius: 30; -fx-border-width: 2; " +
+                            "-fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 20, 0, 0, 10);");
+
+                    // --- ÉLÉMENTS VISUELS ---
+
+                    // Icône d'en-tête (Optionnelle mais cute)
+                    Label iconHeader = new Label("✨");
+                    iconHeader.setStyle("-fx-font-size: 40px;");
+
+                    // Titre
+                    Label title = new Label("Estimation de votre trajet");
+                    title.setStyle("-fx-font-family: 'Segoe UI', sans-serif; -fx-font-weight: 900; -fx-font-size: 18px; -fx-text-fill: #1E293B;");
+
+                    // Icône de monnaie + Prix
+                    HBox priceBox = new HBox(10);
+                    priceBox.setAlignment(Pos.CENTER);
+                    Label coinIcon = new Label("💰"); coinIcon.setStyle("-fx-font-size: 24px;");
+                    Label priceLabel = new Label(String.format("%.3f TND", priceInTND));
+                    priceLabel.setStyle("-fx-font-family: 'Segoe UI', sans-serif; -fx-font-size: 28px; -fx-text-fill: #A3B1FF; -fx-font-weight: 900;"); // Ton bleu signature
+                    priceBox.getChildren().addAll(coinIcon, priceLabel);
+
+                    // Sélecteur de devise
+                    ComboBox<String> currencies = new ComboBox<>();
+                    currencies.getItems().addAll("TND (Dinar)", "EUR (Euro)", "USD (Dollar)", "CAD (Dollar)");
+                    currencies.setValue("TND (Dinar)");
+
+                    // Style cute pour le ComboBox
+                    currencies.setStyle("-fx-background-color: #F8FAFC; -fx-background-radius: 50; " +
+                            "-fx-border-color: #E2E8F0; -fx-border-radius: 50; -fx-padding: 8 15;");
+
+                    // Logique de conversion en direct
+                    currencies.setOnAction(ev -> {
+                        float rate = 1.0f; String sym = "TND";
+                        switch (currencies.getValue()) {
+                            case "EUR (Euro)": rate = 0.30f; sym = "EUR"; break;
+                            case "USD (Dollar)": rate = 0.32f; sym = "USD"; break;
+                            case "CAD (Dollar)": rate = 0.44f; sym = "CAD"; break;
+                        }
+                        priceLabel.setText(String.format("%.3f %s", priceInTND * rate, sym));
+                    });
+
+                    // Bouton Fermer (Style identique à tes boutons d'action)
+                    Button closeBtn = new Button("Fermer");
+                    closeBtn.setPrefWidth(150);
+                    closeBtn.setStyle("-fx-background-color: #A3B1FF; -fx-text-fill: white; " +
+                            "-fx-background-radius: 20; -fx-font-weight: bold; -fx-font-size: 14px;");
+
+                    // --- GESTION DE LA FERMETURE ---
+                    closeBtn.setOnAction(ev -> {
+                        popupStage.close();
+                        itemsFlowPane.getParent().setEffect(null); // Retirer le flou
+                    });
+
+                    // Gérer aussi la fermeture si on clique en dehors (UX cute)
+                    layout.setOnMouseClicked(event -> {
+                        if (event.getTarget() == layout) { // Si on clique sur le fond vide du popup
+                            // On ne fait rien, on attend le bouton fermer
+                        }
+                    });
+
+                    layout.getChildren().addAll(iconHeader, title, priceBox, currencies, closeBtn);
+
+                    // Scene transparente pour les coins arrondis du layout
+                    Scene scene = new Scene(layout);
+                    scene.setFill(Color.TRANSPARENT);
+                    popupStage.setScene(scene);
+                    popupStage.show();
+                });
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+        }).start();
     }
     public float calculateDistanceBasedPrice(Transport t, String apiResponse) {
         try {
