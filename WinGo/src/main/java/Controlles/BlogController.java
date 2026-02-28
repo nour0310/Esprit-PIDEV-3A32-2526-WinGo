@@ -180,6 +180,11 @@ public class BlogController implements Initializable {
     @FXML private TextArea resumeTextArea;
     @FXML private Label resumeStatusLabel;
 
+    // Nouveaux composants pour la sidebar enrichie
+    @FXML private StackPane rootPane;
+    @FXML private Button darkModeBtn;
+    @FXML private Label sidebarUserName;
+
     private final DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
     private final DateTimeFormatter dateShortFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
@@ -271,12 +276,14 @@ public class BlogController implements Initializable {
                 auteurLabel.setText(nomComplet);
                 connectedUserLabel.setText(nomComplet);
                 detailConnectedUserLabel.setText(nomComplet);
+                sidebarUserName.setText(nomComplet); // Mise à jour du nom dans la sidebar
                 loadNotifications();
                 loadFavoris();
             } else {
                 auteurLabel.setText("Utilisateur inconnu");
                 connectedUserLabel.setText("Utilisateur inconnu");
                 detailConnectedUserLabel.setText("Utilisateur inconnu");
+                sidebarUserName.setText("Invité");
             }
         } catch (SQLException e) {
             showError("Erreur chargement utilisateurs", e.getMessage());
@@ -2086,6 +2093,42 @@ public class BlogController implements Initializable {
         } catch (Exception e) {
             showError("Erreur de partage", e.getMessage());
         }
+    }
+
+    // ========== NOUVELLES MÉTHODES POUR LA SIDEBAR ==========
+    @FXML
+    private void toggleDarkMode() {
+        if (rootPane.getStyleClass().contains("dark")) {
+            rootPane.getStyleClass().remove("dark");
+            darkModeBtn.setText("🌙 Dark Mode");
+            // Optionnel : changer le fond principal
+            rootPane.setStyle("-fx-background-color: #F4F7FB;");
+        } else {
+            rootPane.getStyleClass().add("dark");
+            darkModeBtn.setText("☀️ Light Mode");
+            rootPane.setStyle("-fx-background-color: #1E293B;");
+        }
+    }
+
+    @FXML
+    private void logout() {
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION, "Voulez-vous vraiment vous déconnecter ?", ButtonType.YES, ButtonType.NO);
+        alert.showAndWait().ifPresent(response -> {
+            if (response == ButtonType.YES) {
+                currentUser = null;
+                auteurLabel.setText("Non connecté");
+                connectedUserLabel.setText("Non connecté");
+                detailConnectedUserLabel.setText("Non connecté");
+                sidebarUserName.setText("Invité");
+                // Optionnel : charger l'écran de connexion (exemple commenté)
+                // try {
+                //     Parent root = FXMLLoader.load(getClass().getResource("/Login.fxml"));
+                //     Stage stage = (Stage) darkModeBtn.getScene().getWindow();
+                //     stage.setScene(new Scene(root));
+                // } catch (IOException e) { e.printStackTrace(); }
+                showInfo("Déconnexion réussie.");
+            }
+        });
     }
 
     // Navigation
