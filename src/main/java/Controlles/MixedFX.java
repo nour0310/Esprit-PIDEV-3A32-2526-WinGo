@@ -831,118 +831,101 @@ public class MixedFX {
                            <html>
                            <head>
                                <meta charset="UTF-8">
-                               <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
                                <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
                                <style>
-                                   /* Reset complet pour éviter les scrollbars inutiles */
-                                   body, html { margin: 0; padding: 0; height: 100%; width: 100%; overflow: hidden; background-color: #f0f2f5; }
+                                   body {\s
+                                       font-family: 'Segoe UI', sans-serif;\s
+                                       background: #f5f7ff;\s
+                                       display: flex;\s
+                                       justify-content: center;\s
+                                       align-items: center;\s
+                                       height: 100vh;\s
+                                       margin: 0;\s
+                                   }
                 
-                                   .app-container {
-                                       position: relative;
-                                       width: 100%;
-                                       height: 100%;
+                                   /* Le carreau principal avec coins arrondis */
+                                   .card-container {
+                                       width: 380px;
+                                       height: 550px;
+                                       background: white;
+                                       border-radius: 40px;
+                                       overflow: hidden; /* Empêche la map de dépasser des coins */
+                                       box-shadow: 0 20px 50px rgba(0,0,0,0.1);
                                        display: flex;
                                        flex-direction: column;
+                                       border: 1px solid #eee;
                                    }
                 
-                                   /* LA MAP : Elle occupe 100% de l'écran en continu */
+                                   /* Header avec infos */
+                                   .header { padding: 20px; background: white; z-index: 10; }
+                                   .header h1 { margin: 0; font-size: 20px; color: #A3B1FF; }
+                
+                                   /* LA ZONE MAP : Elle prend tout l'espace central du carreau */
                                    #map {
-                                       position: absolute;
-                                       top: 0;
-                                       left: 0;
+                                       flex-grow: 1; /* Remplit tout l'espace entre le header et le bouton */
                                        width: 100%;
-                                       height: 100%;
-                                       z-index: 1;
+                                       background: #e0e0e0; /* Couleur d'attente plus douce que le gris foncé */
                                    }
                 
-                                   /* OVERLAY HAUT : Style Bulle Blanche TripLove */
-                                   .header-box {
-                                       position: absolute;
-                                       top: 25px;
-                                       left: 20px;
-                                       z-index: 1000; /* Toujours au dessus de la map */
-                                       background: white;
-                                       padding: 15px 25px;
-                                       border-radius: 30px;
-                                       box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-                                       min-width: 200px;
-                                   }
-                
-                                   .header-box h1 { margin: 0; font-size: 20px; color: #1E293B; font-family: 'Segoe UI', sans-serif; }
-                                   .header-box p { margin: 5px 0 0; font-size: 13px; color: #64748B; font-family: 'Segoe UI', sans-serif; }
-                
-                                   /* OVERLAY BAS : Le bouton bleu signature */
-                                   .footer-action {
-                                       position: absolute;
-                                       bottom: 40px;
-                                       width: 100%;
-                                       display: flex;
-                                       justify-content: center;
-                                       z-index: 1000;
-                                   }
-                
+                                   /* Footer avec le bouton arrondi */
+                                   .footer { padding: 20px; background: white; z-index: 10; }
                                    .btn-ready {
                                        background: #A3B1FF;
                                        color: white;
                                        border: none;
-                                       padding: 18px 60px;
-                                       border-radius: 40px;
-                                       font-size: 17px;
+                                       padding: 15px;
+                                       width: 100%;
+                                       border-radius: 30px;
                                        font-weight: bold;
-                                       font-family: 'Segoe UI', sans-serif;
-                                       box-shadow: 0 15px 35px rgba(163, 177, 255, 0.5);
+                                       font-size: 16px;
                                        cursor: pointer;
-                                       transition: transform 0.2s ease;
+                                       box-shadow: 0 8px 20px rgba(163, 177, 255, 0.4);
                                    }
-                
-                                   .btn-ready:active { transform: scale(0.95); }
-                
-                                   /* Supprimer les petits logos Leaflet pour un look propre */
-                                   .leaflet-control-attribution { display: none !important; }
                                </style>
                            </head>
                            <body>
                 
-                               <div class="app-container">
-                                   <div id="map"></div>
-                
-                                   <div class="header-box">
-                                       <h1>TripLove ✨</h1>
-                                       <p>Réservation de ""\" + details + ""\"</p>
-                                   </div>
-                
-                                   <div class="footer-action">
-                                       <button class="btn-ready" onclick="window.close()">Prêt pour le départ ! ✨</button>
-                                   </div>
+                           <div class="card-container">
+                               <div class="header">
+                                   <h1>TripLove ✨</h1>
+                                   <p style="margin:5px 0 0; font-size: 13px; color: #64748B;">Votre trajet personnalisé</p>
                                </div>
                 
-                               <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-                               <script>
-                                   // 1. Initialisation de la map avec un zoom fluide
-                                   var map = L.map('map', {
-                                       zoomControl: false,\s
-                                       fadeAnimation: true,
-                                       zoomAnimation: true
-                                   }).setView([34.5, 9.5], 7);
+                               <div id="map"></div>
                 
-                                   // 2. Utilisation de tuiles OpenStreetMap standards (très stables et complètes)
-                                   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                                       maxZoom: 19
-                                   }).addTo(map);
+                               <div class="footer">
+                                   <button class="btn-ready">Prêt pour le départ ! ✨</button>
+                               </div>
+                           </div>
                 
-                                   // 3. Marqueur de départ
-                                   var startMarker = L.marker([36.8065, 10.1815]).addTo(map)
-                                       .bindPopup("<b>Départ: Tunis</b>", { autoClose: false, closeOnClick: false })
-                                       .openPopup();
+                           <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+                           <script>
+                               // Initialisation
+                               var map = L.map('map', {
+                                   zoomControl: false,
+                                   attributionControl: false
+                               }).setView([34.0, 9.5], 6.5);
                 
-                                   // --- LE SECRET POUR UNE MAP SANS COUPURES ---
-                                   // On force le rafraîchissement global de la carte après un court délai
-                                   window.onload = function() {
-                                       setTimeout(function() {
-                                           map.invalidateSize(true);
-                                       }, 100);
-                                   };
-                               </script>
+                               // Utilisation de tuiles fluides
+                               L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+                
+                               // Marqueur
+                               L.marker([36.8065, 10.1815]).addTo(map)
+                                   .bindPopup("<b>Départ: Tunis</b>")
+                                   .openPopup();
+                
+                               // --- SOLUTION POUR LE RENDU COMPLET ---
+                               // Cette partie est CRITIQUE : elle attend que le CSS soit appliqué
+                               // pour recalculer les dimensions et afficher la map entière.
+                               function fixMap() {
+                                   map.invalidateSize();
+                               }
+                
+                               window.onload = function() {
+                                   setTimeout(fixMap, 300); // Un petit délai assure que le carreau est prêt
+                               };
+                           </script>
+                
                            </body>
                            </html>
     """;
