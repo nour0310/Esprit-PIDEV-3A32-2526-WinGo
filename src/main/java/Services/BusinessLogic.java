@@ -8,15 +8,7 @@ import javafx.scene.image.Image;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 public class BusinessLogic {
-    public static float calculerPrixDynamique(Transport transport) {
-        float prixFinal = transport.getTarif();
-        int heure = transport.getDateDepart().getHour();
 
-        if ((heure >= 7 && heure <= 9) || (heure >= 17 && heure <= 19)) {
-            prixFinal *= 1.25;
-        }
-        return prixFinal;
-    }
 
     public static Image generateQRCode(String data) {
         try {

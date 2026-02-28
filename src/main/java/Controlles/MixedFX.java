@@ -164,27 +164,10 @@ public class MixedFX {
         label.setStyle("-fx-text-fill: #64748B; -fx-font-weight: bold;");
         return label;
     }
-    public static float calculerPrixDynamique(Transport t) {
-        float prixFinal = t.getTarif();
 
-        // 1. Majoration Heure de pointe (07h-09h ou 17h-19h)
-        int heure = t.getDateDepart().getHour();
-        if ((heure >= 7 && heure <= 9) || (heure >= 17 && heure <= 19)) {
-            prixFinal *= 1.25; // +25%
-        }
 
-        // 2. Majoration Type de transport
-        if (t.getType().equalsIgnoreCase("Luxe") || t.getType().equalsIgnoreCase("Avion")) {
-            prixFinal += 50.0;
-        }
 
-        // 3. Réduction Anticipation (si réservé plus de 7 jours avant)
-        if (t.getDateDepart().isAfter(java.time.LocalDateTime.now().plusDays(7))) {
-            prixFinal *= 0.90; // -10%
-        }
 
-        return prixFinal;
-    }
 
     // --- GÉNÉRATION QR CODE ---
     public static Image generateQRCode(String data) {
@@ -304,29 +287,24 @@ public class MixedFX {
                     final int delay = index * 1000;
                     new Thread(() -> {
                         try {
-                            Thread.sleep(delay);
-                            for (double p = 0; p <= 1; p += 0.1) {
-                                final double progress = p;
-                                javafx.application.Platform.runLater(() -> travelProgress.setProgress(progress));
-                                Thread.sleep(200);
-                            }
-
-                            // 1. Get real data from API
+                            Thread.sleep(delay); // Keep your staggered loading logic
                             String infos = Services.TransportAPI.getInfosTrajet(t.getDepart(), t.getArrivee());
 
-                            // 2. Calculate price based on that distance
-                            float realPrice = calculateDistanceBasedPrice(t, infos);
+                            // Local price calculation for the card initialization
+                            float initialPrice = calculateDistanceBasedPrice(t, infos);
 
                             javafx.application.Platform.runLater(() -> {
                                 apiNote.setText("🏁 " + infos);
                                 apiNote.setStyle("-fx-text-fill: #22C55E; -fx-font-weight: bold; -fx-font-size: 10px;");
 
-                                // 3. Update the global price label if this card is currently selected
+                                // If this card is already selected when the thread finishes, update the main label
                                 if (selectedItem == t && priceNoteLabel != null) {
-                                    priceNoteLabel.setText("💰 Prix Calculé: " + String.format("%.2f", realPrice) + " TND (" + infos.split(" ")[0] + " km)");
+                                    priceNoteLabel.setText("💰 Prix par Distance: " + String.format("%.2f", initialPrice) + " TND");
                                 }
                             });
-                        } catch (InterruptedException e) { e.printStackTrace(); }
+                        } catch (Exception ex) {
+                            ex.printStackTrace();
+                        }
                     }).start();
                 }
                 index++;
@@ -335,10 +313,9 @@ public class MixedFX {
             if (card != null) {
                 Pane topPane = (Pane) card.getChildren().get(0);
 
-                // 1. DELETE BUTTON (Added only once)
+                // 1. DELETE BUTTON
                 Button cardDelBtn = new Button("🗑");
-                cardDelBtn.setTranslateX(130);
-                cardDelBtn.setTranslateY(10);
+                cardDelBtn.setTranslateX(130); cardDelBtn.setTranslateY(10);
                 cardDelBtn.setStyle("-fx-background-color: #FDA4AF; -fx-text-fill: white; -fx-background-radius: 10;");
                 cardDelBtn.setOnAction(e -> { selectedItem = obj; handleDelete(); e.consume(); });
                 topPane.getChildren().add(cardDelBtn);
@@ -350,10 +327,9 @@ public class MixedFX {
                 cardDetailBtn.setOnAction(e -> { showDetails(obj); e.consume(); });
                 topPane.getChildren().add(cardDetailBtn);
 
-                // 3. WISHLIST BUTTON (Restored Style)
+                // 3. WISHLIST BUTTON
                 Button wishlistBtn = new Button("❤");
-                wishlistBtn.setTranslateX(170);
-                wishlistBtn.setTranslateY(-10);
+                wishlistBtn.setTranslateX(170); wishlistBtn.setTranslateY(-10);
                 updateWishlistButtonStyle(wishlistBtn, dynamicWishlist.contains(uniqueKey));
 
                 final String finalKey = uniqueKey;
@@ -365,7 +341,7 @@ public class MixedFX {
                 });
                 topPane.getChildren().add(wishlistBtn);
 
-                // 4. CLICK HANDLER (Map + Form + Price Logic)
+                // 4. CLICK HANDLER (Map + Form + UPDATED Price Logic)
                 card.setOnMouseClicked(e -> {
                     selectedItem = obj;
                     fillFormFields(obj);
@@ -374,11 +350,9 @@ public class MixedFX {
                     if (obj instanceof Transport) {
                         Transport t = (Transport) obj;
                         updateMapDisplay(t);
-                        // Update price label if linked
-                        if (priceNoteLabel != null) {
-                            float finalP = calculerPrixDynamique(t);
-                            priceNoteLabel.setText("Prix Final: " + finalP + " TND");
-                        }
+
+                        // CALL YOUR NEW DISTANCE-BASED DISPLAY FUNCTION
+                        updatePriceDisplay(t);
                     }
 
                     if (e.getClickCount() == 2) showDetails(obj);
@@ -389,42 +363,66 @@ public class MixedFX {
         }
     }
     public float calculateDistanceBasedPrice(Transport t, String apiResponse) {
-        float pricePerKm = 0.8f; // Adjust this value (e.g., 0.8 TND per kilometer)
+        float pricePerKm = 0.85f; // Set your price per kilometer here
         float distance = 0;
 
         try {
-            // Extracts the first number from a string like "120 km - 1h 30min"
-            String distanceStr = apiResponse.split(" ")[0].replace(",", ".");
-            distance = Float.parseFloat(distanceStr);
+            // Cleaning the string: "120,5 km" -> "120.5"
+            String cleaned = apiResponse.split(" ")[0].replace(",", ".");
+            distance = Float.parseFloat(cleaned);
         } catch (Exception e) {
-            System.out.println("⚠️ Could not parse distance from API, using base tariff.");
+            // Fallback to a default calculation if API fails (e.g., 50km default)
             return t.getTarif();
         }
 
-        float calculatedPrice = distance * pricePerKm;
+        float basePrice = distance * pricePerKm;
 
-        // Apply your existing Rush Hour Logic (+25%)
+        // Apply Rush Hour (+25%)
         int heure = t.getDateDepart().getHour();
         if ((heure >= 7 && heure <= 9) || (heure >= 17 && heure <= 19)) {
-            calculatedPrice *= 1.25;
+            basePrice *= 1.25;
         }
 
-        return calculatedPrice;
+        // Apply Transport Type (Luxe/Avion)
+        if (t.getType().equalsIgnoreCase("Luxe") || t.getType().equalsIgnoreCase("Avion")) {
+            basePrice += 40.0;
+        }
+
+        return basePrice;
     }
     private void updatePriceDisplay(Transport t) {
         if (priceNoteLabel == null) return;
 
-        float finalPrice = calculerPrixDynamique(t);
-        float basePrice = t.getTarif();
+        // Show a loading state so the user knows the API is working
+        priceNoteLabel.setText("⏳ Calcul du trajet...");
+        priceNoteLabel.setStyle("-fx-text-fill: #94A3B8;");
 
-        if (finalPrice > basePrice) {
-            priceNoteLabel.setText("🔥 Prix Dynamique: " + String.format("%.2f", finalPrice) + " TND (Heure de pointe!)");
-            priceNoteLabel.setStyle("-fx-text-fill: #EF4444; -fx-font-weight: bold;"); // Red for surge
-        } else {
-            priceNoteLabel.setText("Standard: " + String.format("%.2f", finalPrice) + " TND");
-            priceNoteLabel.setStyle("-fx-text-fill: #22C55E; -fx-font-weight: bold;"); // Green for normal
-        }
+        new Thread(() -> {
+            try {
+                // 1. Get real-time distance from your API
+                String apiInfos = Services.TransportAPI.getInfosTrajet(t.getDepart(), t.getArrivee());
+
+                // 2. Use your new distance-based calculation
+                float finalPrice = calculateDistanceBasedPrice(t, apiInfos);
+                float basePrice = t.getTarif(); // This is your DB "reference" price
+
+                javafx.application.Platform.runLater(() -> {
+                    if (finalPrice > basePrice) {
+                        priceNoteLabel.setText("🔥 Prix Dynamique: " + String.format("%.2f", finalPrice) + " TND");
+                        priceNoteLabel.setStyle("-fx-text-fill: #EF4444; -fx-font-weight: bold;");
+                    } else {
+                        priceNoteLabel.setText("✅ Prix Standard: " + String.format("%.2f", finalPrice) + " TND");
+                        priceNoteLabel.setStyle("-fx-text-fill: #22C55E; -fx-font-weight: bold;");
+                    }
+                });
+            } catch (Exception e) {
+                javafx.application.Platform.runLater(() -> {
+                    priceNoteLabel.setText("⚠️ Erreur calcul prix");
+                });
+            }
+        }).start();
     }
+
     private void updateWishlistButtonStyle(Button btn, boolean isFavorite) {
         if (isFavorite) {
             // Vibrant Red for Active Favorited State
