@@ -1797,12 +1797,10 @@ public class BlogController implements Initializable {
 
     @FXML
     private void showArticleForm() {
-        // S'assurer qu'on est en vue liste
         showListView();
-        // Afficher le formulaire
         articleFormContainer.setVisible(true);
         articleFormContainer.setManaged(true);
-        clearForm(); // Réinitialise les champs et selectedBlog = null
+        clearForm();
     }
 
     private void selectBlog(Blog blog) {
@@ -1810,7 +1808,6 @@ public class BlogController implements Initializable {
             showWarning("Vous ne pouvez modifier que vos propres articles.");
             return;
         }
-        // Afficher le formulaire
         showListView();
         articleFormContainer.setVisible(true);
         articleFormContainer.setManaged(true);
@@ -1864,7 +1861,6 @@ public class BlogController implements Initializable {
 
             refreshData();
             clearForm();
-            // Cacher le formulaire après ajout
             articleFormContainer.setVisible(false);
             articleFormContainer.setManaged(false);
             showInfo("Article ajouté avec succès.");
@@ -1901,7 +1897,6 @@ public class BlogController implements Initializable {
 
             refreshData();
             clearForm();
-            // Cacher le formulaire après modification
             articleFormContainer.setVisible(false);
             articleFormContainer.setManaged(false);
             showInfo("Article modifié.");
