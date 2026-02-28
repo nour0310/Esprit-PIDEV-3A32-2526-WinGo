@@ -312,6 +312,18 @@ public class MixedFX {
 
             if (card != null) {
                 Pane topPane = (Pane) card.getChildren().get(0);
+                Button currencyBtn = new Button("🪙");
+                currencyBtn.setTranslateX(50); // Ajuste la position
+                currencyBtn.setTranslateY(10);
+                currencyBtn.setStyle("-fx-background-color: #FBBF24; -fx-text-fill: white; -fx-background-radius: 10; -fx-font-weight: bold;");
+
+                currencyBtn.setOnAction(e -> {
+                    if (obj instanceof Transport) {
+                        showCurrencyPopup((Transport) obj);
+                    }
+                    e.consume();
+                });
+                topPane.getChildren().add(currencyBtn);
 
                 // 1. DELETE BUTTON
                 Button cardDelBtn = new Button("🗑");
@@ -369,46 +381,63 @@ public class MixedFX {
         }
     }
     public float calculateDistanceBasedPrice(Transport t, String apiResponse) {
-        float pricePerKm = 0.85f;
-
         try {
-            // 1. Clean the string to find the first number
-            // We look for the first part before " km"
+            // Extraction du nombre de kilomètres (ex: "150.5 km" -> 150.5)
             String distancePart = apiResponse.split(" km")[0];
-
-            // 2. Remove any remaining emojis or text if the split wasn't perfect
             String numericOnly = distancePart.replaceAll("[^0-9.]", "");
 
-            if (numericOnly.isEmpty()) {
-                System.err.println("⚠️ No distance found in API response, using base tarif.");
-                return t.getTarif();
-            }
-
+            if (numericOnly.isEmpty()) return t.getTarif();
             float distance = Float.parseFloat(numericOnly);
-            float calculated = distance * pricePerKm;
 
-            // 3. Apply Rush Hour (+25%)
-            int hour = t.getDateDepart().getHour();
-            if ((hour >= 7 && hour <= 9) || (hour >= 17 && hour <= 19)) {
-                calculated *= 1.25;
+            float prixBase = 0;
+            String type = t.getType().toLowerCase();
+
+            // --- TARIFICATION SELON LE TYPE (Standard Tunisie) ---
+            if (type.contains("louage")) {
+                // Environ 0.080 TND par km (Tarif interurbain standard)
+                prixBase = distance * 0.085f;
+            }
+            else if (type.contains("taxi") || type.contains("privé")) {
+                // Compteur : Prise en charge (~0.900) + ~0.500/km (urbain) ou plus (interurbain)
+                prixBase = 0.900f + (distance * 0.600f);
+            }
+            else if (type.contains("bus") || type.contains("train")) {
+                // Tarif transport public (très bas)
+                prixBase = distance * 0.040f;
+            }
+            else if (type.contains("avion") || type.contains("luxe")) {
+                // Forfait luxe ou vol interne (Tunisair Express par ex)
+                prixBase = 100.0f + (distance * 0.200f);
+            }
+            else {
+                // Par défaut si le type est inconnu
+                prixBase = distance * 0.100f;
             }
 
-            // 4. Apply Premium Type
-            if (t.getType().equalsIgnoreCase("Luxe") || t.getType().equalsIgnoreCase("Avion")) {
-                calculated += 50.0;
+            // --- MAJORATIONS SPÉCIFIQUES ---
+
+            // 1. Majoration de Nuit / Heure de pointe (7h-9h / 17h-19h)
+            int heure = t.getDateDepart().getHour();
+            if ((heure >= 7 && heure <= 9) || (heure >= 17 && heure <= 19)) {
+                prixBase *= 1.25; // +25% (Majorations urbaines classiques)
             }
 
-            return calculated;
+            // 2. Majoration Bagages (Forfaitaire si distance > 100km)
+            if (distance > 100) {
+                prixBase += 2.0f; // 2 TND pour les bagages en louage/bus
+            }
+
+            return prixBase;
 
         } catch (Exception e) {
-            System.err.println("❌ Price Calculation Error: " + e.getMessage());
-            return t.getTarif(); // Emergency fallback to DB price
+            System.err.println("❌ Erreur calcul prix Tunisie: " + e.getMessage());
+            return t.getTarif(); // Retourne le tarif de la base de données en secours
         }
     }
     private void updatePriceDisplay(Transport t) {
         if (priceNoteLabel == null) return;
 
-        priceNoteLabel.setText("⏳ Calcul du trajet...");
+        priceNoteLabel.setText("⏳ Calcul du tarif " + t.getType() + "...");
 
         new Thread(() -> {
             try {
@@ -416,21 +445,18 @@ public class MixedFX {
                 float finalPrice = calculateDistanceBasedPrice(t, infos);
 
                 javafx.application.Platform.runLater(() -> {
-                    if (finalPrice > 0) {
-                        priceNoteLabel.setText("💰 Prix: " + String.format("%.2f", finalPrice) + " TND (" + infos.split(" ")[0] + ")");
-                        priceNoteLabel.setStyle("-fx-text-fill: #1E293B; -fx-font-weight: bold;");
-                    } else if (finalPrice == -1) {
-                        priceNoteLabel.setText("⚠️ Erreur: Format de distance invalide (" + infos + ")");
-                        priceNoteLabel.setStyle("-fx-text-fill: #EF4444;");
-                    } else if (finalPrice == -2) {
-                        priceNoteLabel.setText("⚠️ Erreur: Destination non reconnue par le GPS.");
-                        priceNoteLabel.setStyle("-fx-text-fill: #EF4444;");
+                    String formatPrix = String.format("%.3f", finalPrice); // 3 décimales pour les Millimes
+                    priceNoteLabel.setText("💰 Tarif Estimé (" + t.getType() + "): " + formatPrix + " TND");
+
+                    // Style selon le prix
+                    if (finalPrice > 50) {
+                        priceNoteLabel.setStyle("-fx-text-fill: #E11D48; -fx-font-weight: bold;"); // Rouge si cher
+                    } else {
+                        priceNoteLabel.setStyle("-fx-text-fill: #059669; -fx-font-weight: bold;"); // Vert si abordable
                     }
                 });
             } catch (Exception e) {
-                javafx.application.Platform.runLater(() -> {
-                    priceNoteLabel.setText("❌ Erreur de connexion au service de prix.");
-                });
+                javafx.application.Platform.runLater(() -> priceNoteLabel.setText("⚠️ Erreur calcul"));
             }
         }).start();
     }

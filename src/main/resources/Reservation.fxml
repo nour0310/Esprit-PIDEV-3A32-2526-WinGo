@@ -139,6 +139,7 @@
                         <VBox spacing="8" style="-fx-padding: 5;">
                             <Label fx:id="mapRouteLabel" style="-fx-text-fill: #64748B; -fx-font-weight: bold; -fx-font-size: 13px;" text="Sélectionnez un transport" />
                             <ProgressBar fx:id="mapProgressBar" prefWidth="290" progress="0.0" style="-fx-accent: #EF4444;" />
+                            <ComboBox fx:id="currencyCombo" promptText="Devise" style="-fx-background-radius: 20;" />
                             <Label fx:id="priceNoteLabel" wrapText="true" style="-fx-text-fill: #1E293B; -fx-font-weight: bold; -fx-font-size: 12px; -fx-padding: 5 0 0 0;" />
                         </VBox>
                     </VBox>
