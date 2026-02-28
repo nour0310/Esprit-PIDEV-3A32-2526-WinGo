@@ -186,9 +186,8 @@ public class BlogController implements Initializable {
     @FXML private Label sidebarUserName;
     @FXML private Pane backgroundPane;
 
-    // NOUVEAUX composants pour la colonne de droite
-    @FXML private FlowPane popularTagsFlowPane;
-    @FXML private VBox recentActivityBox;
+    // Conteneur du formulaire d'article (caché par défaut)
+    @FXML private VBox articleFormContainer;
 
     private final DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
     private final DateTimeFormatter dateShortFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
@@ -214,6 +213,10 @@ public class BlogController implements Initializable {
         updateFormButtons();
         clearAllErrors();
         setupMentionAutoComplete();
+
+        // Cacher le formulaire d'article au démarrage
+        articleFormContainer.setVisible(false);
+        articleFormContainer.setManaged(false);
     }
 
     private void loadImages() {
@@ -338,7 +341,6 @@ public class BlogController implements Initializable {
             List<Notification> notifs = notificationCRUD.getNotificationsByUser(currentUser.getId());
             Popup notifPopup = new Popup();
 
-            // Conteneur principal avec style glassmorphisme
             VBox content = new VBox(10);
             content.setStyle(
                     "-fx-background-color: rgba(255,255,255,0.95);" +
@@ -351,7 +353,6 @@ public class BlogController implements Initializable {
             content.setMaxWidth(350);
             content.setMaxHeight(400);
 
-            // Titre avec icône
             HBox titleBox = new HBox(10);
             titleBox.setAlignment(Pos.CENTER_LEFT);
             Label titleIcon = new Label("🔔");
@@ -360,7 +361,6 @@ public class BlogController implements Initializable {
             title.setStyle("-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #1E293B;");
             titleBox.getChildren().addAll(titleIcon, title);
 
-            // Liste des notifications
             ListView<Notification> listView = new ListView<>();
             listView.setPrefHeight(250);
             listView.setStyle("-fx-background-color: transparent; -fx-background: transparent;");
@@ -700,9 +700,6 @@ public class BlogController implements Initializable {
             loadFavoris();
             loadBlogs();
             updateStats();
-            // Charger les widgets de la colonne droite
-            loadPopularTags();
-            loadRecentActivity();
             statusLabel.setText("✅ Prêt, " + blogList.size() + " articles chargés.");
         } catch (SQLException e) {
             showError("Erreur de chargement", e.getMessage());
@@ -1798,11 +1795,26 @@ public class BlogController implements Initializable {
         });
     }
 
+    @FXML
+    private void showArticleForm() {
+        // S'assurer qu'on est en vue liste
+        showListView();
+        // Afficher le formulaire
+        articleFormContainer.setVisible(true);
+        articleFormContainer.setManaged(true);
+        clearForm(); // Réinitialise les champs et selectedBlog = null
+    }
+
     private void selectBlog(Blog blog) {
         if (currentUser == null || blog.getAuteur() != currentUser.getId()) {
             showWarning("Vous ne pouvez modifier que vos propres articles.");
             return;
         }
+        // Afficher le formulaire
+        showListView();
+        articleFormContainer.setVisible(true);
+        articleFormContainer.setManaged(true);
+
         this.selectedBlog = blog;
         articleIdLabel.setText(String.valueOf(blog.getId()));
         titreField.setText(blog.getTitre() != null ? blog.getTitre() : "");
@@ -1852,6 +1864,9 @@ public class BlogController implements Initializable {
 
             refreshData();
             clearForm();
+            // Cacher le formulaire après ajout
+            articleFormContainer.setVisible(false);
+            articleFormContainer.setManaged(false);
             showInfo("Article ajouté avec succès.");
         } catch (SQLException e) {
             showError("Erreur ajout", e.getMessage());
@@ -1886,6 +1901,9 @@ public class BlogController implements Initializable {
 
             refreshData();
             clearForm();
+            // Cacher le formulaire après modification
+            articleFormContainer.setVisible(false);
+            articleFormContainer.setManaged(false);
             showInfo("Article modifié.");
         } catch (SQLException e) {
             showError("Erreur modification", e.getMessage());
@@ -1928,7 +1946,6 @@ public class BlogController implements Initializable {
             commentaireCRUD.ajouter(c);
             newCommentField.clear();
             loadAllComments();
-            loadRecentActivity(); // Mettre à jour l'activité récente
             showInfo("Commentaire ajouté.");
         } catch (SQLException e) {
             showError("Erreur ajout commentaire", e.getMessage());
@@ -1959,7 +1976,6 @@ public class BlogController implements Initializable {
             commentaireCRUD.ajouter(c);
             System.out.println("Commentaire ajouté avec ID : " + c.getId());
 
-            // Envoyer les notifications pour les mentions
             if (!mentionsIds.isEmpty()) {
                 String lien = "/article/" + displayedDetailBlog.getId() + "#commentaire-" + c.getId();
                 String message = currentUser.getPrenom() + " " + currentUser.getNom() +
@@ -1967,9 +1983,8 @@ public class BlogController implements Initializable {
                 envoyerNotificationsMention(mentionsIds, "mention", message, lien);
             }
 
-            // Si c'est une réponse (parentId != null), notifier l'auteur du commentaire parent
             if (c.getParentId() != null) {
-                Commentaire parent = commentaireCRUD.getOne(c.getParentId()); // Nécessite cette méthode dans CommentaireCRUD
+                Commentaire parent = commentaireCRUD.getOne(c.getParentId());
                 if (parent != null && parent.getUtilisateur() != currentUser.getId()) {
                     String lien = "/article/" + displayedDetailBlog.getId() + "#commentaire-" + c.getId();
                     String message = currentUser.getPrenom() + " " + currentUser.getNom() +
@@ -1982,7 +1997,6 @@ public class BlogController implements Initializable {
 
             detailNewCommentField.clear();
             afficherCommentairesDetail();
-            loadRecentActivity(); // Mettre à jour l'activité récente
             detailStatusLabel.setText("✅ Commentaire ajouté.");
             loadNotifications();
         } catch (SQLException e) {
@@ -2040,8 +2054,6 @@ public class BlogController implements Initializable {
         loadRatings();
         loadFavoris();
         filterArticles();
-        loadPopularTags();    // Rafraîchir les tags
-        loadRecentActivity(); // Rafraîchir l'activité
         if (selectedBlog != null) {
             blogList.stream()
                     .filter(b -> b.getId() == selectedBlog.getId())
@@ -2166,74 +2178,6 @@ public class BlogController implements Initializable {
         } catch (Exception e) {
             showError("Erreur de partage", e.getMessage());
         }
-    }
-
-    // ========== NOUVELLES MÉTHODES POUR LA COLONNE DE DROITE ==========
-    private void loadPopularTags() {
-        popularTagsFlowPane.getChildren().clear();
-        // Compter les occurrences de chaque tag dans tous les blogs
-        Map<Tag, Integer> tagCount = new HashMap<>();
-        for (Blog b : blogList) {
-            for (Tag t : b.getTags()) {
-                tagCount.put(t, tagCount.getOrDefault(t, 0) + 1);
-            }
-        }
-        // Trier par nombre décroissant et prendre les 10 premiers
-        List<Map.Entry<Tag, Integer>> sorted = tagCount.entrySet().stream()
-                .sorted(Map.Entry.<Tag, Integer>comparingByValue().reversed())
-                .limit(10)
-                .collect(Collectors.toList());
-
-        for (Map.Entry<Tag, Integer> entry : sorted) {
-            Button tagBtn = new Button("#" + entry.getKey().getNom() + " (" + entry.getValue() + ")");
-            tagBtn.setStyle("-fx-background-color: #E2E8F0; -fx-text-fill: #1E293B; -fx-background-radius: 30; -fx-padding: 5 12; -fx-cursor: hand; -fx-font-size: 12px;");
-            tagBtn.setOnAction(e -> filterByTag(entry.getKey().getNom()));
-            popularTagsFlowPane.getChildren().add(tagBtn);
-        }
-    }
-
-    private void filterByTag(String tagName) {
-        searchField.setText("#" + tagName);
-        filterArticles();
-    }
-
-    private void loadRecentActivity() {
-        recentActivityBox.getChildren().clear();
-        try {
-            // Récupérer les 5 derniers commentaires
-            List<Commentaire> recentComments = commentaireCRUD.getRecentComments(5);
-            for (Commentaire c : recentComments) {
-                HBox item = new HBox(8);
-                item.setAlignment(Pos.CENTER_LEFT);
-                Label icon = new Label("💬");
-                icon.setStyle("-fx-font-size: 16px;");
-                String user = c.getUtilisateurNom() != null ? c.getUtilisateurNom() : "Utilisateur";
-                String texte = c.getContenu().length() > 30 ? c.getContenu().substring(0, 30) + "..." : c.getContenu();
-                Label text = new Label(user + " a commenté : " + texte);
-                text.setWrapText(true);
-                text.setStyle("-fx-font-size: 12px; -fx-text-fill: #1E293B;");
-                Region spacer = new Region();
-                HBox.setHgrow(spacer, Priority.ALWAYS);
-                Label time = new Label(c.getDateCommentaire().format(DateTimeFormatter.ofPattern("HH:mm")));
-                time.setStyle("-fx-font-size: 10px; -fx-text-fill: #94A3B8;");
-                item.getChildren().addAll(icon, text, spacer, time);
-                recentActivityBox.getChildren().add(item);
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-    }
-
-    @FXML
-    private void showAllTags() {
-        searchField.setText("#");
-        filterArticles();
-    }
-
-    @FXML
-    private void showMoreActivity() {
-        // Pour l'instant, simple redirection vers la vue des commentaires (à implémenter)
-        System.out.println("Afficher plus d'activité...");
     }
 
     // ========== NOUVELLES MÉTHODES POUR LA SIDEBAR ==========
