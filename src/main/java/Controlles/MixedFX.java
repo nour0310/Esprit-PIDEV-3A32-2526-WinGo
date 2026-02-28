@@ -342,16 +342,22 @@ public class MixedFX {
                 topPane.getChildren().add(wishlistBtn);
 
                 // 4. CLICK HANDLER (Map + Form + UPDATED Price Logic)
+                // 4. CLICK HANDLER (Map + Form + UPDATED Price Logic)
                 card.setOnMouseClicked(e -> {
                     selectedItem = obj;
                     fillFormFields(obj);
                     populateForm();
 
+                    // --- RESTORE MODIFY POPUP LOGIC ---
+                    formTitle.setText("Modifier " + (showingReservations ? "la Réservation" : "le Transport"));
+                    addBtn.setVisible(false);    // Hide Add button
+                    editBtn.setVisible(true);    // Show Edit button
+                    formOverlay.setVisible(true); // Open the popup
+                    // ---------------------------------
+
                     if (obj instanceof Transport) {
                         Transport t = (Transport) obj;
                         updateMapDisplay(t);
-
-                        // CALL YOUR NEW DISTANCE-BASED DISPLAY FUNCTION
                         updatePriceDisplay(t);
                     }
 
