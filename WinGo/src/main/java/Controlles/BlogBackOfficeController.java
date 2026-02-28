@@ -23,6 +23,8 @@ import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.util.Duration;
 
+import java.io.File;
+import java.io.InputStream;
 import java.net.URL;
 import java.sql.SQLException;
 import java.time.format.DateTimeFormatter;
@@ -205,14 +207,15 @@ public class BlogBackOfficeController implements Initializable {
 
         // Thumbnail
         ImageView iv = new ImageView();
-        try {
-            if (b.getImage() != null && !b.getImage().isEmpty()) {
-                iv.setImage(new Image(b.getImage(), true));
-            } else {
-                iv.setImage(new Image("testt.png")); // Fallback
+        Image img = loadImage(b.getImage());
+        if (img != null && !img.isError()) {
+            iv.setImage(img);
+        } else {
+            try {
+                iv.setImage(new Image(getClass().getResourceAsStream("/testt.png")));
+            } catch (Exception e) {
+                // Fallback ultime
             }
-        } catch (Exception e) {
-             iv.setImage(new Image("testt.png"));
         }
         iv.setFitHeight(55);
         iv.setFitWidth(55);
@@ -410,5 +413,29 @@ public class BlogBackOfficeController implements Initializable {
         } catch (SQLException e) {
             e.printStackTrace();
         }
+    }
+    private Image loadImage(String path) {
+        if (path == null || path.isEmpty()) return null;
+        try {
+            // Tentative 1: Chemin local
+            File file = new File(path);
+            if (file.exists()) {
+                return new Image(file.toURI().toString(), true);
+            }
+            
+            // Tentative 2: URL directe
+            if (path.startsWith("http") || path.startsWith("file:")) {
+                return new Image(path, true);
+            }
+
+            // Tentative 3: Ressource (si c'est juste un nom de fichier dans le classpath)
+            InputStream is = getClass().getResourceAsStream("/" + path);
+            if (is != null) {
+                return new Image(is);
+            }
+        } catch (Exception e) {
+            // Ignorer
+        }
+        return null;
     }
 }
