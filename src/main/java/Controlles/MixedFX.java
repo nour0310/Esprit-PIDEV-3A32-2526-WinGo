@@ -369,62 +369,46 @@ public class MixedFX {
         }
     }
     public float calculateDistanceBasedPrice(Transport t, String apiResponse) {
-        float pricePerKm = 0.85f; // Set your price per kilometer here
-        float distance = 0;
-
+        float pricePerKm = 0.85f;
         try {
-            // Cleaning the string: "120,5 km" -> "120.5"
-            String cleaned = apiResponse.split(" ")[0].replace(",", ".");
-            distance = Float.parseFloat(cleaned);
+            // Remove everything except numbers and dots/commas
+            String numericOnly = apiResponse.split(" ")[0].replaceAll("[^0-9.,]", "").replace(",", ".");
+            float distance = Float.parseFloat(numericOnly);
+
+            float calculated = distance * pricePerKm;
+
+            // Add your Rush Hour logic here...
+            return calculated;
         } catch (Exception e) {
-            // Fallback to a default calculation if API fails (e.g., 50km default)
-            return t.getTarif();
+            return t.getTarif(); // Emergency fallback
         }
-
-        float basePrice = distance * pricePerKm;
-
-        // Apply Rush Hour (+25%)
-        int heure = t.getDateDepart().getHour();
-        if ((heure >= 7 && heure <= 9) || (heure >= 17 && heure <= 19)) {
-            basePrice *= 1.25;
-        }
-
-        // Apply Transport Type (Luxe/Avion)
-        if (t.getType().equalsIgnoreCase("Luxe") || t.getType().equalsIgnoreCase("Avion")) {
-            basePrice += 40.0;
-        }
-
-        return basePrice;
     }
     private void updatePriceDisplay(Transport t) {
         if (priceNoteLabel == null) return;
 
-        // Show a loading state so the user knows the API is working
-        priceNoteLabel.setText("⏳ Calcul du trajet...");
-        priceNoteLabel.setStyle("-fx-text-fill: #94A3B8;");
+        priceNoteLabel.setText("⏳ Calcul du prix réel...");
 
         new Thread(() -> {
             try {
-                // 1. Get real-time distance from your API
+                // Get the REAL distance string from API (e.g., "120 km")
                 String apiInfos = Services.TransportAPI.getInfosTrajet(t.getDepart(), t.getArrivee());
 
-                // 2. Use your new distance-based calculation
+                // Calculate based on that string
                 float finalPrice = calculateDistanceBasedPrice(t, apiInfos);
-                float basePrice = t.getTarif(); // This is your DB "reference" price
 
                 javafx.application.Platform.runLater(() -> {
-                    if (finalPrice > basePrice) {
-                        priceNoteLabel.setText("🔥 Prix Dynamique: " + String.format("%.2f", finalPrice) + " TND");
+                    // Display the price based on ACTUAL kilometers
+                    priceNoteLabel.setText("💰 Prix Basé sur Distance: " + String.format("%.2f", finalPrice) + " TND");
+
+                    // Visual feedback: if it's more expensive than the base DB price, show red
+                    if (finalPrice > t.getTarif()) {
                         priceNoteLabel.setStyle("-fx-text-fill: #EF4444; -fx-font-weight: bold;");
                     } else {
-                        priceNoteLabel.setText("✅ Prix Standard: " + String.format("%.2f", finalPrice) + " TND");
                         priceNoteLabel.setStyle("-fx-text-fill: #22C55E; -fx-font-weight: bold;");
                     }
                 });
             } catch (Exception e) {
-                javafx.application.Platform.runLater(() -> {
-                    priceNoteLabel.setText("⚠️ Erreur calcul prix");
-                });
+                javafx.application.Platform.runLater(() -> priceNoteLabel.setText("⚠️ Erreur API Distance"));
             }
         }).start();
     }
