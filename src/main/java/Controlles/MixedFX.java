@@ -370,45 +370,62 @@ public class MixedFX {
     }
     public float calculateDistanceBasedPrice(Transport t, String apiResponse) {
         float pricePerKm = 0.85f;
-        try {
-            // Remove everything except numbers and dots/commas
-            String numericOnly = apiResponse.split(" ")[0].replaceAll("[^0-9.,]", "").replace(",", ".");
-            float distance = Float.parseFloat(numericOnly);
 
+        // Check if API actually returned something
+        if (apiResponse == null || apiResponse.trim().isEmpty() || apiResponse.contains("indisponible")) {
+            System.err.println("❌ Error: API returned empty or unavailable data.");
+            return -2;
+        }
+
+        try {
+            // Log exactly what we are trying to parse for debugging
+            System.out.println("DEBUG: Parsing API String -> " + apiResponse);
+
+            // Extract numbers. Handles "120 km", "120.5km", or "120,5 km"
+            String firstPart = apiResponse.split(" ")[0];
+            String numericOnly = firstPart.replaceAll("[^0-9.,]", "").replace(",", ".");
+
+            float distance = Float.parseFloat(numericOnly);
             float calculated = distance * pricePerKm;
 
-            // Add your Rush Hour logic here...
+            // Rush Hour Logic
+            int heure = t.getDateDepart().getHour();
+            if ((heure >= 7 && heure <= 9) || (heure >= 17 && heure <= 19)) {
+                calculated *= 1.25;
+            }
+
             return calculated;
         } catch (Exception e) {
-            return t.getTarif(); // Emergency fallback
+            System.err.println("❌ Parsing Error: Could not convert '" + apiResponse + "' to a number.");
+            return -1;
         }
     }
     private void updatePriceDisplay(Transport t) {
         if (priceNoteLabel == null) return;
 
-        priceNoteLabel.setText("⏳ Calcul du prix réel...");
+        priceNoteLabel.setText("⏳ Calcul du trajet...");
 
         new Thread(() -> {
             try {
-                // Get the REAL distance string from API (e.g., "120 km")
-                String apiInfos = Services.TransportAPI.getInfosTrajet(t.getDepart(), t.getArrivee());
-
-                // Calculate based on that string
-                float finalPrice = calculateDistanceBasedPrice(t, apiInfos);
+                String infos = Services.TransportAPI.getInfosTrajet(t.getDepart(), t.getArrivee());
+                float finalPrice = calculateDistanceBasedPrice(t, infos);
 
                 javafx.application.Platform.runLater(() -> {
-                    // Display the price based on ACTUAL kilometers
-                    priceNoteLabel.setText("💰 Prix Basé sur Distance: " + String.format("%.2f", finalPrice) + " TND");
-
-                    // Visual feedback: if it's more expensive than the base DB price, show red
-                    if (finalPrice > t.getTarif()) {
-                        priceNoteLabel.setStyle("-fx-text-fill: #EF4444; -fx-font-weight: bold;");
-                    } else {
-                        priceNoteLabel.setStyle("-fx-text-fill: #22C55E; -fx-font-weight: bold;");
+                    if (finalPrice > 0) {
+                        priceNoteLabel.setText("💰 Prix: " + String.format("%.2f", finalPrice) + " TND (" + infos.split(" ")[0] + ")");
+                        priceNoteLabel.setStyle("-fx-text-fill: #1E293B; -fx-font-weight: bold;");
+                    } else if (finalPrice == -1) {
+                        priceNoteLabel.setText("⚠️ Erreur: Format de distance invalide (" + infos + ")");
+                        priceNoteLabel.setStyle("-fx-text-fill: #EF4444;");
+                    } else if (finalPrice == -2) {
+                        priceNoteLabel.setText("⚠️ Erreur: Destination non reconnue par le GPS.");
+                        priceNoteLabel.setStyle("-fx-text-fill: #EF4444;");
                     }
                 });
             } catch (Exception e) {
-                javafx.application.Platform.runLater(() -> priceNoteLabel.setText("⚠️ Erreur API Distance"));
+                javafx.application.Platform.runLater(() -> {
+                    priceNoteLabel.setText("❌ Erreur de connexion au service de prix.");
+                });
             }
         }).start();
     }
