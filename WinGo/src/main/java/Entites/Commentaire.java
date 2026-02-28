@@ -12,11 +12,16 @@ public class Commentaire {
     private int articleId;         // FK vers article.id
     private Integer parentId;      // FK vers commentaire.id (peut être null)
     private String utilisateurNom; // non persisté, pour affichage
+    private String articleTitre;   // non persisté, pour affichage
     private List<Commentaire> replies; // non persisté, pour stocker les réponses
 
     public Commentaire() {
         this.replies = new ArrayList<>();
     }
+    
+    // ... later in the getters/setters ...
+    public String getArticleTitre() { return articleTitre; }
+    public void setArticleTitre(String articleTitre) { this.articleTitre = articleTitre; }
 
     public Commentaire(String contenu, int utilisateur, int articleId) {
         this.contenu = contenu;

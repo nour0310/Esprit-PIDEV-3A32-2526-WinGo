@@ -132,5 +132,54 @@
                 <VBox fx:id="globalCommentsContainer" spacing="12" style="-fx-padding: 5;" />
             </ScrollPane>
         </VBox>
+
+        <!-- VIEW: BLOG FORM (IN-PLACE) -->
+        <VBox fx:id="viewBlogForm" spacing="25" visible="false" style="-fx-background-color: #FFFFFF; -fx-background-radius: 20; -fx-padding: 30;">
+            <effect><DropShadow color="#00000008" radius="20" /></effect>
+            <HBox alignment="CENTER_LEFT">
+                <VBox>
+                    <Label fx:id="formTitle" text="Ajouter un Article" style="-fx-text-fill: #1E293B; -fx-font-size: 28px; -fx-font-weight: 900;" />
+                    <Label text="Remplissez les informations ci-dessous" style="-fx-text-fill: #94A3B8; -fx-font-size: 14px;" />
+                </VBox>
+                <Region HBox.hgrow="ALWAYS" />
+                <Button onAction="#cancelBlogForm" style="-fx-background-color: transparent; -fx-text-fill: #64748B; -fx-font-weight: bold; -fx-cursor: hand;" text="Annuler" />
+            </HBox>
+
+            <GridPane hgap="30" vgap="20">
+                <columnConstraints>
+                    <ColumnConstraints percentWidth="50" />
+                    <ColumnConstraints percentWidth="50" />
+                </columnConstraints>
+                
+                <VBox spacing="8" GridPane.columnIndex="0" GridPane.rowIndex="0">
+                    <Label text="Titre de l'article" style="-fx-text-fill: #1E293B; -fx-font-weight: bold; -fx-font-size: 13px;" />
+                    <TextField fx:id="formTitre" placeholder="Ex: Les merveilles de Carthage" style="-fx-background-color: #F8FAFC; -fx-background-radius: 12; -fx-padding: 12; -fx-border-color: #E2E8F0; -fx-border-radius: 12;" />
+                </VBox>
+
+                <VBox spacing="8" GridPane.columnIndex="1" GridPane.rowIndex="0">
+                    <Label text="Image (URL ou Chemin local)" style="-fx-text-fill: #1E293B; -fx-font-weight: bold; -fx-font-size: 13px;" />
+                    <TextField fx:id="formImage" placeholder="C:\images\mon-blog.jpg" style="-fx-background-color: #F8FAFC; -fx-background-radius: 12; -fx-padding: 12; -fx-border-color: #E2E8F0; -fx-border-radius: 12;" />
+                </VBox>
+
+                <VBox spacing="8" GridPane.columnIndex="0" GridPane.rowIndex="1">
+                    <Label text="Région" style="-fx-text-fill: #1E293B; -fx-font-weight: bold; -fx-font-size: 13px;" />
+                    <ComboBox fx:id="formRegion" prefWidth="500" style="-fx-background-color: #F8FAFC; -fx-background-radius: 12; -fx-padding: 10; -fx-border-color: #E2E8F0; -fx-border-radius: 12;" />
+                </VBox>
+
+                <VBox spacing="8" GridPane.columnIndex="1" GridPane.rowIndex="1">
+                    <Label text="Catégorie" style="-fx-text-fill: #1E293B; -fx-font-weight: bold; -fx-font-size: 13px;" />
+                    <ComboBox fx:id="formCategorie" prefWidth="500" style="-fx-background-color: #F8FAFC; -fx-background-radius: 12; -fx-padding: 10; -fx-border-color: #E2E8F0; -fx-border-radius: 12;" />
+                </VBox>
+
+                <VBox spacing="8" GridPane.columnSpan="2" GridPane.rowIndex="2">
+                    <Label text="Contenu de l'article" style="-fx-text-fill: #1E293B; -fx-font-weight: bold; -fx-font-size: 13px;" />
+                    <TextArea fx:id="formContenu" prefHeight="250" wrapText="true" style="-fx-background-color: #F8FAFC; -fx-background-radius: 12; -fx-padding: 12; -fx-border-color: #E2E8F0; -fx-border-radius: 12;" />
+                </VBox>
+            </GridPane>
+
+            <HBox spacing="15" alignment="CENTER_RIGHT">
+                <Button onAction="#saveBlog" style="-fx-background-color: #6366F1; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 12 40; -fx-background-radius: 12; -fx-cursor: hand;" text="Enregistrer l'Article" />
+            </HBox>
+        </VBox>
     </StackPane>
 </HBox>

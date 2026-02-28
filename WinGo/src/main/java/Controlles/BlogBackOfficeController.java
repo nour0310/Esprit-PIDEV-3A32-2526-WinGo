@@ -385,29 +385,73 @@ public class BlogBackOfficeController implements Initializable {
             for (Commentaire c : comments) {
                 HBox card = new HBox(15);
                 card.setAlignment(Pos.CENTER_LEFT);
-                card.setPadding(new Insets(12, 20, 12, 20));
-                card.setStyle("-fx-background-color: #FFFFFF; -fx-background-radius: 12; -fx-border-color: #F1F5F9;");
+                card.setPadding(new Insets(15, 25, 15, 25));
+                card.setStyle("-fx-background-color: #FFFFFF; -fx-background-radius: 15; -fx-border-color: #F1F5F9; -fx-border-radius: 15;");
+                card.setEffect(new DropShadow(5, Color.web("#00000005")));
                 
-                VBox text = new VBox(2);
-                HBox.setHgrow(text, Priority.ALWAYS);
+                // Avatar (Initials)
+                String initials = "";
+                if (c.getUtilisateurNom() != null && !c.getUtilisateurNom().isEmpty()) {
+                    String[] parts = c.getUtilisateurNom().split(" ");
+                    for (String p : parts) if(!p.isEmpty()) initials += p.substring(0,1).toUpperCase();
+                }
+                if (initials.length() > 2) initials = initials.substring(0, 2);
+                
+                Label avatarLabel = new Label(initials);
+                avatarLabel.setStyle("-fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 12px;");
+                StackPane avatar = new StackPane(avatarLabel);
+                avatar.setPrefSize(40, 40);
+                avatar.setMinSize(40, 40);
+                avatar.setStyle("-fx-background-color: #6366F1; -fx-background-radius: 50;");
+
+                VBox content = new VBox(5);
+                HBox.setHgrow(content, Priority.ALWAYS);
+                
+                HBox header = new HBox(10);
+                header.setAlignment(Pos.CENTER_LEFT);
                 Label user = new Label(c.getUtilisateurNom());
-                user.setStyle("-fx-font-weight: bold; -fx-text-fill: #1E293B;");
+                user.setStyle("-fx-font-weight: 800; -fx-text-fill: #1E293B; -fx-font-size: 14px;");
+                
+                Label date = new Label(c.getDateCommentaire() != null ? c.getDateCommentaire().format(dateFormatter) : "");
+                date.setStyle("-fx-text-fill: #94A3B8; -fx-font-size: 11px;");
+                
+                Region spacer = new Region();
+                HBox.setHgrow(spacer, Priority.ALWAYS);
+                
+                Label articleBadge = new Label(c.getArticleTitre() != null ? "sur " + c.getArticleTitre() : "");
+                articleBadge.setStyle("-fx-text-fill: #6366F1; -fx-font-size: 11px; -fx-font-weight: bold; -fx-background-color: #EEF2FF; -fx-padding: 2 8; -fx-background-radius: 5;");
+                articleBadge.setMaxWidth(200);
+                
+                header.getChildren().addAll(user, articleBadge, spacer, date);
+
                 Label msg = new Label(c.getContenu());
                 msg.setWrapText(true);
-                msg.setStyle("-fx-text-fill: #64748B; -fx-font-size: 13px;");
-                text.getChildren().addAll(user, msg);
+                msg.setStyle("-fx-text-fill: #64748B; -fx-font-size: 13px; -fx-line-spacing: 1.5;");
+                
+                content.getChildren().addAll(header, msg);
 
                 Button del = new Button("Supprimer");
-                del.setStyle("-fx-background-color: #FEE2E2; -fx-text-fill: #EF4444; -fx-font-size: 11px; -fx-font-weight: bold; -fx-background-radius: 6; -fx-cursor: hand;");
+                del.setStyle("-fx-background-color: #FEE2E2; -fx-text-fill: #EF4444; -fx-font-size: 12px; -fx-font-weight: bold; -fx-background-radius: 8; -fx-padding: 8 15; -fx-cursor: hand;");
                 del.setOnAction(e -> {
-                    try {
-                        commentaireCRUD.supprimer(c.getId());
-                        loadGlobalComments();
-                        loadData(); 
-                    } catch (SQLException ex) { ex.printStackTrace(); }
+                    Alert confirm = new Alert(Alert.AlertType.CONFIRMATION);
+                    confirm.setTitle("Modération");
+                    confirm.setHeaderText("Supprimer ce commentaire ?");
+                    confirm.setContentText("Cette action est irréversible.");
+                    if (confirm.showAndWait().get() == ButtonType.OK) {
+                        try {
+                            commentaireCRUD.supprimer(c.getId());
+                            loadGlobalComments();
+                            loadData(); 
+                        } catch (SQLException ex) { ex.printStackTrace(); }
+                    }
                 });
 
-                card.getChildren().addAll(text, del);
+                card.getChildren().addAll(avatar, content, del);
+                
+                // Hover effect
+                card.setOnMouseEntered(e -> card.setStyle("-fx-background-color: #F8FAFC; -fx-background-radius: 15; -fx-border-color: #6366F133; -fx-border-radius: 15;"));
+                card.setOnMouseExited(e -> card.setStyle("-fx-background-color: #FFFFFF; -fx-background-radius: 15; -fx-border-color: #F1F5F9; -fx-border-radius: 15;"));
+                
                 globalCommentsContainer.getChildren().add(card);
             }
         } catch (SQLException e) {

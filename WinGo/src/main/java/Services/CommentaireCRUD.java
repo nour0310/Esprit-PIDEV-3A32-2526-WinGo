@@ -162,7 +162,10 @@ public class CommentaireCRUD {
 
     // Récupérer tous les commentaires (pour l'affichage global)
     public List<Commentaire> afficher() throws SQLException {
-        String req = "SELECT c.*, u.nom, u.prenom FROM commentaire c LEFT JOIN utilisateur u ON c.utilisateur = u.id ORDER BY c.date_commentaire DESC";
+        String req = "SELECT c.*, u.nom, u.prenom, a.titre as article_titre FROM commentaire c " +
+                     "LEFT JOIN utilisateur u ON c.utilisateur = u.id " +
+                     "LEFT JOIN article a ON c.article_id = a.id " +
+                     "ORDER BY c.date_commentaire DESC";
         List<Commentaire> liste = new ArrayList<>();
         try (Statement st = conn.createStatement();
              ResultSet rs = st.executeQuery(req)) {
@@ -181,6 +184,14 @@ public class CommentaireCRUD {
         c.setDateCommentaire(rs.getTimestamp("date_commentaire").toLocalDateTime());
         c.setUtilisateur(rs.getInt("utilisateur"));
         c.setArticleId(rs.getInt("article_id"));
+        
+        try {
+            String artTitre = rs.getString("article_titre");
+            if (artTitre != null) c.setArticleTitre(artTitre);
+        } catch (SQLException e) {
+            // colonne peut-être absente dans certains resultsets
+        }
+
         int parentId = rs.getInt("parent_id");
         if (rs.wasNull()) {
             c.setParentId(null);
