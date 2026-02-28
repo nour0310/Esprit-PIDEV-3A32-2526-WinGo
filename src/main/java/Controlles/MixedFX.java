@@ -5,6 +5,7 @@ import com.google.zxing.client.j2se.MatrixToImageWriter;
 import com.google.zxing.common.BitMatrix;
 import com.google.zxing.qrcode.QRCodeWriter;
 import javafx.geometry.Pos;
+import javafx.scene.Cursor;
 import javafx.scene.Scene;
 import javafx.scene.effect.GaussianBlur;
 import javafx.scene.image.Image;
@@ -336,7 +337,7 @@ public class MixedFX {
                     }
                     e.consume(); // Empêche le clic d'ouvrir la carte complète
                 });
-                
+
                 currencyBtn.setOnAction(e -> {
                     if (obj instanceof Transport) {
                         showCurrencyPopup((Transport) obj);
@@ -796,12 +797,89 @@ public class MixedFX {
         if (obj instanceof Reservation r) {
             detailGrid.add(createStyledLabel("ID Réservation: " + r.getId()), 0, 0);
             detailGrid.add(createStyledLabel("Passager: " + r.getUser()), 0, 1);
+            String dataToEncode = "https://triplove.tn/card?type=" + (obj instanceof Reservation ? "res" : "tr") ;
             qrCodeView.setImage(generateQRCode("RES-" + r.getId() + "-" + r.getUser()));
+            qrCodeView.setCursor(Cursor.HAND);
+            qrCodeView.setOnMouseClicked(e -> {
+                showCuteSuccessPopup(obj);
+            });
         } else if (obj instanceof Transport t) {
             detailGrid.add(createStyledLabel("ID Transport: " + t.getId()), 0, 0);
             detailGrid.add(createStyledLabel("Trajet: " + t.getDepart() + " -> " + t.getArrivee()), 0, 1);
-            qrCodeView.setImage(generateQRCode("TR-" + t.getId() + "-" + t.getType()));
+            String dataToEncode = "https://triplove.tn/card?type=" + (obj instanceof Reservation ? "res" : "tr") ;
+            qrCodeView.setImage(generateQRCode(dataToEncode));
+            qrCodeView.setCursor(Cursor.HAND);
+            qrCodeView.setOnMouseClicked(e -> {
+                showCuteSuccessPopup(t);
+            });
         }
+    }
+    private void showCuteSuccessPopup(Object obj) {
+        Stage stage = new Stage();
+        stage.initModality(Modality.APPLICATION_MODAL);
+        stage.initStyle(StageStyle.TRANSPARENT);
+
+        WebView webView = new WebView();
+        webView.setPrefSize(450, 650);
+
+        String title = (obj instanceof Reservation) ? "Réservation Confirmée !" : "Transport Prêt !";
+        String details = (obj instanceof Reservation r) ? r.getUser() : "Bon voyage !";
+
+        // HTML "CUTE" DYNAMIQUE
+        String htmlContent = """
+        <html>
+        <head>
+            <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+            <style>
+                body { font-family: 'Segoe UI', sans-serif; background: linear-gradient(135deg, #f5f7ff 0%, #ffffff 100%); text-align: center; padding: 20px; }
+                .card { background: white; border-radius: 40px; padding: 30px; box-shadow: 0 20px 40px rgba(163, 177, 255, 0.2); }
+                .logo { width: 60px; filter: drop-shadow(0 4px 8px rgba(0,0,0,0.1)); }
+                h1 { color: #A3B1FF; font-size: 24px; margin: 15px 0; }
+                .confetti { font-size: 40px; animation: party 1s infinite alternate; }
+                @keyframes party { from { transform: scale(1); } to { transform: scale(1.2); } }
+                #map { height: 250px; border-radius: 25px; margin: 20px 0; border: 3px solid #EEF2FF; }
+                .btn { background: #A3B1FF; color: white; padding: 15px 30px; border-radius: 50px; text-decoration: none; font-weight: bold; border: none; cursor: pointer; }
+            </style>
+        </head>
+        <body>
+            <div class="card">
+                <div class="confetti">🥳</div>
+                <img src="https://cdn-icons-png.flaticon.com/512/201/201623.png" class="logo"> <h1>"" + title + ""</h1>
+                <p>Félicitations <b>" + details + "</b> !<br>TripLove vous souhaite une magnifique aventure en Tunisie.</p>
+                
+                <div id="map"></div>
+                
+                <button class="btn" onclick="window.close()">Prêt pour le départ !</button>
+            </div>
+
+            <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+            <script>
+                var map = L.map('map', {zoomControl: false}).setView([34.0, 9.5], 6);
+                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+                L.marker([36.8065, 10.1815]).addTo(map).bindPopup('Départ: Tunis').openPopup();
+                L.marker([33.8869, 9.5375]).addTo(map).bindPopup('Explorez la Tunisie 🇹🇳');
+            </script>
+        </body>
+        </html>
+    """;
+
+        webView.getEngine().loadContent(htmlContent);
+
+        // Layout du Popup
+        VBox root = new VBox(webView);
+        root.setStyle("-fx-background-color: transparent; -fx-padding: 10;");
+        root.setAlignment(Pos.CENTER);
+
+        Scene scene = new Scene(root);
+        scene.setFill(Color.TRANSPARENT);
+        stage.setScene(scene);
+
+        // Fermeture propre
+        webView.getEngine().setOnStatusChanged(event -> {
+            if ("window.close()".equals(webView.getEngine().getLocation())) stage.close();
+        });
+
+        stage.show();
     }
 
     @FXML
