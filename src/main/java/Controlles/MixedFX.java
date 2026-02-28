@@ -828,39 +828,122 @@ public class MixedFX {
         // HTML "CUTE" DYNAMIQUE
         String htmlContent = """
         <html>
-        <head>
-            <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-            <style>
-                body { font-family: 'Segoe UI', sans-serif; background: linear-gradient(135deg, #f5f7ff 0%, #ffffff 100%); text-align: center; padding: 20px; }
-                .card { background: white; border-radius: 40px; padding: 30px; box-shadow: 0 20px 40px rgba(163, 177, 255, 0.2); }
-                .logo { width: 60px; filter: drop-shadow(0 4px 8px rgba(0,0,0,0.1)); }
-                h1 { color: #A3B1FF; font-size: 24px; margin: 15px 0; }
-                .confetti { font-size: 40px; animation: party 1s infinite alternate; }
-                @keyframes party { from { transform: scale(1); } to { transform: scale(1.2); } }
-                #map { height: 250px; border-radius: 25px; margin: 20px 0; border: 3px solid #EEF2FF; }
-                .btn { background: #A3B1FF; color: white; padding: 15px 30px; border-radius: 50px; text-decoration: none; font-weight: bold; border: none; cursor: pointer; }
-            </style>
-        </head>
-        <body>
-            <div class="card">
-                <div class="confetti">🥳</div>
-                <img src="https://cdn-icons-png.flaticon.com/512/201/201623.png" class="logo"> <h1>"" + title + ""</h1>
-                <p>Félicitations <b>" + details + "</b> !<br>TripLove vous souhaite une magnifique aventure en Tunisie.</p>
+                           <head>
+                               <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+                               <style>
+                                   /* Reset pour un affichage plein écran propre */
+                                   body, html { margin: 0; padding: 0; height: 100%; width: 100%; overflow: hidden; }
                 
-                <div id="map"></div>
+                                   body {\s
+                                       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;\s
+                                       background: #f0f2f5;\s
+                                       display: flex;\s
+                                       justify-content: center;\s
+                                       align-items: center;\s
+                                   }
                 
-                <button class="btn" onclick="window.close()">Prêt pour le départ !</button>
-            </div>
-
-            <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-            <script>
-                var map = L.map('map', {zoomControl: false}).setView([34.0, 9.5], 6);
-                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
-                L.marker([36.8065, 10.1815]).addTo(map).bindPopup('Départ: Tunis').openPopup();
-                L.marker([33.8869, 9.5375]).addTo(map).bindPopup('Explorez la Tunisie 🇹🇳');
-            </script>
-        </body>
-        </html>
+                                   .card {\s
+                                       background: white;\s
+                                       width: 380px; /* Largeur fixe pour l'aspect "Billet/Pass" */
+                                       height: 600px;
+                                       border-radius: 40px;\s
+                                       box-shadow: 0 25px 50px rgba(163, 177, 255, 0.4);\s
+                                       display: flex;
+                                       flex-direction: column;
+                                       overflow: hidden; /* Coupe la carte aux bords arrondis */
+                                       position: relative;
+                                   }
+                
+                                   .header {
+                                       padding: 25px 20px 15px;
+                                       background: white;
+                                       z-index: 10;
+                                   }
+                
+                                   .logo { width: 50px; margin-bottom: 10px; }
+                
+                                   h1 { color: #A3B1FF; font-size: 22px; margin: 5px 0; font-weight: 800; }
+                
+                                   p { color: #64748b; font-size: 14px; margin: 0; line-height: 1.4; }
+                
+                                   /* LA MAP : Elle prend tout l'espace restant (flex: 1) */
+                                   #map {\s
+                                       flex: 1;\s
+                                       width: 100%;\s
+                                       z-index: 1;
+                                       /* On retire les bordures et les marges pour que ça touche les bords */
+                                   }
+                
+                                   .footer {
+                                       padding: 20px;
+                                       background: white;
+                                       z-index: 10;
+                                       box-shadow: 0 -10px 25px rgba(0,0,0,0.05); /* Ombre légère pour séparer de la map */
+                                   }
+                
+                                   .btn {\s
+                                       background: #A3B1FF;\s
+                                       color: white;\s
+                                       padding: 16px;\s
+                                       width: 100%;
+                                       border-radius: 25px;\s
+                                       text-decoration: none;\s
+                                       font-weight: bold;\s
+                                       border: none;\s
+                                       cursor: pointer;
+                                       transition: transform 0.2s;
+                                   }
+                
+                                   .btn:active { transform: scale(0.95); }
+                
+                                   /* Masquer les éléments Leaflet inutiles pour un look "App" propre */
+                                   .leaflet-control-attribution { display: none !important; }
+                               </style>
+                           </head>
+                           <body>
+                               <div class="card">
+                                   <div class="header">
+                                       <img src="https://cdn-icons-png.flaticon.com/512/201/201623.png" class="logo">
+                                       <h1>""\" + title + ""\"</h1>
+                                       <p>Félicitations <b>""\" + details + ""\"</b> !<br>Votre voyage est prêt.</p>
+                                   </div>
+                
+                                   <div id="map"></div>
+                
+                                   <div class="footer">
+                                       <button class="btn" onclick="window.close()">Prêt pour le départ ! ✨</button>
+                                   </div>
+                               </div>
+                
+                               <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+                               <script>
+                                   // Initialisation de la map
+                                   var map = L.map('map', {
+                                       zoomControl: false,
+                                       dragging: true,
+                                       scrollWheelZoom: false
+                                   }).setView([34.5, 9.5], 6.5); // Centrage sur la Tunisie
+                
+                                   L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+                                       // Utilisation d'un style de map plus "clair/propre" (CartoDB Positron)
+                                   }).addTo(map);
+                
+                                   // Marqueurs stylisés
+                                   var icon = L.divIcon({
+                                       className: 'custom-div-icon',
+                                       html: "<div style='background-color:#A3B1FF; width:12px; height:12px; border-radius:50%; border:3px solid white; box-shadow: 0 0 10px rgba(0,0,0,0.2);'></div>",
+                                       iconSize: [18, 18],
+                                       iconAnchor: [9, 9]
+                                   });
+                
+                                   L.marker([36.8065, 10.1815], {icon: icon}).addTo(map).bindPopup('Départ: Tunis');
+                                   L.marker([33.8869, 9.5375], {icon: icon}).addTo(map).bindPopup('Destination');
+                
+                                   // Correction pour s'assurer que la map remplit bien le div au chargement
+                                   setTimeout(function(){ map.invalidateSize(); }, 500);
+                               </script>
+                           </body>
+                           </html>
     """;
 
         webView.getEngine().loadContent(htmlContent);
