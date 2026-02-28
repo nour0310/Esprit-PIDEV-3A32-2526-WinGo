@@ -831,116 +831,119 @@ public class MixedFX {
                            <head>
                                <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
                                <style>
-                                   /* Reset pour un affichage plein écran propre */
-                                   body, html { margin: 0; padding: 0; height: 100%; width: 100%; overflow: hidden; }
+                                   body, html { margin: 0; padding: 0; height: 100%; width: 100%; font-family: 'Segoe UI', sans-serif; }
                 
-                                   body {\s
-                                       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;\s
-                                       background: #f0f2f5;\s
-                                       display: flex;\s
-                                       justify-content: center;\s
-                                       align-items: center;\s
-                                   }
-                
-                                   .card {\s
-                                       background: white;\s
-                                       width: 380px; /* Largeur fixe pour l'aspect "Billet/Pass" */
-                                       height: 600px;
-                                       border-radius: 40px;\s
-                                       box-shadow: 0 25px 50px rgba(163, 177, 255, 0.4);\s
+                                   /* Conteneur principal qui ressemble à une carte d'application */
+                                   .app-card {
+                                       position: relative;
+                                       width: 100%;
+                                       height: 100vh;
+                                       background: #f0f2f5;
                                        display: flex;
                                        flex-direction: column;
-                                       overflow: hidden; /* Coupe la carte aux bords arrondis */
-                                       position: relative;
+                                       overflow: hidden;
                                    }
                 
-                                   .header {
-                                       padding: 25px 20px 15px;
-                                       background: white;
-                                       z-index: 10;
-                                   }
-                
-                                   .logo { width: 50px; margin-bottom: 10px; }
-                
-                                   h1 { color: #A3B1FF; font-size: 22px; margin: 5px 0; font-weight: 800; }
-                
-                                   p { color: #64748b; font-size: 14px; margin: 0; line-height: 1.4; }
-                
-                                   /* LA MAP : Elle prend tout l'espace restant (flex: 1) */
-                                   #map {\s
-                                       flex: 1;\s
-                                       width: 100%;\s
-                                       z-index: 1;
-                                       /* On retire les bordures et les marges pour que ça touche les bords */
-                                   }
-                
-                                   .footer {
-                                       padding: 20px;
-                                       background: white;
-                                       z-index: 10;
-                                       box-shadow: 0 -10px 25px rgba(0,0,0,0.05); /* Ombre légère pour séparer de la map */
-                                   }
-                
-                                   .btn {\s
-                                       background: #A3B1FF;\s
-                                       color: white;\s
-                                       padding: 16px;\s
+                                   /* La Map prend 100% de l'espace en arrière-plan */
+                                   #map {
+                                       position: absolute;
+                                       top: 0;
+                                       left: 0;
                                        width: 100%;
-                                       border-radius: 25px;\s
-                                       text-decoration: none;\s
-                                       font-weight: bold;\s
-                                       border: none;\s
-                                       cursor: pointer;
-                                       transition: transform 0.2s;
+                                       height: 100%;
+                                       z-index: 1;
                                    }
                 
-                                   .btn:active { transform: scale(0.95); }
+                                   /* Overlay pour le titre et le logo (en haut) */
+                                   .header-overlay {
+                                       position: absolute;
+                                       top: 20px;
+                                       left: 20px;
+                                       right: 20px;
+                                       z-index: 10;
+                                       pointer-events: none; /* Permet de cliquer sur la map à travers */
+                                   }
                 
-                                   /* Masquer les éléments Leaflet inutiles pour un look "App" propre */
-                                   .leaflet-control-attribution { display: none !important; }
+                                   .glass-header {
+                                       background: rgba(255, 255, 255, 0.8);
+                                       backdrop-filter: blur(10px);
+                                       padding: 15px 20px;
+                                       border-radius: 25px;
+                                       box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+                                       display: inline-block;
+                                       pointer-events: auto;
+                                   }
+                
+                                   /* Le bouton en bas, large et arrondi comme sur ton image */
+                                   .footer-overlay {
+                                       position: absolute;
+                                       bottom: 30px;
+                                       left: 0;
+                                       right: 0;
+                                       display: flex;
+                                       justify-content: center;
+                                       z-index: 10;
+                                       padding: 0 20px;
+                                   }
+                
+                                   .btn-main {
+                                       background: #A3B1FF;
+                                       color: white;
+                                       border: none;
+                                       padding: 18px 0;
+                                       width: 100%;
+                                       max-width: 400px;
+                                       border-radius: 40px;
+                                       font-size: 18px;
+                                       font-weight: bold;
+                                       box-shadow: 0 10px 25px rgba(163, 177, 255, 0.5);
+                                       cursor: pointer;
+                                       transition: 0.3s;
+                                   }
+                
+                                   .btn-main:active { transform: scale(0.98); }
+                
+                                   /* Custom Popup Style pour ressembler à ton image */
+                                   .leaflet-popup-content-wrapper {
+                                       border-radius: 20px;
+                                       padding: 5px;
+                                       box-shadow: 0 10px 20px rgba(0,0,0,0.15);
+                                   }
+                
+                                   .leaflet-control-attribution { display: none; }
                                </style>
                            </head>
                            <body>
-                               <div class="card">
-                                   <div class="header">
-                                       <img src="https://cdn-icons-png.flaticon.com/512/201/201623.png" class="logo">
-                                       <h1>""\" + title + ""\"</h1>
-                                       <p>Félicitations <b>""\" + details + ""\"</b> !<br>Votre voyage est prêt.</p>
-                                   </div>
                 
+                               <div class="app-card">
                                    <div id="map"></div>
                 
-                                   <div class="footer">
-                                       <button class="btn" onclick="window.close()">Prêt pour le départ ! ✨</button>
+                                   <div class="header-overlay">
+                                       <div class="glass-header">
+                                           <h1 style="margin:0; font-size: 18px; color: #1E293B;">TripLove ✨</h1>
+                                           <p style="margin:5px 0 0; font-size: 12px; color: #64748B;">Réservation de ""\" + details + ""\"</p>
+                                       </div>
+                                   </div>
+                
+                                   <div class="footer-overlay">
+                                       <button class="btn-main" onclick="window.close()">Prêt pour le départ ! ✨</button>
                                    </div>
                                </div>
                 
                                <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
                                <script>
-                                   // Initialisation de la map
-                                   var map = L.map('map', {
-                                       zoomControl: false,
-                                       dragging: true,
-                                       scrollWheelZoom: false
-                                   }).setView([34.5, 9.5], 6.5); // Centrage sur la Tunisie
+                                   // On utilise un style de map très clair et épuré
+                                   var map = L.map('map', {zoomControl: false}).setView([34.5, 9.5], 7);
                 
-                                   L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
-                                       // Utilisation d'un style de map plus "clair/propre" (CartoDB Positron)
-                                   }).addTo(map);
+                                   L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png').addTo(map);
                 
-                                   // Marqueurs stylisés
-                                   var icon = L.divIcon({
-                                       className: 'custom-div-icon',
-                                       html: "<div style='background-color:#A3B1FF; width:12px; height:12px; border-radius:50%; border:3px solid white; box-shadow: 0 0 10px rgba(0,0,0,0.2);'></div>",
-                                       iconSize: [18, 18],
-                                       iconAnchor: [9, 9]
-                                   });
+                                   // Ajout du marqueur avec le popup ouvert par défaut (comme sur ton image)
+                                   var marker = L.marker([36.8065, 10.1815]).addTo(map)
+                                       .bindPopup("<b>Départ: Tunis</b>", { autoClose: false, closeOnClick: false })
+                                       .openPopup();
                 
-                                   L.marker([36.8065, 10.1815], {icon: icon}).addTo(map).bindPopup('Départ: Tunis');
-                                   L.marker([33.8869, 9.5375], {icon: icon}).addTo(map).bindPopup('Destination');
-                
-                                   // Correction pour s'assurer que la map remplit bien le div au chargement
-                                   setTimeout(function(){ map.invalidateSize(); }, 500);
+                                   // Animation d'entrée
+                                   setTimeout(function(){ map.invalidateSize(); }, 200);
                                </script>
                            </body>
                            </html>
