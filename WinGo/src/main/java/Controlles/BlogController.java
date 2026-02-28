@@ -117,7 +117,6 @@ public class BlogController implements Initializable {
     @FXML private Button clearBtn;
     @FXML private Button addCommentBtn;
     @FXML private Label statusLabel;
-    @FXML private Label connectedUserLabel;
 
     // Labels d'erreur pour la validation
     @FXML private Label titreError;
@@ -174,6 +173,7 @@ public class BlogController implements Initializable {
     // ScrollPanes
     @FXML private ScrollPane listViewScroll;
     @FXML private ScrollPane detailViewScroll;
+    @FXML private ScrollPane articleFormScroll;  // Nouveau
 
     // Composants pour le résumé réactif
     @FXML private VBox resumeContainer;
@@ -186,8 +186,8 @@ public class BlogController implements Initializable {
     @FXML private Label sidebarUserName;
     @FXML private Pane backgroundPane;
 
-    // Conteneur du formulaire d'article (caché par défaut)
-    @FXML private VBox articleFormContainer;
+    // Bouton retour du formulaire
+    @FXML private Button backFromFormBtn;
 
     private final DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
     private final DateTimeFormatter dateShortFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
@@ -214,9 +214,10 @@ public class BlogController implements Initializable {
         clearAllErrors();
         setupMentionAutoComplete();
 
-        // Cacher le formulaire d'article au démarrage
-        articleFormContainer.setVisible(false);
-        articleFormContainer.setManaged(false);
+        // Initialiser la vue formulaire
+        articleFormScroll.setVisible(false);
+        articleFormScroll.setManaged(false);
+        backFromFormBtn.setOnAction(e -> showListView());
     }
 
     private void loadImages() {
@@ -281,14 +282,12 @@ public class BlogController implements Initializable {
             if (currentUser != null) {
                 String nomComplet = currentUser.getPrenom() + " " + currentUser.getNom();
                 auteurLabel.setText(nomComplet);
-                connectedUserLabel.setText(nomComplet);
                 detailConnectedUserLabel.setText(nomComplet);
                 sidebarUserName.setText(nomComplet);
                 loadNotifications();
                 loadFavoris();
             } else {
                 auteurLabel.setText("Utilisateur inconnu");
-                connectedUserLabel.setText("Utilisateur inconnu");
                 detailConnectedUserLabel.setText("Utilisateur inconnu");
                 sidebarUserName.setText("Invité");
             }
@@ -1194,6 +1193,8 @@ public class BlogController implements Initializable {
         listViewScroll.setManaged(false);
         detailViewScroll.setVisible(true);
         detailViewScroll.setManaged(true);
+        articleFormScroll.setVisible(false);
+        articleFormScroll.setManaged(false);
     }
 
     private void showListView() {
@@ -1201,7 +1202,20 @@ public class BlogController implements Initializable {
         listViewScroll.setManaged(true);
         detailViewScroll.setVisible(false);
         detailViewScroll.setManaged(false);
+        articleFormScroll.setVisible(false);
+        articleFormScroll.setManaged(false);
         displayedDetailBlog = null;
+    }
+
+    @FXML
+    private void showArticleForm() {
+        listViewScroll.setVisible(false);
+        listViewScroll.setManaged(false);
+        detailViewScroll.setVisible(false);
+        detailViewScroll.setManaged(false);
+        articleFormScroll.setVisible(true);
+        articleFormScroll.setManaged(true);
+        clearForm();
     }
 
     // ========== GESTION DES COMMENTAIRES ==========
@@ -1795,23 +1809,12 @@ public class BlogController implements Initializable {
         });
     }
 
-    @FXML
-    private void showArticleForm() {
-        showListView();
-        articleFormContainer.setVisible(true);
-        articleFormContainer.setManaged(true);
-        clearForm();
-    }
-
     private void selectBlog(Blog blog) {
         if (currentUser == null || blog.getAuteur() != currentUser.getId()) {
             showWarning("Vous ne pouvez modifier que vos propres articles.");
             return;
         }
-        showListView();
-        articleFormContainer.setVisible(true);
-        articleFormContainer.setManaged(true);
-
+        showArticleForm(); // bascule vers le formulaire
         this.selectedBlog = blog;
         articleIdLabel.setText(String.valueOf(blog.getId()));
         titreField.setText(blog.getTitre() != null ? blog.getTitre() : "");
@@ -1861,8 +1864,7 @@ public class BlogController implements Initializable {
 
             refreshData();
             clearForm();
-            articleFormContainer.setVisible(false);
-            articleFormContainer.setManaged(false);
+            showListView(); // retour à la liste
             showInfo("Article ajouté avec succès.");
         } catch (SQLException e) {
             showError("Erreur ajout", e.getMessage());
@@ -1897,8 +1899,7 @@ public class BlogController implements Initializable {
 
             refreshData();
             clearForm();
-            articleFormContainer.setVisible(false);
-            articleFormContainer.setManaged(false);
+            showListView(); // retour à la liste
             showInfo("Article modifié.");
         } catch (SQLException e) {
             showError("Erreur modification", e.getMessage());
@@ -2196,7 +2197,6 @@ public class BlogController implements Initializable {
             if (response == ButtonType.YES) {
                 currentUser = null;
                 auteurLabel.setText("Non connecté");
-                connectedUserLabel.setText("Non connecté");
                 detailConnectedUserLabel.setText("Non connecté");
                 sidebarUserName.setText("Invité");
                 showInfo("Déconnexion réussie.");

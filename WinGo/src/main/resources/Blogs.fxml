@@ -199,7 +199,6 @@
                                     maxWidth="Infinity" alignment="CENTER_LEFT"
                                     style="-fx-background-color: #F1F5F9; -fx-text-fill: #1E293B; -fx-font-weight: bold; -fx-padding: 12 20; -fx-background-radius: 50; -fx-cursor: hand;" />
 
-                            <!-- ... reste de la vue détail (inchangé) ... -->
                             <StackPane fx:id="detailImageContainer" prefHeight="300" maxWidth="Infinity"
                                        style="-fx-background-color: #E2E8F0; -fx-background-radius: 30 30 0 0;">
                                 <ImageView fx:id="detailImageView" preserveRatio="true" smooth="true" cache="true" />
@@ -207,7 +206,86 @@
                                        style="-fx-font-size: 28px; -fx-font-weight: bold; -fx-text-fill: white; -fx-wrap-text: true; -fx-text-alignment: center; -fx-padding: 0 20 20 20; -fx-effect: dropshadow(gaussian, black, 5, 0.5, 2, 2);"
                                        StackPane.alignment="BOTTOM_CENTER" />
                             </StackPane>
-                            <!-- ... le reste ... -->
+
+                            <HBox spacing="30" alignment="CENTER">
+                                <HBox spacing="8" alignment="CENTER">
+                                    <Label text="👤" style="-fx-font-size: 18px;" />
+                                    <Label fx:id="detailAuteurLabel" style="-fx-font-size: 16px; -fx-font-weight: bold;" />
+                                </HBox>
+                                <HBox spacing="8" alignment="CENTER">
+                                    <Label text="📅" style="-fx-font-size: 18px;" />
+                                    <Label fx:id="detailDateLabel" style="-fx-font-size: 16px;" />
+                                </HBox>
+                            </HBox>
+
+                            <HBox spacing="20" alignment="CENTER">
+                                <Button fx:id="detailLikeButton" style="-fx-background-color: transparent;">
+                                    <graphic>
+                                        <ImageView fx:id="detailLikeImageView" fitHeight="24" fitWidth="24" preserveRatio="true"/>
+                                    </graphic>
+                                </Button>
+                                <Label fx:id="detailLikeCountLabel" text="0 like" style="-fx-font-size: 16px; -fx-font-weight: bold;" />
+                                <Button fx:id="detailFavButton" text="🔖" style="-fx-background-color: transparent; -fx-font-size: 24px;" />
+                            </HBox>
+
+                            <HBox spacing="10" alignment="CENTER">
+                                <HBox fx:id="detailStarsBox" spacing="2" alignment="CENTER"/>
+                                <Label fx:id="detailAvgLabel" text="0.0 (0 votes)" style="-fx-font-size: 14px;" />
+                            </HBox>
+
+                            <!-- Météo -->
+                            <HBox spacing="10" alignment="CENTER">
+                                <ImageView fx:id="detailMeteoIcon" fitHeight="32" fitWidth="32" preserveRatio="true"/>
+                                <Label fx:id="detailMeteoLabel" text="⏳ Chargement météo..." style="-fx-text-fill: #3B82F6;" />
+                            </HBox>
+
+                            <!-- Traduction, écoute, résumé -->
+                            <HBox spacing="10" alignment="CENTER">
+                                <ComboBox fx:id="langueCombo" promptText="Langue cible"
+                                          style="-fx-background-color: #F1F5F9; -fx-background-radius: 30; -fx-padding: 5 10;" />
+                                <Button fx:id="traduireBtn" text="🌐 Traduire"
+                                        style="-fx-background-color: #3B82F6; -fx-text-fill: white; -fx-background-radius: 30; -fx-padding: 8 20;" />
+                                <Button fx:id="ecouterBtn" text="🔊 Écouter"
+                                        style="-fx-background-color: #10B981; -fx-text-fill: white; -fx-background-radius: 30; -fx-padding: 8 20;" />
+                                <Button fx:id="resumerBtn" text="📝 Résumé"
+                                        style="-fx-background-color: #8B5CF6; -fx-text-fill: white; -fx-background-radius: 30; -fx-padding: 8 20;" />
+                            </HBox>
+
+                            <!-- Résumé -->
+                            <VBox fx:id="resumeContainer" spacing="8" style="-fx-padding: 0 20;" visible="false" managed="false">
+                                <Label text="📋 Résumé IA" style="-fx-font-size: 18px; -fx-font-weight: bold;" />
+                                <TextArea fx:id="resumeTextArea" wrapText="true" editable="false" prefHeight="100"
+                                          style="-fx-background-color: #F8FAFC; -fx-background-radius: 10;" />
+                                <Label fx:id="resumeStatusLabel" text="" style="-fx-text-fill: #F59E0B;" />
+                            </VBox>
+
+                            <!-- Boutons de partage -->
+                            <HBox fx:id="detailShareBox" spacing="10" alignment="CENTER" />
+
+                            <!-- Contenu de l'article -->
+                            <VBox spacing="10" style="-fx-background-color: #F8FAFC; -fx-background-radius: 20; -fx-padding: 20;">
+                                <Label text="📝 Récit de voyage" style="-fx-font-size: 18px; -fx-font-weight: bold;" />
+                                <Label fx:id="detailContenuLabel" wrapText="true" style="-fx-font-size: 15px;" />
+                            </VBox>
+
+                            <!-- Commentaires -->
+                            <VBox spacing="15" style="-fx-padding: 0 20 20 20;">
+                                <Label text="💬 Commentaires" style="-fx-font-size: 20px; -fx-font-weight: bold;" />
+                                <ScrollPane fitToWidth="true" prefHeight="200" style="-fx-background: transparent;">
+                                    <FlowPane fx:id="detailCommentairesPane" hgap="10" vgap="10" />
+                                </ScrollPane>
+                            </VBox>
+
+                            <!-- Ajout commentaire dans détail -->
+                            <HBox spacing="10" alignment="CENTER_LEFT" style="-fx-padding: 0 20 20 20;">
+                                <TextField fx:id="detailNewCommentField" promptText="Votre commentaire..." HBox.hgrow="ALWAYS"
+                                           style="-fx-background-color: #F1F5F9; -fx-background-radius: 30; -fx-padding: 12 15;" />
+                                <Label fx:id="detailConnectedUserLabel" text="(connexion...)"
+                                       style="-fx-background-color: #E2E8F0; -fx-background-radius: 30; -fx-padding: 12 20;" />
+                                <Button fx:id="detailAddCommentBtn" text="Envoyer"
+                                        style="-fx-background-color: #3B82F6; -fx-text-fill: white; -fx-background-radius: 30; -fx-padding: 12 25; -fx-font-weight: bold;" />
+                            </HBox>
+                            <Label fx:id="detailStatusLabel" style="-fx-text-fill: #10B981; -fx-padding: 0 20 20 20;" />
                         </VBox>
                     </ScrollPane>
 
