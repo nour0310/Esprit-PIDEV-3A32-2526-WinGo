@@ -69,6 +69,10 @@ public class BlogBackOfficeController implements Initializable {
     @FXML private TextArea formContenu;
     @FXML private ComboBox<String> formRegion, formCategorie;
 
+    // Form Live Preview
+    @FXML private ImageView previewImage;
+    @FXML private Label previewTitre, previewRegion, previewCategorie;
+
     private Blog editingBlog = null;
     private List<Blog> allBlogs = new ArrayList<>();
     private final DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("dd MMM yyyy, HH:mm");
@@ -76,8 +80,19 @@ public class BlogBackOfficeController implements Initializable {
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         initFormComboBoxes();
+        setupFormListeners();
         loadData();
         switchToDashboard();
+    }
+
+    private void setupFormListeners() {
+        formTitre.textProperty().addListener((obs, oldVal, newVal) -> previewTitre.setText(newVal.isEmpty() ? "Votre titre s'affichera ici" : newVal));
+        formRegion.valueProperty().addListener((obs, oldVal, newVal) -> previewRegion.setText(newVal == null ? "RÉGION" : newVal.toUpperCase()));
+        formCategorie.valueProperty().addListener((obs, oldVal, newVal) -> previewCategorie.setText(newVal == null ? "CATÉGORIE" : newVal.toUpperCase()));
+        formImage.textProperty().addListener((obs, oldVal, newVal) -> {
+            Image img = loadImage(newVal);
+            previewImage.setImage(img != null ? img : new Image("testt.png"));
+        });
     }
 
     private void initFormComboBoxes() {
@@ -124,9 +139,11 @@ public class BlogBackOfficeController implements Initializable {
         List<ToggleButton> btns = Arrays.asList(btnDashboard, btnBlogs, btnComments);
         for (ToggleButton b : btns) {
             if (b == activeBtn) {
-                b.setStyle("-fx-background-color: #6366F1; -fx-text-fill: white; -fx-alignment: CENTER_LEFT; -fx-padding: 12 20; -fx-background-radius: 12; -fx-cursor: hand; -fx-font-weight: bold;");
+                b.setStyle("-fx-background-color: #6366F1; -fx-text-fill: white; -fx-alignment: CENTER_LEFT; -fx-padding: 14 22; -fx-background-radius: 14; -fx-cursor: hand; -fx-font-weight: bold; -fx-font-size: 14px;");
+                b.setEffect(new DropShadow(10, 0, 4, Color.web("#6366F14D")));
             } else {
-                b.setStyle("-fx-background-color: transparent; -fx-text-fill: #64748B; -fx-alignment: CENTER_LEFT; -fx-padding: 12 20; -fx-background-radius: 12; -fx-cursor: hand; -fx-font-weight: bold;");
+                b.setStyle("-fx-background-color: transparent; -fx-text-fill: #94A3B8; -fx-alignment: CENTER_LEFT; -fx-padding: 14 22; -fx-background-radius: 14; -fx-cursor: hand; -fx-font-weight: bold; -fx-font-size: 14px;");
+                b.setEffect(null);
             }
         }
     }
@@ -220,76 +237,84 @@ public class BlogBackOfficeController implements Initializable {
     }
 
     private Node createArticleRow(Blog b) {
-        HBox row = new HBox(20);
+        HBox row = new HBox(25);
         row.setAlignment(Pos.CENTER_LEFT);
-        row.setPadding(new Insets(15, 20, 15, 20));
-        row.setStyle("-fx-background-color: #FFFFFF; -fx-background-radius: 15; -fx-border-color: #F1F5F9; -fx-border-radius: 15;");
-        row.setEffect(new DropShadow(5, Color.web("#00000005")));
+        row.setPadding(new Insets(20, 25, 20, 25));
+        row.setStyle("-fx-background-color: #FFFFFF; -fx-background-radius: 20; -fx-border-color: #F1F5F9; -fx-border-radius: 20; -fx-border-width: 1;");
+        row.setEffect(new DropShadow(15, 0, 5, Color.web("#00000008")));
 
-        // Thumbnail
+        // Thumbnail with nice rounded corners
         ImageView iv = new ImageView();
+        iv.setFitWidth(100);
+        iv.setFitHeight(70);
+        iv.setPreserveRatio(false);
         Image img = loadImage(b.getImage());
-        if (img != null && !img.isError()) {
-            iv.setImage(img);
-        } else {
-            try {
-                iv.setImage(new Image(getClass().getResourceAsStream("/testt.png")));
-            } catch (Exception e) {
-                // Fallback ultime
-            }
-        }
-        iv.setFitHeight(55);
-        iv.setFitWidth(55);
-        iv.setPreserveRatio(true);
-        StackPane imgWrap = new StackPane(iv);
-        imgWrap.setStyle("-fx-background-color: #F1F5F9; -fx-background-radius: 10;");
-        imgWrap.setPrefSize(55,55);
+        if (img != null && !img.isError()) iv.setImage(img);
+        else iv.setImage(new Image("testt.png"));
+        
+        StackPane imgContainer = new StackPane(iv);
+        imgContainer.setStyle("-fx-background-color: #F8FAFC; -fx-background-radius: 15;");
+        javafx.scene.shape.Rectangle clip = new javafx.scene.shape.Rectangle(100, 70);
+        clip.setArcWidth(20);
+        clip.setArcHeight(20);
+        imgContainer.setClip(clip);
 
-        // Content Info
-        VBox info = new VBox(4);
+        // Content
+        VBox info = new VBox(8);
+        info.setAlignment(Pos.CENTER_LEFT);
         HBox.setHgrow(info, Priority.ALWAYS);
+
         Label title = new Label(b.getTitre());
-        title.setStyle("-fx-text-fill: #1E293B; -fx-font-size: 15px; -fx-font-weight: bold;");
+        title.setStyle("-fx-font-size: 18px; -fx-font-weight: 800; -fx-text-fill: #1E293B;");
         
-        HBox meta = new HBox(10);
+        HBox meta = new HBox(12);
         meta.setAlignment(Pos.CENTER_LEFT);
-        Label author = new Label("By " + b.getAuteurNom());
-        author.setStyle("-fx-text-fill: #94A3B8; -fx-font-size: 12px;");
-        Label category = new Label(b.getCategorie());
-        category.setStyle("-fx-background-color: #EEF2FF; -fx-text-fill: #6366F1; -fx-font-size: 10px; -fx-font-weight: bold; -fx-padding: 2 8; -fx-background-radius: 5;");
-        meta.getChildren().addAll(author, category);
+        Label user = new Label("👤 Admin");
+        user.setStyle("-fx-text-fill: #94A3B8; -fx-font-size: 12px; -fx-font-weight: bold;");
         
+        Label cat = new Label(b.getCategorie().toUpperCase());
+        cat.setStyle("-fx-background-color: #EEF2FF; -fx-text-fill: #6366F1; -fx-font-size: 10px; -fx-font-weight: 900; -fx-padding: 4 10; -fx-background-radius: 10;");
+        
+        meta.getChildren().addAll(user, cat);
         info.getChildren().addAll(title, meta);
 
-        // Stats Mini
-        VBox stats = new VBox(2);
+        // Stats Badge
+        VBox stats = new VBox(5);
         stats.setAlignment(Pos.CENTER_RIGHT);
-        stats.setMinWidth(120);
+        stats.setMinWidth(150);
+        Label loc = new Label("📍 " + b.getRegion());
+        loc.setStyle("-fx-text-fill: #1E293B; -fx-font-weight: 800; -fx-font-size: 13px;");
         Label date = new Label(b.getDatePublication() != null ? b.getDatePublication().format(dateFormatter) : "");
         date.setStyle("-fx-text-fill: #94A3B8; -fx-font-size: 11px;");
-        Label region = new Label("📍 " + b.getRegion());
-        region.setStyle("-fx-text-fill: #64748B; -fx-font-size: 12px; -fx-font-weight: bold;");
-        stats.getChildren().addAll(region, date);
+        stats.getChildren().addAll(loc, date);
 
         // Actions
-        HBox actions = new HBox(8);
+        HBox actions = new HBox(12);
         actions.setAlignment(Pos.CENTER_RIGHT);
-        
+
         Button editBtn = new Button("✏️");
-        editBtn.setStyle("-fx-background-color: #F59E0B; -fx-text-fill: white; -fx-background-radius: 8; -fx-cursor: hand;");
-        editBtn.setOnAction(e -> openEditBlogModal(b));
+        editBtn.setOnAction(e -> showBlogForm(b));
+        editBtn.setStyle("-fx-background-color: #F59E0B1A; -fx-text-fill: #F59E0B; -fx-background-radius: 12; -fx-font-size: 18px; -fx-cursor: hand; -fx-min-width: 48; -fx-min-height: 48; -fx-font-weight: bold;");
 
         Button deleteBtn = new Button("🗑️");
-        deleteBtn.setStyle("-fx-background-color: #EF4444; -fx-text-fill: white; -fx-background-radius: 8; -fx-cursor: hand;");
         deleteBtn.setOnAction(e -> confirmDelete(b));
+        deleteBtn.setStyle("-fx-background-color: #EF44441A; -fx-text-fill: #EF4444; -fx-background-radius: 12; -fx-font-size: 18px; -fx-cursor: hand; -fx-min-width: 48; -fx-min-height: 48; -fx-font-weight: bold;");
 
         actions.getChildren().addAll(editBtn, deleteBtn);
 
-        row.getChildren().addAll(imgWrap, info, stats, actions);
+        row.getChildren().addAll(imgContainer, info, stats, actions);
 
         // Hover effect
-        row.setOnMouseEntered(e -> row.setStyle("-fx-background-color: #F8FAFC; -fx-background-radius: 15; -fx-border-color: #6366F133; -fx-border-radius: 15;"));
-        row.setOnMouseExited(e -> row.setStyle("-fx-background-color: #FFFFFF; -fx-background-radius: 15; -fx-border-color: #F1F5F9; -fx-border-radius: 15;"));
+        row.setOnMouseEntered(e -> {
+            row.setStyle("-fx-background-color: #FFFFFF; -fx-background-radius: 20; -fx-padding: 20 25; -fx-border-color: #6366F144; -fx-border-radius: 20; -fx-border-width: 1;");
+            row.setEffect(new DropShadow(25, 0, 10, Color.web("#6366F11A")));
+            row.setTranslateY(-2);
+        });
+        row.setOnMouseExited(e -> {
+            row.setStyle("-fx-background-color: #FFFFFF; -fx-background-radius: 20; -fx-padding: 20 25; -fx-border-color: #F1F5F9; -fx-border-radius: 20; -fx-border-width: 1;");
+            row.setEffect(new DropShadow(15, 0, 5, Color.web("#00000008")));
+            row.setTranslateY(0);
+        });
 
         return row;
     }
@@ -319,21 +344,30 @@ public class BlogBackOfficeController implements Initializable {
     private void showBlogForm(Blog blog) {
         editingBlog = blog;
         if (blog == null) {
-            formTitle.setText("Ajouter un Article");
+            formTitle.setText("Rédaction Créative");
             formTitre.clear();
             formContenu.clear();
             formImage.clear();
             formRegion.getSelectionModel().select(0);
             formCategorie.getSelectionModel().select(0);
         } else {
-            formTitle.setText("Modifier l'Article");
+            formTitle.setText("Modification Créative");
             formTitre.setText(blog.getTitre());
             formContenu.setText(blog.getContenu());
             formImage.setText(blog.getImage());
             formRegion.setValue(blog.getRegion());
             formCategorie.setValue(blog.getCategorie());
         }
+        updatePreview();
         showView(viewBlogForm);
+    }
+
+    private void updatePreview() {
+        previewTitre.setText(formTitre.getText().isEmpty() ? "Votre titre s'affichera ici" : formTitre.getText());
+        previewRegion.setText(formRegion.getValue() == null ? "RÉGION" : formRegion.getValue().toUpperCase());
+        previewCategorie.setText(formCategorie.getValue() == null ? "CATÉGORIE" : formCategorie.getValue().toUpperCase());
+        Image img = loadImage(formImage.getText());
+        previewImage.setImage(img != null ? img : new Image("testt.png"));
     }
 
     @FXML
