@@ -1,4 +1,4 @@
-﻿package Controlles;
+package Controlles;
 
 import Entites.Blog;
 import Entites.Commentaire;
@@ -293,7 +293,7 @@ public class BlogController implements Initializable {
     private void loadUtilisateurs() {
         try {
             ObservableList<Utilisateur> users = FXCollections.observableArrayList(utilisateurCRUD.afficher());
-            currentUser = users.stream().filter(u -> u.getId() == 1).findFirst().orElse(null);
+            currentUser = users.stream().filter(u -> u.getId() == 2).findFirst().orElse(null);
             if (currentUser != null) {
                 String nomComplet = currentUser.getPrenom() + " " + currentUser.getNom();
                 auteurLabel.setText(nomComplet);
@@ -535,6 +535,41 @@ public class BlogController implements Initializable {
                     textBlock.getChildren().addAll(msgLbl, metaRow);
 
                     card.getChildren().addAll(iconBubble, textBlock);
+
+                    // Add click listener to the card
+                    card.setOnMouseClicked(ev -> {
+                        try {
+                            // Mark as read
+                            if (!n.isLu()) {
+                                notificationCRUD.marquerCommeLu(n.getId());
+                            }
+                            // Close popup
+                            notifPopup.hide();
+
+                            // Parse lien to get blog ID (e.g. "/blogs/7")
+                            if (n.getLien() != null && n.getLien().startsWith("/blogs/")) {
+                                try {
+                                    int blogId = Integer.parseInt(n.getLien().substring(7));
+                                    Blog targetBlog = blogList.stream()
+                                            .filter(b -> b.getId() == blogId)
+                                            .findFirst()
+                                            .orElse(null);
+                                    if (targetBlog != null) {
+                                        showDetailView(targetBlog);
+                                    } else {
+                                        System.out.println("Blog non trouvé pour ID: " + blogId);
+                                    }
+                                } catch (NumberFormatException ex) {
+                                    ex.printStackTrace();
+                                }
+                            }
+                            // Reload notifications to update badge and list
+                            loadNotifications();
+                        } catch (SQLException ex) {
+                            ex.printStackTrace();
+                        }
+                    });
+
                     notifList.getChildren().add(card);
                 }
 
