@@ -336,7 +336,7 @@ public class MixedFX {
                     }
                     e.consume(); // Empêche le clic d'ouvrir la carte complète
                 });
-                topPane.getChildren().add(currencyBtn);
+                
                 currencyBtn.setOnAction(e -> {
                     if (obj instanceof Transport) {
                         showCurrencyPopup((Transport) obj);
