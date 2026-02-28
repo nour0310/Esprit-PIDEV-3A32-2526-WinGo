@@ -24,12 +24,18 @@ import javafx.scene.shape.Circle;
 import javafx.util.Duration;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.sql.SQLException;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
+import javafx.stage.FileChooser;
 
 public class BlogBackOfficeController implements Initializable {
 
@@ -56,13 +62,27 @@ public class BlogBackOfficeController implements Initializable {
     // Comments List
     @FXML private VBox globalCommentsContainer;
 
+    // Blog Form (In-Place)
+    @FXML private VBox viewBlogForm;
+    @FXML private Label formTitle;
+    @FXML private TextField formTitre, formImage;
+    @FXML private TextArea formContenu;
+    @FXML private ComboBox<String> formRegion, formCategorie;
+
+    private Blog editingBlog = null;
     private List<Blog> allBlogs = new ArrayList<>();
     private final DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("dd MMM yyyy, HH:mm");
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
+        initFormComboBoxes();
         loadData();
         switchToDashboard();
+    }
+
+    private void initFormComboBoxes() {
+        formRegion.setItems(FXCollections.observableArrayList("Tunis", "Sousse", "Sfax", "Monastir", "Djerba", "Nabeul", "Bizerte", "Ariana", "Ben Arous", "Kairouan", "Gafsa", "Gabès", "Kasserine", "Médenine", "Beja", "Jendouba", "Kef", "Mahdia", "Sidi Bouzid", "Siliana", "Tataouine", "Tozeur", "Zaghouan", "Manouba"));
+        formCategorie.setItems(FXCollections.observableArrayList("Plage", "Désert", "Montagne", "Culture", "Bien-être", "Événements", "Gastronomie", "Aventure", "Nature", "Histoire"));
     }
 
     // ========== NAVIGATION & SWITCHING ==========
@@ -91,6 +111,7 @@ public class BlogBackOfficeController implements Initializable {
         viewDashboard.setVisible(false);
         viewBlogs.setVisible(false);
         viewComments.setVisible(false);
+        viewBlogForm.setVisible(false);
         
         view.setVisible(true);
         FadeTransition ft = new FadeTransition(Duration.millis(400), view);
@@ -296,68 +317,63 @@ public class BlogBackOfficeController implements Initializable {
     }
 
     private void showBlogForm(Blog blog) {
-        Dialog<Blog> dialog = new Dialog<>();
-        dialog.setTitle(blog == null ? "Ajouter un Article" : "Modifier l'Article");
-        dialog.setHeaderText(null);
+        editingBlog = blog;
+        if (blog == null) {
+            formTitle.setText("Ajouter un Article");
+            formTitre.clear();
+            formContenu.clear();
+            formImage.clear();
+            formRegion.getSelectionModel().select(0);
+            formCategorie.getSelectionModel().select(0);
+        } else {
+            formTitle.setText("Modifier l'Article");
+            formTitre.setText(blog.getTitre());
+            formContenu.setText(blog.getContenu());
+            formImage.setText(blog.getImage());
+            formRegion.setValue(blog.getRegion());
+            formCategorie.setValue(blog.getCategorie());
+        }
+        showView(viewBlogForm);
+    }
 
-        ButtonType saveButtonType = new ButtonType("Enregistrer", ButtonBar.ButtonData.OK_DONE);
-        dialog.getDialogPane().getButtonTypes().addAll(saveButtonType, ButtonType.CANCEL);
+    @FXML
+    private void saveBlog() {
+        if (formTitre.getText().isEmpty() || formContenu.getText().isEmpty()) {
+            // Petite validation
+            return;
+        }
 
-        VBox form = new VBox(15);
-        form.setPrefWidth(450);
-        form.setPadding(new Insets(20));
-
-        TextField titre = new TextField(blog != null ? blog.getTitre() : "");
-        titre.setPromptText("Titre de l'article");
-        TextArea contenu = new TextArea(blog != null ? blog.getContenu() : "");
-        contenu.setPromptText("Contenu...");
-        contenu.setPrefRowCount(8);
-        contenu.setWrapText(true);
-        TextField img = new TextField(blog != null ? blog.getImage() : "");
-        img.setPromptText("URL de l'image");
-        
-        ComboBox<String> reg = new ComboBox<>(FXCollections.observableArrayList("Tunis", "Sousse", "Sfax", "Monastir", "Djerba", "Nabeul", "Bizerte", "Ariana", "Ben Arous", "Kairouan", "Gafsa", "Gabès", "Kasserine", "Médenine", "Beja", "Jendouba", "Kef", "Mahdia", "Sidi Bouzid", "Siliana", "Tataouine", "Tozeur", "Zaghouan", "Manouba"));
-        reg.setValue(blog != null ? blog.getRegion() : "Tunis");
-        
-        ComboBox<String> cat = new ComboBox<>(FXCollections.observableArrayList("Plage", "Désert", "Montagne", "Culture", "Bien-être", "Événements", "Gastronomie", "Aventure", "Nature", "Histoire"));
-        cat.setValue(blog != null ? blog.getCategorie() : "Culture");
-
-        form.getChildren().addAll(
-            new Label("Titre"), titre,
-            new Label("Contenu"), contenu,
-            new Label("Région"), reg,
-            new Label("Catégorie"), cat,
-            new Label("Lien Image"), img
-        );
-
-        dialog.getDialogPane().setContent(form);
-
-        dialog.setResultConverter(dialogButton -> {
-            if (dialogButton == saveButtonType) {
-                if (blog == null) {
-                    return new Blog(titre.getText(), contenu.getText(), 1, img.getText(), reg.getValue(), cat.getValue());
-                } else {
-                    blog.setTitre(titre.getText());
-                    blog.setContenu(contenu.getText());
-                    blog.setImage(img.getText());
-                    blog.setRegion(reg.getValue());
-                    blog.setCategorie(cat.getValue());
-                    return blog;
-                }
+        try {
+            if (editingBlog == null) {
+                // Ajout
+                Blog b = new Blog(
+                    formTitre.getText(),
+                    formContenu.getText(),
+                    1, // auteur hardcodé
+                    formImage.getText(),
+                    formRegion.getValue(),
+                    formCategorie.getValue()
+                );
+                blogCRUD.ajouter(b);
+            } else {
+                // Modification
+                editingBlog.setTitre(formTitre.getText());
+                editingBlog.setContenu(formContenu.getText());
+                editingBlog.setImage(formImage.getText());
+                editingBlog.setRegion(formRegion.getValue());
+                editingBlog.setCategorie(formCategorie.getValue());
+                blogCRUD.modifier(editingBlog);
             }
-            return null;
-        });
+            loadData();
+            switchToBlogs();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
 
-        Optional<Blog> result = dialog.showAndWait();
-        result.ifPresent(b -> {
-            try {
-                if (blog == null) blogCRUD.ajouter(b);
-                else blogCRUD.modifier(b);
-                loadData();
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
-        });
+    @FXML
+    private void cancelBlogForm() {
+        switchToBlogs();
     }
 
     private void confirmDelete(Blog b) {
@@ -458,6 +474,38 @@ public class BlogBackOfficeController implements Initializable {
             e.printStackTrace();
         }
     }
+    @FXML
+    private void chooseImage() {
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Choisir l'Image de l'Article");
+        fileChooser.getExtensionFilters().addAll(
+            new FileChooser.ExtensionFilter("Images", "*.png", "*.jpg", "*.jpeg", "*.gif")
+        );
+        File selectedFile = fileChooser.showOpenDialog(viewBlogForm.getScene().getWindow());
+        if (selectedFile != null) {
+            try {
+                // Créer le dossier images s'il n'existe pas dans le projet (optionnel mais recommandé)
+                Path targetDir = Paths.get("src/main/resources/images");
+                if (!Files.exists(targetDir)) {
+                    Files.createDirectories(targetDir);
+                }
+                
+                // On copie le fichier
+                Path targetPath = targetDir.resolve(selectedFile.getName());
+                Files.copy(selectedFile.toPath(), targetPath, StandardCopyOption.REPLACE_EXISTING);
+                
+                // On met à jour le champ texte avec le nom relatif ou absolu
+                // Ici on met "images/nom.png" pour que ce soit compatible avec nos ressources
+                formImage.setText("images/" + selectedFile.getName());
+                
+            } catch (IOException e) {
+                e.printStackTrace();
+                // En cas d'erreur on met au moins le chemin absolu
+                formImage.setText(selectedFile.getAbsolutePath());
+            }
+        }
+    }
+
     private Image loadImage(String path) {
         if (path == null || path.isEmpty()) return null;
         try {

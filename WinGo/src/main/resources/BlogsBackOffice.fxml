@@ -12,7 +12,7 @@
 <HBox prefHeight="850" prefWidth="1300" style="-fx-background-color: #F8FAFC;" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Controlles.BlogBackOfficeController">
 
     <!-- Sidebar -->
-    <VBox prefWidth="260" spacing="10" style="-fx-background-color: #FFFFFF; -fx-padding: 30 15 30 15;">
+    <VBox prefWidth="300" spacing="10" style="-fx-background-color: #FFFFFF; -fx-padding: 30 15 30 15;">
         <effect><DropShadow color="#00000008" radius="15" /></effect>
         
         <HBox alignment="CENTER_LEFT" spacing="12" style="-fx-padding: 0 0 30 10;">
@@ -27,15 +27,15 @@
 
         <Label text="PRINCIPAL" style="-fx-text-fill: #CBD5E1; -fx-font-size: 11px; -fx-font-weight: 800; -fx-padding: 10 0 5 15;" />
 
-        <ToggleButton fx:id="btnDashboard" mnemonicParsing="false" onAction="#switchToDashboard" prefWidth="230" selected="true" style="-fx-background-color: #6366F1; -fx-text-fill: white; -fx-alignment: CENTER_LEFT; -fx-padding: 12 20; -fx-background-radius: 12; -fx-cursor: hand; -fx-font-weight: bold;" text="Dashboard">
+        <ToggleButton fx:id="btnDashboard" mnemonicParsing="false" onAction="#switchToDashboard" prefWidth="270" selected="true" style="-fx-background-color: #6366F1; -fx-text-fill: white; -fx-alignment: CENTER_LEFT; -fx-padding: 12 20; -fx-background-radius: 12; -fx-cursor: hand; -fx-font-weight: bold;" text="Dashboard">
             <toggleGroup>
                 <ToggleGroup fx:id="navGroup" />
             </toggleGroup>
         </ToggleButton>
 
-        <ToggleButton fx:id="btnBlogs" mnemonicParsing="false" onAction="#switchToBlogs" prefWidth="230" style="-fx-background-color: transparent; -fx-text-fill: #64748B; -fx-alignment: CENTER_LEFT; -fx-padding: 12 20; -fx-background-radius: 12; -fx-cursor: hand; -fx-font-weight: bold;" text="Gestion Blogs" toggleGroup="$navGroup" />
+        <ToggleButton fx:id="btnBlogs" mnemonicParsing="false" onAction="#switchToBlogs" prefWidth="270" style="-fx-background-color: transparent; -fx-text-fill: #64748B; -fx-alignment: CENTER_LEFT; -fx-padding: 12 20; -fx-background-radius: 12; -fx-cursor: hand; -fx-font-weight: bold;" text="Gestion Blogs" toggleGroup="$navGroup" />
 
-        <ToggleButton fx:id="btnComments" mnemonicParsing="false" onAction="#switchToComments" prefWidth="230" style="-fx-background-color: transparent; -fx-text-fill: #64748B; -fx-alignment: CENTER_LEFT; -fx-padding: 12 20; -fx-background-radius: 12; -fx-cursor: hand; -fx-font-weight: bold;" text="Commentaires" toggleGroup="$navGroup" />
+        <ToggleButton fx:id="btnComments" mnemonicParsing="false" onAction="#switchToComments" prefWidth="270" style="-fx-background-color: transparent; -fx-text-fill: #64748B; -fx-alignment: CENTER_LEFT; -fx-padding: 12 20; -fx-background-radius: 12; -fx-cursor: hand; -fx-font-weight: bold;" text="Commentaires" toggleGroup="$navGroup" />
 
         <Region VBox.vgrow="ALWAYS" />
         
@@ -152,27 +152,30 @@
                 </columnConstraints>
                 
                 <VBox spacing="8" GridPane.columnIndex="0" GridPane.rowIndex="0">
-                    <Label text="Titre de l'article" style="-fx-text-fill: #1E293B; -fx-font-weight: bold; -fx-font-size: 13px;" />
-                    <TextField fx:id="formTitre" placeholder="Ex: Les merveilles de Carthage" style="-fx-background-color: #F8FAFC; -fx-background-radius: 12; -fx-padding: 12; -fx-border-color: #E2E8F0; -fx-border-radius: 12;" />
+                    <Label text="📝 Titre de l'article" style="-fx-text-fill: #1E293B; -fx-font-weight: bold; -fx-font-size: 13px;" />
+                    <TextField fx:id="formTitre" promptText="Ex: Les merveilles de Carthage" style="-fx-background-color: #F8FAFC; -fx-background-radius: 12; -fx-padding: 12; -fx-border-color: #E2E8F0; -fx-border-radius: 12;" />
                 </VBox>
 
                 <VBox spacing="8" GridPane.columnIndex="1" GridPane.rowIndex="0">
-                    <Label text="Image (URL ou Chemin local)" style="-fx-text-fill: #1E293B; -fx-font-weight: bold; -fx-font-size: 13px;" />
-                    <TextField fx:id="formImage" placeholder="C:\images\mon-blog.jpg" style="-fx-background-color: #F8FAFC; -fx-background-radius: 12; -fx-padding: 12; -fx-border-color: #E2E8F0; -fx-border-radius: 12;" />
+                    <Label text="🖼️ Image de l'article" style="-fx-text-fill: #1E293B; -fx-font-weight: bold; -fx-font-size: 13px;" />
+                    <HBox spacing="10">
+                        <TextField fx:id="formImage" HBox.hgrow="ALWAYS" promptText="URL ou Chemin local" style="-fx-background-color: #F8FAFC; -fx-background-radius: 12; -fx-padding: 12; -fx-border-color: #E2E8F0; -fx-border-radius: 12;" />
+                        <Button onAction="#chooseImage" style="-fx-background-color: #FFFFFF; -fx-border-color: #6366F1; -fx-border-radius: 10; -fx-text-fill: #6366F1; -fx-font-weight: bold; -fx-cursor: hand; -fx-padding: 10;" text="Choisir..." />
+                    </HBox>
                 </VBox>
 
                 <VBox spacing="8" GridPane.columnIndex="0" GridPane.rowIndex="1">
-                    <Label text="Région" style="-fx-text-fill: #1E293B; -fx-font-weight: bold; -fx-font-size: 13px;" />
+                    <Label text="📍 Région" style="-fx-text-fill: #1E293B; -fx-font-weight: bold; -fx-font-size: 13px;" />
                     <ComboBox fx:id="formRegion" prefWidth="500" style="-fx-background-color: #F8FAFC; -fx-background-radius: 12; -fx-padding: 10; -fx-border-color: #E2E8F0; -fx-border-radius: 12;" />
                 </VBox>
 
                 <VBox spacing="8" GridPane.columnIndex="1" GridPane.rowIndex="1">
-                    <Label text="Catégorie" style="-fx-text-fill: #1E293B; -fx-font-weight: bold; -fx-font-size: 13px;" />
+                    <Label text="🏷️ Catégorie" style="-fx-text-fill: #1E293B; -fx-font-weight: bold; -fx-font-size: 13px;" />
                     <ComboBox fx:id="formCategorie" prefWidth="500" style="-fx-background-color: #F8FAFC; -fx-background-radius: 12; -fx-padding: 10; -fx-border-color: #E2E8F0; -fx-border-radius: 12;" />
                 </VBox>
 
                 <VBox spacing="8" GridPane.columnSpan="2" GridPane.rowIndex="2">
-                    <Label text="Contenu de l'article" style="-fx-text-fill: #1E293B; -fx-font-weight: bold; -fx-font-size: 13px;" />
+                    <Label text="📄 Contenu de l'article" style="-fx-text-fill: #1E293B; -fx-font-weight: bold; -fx-font-size: 13px;" />
                     <TextArea fx:id="formContenu" prefHeight="250" wrapText="true" style="-fx-background-color: #F8FAFC; -fx-background-radius: 12; -fx-padding: 12; -fx-border-color: #E2E8F0; -fx-border-radius: 12;" />
                 </VBox>
             </GridPane>
