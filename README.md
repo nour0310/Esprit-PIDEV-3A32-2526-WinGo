@@ -33,6 +33,7 @@ Wingo propose une expérience interactive et intuitive pour découvrir la Tunisi
 
 ---
 
+<<<<<<< HEAD
 ## 🖥️ Technologies utilisées
 - **Frontend** : HTML / CSS / JavaScript / React (ou Angular)
 - **Backend** : Java / Spring Boot (ou Symfony)
@@ -40,6 +41,21 @@ Wingo propose une expérience interactive et intuitive pour découvrir la Tunisi
 - **Design** : Figma / Google Stitch / Canva
 - **Gestion de versions** : Git & GitHub
 
+=======
+**🔹 Desktop Application (JavaFX)**
+- **Frontend (Desktop)** : JavaFX avec Scene Builder pour les interfaces graphiques
+- **Backend** : Java (JDK 17/21) avec JDBC pour la connexion à la base de données
+
+**🔹 Web Application (Symfony)**
+- **Framework** : Symfony 6.4 (MVC Architecture)
+- **ORM** : Doctrine pour la persistance des données
+- **Templating** : Twig pour les vues
+
+**🔹 Outils transversaux**
+- **Versioning** : Git & GitHub pour la gestion de versions
+- **IDE** : IntelliJ IDEA
+- **Serveur local** : XAMPP (pour MySQL)
+>>>>>>> origin/integration-user-blogs
 ---
 
 ## 📸 Interface & design
