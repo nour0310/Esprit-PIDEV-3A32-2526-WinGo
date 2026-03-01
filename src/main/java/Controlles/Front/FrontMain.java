@@ -1,19 +1,17 @@
-package Controlles;
+package Controlles.Front;
 
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 
-public class Home extends Application {
+public class FrontMain extends Application {
 
     @Override
     public void start(Stage stage) throws Exception {
-        FXMLLoader loader = new FXMLLoader(
-                getClass().getResource("/FrontEvent.fxml")
-        );
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("/FrontEvent.fxml"));
         stage.setScene(new Scene(loader.load()));
-        stage.setTitle("WinGO — Discover Events");
+        stage.setTitle("WinGO - Discover Events");
         stage.show();
     }
 

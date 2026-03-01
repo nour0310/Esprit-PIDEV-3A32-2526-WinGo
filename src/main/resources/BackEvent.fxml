@@ -1,0 +1,386 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.chart.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.effect.DropShadow?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.shape.Circle?>
+
+<!--
+    BackEvent.fxml  —  Admin / Back-Office View
+    Controller: Controlles.Back.BackEventController
+-->
+<HBox prefHeight="860" prefWidth="1400"
+      style="-fx-background-color:#F8FAFC;"
+      xmlns="http://javafx.com/javafx/17"
+      xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="Controlles.Back.BackEventController">
+
+    <!-- ══ SIDEBAR ══════════════════════════════════════════════════ -->
+    <VBox fx:id="sidebar" prefWidth="240" spacing="6"
+          style="-fx-background-color:#0F172A; -fx-padding:28 14 28 14;">
+        <effect>
+            <DropShadow color="#00000040" radius="20"/>
+        </effect>
+
+        <!-- Logo -->
+        <VBox alignment="CENTER_LEFT" style="-fx-padding:0 0 30 8;">
+            <Label text="WinGO" style="-fx-text-fill:white;-fx-font-size:24px;-fx-font-weight:900;"/>
+            <Label text="BACK OFFICE" style="-fx-text-fill:#475569;-fx-font-size:10px;-fx-font-weight:800;-fx-letter-spacing:2px;"/>
+        </VBox>
+
+        <Label text="NAVIGATION" style="-fx-text-fill:#334155;-fx-font-size:10px;-fx-font-weight:800;-fx-padding:0 0 6 8;"/>
+
+        <ToggleButton fx:id="btnDashboard" text="📊  Dashboard"
+                      onAction="#showDashboard" prefWidth="212" selected="true"
+                      style="-fx-background-color:#6366F1;-fx-text-fill:white;-fx-alignment:CENTER_LEFT;-fx-padding:13 18;-fx-background-radius:12;-fx-cursor:hand;-fx-font-weight:bold;-fx-font-size:13px;">
+            <toggleGroup>
+                <ToggleGroup fx:id="navGroup"/>
+            </toggleGroup>
+        </ToggleButton>
+
+        <ToggleButton fx:id="btnEvents" text="🗓️  Events"
+                      onAction="#showEvents" prefWidth="212"
+                      style="-fx-background-color:transparent;-fx-text-fill:#94A3B8;-fx-alignment:CENTER_LEFT;-fx-padding:13 18;-fx-background-radius:12;-fx-cursor:hand;-fx-font-weight:bold;-fx-font-size:13px;"
+                      toggleGroup="$navGroup"/>
+
+        <ToggleButton fx:id="btnParticipations" text="👥  Participations"
+                      onAction="#showParticipations" prefWidth="212"
+                      style="-fx-background-color:transparent;-fx-text-fill:#94A3B8;-fx-alignment:CENTER_LEFT;-fx-padding:13 18;-fx-background-radius:12;-fx-cursor:hand;-fx-font-weight:bold;-fx-font-size:13px;"
+                      toggleGroup="$navGroup"/>
+
+        <Region VBox.vgrow="ALWAYS"/>
+
+        <!-- Status badge -->
+        <VBox alignment="CENTER" spacing="8"
+              style="-fx-background-color:#1E293B44;-fx-background-radius:12;-fx-padding:16;">
+            <Label text="SYSTEM" style="-fx-text-fill:#475569;-fx-font-size:9px;-fx-font-weight:900;"/>
+            <HBox alignment="CENTER" spacing="6">
+                <Circle fill="#10B981" radius="4"/>
+                <Label text="Online" style="-fx-text-fill:#10B981;-fx-font-size:11px;-fx-font-weight:bold;"/>
+            </HBox>
+        </VBox>
+    </VBox>
+
+    <!-- ══ MAIN CONTENT ═════════════════════════════════════════════ -->
+    <StackPane HBox.hgrow="ALWAYS" style="-fx-padding:30;">
+
+        <!-- ─── VIEW: DASHBOARD WITH SCROLL ───────────────────────── -->
+        <ScrollPane fx:id="dashboardScroll" fitToWidth="true" hbarPolicy="NEVER"
+                    vbarPolicy="AS_NEEDED"
+                    style="-fx-background: transparent; -fx-background-color: transparent; -fx-border-color: transparent;">
+            <content>
+                <VBox fx:id="viewDashboard" spacing="22" style="-fx-padding: 0 0 20 0;"
+                      maxWidth="Infinity">
+                    <padding>
+                        <Insets bottom="30"/>
+                    </padding>
+
+                    <!-- Header row -->
+                    <HBox alignment="CENTER_LEFT" spacing="16">
+                        <VBox>
+                            <Label text="Dashboard" style="-fx-text-fill:#1E293B;-fx-font-size:30px;-fx-font-weight:900;"/>
+                            <Label text="Overview of all events and participations"
+                                   style="-fx-text-fill:#94A3B8;-fx-font-size:14px;"/>
+                        </VBox>
+                        <Region HBox.hgrow="ALWAYS"/>
+                        <Button text="🔄 Refresh" onAction="#calculateStatistics"
+                                style="-fx-background-color:white;-fx-background-radius:10;-fx-padding:10 22;-fx-text-fill:#6366F1;-fx-font-weight:bold;-fx-cursor:hand;-fx-border-color:#E2E8F0;-fx-border-radius:10;"/>
+                    </HBox>
+
+                    <Separator/>
+
+                    <!-- KPI Cards -->
+                    <HBox spacing="20">
+                        <!-- Total Events -->
+                        <VBox prefWidth="200" style="-fx-background-color:linear-gradient(to bottom right,#6366F1,#8B5CF6);-fx-background-radius:20;-fx-padding:24;">
+                            <effect>
+                                <DropShadow color="#6366F14D" radius="16" offsetY="8"/>
+                            </effect>
+                            <Label text="TOTAL EVENTS" style="-fx-text-fill:#E0E7FF;-fx-font-size:10px;-fx-font-weight:900;"/>
+                            <Label fx:id="totalEventsLabel" text="0" style="-fx-text-fill:white;-fx-font-size:38px;-fx-font-weight:900;"/>
+                            <Label fx:id="upcomingEventsLabel" text="0 upcoming" style="-fx-text-fill:#C7D2FE;-fx-font-size:11px;"/>
+                        </VBox>
+                        <!-- Total Participations -->
+                        <VBox prefWidth="200" style="-fx-background-color:linear-gradient(to bottom right,#0EA5E9,#0284C7);-fx-background-radius:20;-fx-padding:24;">
+                            <effect>
+                                <DropShadow color="#0EA5E94D" radius="16" offsetY="8"/>
+                            </effect>
+                            <Label text="PARTICIPATIONS" style="-fx-text-fill:#BAE6FD;-fx-font-size:10px;-fx-font-weight:900;"/>
+                            <Label fx:id="totalParticipationsLabel" text="0" style="-fx-text-fill:white;-fx-font-size:38px;-fx-font-weight:900;"/>
+                            <Label text="Across all events" style="-fx-text-fill:#BAE6FD;-fx-font-size:11px;"/>
+                        </VBox>
+                        <!-- Revenue -->
+                        <VBox prefWidth="200" style="-fx-background-color:linear-gradient(to bottom right,#10B981,#059669);-fx-background-radius:20;-fx-padding:24;">
+                            <effect>
+                                <DropShadow color="#10B9814D" radius="16" offsetY="8"/>
+                            </effect>
+                            <Label text="TOTAL REVENUE" style="-fx-text-fill:#D1FAE5;-fx-font-size:10px;-fx-font-weight:900;"/>
+                            <Label fx:id="totalRevenueLabel" text="0.00$" style="-fx-text-fill:white;-fx-font-size:28px;-fx-font-weight:900;"/>
+                            <Label fx:id="averageFillRateLabel" text="0% avg fill" style="-fx-text-fill:#D1FAE5;-fx-font-size:11px;"/>
+                        </VBox>
+                        <!-- Avg Price -->
+                        <VBox prefWidth="200" style="-fx-background-color:white;-fx-background-radius:20;-fx-padding:24;-fx-border-color:#F1F5F9;-fx-border-width:1;">
+                            <effect>
+                                <DropShadow color="#0000000A" radius="16" offsetY="8"/>
+                            </effect>
+                            <Label text="AVERAGE PRICE" style="-fx-text-fill:#94A3B8;-fx-font-size:10px;-fx-font-weight:900;"/>
+                            <Label fx:id="averagePriceLabel" text="0.00$" style="-fx-text-fill:#1E293B;-fx-font-size:28px;-fx-font-weight:900;"/>
+                            <!-- FIXED: Removed wrapText attribute -->
+                            <Label fx:id="mostBookedEventLabel" text="—" style="-fx-text-fill:#64748B;-fx-font-size:10px;"/>
+                        </VBox>
+                    </HBox>
+
+                    <!-- Charts row -->
+                    <HBox spacing="20">
+                        <!-- Pie chart -->
+                        <VBox HBox.hgrow="ALWAYS" spacing="10"
+                              style="-fx-background-color:white;-fx-background-radius:18;-fx-padding:22;">
+                            <Label text="Events by Type" style="-fx-text-fill:#1E293B;-fx-font-size:15px;-fx-font-weight:bold;"/>
+                            <PieChart fx:id="eventTypePieChart" prefHeight="200" labelsVisible="true" legendVisible="false"/>
+                        </VBox>
+                        <!-- Bar chart -->
+                        <VBox HBox.hgrow="ALWAYS" spacing="10"
+                              style="-fx-background-color:white;-fx-background-radius:18;-fx-padding:22;">
+                            <Label text="Monthly Bookings" style="-fx-text-fill:#1E293B;-fx-font-size:15px;-fx-font-weight:bold;"/>
+                            <BarChart fx:id="monthlyBookingsChart" prefHeight="200" legendVisible="false">
+                                <xAxis>
+                                    <CategoryAxis label="Month"/>
+                                </xAxis>
+                                <yAxis>
+                                    <NumberAxis label="Bookings"/>
+                                </yAxis>
+                            </BarChart>
+                        </VBox>
+                    </HBox>
+
+                    <!-- Top events table -->
+                    <VBox spacing="10" style="-fx-background-color:white;-fx-background-radius:18;-fx-padding:22;">
+                        <Label text="Top Events by Bookings" style="-fx-text-fill:#1E293B;-fx-font-size:15px;-fx-font-weight:bold;"/>
+                        <TableView fx:id="topEventsTable" prefHeight="200">
+                            <columns>
+                                <TableColumn fx:id="topEventRank" text="#" prefWidth="40"/>
+                                <TableColumn fx:id="topEventTitle" text="Title" prefWidth="240"/>
+                                <TableColumn fx:id="topEventBookings" text="Bookings" prefWidth="100"/>
+                                <TableColumn fx:id="topEventRevenue" text="Revenue" prefWidth="120"/>
+                                <TableColumn fx:id="topEventFillRate" text="Fill Rate" prefWidth="100"/>
+                            </columns>
+                        </TableView>
+                    </VBox>
+                </VBox>
+            </content>
+        </ScrollPane>
+
+        <!-- ─── VIEW: EVENTS WITH SCROLL ─────────────────────────── -->
+        <ScrollPane fx:id="eventsScroll" fitToWidth="true" hbarPolicy="NEVER"
+                    vbarPolicy="AS_NEEDED" visible="false" managed="false"
+                    style="-fx-background: transparent; -fx-background-color: transparent; -fx-border-color: transparent;">
+            <content>
+                <VBox fx:id="viewEvents" spacing="20" style="-fx-padding: 0 0 20 0;"
+                      maxWidth="Infinity">
+                    <padding>
+                        <Insets bottom="30"/>
+                    </padding>
+
+                    <HBox alignment="CENTER_LEFT">
+                        <VBox>
+                            <Label text="Event Management" style="-fx-text-fill:#1E293B;-fx-font-size:28px;-fx-font-weight:900;"/>
+                            <Label text="Create, update and remove events"
+                                   style="-fx-text-fill:#94A3B8;-fx-font-size:13px;"/>
+                        </VBox>
+                        <Region HBox.hgrow="ALWAYS"/>
+                        <Label fx:id="eventCountBadge" text="0"
+                               style="-fx-background-color:#EEF2FF;-fx-text-fill:#6366F1;-fx-font-weight:900;-fx-font-size:18px;-fx-padding:4 14;-fx-background-radius:20;"/>
+                    </HBox>
+
+                    <HBox spacing="20">
+
+                        <!-- Left: Form -->
+                        <VBox prefWidth="340" spacing="14"
+                              style="-fx-background-color:white;-fx-background-radius:18;-fx-padding:22;">
+                            <effect>
+                                <DropShadow color="#0000000A" radius="14"/>
+                            </effect>
+                            <Label text="Event Form" style="-fx-text-fill:#1E293B;-fx-font-size:16px;-fx-font-weight:bold;"/>
+
+                            <TextField fx:id="titleField" promptText="Title *"
+                                       style="-fx-background-color:#F8FAFC;-fx-background-radius:10;-fx-padding:10;-fx-border-color:#E2E8F0;-fx-border-radius:10;"/>
+                            <TextArea fx:id="descriptionArea" promptText="Description" prefRowCount="3" wrapText="true"
+                                      style="-fx-background-color:#F8FAFC;-fx-background-radius:10;-fx-padding:10;-fx-border-color:#E2E8F0;-fx-border-radius:10;"/>
+                            <TextField fx:id="locationField" promptText="Location"
+                                       style="-fx-background-color:#F8FAFC;-fx-background-radius:10;-fx-padding:10;-fx-border-color:#E2E8F0;-fx-border-radius:10;"/>
+                            <DatePicker fx:id="datePicker" maxWidth="Infinity"
+                                        style="-fx-background-color:#F8FAFC;-fx-border-color:#E2E8F0;-fx-border-radius:10;"/>
+                            <TextField fx:id="timeField" promptText="Time (HH:mm)"
+                                       style="-fx-background-color:#F8FAFC;-fx-background-radius:10;-fx-padding:10;-fx-border-color:#E2E8F0;-fx-border-radius:10;"/>
+                            <HBox spacing="10">
+                                <TextField fx:id="capacityField" promptText="Capacity" HBox.hgrow="ALWAYS"
+                                           style="-fx-background-color:#F8FAFC;-fx-background-radius:10;-fx-padding:10;-fx-border-color:#E2E8F0;-fx-border-radius:10;"/>
+                                <TextField fx:id="priceField" promptText="Price" HBox.hgrow="ALWAYS"
+                                           style="-fx-background-color:#F8FAFC;-fx-background-radius:10;-fx-padding:10;-fx-border-color:#E2E8F0;-fx-border-radius:10;"/>
+                            </HBox>
+                            <ComboBox fx:id="eventTypeBox" maxWidth="Infinity"
+                                      style="-fx-background-color:#F8FAFC;-fx-border-color:#E2E8F0;-fx-border-radius:10;"/>
+                            <ComboBox fx:id="seasonBox" maxWidth="Infinity"
+                                      style="-fx-background-color:#F8FAFC;-fx-border-color:#E2E8F0;-fx-border-radius:10;"/>
+                            <TextField fx:id="statusField" promptText="Status"
+                                       style="-fx-background-color:#F8FAFC;-fx-background-radius:10;-fx-padding:10;-fx-border-color:#E2E8F0;-fx-border-radius:10;"/>
+                            <HBox spacing="8">
+                                <TextField fx:id="imageField" HBox.hgrow="ALWAYS" promptText="Image path"
+                                           style="-fx-background-color:#F8FAFC;-fx-background-radius:10;-fx-padding:10;-fx-border-color:#E2E8F0;-fx-border-radius:10;"/>
+                                <Button text="📁" onAction="#chooseImage"
+                                        style="-fx-background-color:#6366F1;-fx-text-fill:white;-fx-padding:10 14;-fx-background-radius:10;-fx-cursor:hand;"/>
+                            </HBox>
+                            <Label fx:id="eventImagePathLabel" text="" wrapText="true"
+                                   style="-fx-text-fill:#6366F1;-fx-font-size:11px;"/>
+                            <ImageView fx:id="eventImageView" fitHeight="60" fitWidth="60" preserveRatio="true"/>
+
+                            <HBox spacing="8">
+                                <Button text="➕ Add" onAction="#addEvent" HBox.hgrow="ALWAYS"
+                                        style="-fx-background-color:#10B981;-fx-text-fill:white;-fx-font-weight:bold;-fx-padding:10;-fx-background-radius:10;-fx-cursor:hand;"/>
+                                <Button text="✏️ Update" onAction="#updateEvent" HBox.hgrow="ALWAYS"
+                                        style="-fx-background-color:#6366F1;-fx-text-fill:white;-fx-font-weight:bold;-fx-padding:10;-fx-background-radius:10;-fx-cursor:hand;"/>
+                                <Button text="🗑 Delete" onAction="#deleteEvent" HBox.hgrow="ALWAYS"
+                                        style="-fx-background-color:#EF4444;-fx-text-fill:white;-fx-font-weight:bold;-fx-padding:10;-fx-background-radius:10;-fx-cursor:hand;"/>
+                            </HBox>
+                            <Button text="Clear Fields" onAction="#clearEventFields"
+                                    style="-fx-background-color:#F1F5F9;-fx-text-fill:#64748B;-fx-font-weight:bold;-fx-padding:10;-fx-background-radius:10;-fx-cursor:hand;"/>
+                        </VBox>
+
+                        <!-- Right: Table -->
+                        <VBox HBox.hgrow="ALWAYS" spacing="12">
+                            <HBox spacing="10">
+                                <TextField fx:id="globalSearchField" HBox.hgrow="ALWAYS"
+                                           promptText="Search events..."
+                                           onAction="#onSearchEvent"
+                                           style="-fx-background-color:white;-fx-background-radius:12;-fx-padding:10 16;-fx-border-color:#E2E8F0;-fx-border-radius:12;"/>
+                                <Button text="✕" onAction="#onClearEventSearch"
+                                        style="-fx-background-color:#F1F5F9;-fx-text-fill:#64748B;-fx-padding:10 14;-fx-background-radius:10;-fx-cursor:hand;"/>
+                            </HBox>
+                            <Label fx:id="eventResultCountLabel" text="" style="-fx-text-fill:#64748B;-fx-font-size:12px;"/>
+                            <TableView fx:id="eventTable" VBox.vgrow="ALWAYS" prefHeight="400">
+                                <columns>
+                                    <TableColumn fx:id="colId" text="ID" prefWidth="50"/>
+                                    <TableColumn fx:id="colTitle" text="Title" prefWidth="180"/>
+                                    <TableColumn fx:id="colLocation" text="Location" prefWidth="130"/>
+                                    <TableColumn fx:id="colDate" text="Date" prefWidth="90"/>
+                                    <TableColumn fx:id="colTime" text="Time" prefWidth="70"/>
+                                    <TableColumn fx:id="colCapacity" text="Capacity" prefWidth="70"/>
+                                    <TableColumn fx:id="colSeason" text="Season" prefWidth="90"/>
+                                    <TableColumn fx:id="colStatus" text="Status" prefWidth="90"/>
+                                    <TableColumn fx:id="colPrice" text="Price" prefWidth="80"/>
+                                    <TableColumn fx:id="colBookings" text="Bookings" prefWidth="80"/>
+                                    <TableColumn fx:id="colRevenue" text="Revenue" prefWidth="90"/>
+                                </columns>
+                            </TableView>
+                        </VBox>
+                    </HBox>
+                </VBox>
+            </content>
+        </ScrollPane>
+
+        <!-- ─── VIEW: PARTICIPATIONS WITH SCROLL ─────────────────── -->
+        <ScrollPane fx:id="participationsScroll" fitToWidth="true" hbarPolicy="NEVER"
+                    vbarPolicy="AS_NEEDED" visible="false" managed="false"
+                    style="-fx-background: transparent; -fx-background-color: transparent; -fx-border-color: transparent;">
+            <content>
+                <VBox fx:id="viewParticipations" spacing="20" style="-fx-padding: 0 0 20 0;"
+                      maxWidth="Infinity">
+                    <padding>
+                        <Insets bottom="30"/>
+                    </padding>
+
+                    <HBox alignment="CENTER_LEFT">
+                        <VBox>
+                            <Label text="Participation Management"
+                                   style="-fx-text-fill:#1E293B;-fx-font-size:28px;-fx-font-weight:900;"/>
+                            <Label text="View, edit and delete participant registrations"
+                                   style="-fx-text-fill:#94A3B8;-fx-font-size:13px;"/>
+                        </VBox>
+                        <Region HBox.hgrow="ALWAYS"/>
+                        <Label fx:id="participationCountBadge" text="0"
+                               style="-fx-background-color:#EEF2FF;-fx-text-fill:#6366F1;-fx-font-weight:900;-fx-font-size:18px;-fx-padding:4 14;-fx-background-radius:20;"/>
+                    </HBox>
+
+                    <HBox spacing="20">
+
+                        <!-- Left: Edit Form -->
+                        <VBox prefWidth="300" spacing="12"
+                              style="-fx-background-color:white;-fx-background-radius:18;-fx-padding:22;">
+                            <effect>
+                                <DropShadow color="#0000000A" radius="14"/>
+                            </effect>
+                            <Label text="Edit Participation" style="-fx-text-fill:#1E293B;-fx-font-size:15px;-fx-font-weight:bold;"/>
+
+                            <ComboBox fx:id="eventSelectorBox" maxWidth="Infinity" promptText="Select Event"
+                                      style="-fx-background-color:#F8FAFC;-fx-border-color:#E2E8F0;-fx-border-radius:10;"/>
+                            <TextField fx:id="nomField" promptText="Last Name *"
+                                       style="-fx-background-color:#F8FAFC;-fx-background-radius:10;-fx-padding:10;-fx-border-color:#E2E8F0;-fx-border-radius:10;"/>
+                            <TextField fx:id="prenomField" promptText="First Name"
+                                       style="-fx-background-color:#F8FAFC;-fx-background-radius:10;-fx-padding:10;-fx-border-color:#E2E8F0;-fx-border-radius:10;"/>
+                            <TextField fx:id="emailField" promptText="Email *"
+                                       style="-fx-background-color:#F8FAFC;-fx-background-radius:10;-fx-padding:10;-fx-border-color:#E2E8F0;-fx-border-radius:10;"/>
+                            <TextField fx:id="telephoneField" promptText="Phone"
+                                       style="-fx-background-color:#F8FAFC;-fx-background-radius:10;-fx-padding:10;-fx-border-color:#E2E8F0;-fx-border-radius:10;"/>
+                            <TextField fx:id="placesField" promptText="Seats"
+                                       style="-fx-background-color:#F8FAFC;-fx-background-radius:10;-fx-padding:10;-fx-border-color:#E2E8F0;-fx-border-radius:10;"/>
+                            <ComboBox fx:id="statutBox" maxWidth="Infinity"
+                                      style="-fx-background-color:#F8FAFC;-fx-border-color:#E2E8F0;-fx-border-radius:10;"/>
+                            <DatePicker fx:id="partDatePicker" maxWidth="Infinity"
+                                        style="-fx-background-color:#F8FAFC;-fx-border-color:#E2E8F0;-fx-border-radius:10;"/>
+                            <TextField fx:id="userIdField" text="1" visible="false" managed="false"/>
+
+                            <HBox spacing="8">
+                                <Button text="➕ Add" onAction="#addParticipation" HBox.hgrow="ALWAYS"
+                                        style="-fx-background-color:#10B981;-fx-text-fill:white;-fx-font-weight:bold;-fx-padding:10;-fx-background-radius:10;-fx-cursor:hand;"/>
+                                <Button text="✏️ Edit" onAction="#updateParticipation" HBox.hgrow="ALWAYS"
+                                        style="-fx-background-color:#6366F1;-fx-text-fill:white;-fx-font-weight:bold;-fx-padding:10;-fx-background-radius:10;-fx-cursor:hand;"/>
+                                <Button text="🗑 Del" onAction="#deleteParticipation" HBox.hgrow="ALWAYS"
+                                        style="-fx-background-color:#EF4444;-fx-text-fill:white;-fx-font-weight:bold;-fx-padding:10;-fx-background-radius:10;-fx-cursor:hand;"/>
+                            </HBox>
+                            <Button text="Clear Fields" onAction="#clearParticipationFields"
+                                    style="-fx-background-color:#F1F5F9;-fx-text-fill:#64748B;-fx-font-weight:bold;-fx-padding:10;-fx-background-radius:10;-fx-cursor:hand;"/>
+                        </VBox>
+
+                        <!-- Right: Table + Search -->
+                        <VBox HBox.hgrow="ALWAYS" spacing="12">
+                            <HBox spacing="10">
+                                <ComboBox fx:id="searchTypeBox" prefWidth="130"
+                                          style="-fx-background-color:white;-fx-border-color:#E2E8F0;-fx-border-radius:12;"/>
+                                <TextField fx:id="participationsSearchField" HBox.hgrow="ALWAYS"
+                                           promptText="Search participations..."
+                                           onAction="#onSearch"
+                                           style="-fx-background-color:white;-fx-background-radius:12;-fx-padding:10 16;-fx-border-color:#E2E8F0;-fx-border-radius:12;"/>
+                                <Button text="Search" onAction="#onSearch"
+                                        style="-fx-background-color:#6366F1;-fx-text-fill:white;-fx-padding:10 14;-fx-background-radius:10;-fx-cursor:hand;"/>
+                                <Button text="✕" onAction="#onClearSearch"
+                                        style="-fx-background-color:#F1F5F9;-fx-text-fill:#64748B;-fx-padding:10 14;-fx-background-radius:10;-fx-cursor:hand;"/>
+                                <Button text="↻" onAction="#onRefresh"
+                                        style="-fx-background-color:#E8F5E9;-fx-text-fill:#28a745;-fx-padding:10 14;-fx-background-radius:10;-fx-cursor:hand;"/>
+                            </HBox>
+                            <Label fx:id="resultCountLabel" text="0 participation(s)" style="-fx-text-fill:#64748B;-fx-font-size:12px;"/>
+                            <Label fx:id="eventIdLabel" text="No event selected" style="-fx-text-fill:#6366F1;-fx-font-size:11px;"/>
+                            <TableView fx:id="participationTable" VBox.vgrow="ALWAYS" prefHeight="400">
+                                <columns>
+                                    <TableColumn fx:id="colPartId" text="#" prefWidth="50"/>
+                                    <TableColumn fx:id="colEvent" text="Event ID" prefWidth="70"/>
+                                    <TableColumn fx:id="colEventTitle" text="Event" prefWidth="160"/>
+                                    <TableColumn fx:id="colNom" text="Last Name" prefWidth="110"/>
+                                    <TableColumn fx:id="colPrenom" text="First Name" prefWidth="110"/>
+                                    <TableColumn fx:id="colEmail" text="Email" prefWidth="170"/>
+                                    <TableColumn fx:id="colPlaces" text="Seats" prefWidth="60"/>
+                                    <TableColumn fx:id="colStatut" text="Status" prefWidth="90"/>
+                                    <TableColumn fx:id="colPartDate" text="Date" prefWidth="100"/>
+                                    <TableColumn fx:id="colUserId" text="User" prefWidth="55"/>
+                                </columns>
+                            </TableView>
+                        </VBox>
+                    </HBox>
+                </VBox>
+            </content>
+        </ScrollPane>
+
+    </StackPane>
+</HBox>
