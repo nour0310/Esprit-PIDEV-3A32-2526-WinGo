@@ -1,5 +1,5 @@
 package Controlles;
-import Services.BusinessLogic;
+import Services.*;
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.client.j2se.MatrixToImageWriter;
 import com.google.zxing.common.BitMatrix;
@@ -14,9 +14,6 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import Entites.Reservation;
 import Entites.Transport;
-import Services.ReservationCRUD;
-import Services.TransportAPI;
-import Services.TransportCRUD;
 import javafx.fxml.FXML;
 import javafx.geometry.Insets;
 import javafx.scene.control.*;
@@ -1019,16 +1016,13 @@ public class MixedFX {
                 }).start();
             }
         });
+
         inputArea.getChildren().addAll(messageField, sendBtn);
         root.getChildren().addAll(scrollPane, inputArea);
 
         Scene scene = new Scene(root, 380, 520);
         chatStage.setScene(scene);
         chatStage.show();
-        // Petit message de bienvenue automatique
-        Platform.runLater(() -> {
-            addBubble(chatBox, scrollPane, "Bonjour ! Je suis l'assistant TripLove. ✨\nComment puis-je vous aider avec vos réservations aujourd'hui ?", false);
-        });
     }
     private void addBubble(VBox chatBox, ScrollPane scrollPane, String message, boolean isUser) {
         HBox container = new HBox();

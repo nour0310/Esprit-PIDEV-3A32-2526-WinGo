@@ -42,12 +42,11 @@ public class ChatbotService {
 
     private String callExternalAPI(String systemContext, String userPrompt) throws Exception {
         JSONObject json = new JSONObject();
-        json.put("model", "llama-3.3-70b-versatile");
+        json.put("model", "mixtral-8x7b-32768");
 
         JSONArray messages = new JSONArray();
         messages.put(new JSONObject().put("role", "system").put("content", systemContext));
         messages.put(new JSONObject().put("role", "user").put("content", userPrompt));
-
         json.put("messages", messages);
 
         HttpClient client = HttpClient.newHttpClient();
@@ -59,12 +58,23 @@ public class ChatbotService {
                 .build();
 
         HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+
+        // --- DEBUG : Affiche ce que l'API répond vraiment ---
+        System.out.println("DEBUG API RESPONSE: " + response.body());
+
         JSONObject respJson = new JSONObject(response.body());
 
-        return respJson.getJSONArray("choices")
-                .getJSONObject(0)
-                .getJSONObject("message")
-                .getString("content");
+        // Vérification de sécurité avant de lire "choices"
+        if (respJson.has("choices")) {
+            return respJson.getJSONArray("choices")
+                    .getJSONObject(0)
+                    .getJSONObject("message")
+                    .getString("content");
+        } else if (respJson.has("error")) {
+            return "Erreur API : " + respJson.getJSONObject("error").getString("message");
+        } else {
+            return "L'IA a envoyé une réponse inattendue. 🤖";
+        }
     }
 
 }
