@@ -1,0 +1,239 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.effect.DropShadow?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.shape.Circle?>
+<?import javafx.scene.shape.Rectangle?>
+
+<StackPane fx:id="rootPane" prefHeight="850" prefWidth="1300"
+           xmlns="http://javafx.com/javafx/17"
+           xmlns:fx="http://javafx.com/fxml/1"
+           fx:controller="Controlles.HomeController">
+
+    <!-- Fond principal (thème clair par défaut) -->
+    <Pane fx:id="backgroundPane" style="-fx-background-color: #F4F7FB;" />
+
+    <!-- Conteneur principal -->
+    <BorderPane maxHeight="820" maxWidth="1250"
+                style="-fx-background-color: transparent;">
+
+        <!-- Barre du haut avec recherche et notifications -->
+        <top>
+            <fx:include fx:id="navbar" source="Navbar.fxml" />
+        </top>
+
+        <!-- Barre latérale gauche (modules) -->
+        <left>
+            <VBox prefWidth="160" spacing="20" alignment="TOP_CENTER"
+                  style="-fx-background-color: #FFFFFF; -fx-background-radius: 35; -fx-padding: 25 15;">
+                <BorderPane.margin><Insets top="10" left="25" bottom="25" right="25"/></BorderPane.margin>
+                <effect><DropShadow color="#0000000E" offsetY="10" radius="25" /></effect>
+
+                <!-- Avatar et nom utilisateur -->
+                <VBox alignment="CENTER" spacing="8" style="-fx-cursor: hand;" onMouseClicked="#goToProfile">
+                    <ImageView fx:id="userAvatarView" fitHeight="70" fitWidth="70" preserveRatio="false">
+                        <clip><Circle centerX="35" centerY="35" radius="35"/></clip>
+                        <image><Image url="@images/user-avatar.png" /></image>
+                    </ImageView>
+                    <Label fx:id="userNameLabel" text="Voyageur" style="-fx-text-fill: #1E293B; -fx-font-weight: bold; -fx-font-size: 14px;" />
+                </VBox>
+
+                <Separator style="-fx-background: #E2E8F0;" />
+
+                <!-- Modules -->
+                <VBox spacing="10">
+                    <Button text="🏠 Home" onAction="#goToHome"
+                            style="-fx-background-color: #A3B1FF; -fx-text-fill: white; -fx-font-size: 15px; -fx-font-weight: bold; -fx-background-radius: 20; -fx-padding: 10 12; -fx-cursor: hand; -fx-alignment: CENTER_LEFT; -fx-pref-width: 130;" />
+                    <Button text="🕒 Reserve" 
+                            style="-fx-background-color: transparent; -fx-text-fill: #94A3B8; -fx-font-size: 15px; -fx-background-radius: 20; -fx-padding: 10 12; -fx-cursor: hand; -fx-alignment: CENTER_LEFT; -fx-pref-width: 130;" />
+                    <Button text="📅 Events" 
+                            style="-fx-background-color: transparent; -fx-text-fill: #94A3B8; -fx-font-size: 15px; -fx-background-radius: 20; -fx-padding: 10 12; -fx-cursor: hand; -fx-alignment: CENTER_LEFT; -fx-pref-width: 130;" />
+                    <Button text="🛒 Product" 
+                            style="-fx-background-color: transparent; -fx-text-fill: #94A3B8; -fx-font-size: 15px; -fx-background-radius: 20; -fx-padding: 10 12; -fx-cursor: hand; -fx-alignment: CENTER_LEFT; -fx-pref-width: 130;" />
+                    <Button text="📝 Blogs" onAction="#goToBlogs"
+                            style="-fx-background-color: transparent; -fx-text-fill: #94A3B8; -fx-font-size: 15px; -fx-background-radius: 20; -fx-padding: 10 12; -fx-cursor: hand; -fx-alignment: CENTER_LEFT; -fx-pref-width: 130;" />
+                    <Button text="🔄 Reclaim" onAction="#goToSupport"
+                            style="-fx-background-color: transparent; -fx-text-fill: #94A3B8; -fx-font-size: 15px; -fx-background-radius: 20; -fx-padding: 10 12; -fx-cursor: hand; -fx-alignment: CENTER_LEFT; -fx-pref-width: 130;" />
+                </VBox>
+
+                <Region VBox.vgrow="ALWAYS" />
+
+                <!-- Déconnexion -->
+                <VBox spacing="15" alignment="CENTER">
+                    <Button text="🚪 Logout" onAction="#handleLogout"
+                            style="-fx-background-color: #EF4444; -fx-text-fill: white; -fx-background-radius: 30; -fx-padding: 8 15; -fx-cursor: hand; -fx-font-size: 13px;" />
+                </VBox>
+
+                <Label text="© 2026 WinGo" style="-fx-text-fill: #CBD5E1; -fx-font-size: 11px;" />
+            </VBox>
+        </left>
+
+        <center>
+            <StackPane>
+                <!-- 1) MAIN HOME CONTENT -->
+                <ScrollPane fx:id="mainContentPane" fitToWidth="true" style="-fx-background: transparent; -fx-background-color: transparent; -fx-border-color: transparent;">
+                    <VBox spacing="25" style="-fx-padding: 0 20 20 10; -fx-max-width: 1100; -fx-background-color: transparent;">
+                        
+                        <HBox spacing="15">
+                            <VBox spacing="8" HBox.hgrow="ALWAYS"
+                                  style="-fx-background-color: linear-gradient(to right, #6366F1, #8B5CF6); -fx-background-radius: 20; -fx-padding: 30;">
+                                <effect><DropShadow color="#6366F166" offsetY="8" radius="20" /></effect>
+                                <Label fx:id="welcomeUserLabel" text="Bienvenue !"
+                                       style="-fx-text-fill: #E0E7FF; -fx-font-size: 16px; -fx-font-weight: 700; -fx-letter-spacing: 2px;" />
+                                <Label text="Découvrez WinGo"
+                                       style="-fx-text-fill: white; -fx-font-size: 32px; -fx-font-weight: 900; -fx-letter-spacing: 1px;" />
+                                <Label text="Votre compagnon de voyage intelligent en Tunisie pour des expériences mémorables."
+                                       wrapText="true"
+                                       style="-fx-text-fill: #E0E7FF; -fx-font-size: 16px; -fx-font-weight: 500;" />
+                            </VBox>
+                        </HBox>
+
+                        <StackPane style="-fx-background-radius: 30; -fx-overflow: hidden;">
+                            <effect><DropShadow color="#0000001A" offsetY="10" radius="25" /></effect>
+                            <ImageView fitHeight="350" fitWidth="1050" preserveRatio="false">
+                                <clip><Rectangle width="1050" height="350" arcWidth="60" arcHeight="60"/></clip>
+                                <image><Image url="@images/hero_v2.png" /></image>
+                            </ImageView>
+                            <Pane style="-fx-background-color: linear-gradient(to bottom, transparent, rgba(15, 23, 42, 0.9));">
+                                <clip><Rectangle width="1050" height="350" arcWidth="60" arcHeight="60"/></clip>
+                            </Pane>
+                            
+                            <!-- Inside Hero Layout -->
+                            <BorderPane style="-fx-padding: 40;">
+                                <bottom>
+                                    <HBox alignment="BOTTOM_LEFT" spacing="20">
+                                        <VBox spacing="5">
+                                            <Label text="JOURNEY TO ANTIQUITY" style="-fx-text-fill: #A3B1FF; -fx-font-weight: 900; -fx-letter-spacing: 3px; -fx-font-size: 14px;"/>
+                                            <Label text="Experience Tunisia Like Never Before." style="-fx-text-fill: white; -fx-font-size: 42px; -fx-font-weight: 900;" />
+                                        </VBox>
+                                        <Region HBox.hgrow="ALWAYS" />
+                                        <Button text="Explorer Maintenant ➔" onAction="#goToProfileFromBtn"
+                                                style="-fx-background-color: white; -fx-text-fill: #0F172A; -fx-font-size: 16px; -fx-font-weight: 900; -fx-background-radius: 50; -fx-padding: 15 35; -fx-cursor: hand; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 10, 0, 0, 5);" />
+                                    </HBox>
+                                </bottom>
+                            </BorderPane>
+                        </StackPane>
+
+                        <!-- Floating Stat Cards (Overlapping) -->
+                        <HBox spacing="20" alignment="CENTER" style="-fx-translate-y: -50;">
+                            <VBox spacing="5" alignment="CENTER" prefWidth="250" style="-fx-background-color: rgba(255,255,255,0.9); -fx-background-radius: 20; -fx-padding: 20; -fx-border-color: rgba(255,255,255,0.5); -fx-border-width: 2; -fx-border-radius: 20;">
+                                <effect><DropShadow color="#00000015" offsetY="10" radius="20" /></effect>
+                                <Label text="25+" style="-fx-text-fill: #6366F1; -fx-font-size: 42px; -fx-font-weight: 900;" />
+                                <Label text="Régions Explorées" style="-fx-text-fill: #64748B; -fx-font-size: 14px; -fx-font-weight: 700; -fx-letter-spacing: 1px;" />
+                            </VBox>
+                            <VBox spacing="5" alignment="CENTER" prefWidth="250" style="-fx-background-color: rgba(99,102,241,0.95); -fx-background-radius: 20; -fx-padding: 20; -fx-border-color: rgba(255,255,255,0.2); -fx-border-width: 2; -fx-border-radius: 20;">
+                                <effect><DropShadow color="#6366F166" offsetY="10" radius="20" /></effect>
+                                <Label text="15k" style="-fx-text-fill: white; -fx-font-size: 42px; -fx-font-weight: 900;" />
+                                <Label text="Voyageurs Actifs" style="-fx-text-fill: #E0E7FF; -fx-font-size: 14px; -fx-font-weight: 700; -fx-letter-spacing: 1px;" />
+                            </VBox>
+                            <VBox spacing="5" alignment="CENTER" prefWidth="250" style="-fx-background-color: rgba(255,255,255,0.9); -fx-background-radius: 20; -fx-padding: 20; -fx-border-color: rgba(255,255,255,0.5); -fx-border-width: 2; -fx-border-radius: 20;">
+                                <effect><DropShadow color="#00000015" offsetY="10" radius="20" /></effect>
+                                <Label text="4.9" style="-fx-text-fill: #F59E0B; -fx-font-size: 42px; -fx-font-weight: 900;" />
+                                <Label text="Évaluation Moyenne" style="-fx-text-fill: #64748B; -fx-font-size: 14px; -fx-font-weight: 700; -fx-letter-spacing: 1px;" />
+                            </VBox>
+                        </HBox>
+
+                        <!-- Bento Grid Layout for Services -->
+                        <GridPane hgap="20" vgap="20" style="-fx-translate-y: -20;">
+                            <columnConstraints>
+                                <ColumnConstraints percentWidth="50" />
+                                <ColumnConstraints percentWidth="50" />
+                            </columnConstraints>
+                            <rowConstraints>
+                                <RowConstraints minHeight="200" />
+                                <RowConstraints minHeight="200" />
+                            </rowConstraints>
+
+                            <!-- Personalized Journey (Large Card) -->
+                            <VBox GridPane.columnIndex="0" GridPane.rowIndex="0" GridPane.rowSpan="2" spacing="20" style="-fx-background-color: #FFFFFF; -fx-background-radius: 30; -fx-padding: 35;">
+                                <effect><DropShadow color="#0000000A" offsetY="8" radius="20" /></effect>
+                                <StackPane alignment="TOP_LEFT">
+                                    <Circle radius="35" fill="#DBEAFE" />
+                                    <Label text="🏔️" style="-fx-font-size: 40px; -fx-translate-x: 15; -fx-translate-y: 15; -fx-text-fill: #1E40AF;" />
+                                </StackPane>
+                                <VBox spacing="10" VBox.vgrow="ALWAYS" alignment="CENTER_LEFT">
+                                    <Label text="Voyages Personnalisés" wrapText="true" style="-fx-text-fill: #1E293B; -fx-font-size: 28px; -fx-font-weight: 900; -fx-line-spacing: -5px;"/>
+                                    <Label text="Créez votre itinéraire sur mesure et suivez vos activités en temps réel. Découvrez de nouveaux horizons." wrapText="true" style="-fx-text-fill: #64748B; -fx-font-size: 16px; -fx-line-spacing: 5px;"/>
+                                </VBox>
+                                <Button text="Planifier →" style="-fx-background-color: #F8FAFC; -fx-text-fill: #3B82F6; -fx-font-weight: 800; -fx-font-size: 14px; -fx-background-radius: 12; -fx-padding: 10 20;" />
+                            </VBox>
+
+                            <!-- Shop -->
+                            <HBox GridPane.columnIndex="1" GridPane.rowIndex="0" spacing="20" alignment="CENTER_LEFT" style="-fx-background-color: #FFFFFF; -fx-background-radius: 30; -fx-padding: 25;">
+                                <effect><DropShadow color="#0000000A" offsetY="8" radius="20" /></effect>
+                                <StackPane minWidth="80" minHeight="80" style="-fx-background-color: #FFEDD5; -fx-background-radius: 25;">
+                                    <Label text="🏺" style="-fx-font-size: 32px; -fx-text-fill: #9A3412;" />
+                                </StackPane>
+                                <VBox spacing="5" alignment="CENTER_LEFT">
+                                    <Label text="Boutique Locale" style="-fx-text-fill: #1E293B; -fx-font-size: 20px; -fx-font-weight: 900;"/>
+                                    <Label text="Produits authentiques" style="-fx-text-fill: #64748B; -fx-font-size: 14px;"/>
+                                </VBox>
+                            </HBox>
+
+                            <!-- Events -->
+                            <HBox GridPane.columnIndex="1" GridPane.rowIndex="1" spacing="20" alignment="CENTER_LEFT" style="-fx-background-color: #FFFFFF; -fx-background-radius: 30; -fx-padding: 25;">
+                                <effect><DropShadow color="#0000000A" offsetY="8" radius="20" /></effect>
+                                <StackPane minWidth="80" minHeight="80" style="-fx-background-color: #FEE2E2; -fx-background-radius: 25;">
+                                    <Label text="🎭" style="-fx-font-size: 32px; -fx-text-fill: #991B1B;" />
+                                </StackPane>
+                                <VBox spacing="5" alignment="CENTER_LEFT">
+                                    <Label text="Événements Culturels" style="-fx-text-fill: #1E293B; -fx-font-size: 20px; -fx-font-weight: 900;"/>
+                                    <Label text="Traditions de chaque région" style="-fx-text-fill: #64748B; -fx-font-size: 14px;"/>
+                                </VBox>
+                            </HBox>
+                        </GridPane>
+
+                    </VBox>
+                </ScrollPane>
+
+                <!-- 2) PROFILE MODIFICATION -->
+                <VBox fx:id="profilePane" visible="false" managed="false" alignment="TOP_CENTER" spacing="20"
+                      style="-fx-background-color: #FFFFFF; -fx-background-radius: 25; -fx-padding: 40; -fx-margin: 0 20 0 10; -fx-max-width: 900;">
+                    <effect><DropShadow color="#0000000A" offsetY="5" radius="15" /></effect>
+                    
+                    <Button text="← Retour à l'accueil" onAction="#goToHome"
+                            maxWidth="Infinity" alignment="CENTER_LEFT"
+                            style="-fx-background-color: #F1F5F9; -fx-text-fill: #1E293B; -fx-font-weight: bold; -fx-padding: 12 20; -fx-background-radius: 50; -fx-cursor: hand;" />
+
+                    <VBox spacing="10">
+                        <Label text="Paramètres du Profil" style="-fx-font-size: 28px; -fx-font-weight: 900; -fx-text-fill: #1E293B;" />
+                        <Label text="Modifiez vos informations de compte." style="-fx-text-fill: #64748B; -fx-font-size: 15px;" />
+                    </VBox>
+
+                    <!-- Form Sections -->
+                    <HBox spacing="30">
+                        <VBox spacing="10" HBox.hgrow="ALWAYS">
+                            <Label text="Bio Description" style="-fx-font-weight: bold; -fx-text-fill: #1E293B;" />
+                            <TextArea fx:id="profileBioField" prefRowCount="4" promptText="Parlez-nous de vous..." wrapText="true"
+                                      style="-fx-background-color: #F8FAFC; -fx-background-radius: 16; -fx-padding: 10;" />
+                        </VBox>
+                        <VBox spacing="10" prefWidth="250">
+                            <Label text="Photo de Profil" style="-fx-font-weight: bold; -fx-text-fill: #1E293B;" />
+                            <VBox alignment="CENTER" spacing="15" style="-fx-background-color: #F8FAFC; -fx-padding: 20; -fx-background-radius: 16;">
+                                <ImageView fx:id="profilePreviewImg" fitHeight="100" fitWidth="100" preserveRatio="false">
+                                    <clip><Circle centerX="50" centerY="50" radius="50"/></clip>
+                                </ImageView>
+                                <HBox spacing="10" alignment="CENTER">
+                                    <TextField fx:id="profileImageField" promptText="URL de l'image" style="-fx-background-radius: 8;" HBox.hgrow="ALWAYS" />
+                                    <Button text="📁" onAction="#importImage" 
+                                            style="-fx-background-color: #E2E8F0; -fx-background-radius: 8; -fx-cursor: hand;" />
+                                </HBox>
+                            </VBox>
+                        </VBox>
+                    </HBox>
+
+                    <Label fx:id="profileStatusLabel" text="" style="-fx-font-weight: bold; -fx-text-fill: #10B981;" />
+
+                    <HBox alignment="CENTER_LEFT">
+                        <Button text="Sauvegarder" onAction="#saveProfile" 
+                                style="-fx-background-color: #A3B1FF; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 20; -fx-padding: 10 25; -fx-font-size: 14px;" />
+                    </HBox>
+                </VBox>
+            </StackPane>
+        </center>
+    </BorderPane>
+</StackPane>

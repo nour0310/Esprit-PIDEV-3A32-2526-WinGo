@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.effect.DropShadow?>
+<?import javafx.scene.layout.*?>
+
+<StackPane xmlns="http://javafx.com/javafx/17"
+           xmlns:fx="http://javafx.com/fxml"
+           fx:controller="Controlles.LoginController"
+           prefHeight="850" prefWidth="1300">
+
+    <!-- BACKGROUND (same as WinGoShop) -->
+    <Pane mouseTransparent="true"
+          style="-fx-background-image: url('/images/sidibou.jpg');
+                 -fx-background-repeat: no-repeat;
+                 -fx-background-position: center center;
+                 -fx-background-size: cover;" />
+    <Pane mouseTransparent="true" style="-fx-background-color: rgba(0,0,0,0.18);" />
+
+    <!-- LOGIN PANE (same design as WinGoShop login) -->
+    <VBox alignment="CENTER" spacing="12"
+          style="-fx-background-color: rgba(0,0,0,0.28);
+                 -fx-background-radius: 22;
+                 -fx-border-color: rgba(255,255,255,0.18);
+                 -fx-border-radius: 22;"
+          maxWidth="520" maxHeight="420">
+        <effect><DropShadow color="#00000055" offsetY="10" radius="18"/></effect>
+        <padding><Insets top="18" right="18" bottom="18" left="18"/></padding>
+
+        <Label text="🔐 Login" style="-fx-text-fill: white; -fx-font-size: 22px; -fx-font-weight: 900;" />
+        <Label text="Connecte-toi pour explorer et planifier ton voyage"
+               style="-fx-text-fill: rgba(255,255,255,0.70); -fx-font-weight: 700;" />
+        <TextField fx:id="emailField" promptText="Email"
+                   style="-fx-background-color: rgba(255,255,255,0.10);
+                          -fx-background-radius: 12; -fx-border-color: rgba(255,255,255,0.18);
+                          -fx-border-radius: 12; -fx-text-fill: white;
+                          -fx-prompt-text-fill: rgba(255,255,255,0.55);
+                          -fx-padding: 10 12; -fx-max-width: 360;" />
+        <PasswordField fx:id="passwordField" promptText="Mot de passe"
+                       style="-fx-background-color: rgba(255,255,255,0.10);
+                              -fx-background-radius: 12; -fx-border-color: rgba(255,255,255,0.18);
+                              -fx-border-radius: 12; -fx-text-fill: white;
+                              -fx-prompt-text-fill: rgba(255,255,255,0.55);
+                              -fx-padding: 10 12; -fx-max-width: 360;" />
+
+        <!-- CAPTCHA SECTION -->
+        <HBox spacing="10" alignment="CENTER" maxWidth="360">
+            <StackPane style="-fx-background-color: #f1f5f9; -fx-background-radius: 8; -fx-padding: 2;">
+                <javafx.scene.canvas.Canvas fx:id="captchaCanvas" width="120" height="40" />
+            </StackPane>
+            <Button text="🔄" onAction="#refreshCaptcha"
+                    style="-fx-background-color: rgba(255,255,255,0.1); -fx-text-fill: white; 
+                           -fx-font-size: 16px; -fx-cursor: hand; -fx-background-radius: 8;" />
+            <TextField fx:id="captchaField" promptText="Code" HBox.hgrow="ALWAYS"
+                       style="-fx-background-color: rgba(255,255,255,0.10);
+                              -fx-background-radius: 12; -fx-border-color: rgba(255,255,255,0.18);
+                              -fx-border-radius: 12; -fx-text-fill: white;
+                              -fx-prompt-text-fill: rgba(255,255,255,0.55);
+                              -fx-padding: 10 12;" />
+        </HBox>
+
+        <Label fx:id="errorLabel" text=""
+               style="-fx-text-fill: #FFBD00; -fx-font-weight: 800;" />
+        <HBox spacing="10" alignment="CENTER">
+            <Button text="Se connecter" onAction="#login"
+                    style="-fx-background-color: rgba(95,216,253,0.91); -fx-text-fill: white;
+                           -fx-background-radius: 999; -fx-padding: 10 18; -fx-font-weight: 900;" />
+            <Button text="Continuer sans login" onAction="#goToShopWithoutAccount"
+                    style="-fx-background-color: rgba(255,255,255,0.10); -fx-text-fill: white;
+                           -fx-background-radius: 999; -fx-padding: 10 18; -fx-font-weight: 900;" />
+        </HBox>
+        <Label text="Pas encore inscrit ?" style="-fx-text-fill: rgba(255,255,255,0.75); -fx-font-size: 13px;" />
+        <Button text="S'inscrire" onAction="#goToSignup"
+                style="-fx-background-color: transparent; -fx-text-fill: #FFBD00;
+                       -fx-underline: true; -fx-font-weight: bold; -fx-cursor: hand;" />
+    </VBox>
+</StackPane>

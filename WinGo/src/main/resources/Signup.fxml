@@ -1,0 +1,180 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.effect.DropShadow?>
+<?import javafx.scene.layout.*?>
+
+<StackPane xmlns="http://javafx.com/javafx/17"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="Controlles.SignupController"
+            prefHeight="850" prefWidth="1300">
+
+    <!-- BACKGROUND IMAGE -->
+
+    <Pane mouseTransparent="true"
+          style="-fx-background-image: url('/images/sidibou.jpg');
+                 -fx-background-size: cover;
+                 -fx-background-position: center;" />
+
+    <!-- DARK OVERLAY -->
+
+    <Pane mouseTransparent="true"
+          style="-fx-background-color: rgba(0,0,0,0.25);" />
+
+
+    <HBox>
+
+        <!-- LEFT BRAND SECTION -->
+
+        <VBox alignment="CENTER_LEFT"
+              spacing="20"
+              prefWidth="600"
+              style="-fx-padding:80;
+                     -fx-background-color: rgba(30, 41, 59, 0.75);">
+
+            <Label text="WinGo"
+                   style="-fx-text-fill:white;
+                          -fx-font-size:48px;
+                          -fx-font-weight:bold;" />
+
+            <Label text="Explore Tunisia Smarter"
+                   style="-fx-text-fill:#FFBD00;
+                          -fx-font-size:24px;
+                          -fx-font-weight:bold;" />
+
+            <Label text="Discover Tunisia like never before.
+
+Personalized regions
+Authentic experiences
+Local products
+
+Plan your journey with WinGo."
+                   wrapText="true"
+                   style="-fx-text-fill:white;
+                          -fx-font-size:16;" />
+
+        </VBox>
+
+
+        <!-- RIGHT SIGNUP SECTION -->
+
+        <VBox alignment="CENTER"
+              spacing="15"
+              prefWidth="600">
+
+
+            <!-- SIGNUP CARD -->
+
+            <VBox alignment="CENTER"
+                  spacing="12"
+                  maxWidth="420"
+                  style="-fx-background-color:white;
+                         -fx-background-radius:20;
+                         -fx-padding:40;
+                         -fx-border-radius:20;
+                         -fx-border-color:#eeeeee;">
+
+                <effect>
+                    <DropShadow radius="25"
+                                offsetY="10"
+                                color="#00000044"/>
+                </effect>
+
+
+                <Label text="Create Account"
+                       style="-fx-font-size:26;
+                              -fx-text-fill:rgba(4,21,83,0.91);
+                              -fx-font-weight:bold;" />
+
+                <Label text="Join the WinGo adventure"
+                       style="-fx-text-fill:#777777;" />
+
+
+                <TextField fx:id="nomField"
+                           promptText="Last Name"
+                           style="-fx-background-radius:10;
+                                  -fx-border-radius:10;
+                                  -fx-padding:12;
+                                  -fx-border-color:#dddddd;
+                                  -fx-max-width:320;" />
+
+
+                <TextField fx:id="prenomField"
+                           promptText="First Name"
+                           style="-fx-background-radius:10;
+                                  -fx-border-radius:10;
+                                  -fx-padding:12;
+                                  -fx-border-color:#dddddd;
+                                  -fx-max-width:320;" />
+
+
+                <TextField fx:id="telephoneField"
+                           promptText="Phone Number"
+                           style="-fx-background-radius:10;
+                                  -fx-border-radius:10;
+                                  -fx-padding:12;
+                                  -fx-border-color:#dddddd;
+                                  -fx-max-width:320;" />
+
+
+                <TextField fx:id="ageField"
+                           promptText="Age"
+                           style="-fx-background-radius:10;
+                                  -fx-border-radius:10;
+                                  -fx-padding:12;
+                                  -fx-border-color:#dddddd;
+                                  -fx-max-width:320;" />
+
+
+                <TextField fx:id="emailField"
+                           promptText="Email"
+                           style="-fx-background-radius:10;
+                                  -fx-border-radius:10;
+                                  -fx-padding:12;
+                                  -fx-border-color:#dddddd;
+                                  -fx-max-width:320;" />
+
+
+                <PasswordField fx:id="passwordField"
+                               promptText="Password"
+                               style="-fx-background-radius:10;
+                                      -fx-border-radius:10;
+                                      -fx-padding:12;
+                                      -fx-border-color:#dddddd;
+                                      -fx-max-width:320;" />
+
+
+                <Label fx:id="messageLabel"
+                       text=""
+                       style="-fx-text-fill:#EF4444;
+                              -fx-font-weight:bold;" />
+
+
+                <Button text="Create Account"
+                        onAction="#register"
+                        style="-fx-background-color:rgba(22,122,147,0.91);
+                               -fx-text-fill:white;
+                               -fx-font-size:14;
+                               -fx-background-radius:8;
+                               -fx-padding:12 40;
+                               -fx-font-weight:bold;" />
+
+
+                <Label text="Already have an account?"
+                       style="-fx-text-fill:#777777;" />
+
+
+                <Button text="Back to Login"
+                        onAction="#backToLogin"
+                        style="-fx-background-color:transparent;
+                               -fx-text-fill:rgba(22,122,147,0.91);
+                               -fx-font-weight:bold;
+                               -fx-font-size:14;" />
+
+            </VBox>
+
+        </VBox>
+
+    </HBox>
+</StackPane>

@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.effect.DropShadow?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.*?>
+
+<HBox fx:id="navbarRoot" alignment="CENTER_LEFT" spacing="15" 
+      xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" 
+      fx:controller="Controlles.NavbarController"
+      style="-fx-padding: 15 30 25 30;">
+    
+    <!-- Logo et titre -->
+    <HBox alignment="CENTER_LEFT" spacing="15" onMouseClicked="#goToHome" style="-fx-cursor: hand;">
+        <ImageView fitHeight="50" fitWidth="50" preserveRatio="true">
+            <image><Image url="@images/logo.png" /></image>
+        </ImageView>
+        <Label text="WinGo" minWidth="-Infinity"
+               style="-fx-text-fill: #1E293B; -fx-font-size: 26px; -fx-font-weight: 900; -fx-font-family: 'Arial';" />
+    </HBox>
+
+    <!-- Navigation horizontale -->
+    <HBox spacing="15" alignment="CENTER" style="-fx-padding: 0 0 0 15;">
+        <Button text="Accueil" onAction="#goToHome"
+               style="-fx-background-color: transparent; -fx-text-fill: #1E293B; -fx-font-weight: bold; -fx-font-size: 15px; -fx-cursor: hand;" />
+        <Button text="Blogs" onAction="#goToBlogs"
+               style="-fx-background-color: transparent; -fx-text-fill: #64748B; -fx-font-size: 15px; -fx-cursor: hand;" />
+        <Button text="Destinations"
+               style="-fx-background-color: transparent; -fx-text-fill: #64748B; -fx-font-size: 15px; -fx-cursor: hand;" />
+        <Button text="Contact" onAction="#goToSupport"
+               style="-fx-background-color: transparent; -fx-text-fill: #64748B; -fx-font-size: 15px; -fx-cursor: hand;" />
+    </HBox>
+
+    <Region HBox.hgrow="ALWAYS" />
+
+    <HBox fx:id="searchBar" alignment="CENTER" spacing="10" visible="false" managed="false"
+          style="-fx-background-color: #FFFFFF; -fx-background-radius: 50; -fx-padding: 8 20;">
+        <effect><DropShadow color="#0000000A" offsetY="5" radius="15" /></effect>
+        <Label text="🔍" style="-fx-text-fill: #A3B1FF;" />
+        <TextField fx:id="navbarSearchField" promptText="Rechercher..."
+                   style="-fx-background-color: transparent; -fx-text-fill: #1E293B; -fx-prompt-text-fill: #94A3B8; -fx-pref-width: 200;" />
+        <Button fx:id="navbarSearchBtn" text="Chercher"
+                style="-fx-background-color: #A3B1FF; -fx-text-fill: white; -fx-background-radius: 50; -fx-padding: 5 15; -fx-font-weight: bold; -fx-cursor: hand;" />
+    </HBox>
+
+    <Region HBox.hgrow="ALWAYS" />
+
+    <Button fx:id="adminDashboardBtn" text="👑 Admin" onAction="#goToAdminDashboard"
+            visible="false" managed="false"
+            style="-fx-background-color: #EF4444; -fx-text-fill: white; -fx-background-radius: 50; -fx-padding: 8 15; -fx-font-weight: bold; -fx-cursor: hand;" />
+
+    <!-- Bouton de notification avec badge -->
+    <StackPane fx:id="notificationStack">
+        <Button text="🔔"
+                style="-fx-background-color: #FFFFFF; -fx-text-fill: #1E293B; -fx-background-radius: 50; -fx-padding: 10 15; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.05), 10, 0.5, 0, 4); -fx-cursor: hand;" />
+        <Label fx:id="notificationBadge" text="0"
+               style="-fx-background-color: #EF4444; -fx-text-fill: white; -fx-background-radius: 10; -fx-padding: 2 6; -fx-font-size: 10px; -fx-font-weight: bold;"
+               visible="false" StackPane.alignment="TOP_RIGHT" />
+    </StackPane>
+
+    <Button text="🚪 Logout" onAction="#handleLogout"
+            style="-fx-background-color: #EF4444; -fx-text-fill: white; -fx-background-radius: 30; -fx-padding: 8 15; -fx-cursor: hand; -fx-font-size: 13px;" />
+</HBox>
