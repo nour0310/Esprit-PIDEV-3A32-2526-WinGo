@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.chart.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.effect.DropShadow?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.shape.Circle?>
+<?import javafx.scene.paint.Color?>
+
+<HBox prefHeight="850" prefWidth="1300" style="-fx-background-color: #F8FAFC;" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Controlles.MixedBack">
+
+    <VBox prefWidth="350" spacing="10" style="-fx-background-color: #0F172A; -fx-padding: 30 18 30 18;">
+        <effect><DropShadow color="#00000040" radius="25" /></effect>
+
+        <HBox alignment="CENTER_LEFT" spacing="15" style="-fx-padding: 0 0 40 10;">
+            <StackPane style="-fx-background-color: linear-gradient(to bottom right, #6366F1, #8B5CF6); -fx-background-radius: 12; -fx-padding: 8;">
+                <ImageView fitHeight="28" fitWidth="28" preserveRatio="true">
+                    <Image url="@/assets/logo.png" />
+                </ImageView>
+            </StackPane>
+            <VBox>
+                <Label style="-fx-text-fill: white; -fx-font-size: 22px; -fx-font-weight: 900;" text="WinGo" />
+                <Label style="-fx-text-fill: #64748B; -fx-font-size: 10px; -fx-font-weight: 800; -fx-letter-spacing: 2px;" text="ADMIN DASHBOARD" />
+            </VBox>
+        </HBox>
+
+        <Label style="-fx-text-fill: #334155; -fx-font-size: 11px; -fx-font-weight: 800; -fx-padding: 15 0 10 15;" text="MENU DE CONTRÔLE" />
+
+        <ToggleButton fx:id="btnDashboard" onAction="#handleNavigation" prefWidth="314" selected="true" style="-fx-background-color: #6366F1; -fx-text-fill: white; -fx-alignment: CENTER_LEFT; -fx-padding: 14 22; -fx-background-radius: 14; -fx-cursor: hand; -fx-font-weight: bold; -fx-font-size: 14px;" text="📊  Vue d'ensemble">
+            <toggleGroup><ToggleGroup fx:id="navGroup" /></toggleGroup>
+        </ToggleButton>
+
+        <ToggleButton fx:id="btnManagement" onAction="#handleNavigation" prefWidth="314" style="-fx-background-color: transparent; -fx-text-fill: #94A3B8; -fx-alignment: CENTER_LEFT; -fx-padding: 14 22; -fx-background-radius: 14; -fx-cursor: hand; -fx-font-weight: bold; -fx-font-size: 14px;" text="📦  Gestion des Flux" toggleGroup="$navGroup" />
+
+        <Region VBox.vgrow="ALWAYS" />
+
+        <VBox alignment="CENTER" spacing="10" style="-fx-background-color: #1E293B33; -fx-background-radius: 15; -fx-padding: 20;">
+            <Label style="-fx-text-fill: #475569; -fx-font-size: 9px; -fx-font-weight: 900;" text="ÉTAT DU SYSTÈME" />
+            <HBox alignment="CENTER" spacing="8">
+                <Circle fill="#10B981" radius="4" />
+                <Label style="-fx-text-fill: #10B981; -fx-font-size: 11px; -fx-font-weight: bold;" text="Live Monitoring" />
+            </HBox>
+        </VBox>
+    </VBox>
+
+    <StackPane HBox.hgrow="ALWAYS" style="-fx-padding: 30;">
+        <VBox spacing="25">
+
+            <HBox alignment="CENTER_LEFT" spacing="20">
+                <VBox>
+                    <Label style="-fx-text-fill: #1E293B; -fx-font-size: 32px; -fx-font-weight: 900;" text="Panneau de Contrôle WinGo" />
+                    <Label style="-fx-text-fill: #94A3B8; -fx-font-size: 15px;" text="Consultation en temps réel des flux de transports et réservations" />
+                </VBox>
+                <Region HBox.hgrow="ALWAYS" />
+                <Button onAction="#loadData" style="-fx-background-color: white; -fx-background-radius: 12; -fx-padding: 12 25; -fx-text-fill: #6366F1; -fx-font-weight: bold; -fx-border-color: #E2E8F0; -fx-border-radius: 12;" text="🔄 Actualiser" />
+            </HBox>
+
+            <HBox spacing="25">
+                <VBox prefWidth="300" style="-fx-background-color: linear-gradient(to bottom right, #6366F1, #8B5CF6); -fx-background-radius: 25; -fx-padding: 30;">
+                    <Label style="-fx-text-fill: #E0E7FF; -fx-font-size: 11px; -fx-font-weight: 900;" text="TRANSPORTS ACTIFS" />
+                    <Label fx:id="statTotalBlogs" style="-fx-text-fill: white; -fx-font-size: 42px; -fx-font-weight: 900;" text="0" />
+                </VBox>
+                <VBox prefWidth="300" style="-fx-background-color: #1E293B; -fx-background-radius: 25; -fx-padding: 30;">
+                    <Label style="-fx-text-fill: #94A3B8; -fx-font-size: 11px; -fx-font-weight: 900;" text="RÉSERVATIONS TOTALES" />
+                    <Label fx:id="statTotalComments" style="-fx-text-fill: white; -fx-font-size: 42px; -fx-font-weight: 900;" text="0" />
+                </VBox>
+                <VBox prefWidth="300" style="-fx-background-color: white; -fx-background-radius: 25; -fx-padding: 30; -fx-border-color: #F1F5F9; -fx-border-width: 1;">
+                    <Label style="-fx-text-fill: #94A3B8; -fx-font-size: 11px; -fx-font-weight: 900;" text="REVENU ESTIMÉ (TND)" />
+                    <Label fx:id="statEngagement" style="-fx-text-fill: #1E293B; -fx-font-size: 42px; -fx-font-weight: 900;" text="0.0" />
+                </VBox>
+            </HBox>
+
+            <StackPane VBox.vgrow="ALWAYS">
+
+                <VBox fx:id="dashboardView" spacing="20">
+                    <HBox spacing="25" VBox.vgrow="ALWAYS">
+                        <VBox HBox.hgrow="ALWAYS" style="-fx-background-color: white; -fx-background-radius: 25; -fx-padding: 25; -fx-border-color: #F1F5F9;">
+                            <Label style="-fx-font-weight: 900; -fx-font-size: 16px; -fx-text-fill: #1E293B;" text="Répartition par Destination" />
+                            <PieChart fx:id="regionChart" legendVisible="false" VBox.vgrow="ALWAYS" />
+                        </VBox>
+                        <VBox HBox.hgrow="ALWAYS" style="-fx-background-color: white; -fx-background-radius: 25; -fx-padding: 25; -fx-border-color: #F1F5F9;">
+                            <Label style="-fx-font-weight: 900; -fx-font-size: 16px; -fx-text-fill: #1E293B;" text="Types de Transport Préférés" />
+                            <PieChart fx:id="transportTypeChart" legendVisible="false" VBox.vgrow="ALWAYS" />
+                        </VBox>
+                    </HBox>
+                </VBox>
+
+                <VBox fx:id="selectionHub" alignment="CENTER" spacing="40" visible="false">
+                    <Label text="Que souhaitez-vous gérer ?" style="-fx-text-fill: #1E293B; -fx-font-size: 24px; -fx-font-weight: 800;" />
+                    <HBox alignment="CENTER" spacing="40">
+                        <VBox onMouseClicked="#showTransportsModule" alignment="CENTER" spacing="20" prefHeight="280" prefWidth="280"
+                              style="-fx-background-color: white; -fx-background-radius: 35; -fx-cursor: hand; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.06), 20, 0, 0, 8); -fx-border-color: #F1F5F9;">
+                            <StackPane style="-fx-background-color: #EEF2FF; -fx-background-radius: 20; -fx-padding: 20;">
+                                <Label text="🚗" style="-fx-font-size: 50px;" />
+                            </StackPane>
+                            <VBox alignment="CENTER" spacing="5">
+                                <Label text="Gestion Transports" style="-fx-font-weight: 900; -fx-font-size: 18px; -fx-text-fill: #1E293B;" />
+                                <Label text="Types, trajets et tarifs" style="-fx-text-fill: #94A3B8; -fx-font-size: 13px;" />
+                            </VBox>
+                        </VBox>
+
+                        <VBox onMouseClicked="#showReservationsModule" alignment="CENTER" spacing="20" prefHeight="280" prefWidth="280"
+                              style="-fx-background-color: white; -fx-background-radius: 35; -fx-cursor: hand; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.06), 20, 0, 0, 8); -fx-border-color: #F1F5F9;">
+                            <StackPane style="-fx-background-color: #F0FDF4; -fx-background-radius: 20; -fx-padding: 20;">
+                                <Label text="📅" style="-fx-font-size: 50px;" />
+                            </StackPane>
+                            <VBox alignment="CENTER" spacing="5">
+                                <Label text="Suivi Réservations" style="-fx-font-weight: 900; -fx-font-size: 18px; -fx-text-fill: #1E293B;" />
+                                <Label text="Calendrier et clients" style="-fx-text-fill: #94A3B8; -fx-font-size: 13px;" />
+                            </VBox>
+                        </VBox>
+                    </HBox>
+                </VBox>
+
+                <VBox fx:id="listView" spacing="15" visible="false">
+                    <HBox alignment="CENTER_LEFT" spacing="15">
+                        <Button onAction="#backToHub" text="← Retour au menu"
+                                style="-fx-background-color: #F1F5F9; -fx-text-fill: #6366F1; -fx-font-weight: bold; -fx-background-radius: 12; -fx-padding: 10 20;" />
+                        <TextField fx:id="searchField" promptText="🔍 Rechercher dans ce module..." HBox.hgrow="ALWAYS"
+                                   style="-fx-background-color: white; -fx-background-radius: 15; -fx-padding: 15; -fx-border-color: #E2E8F0; -fx-border-radius: 15;" />
+                        <ComboBox fx:id="sortComboBox" onAction="#updateDisplay" prefWidth="200"
+                                  style="-fx-background-color: white; -fx-background-radius: 15; -fx-padding: 8;" />
+                    </HBox>
+
+                    <ScrollPane fitToWidth="true" VBox.vgrow="ALWAYS" style="-fx-background: transparent; -fx-background-color: transparent; -fx-border-color: transparent;">
+                        <VBox fx:id="articlesContainer" spacing="15" style="-fx-padding: 5 10 20 5;" />
+                    </ScrollPane>
+                </VBox>
+
+            </StackPane>
+        </VBox>
+    </StackPane>
+</HBox>

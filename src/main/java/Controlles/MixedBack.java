@@ -21,14 +21,14 @@ import java.util.stream.Collectors;
 
 public class MixedBack {
 
-    @FXML private VBox articlesContainer, dashboardView, listView;
+    @FXML private VBox articlesContainer, dashboardView, listView, selectionHub;
     @FXML private TextField searchField;
     @FXML private ComboBox<String> sortComboBox;
     @FXML private Label statTotalBlogs, statTotalComments, statEngagement;
     @FXML private PieChart regionChart, transportTypeChart;
 
-    // Buttons for Sidebar Color Change
-    @FXML private ToggleButton btnDashboard, btnTransports, btnReservations;
+    // Mise à jour des boutons Sidebar pour matcher le FXML
+    @FXML private ToggleButton btnDashboard, btnManagement;
 
     private final ReservationCRUD resService = new ReservationCRUD();
     private final TransportCRUD transService = new TransportCRUD();
@@ -41,7 +41,6 @@ public class MixedBack {
         sortComboBox.getItems().addAll("Prix (Croissant)", "Prix (Décroissant)", "Date (Récent)");
         searchField.textProperty().addListener((obs, old, val) -> updateDisplay());
 
-        // Chargement automatique au démarrage
         loadAllData();
     }
 
@@ -50,32 +49,57 @@ public class MixedBack {
             allReservations = resService.getAll();
             allTransports = transService.getAll();
             updateStats();
-            updateCharts(); // Affiche les stats immédiatement
+            updateCharts();
         } catch (SQLException e) {
             e.printStackTrace();
         }
     }
 
-    // --- NAVIGATION & SIDEBAR COLORS ---
+    // --- NAVIGATION PRINCIPALE (SIDEBAR) ---
     @FXML
     private void handleNavigation(ActionEvent event) {
         ToggleButton activeBtn = (ToggleButton) event.getSource();
-        updateSidebarStyles(activeBtn); // Garde ton changement de couleur
+        updateSidebarStyles(activeBtn);
+
+        // Reset des vues
+        dashboardView.setVisible(false);
+        selectionHub.setVisible(false);
+        listView.setVisible(false);
 
         if (activeBtn == btnDashboard) {
-            // On affiche l'un, on cache l'autre, mais ils gardent leur place
             dashboardView.setVisible(true);
-            listView.setVisible(false);
-            loadAllData(); // Recharge les stats et graphiques
-        } else if (activeBtn == btnTransports) {
-            showListView(true);
-        } else if (activeBtn == btnReservations) {
-            showListView(false);
+            loadAllData();
+        } else if (activeBtn == btnManagement) {
+            selectionHub.setVisible(true);
         }
     }
 
+    // --- NAVIGATION INTERNE (HUB) ---
+    @FXML
+    private void showTransportsModule() {
+        this.showingTransports = true;
+        selectionHub.setVisible(false);
+        listView.setVisible(true);
+        updateDisplay();
+    }
+
+    @FXML
+    private void showReservationsModule() {
+        this.showingTransports = false;
+        selectionHub.setVisible(false);
+        listView.setVisible(true);
+        updateDisplay();
+    }
+
+    @FXML
+    private void backToHub() {
+        listView.setVisible(false);
+        selectionHub.setVisible(true);
+    }
+
+    // --- LOGIQUE D'AFFICHAGE ---
     private void updateSidebarStyles(ToggleButton activeBtn) {
-        List<ToggleButton> btns = Arrays.asList(btnDashboard, btnTransports, btnReservations);
+        List<ToggleButton> btns = Arrays.asList(btnDashboard, btnManagement);
         for (ToggleButton b : btns) {
             if (b == activeBtn) {
                 b.setStyle("-fx-background-color: #6366F1; -fx-text-fill: white; -fx-background-radius: 14; -fx-font-weight: bold;");
@@ -85,41 +109,6 @@ public class MixedBack {
                 b.setEffect(null);
             }
         }
-    }
-
-    private void showListView(boolean transports) {
-        this.showingTransports = transports;
-
-        // On cache les graphiques, on montre la liste
-        dashboardView.setVisible(false);
-        listView.setVisible(true);
-
-        updateDisplay();
-    }
-
-    // --- CHARTS LOGIC ---
-    private void updateCharts() {
-        // Chart 1: Destinations
-        ObservableList<PieChart.Data> destData = FXCollections.observableArrayList();
-        allReservations.stream()
-                .collect(Collectors.groupingBy(Reservation::getStatut, Collectors.counting()))
-                .forEach((k, v) -> destData.add(new PieChart.Data(k, v)));
-        regionChart.setData(destData);
-
-        // Chart 2: Transport Types
-        ObservableList<PieChart.Data> typeData = FXCollections.observableArrayList();
-        allTransports.stream()
-                .collect(Collectors.groupingBy(Transport::getType, Collectors.counting()))
-                .forEach((k, v) -> typeData.add(new PieChart.Data(k, v)));
-        transportTypeChart.setData(typeData);
-    }
-
-    // --- STATS & DISPLAY ---
-    private void updateStats() {
-        statTotalBlogs.setText(String.valueOf(allTransports.size()));
-        statTotalComments.setText(String.valueOf(allReservations.size()));
-        double totalRev = allTransports.stream().mapToDouble(Transport::getTarif).sum();
-        statEngagement.setText(String.format("%.1f", totalRev));
     }
 
     @FXML
@@ -140,13 +129,12 @@ public class MixedBack {
 
     private HBox createRow(String t1, String t2, String val, String qr) {
         HBox row = new HBox(20); row.setAlignment(Pos.CENTER_LEFT);
-        row.setStyle("-fx-background-color: white; -fx-padding: 15; -fx-background-radius: 15;");
+        row.setStyle("-fx-background-color: white; -fx-padding: 15; -fx-background-radius: 15; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.05), 10, 0, 0, 5);");
 
-        // Simulation QR (MixedFX.generateQRCode)
-        ImageView img = new ImageView(); img.setFitWidth(50); img.setFitHeight(50);
         ImageView qrView = new ImageView(MixedFX.generateQRCode(qr));
         qrView.setFitWidth(65);
         qrView.setFitHeight(65);
+
         VBox info = new VBox(5);
         Label lbl1 = new Label(t1); lbl1.setStyle("-fx-font-weight: bold; -fx-font-size: 15px;");
         Label lbl2 = new Label(t2); lbl2.setStyle("-fx-text-fill: #64748B;");
@@ -155,9 +143,29 @@ public class MixedBack {
         Region s = new Region(); HBox.setHgrow(s, Priority.ALWAYS);
         Label price = new Label(val); price.setStyle("-fx-text-fill: #6366F1; -fx-font-weight: bold;");
 
-        row.getChildren().addAll(qrView,img, info, s, price);
-        //row.getChildren().addAll(qrView, info, s, price);
+        row.getChildren().addAll(qrView, info, s, price);
         return row;
+    }
+
+    private void updateCharts() {
+        ObservableList<PieChart.Data> destData = FXCollections.observableArrayList();
+        allReservations.stream()
+                .collect(Collectors.groupingBy(Reservation::getStatut, Collectors.counting()))
+                .forEach((k, v) -> destData.add(new PieChart.Data(k, v)));
+        regionChart.setData(destData);
+
+        ObservableList<PieChart.Data> typeData = FXCollections.observableArrayList();
+        allTransports.stream()
+                .collect(Collectors.groupingBy(Transport::getType, Collectors.counting()))
+                .forEach((k, v) -> typeData.add(new PieChart.Data(k, v)));
+        transportTypeChart.setData(typeData);
+    }
+
+    private void updateStats() {
+        statTotalBlogs.setText(String.valueOf(allTransports.size()));
+        statTotalComments.setText(String.valueOf(allReservations.size()));
+        double totalRev = allTransports.stream().mapToDouble(Transport::getTarif).sum();
+        statEngagement.setText(String.format("%.1f", totalRev));
     }
 
     @FXML private void loadData() { loadAllData(); }
