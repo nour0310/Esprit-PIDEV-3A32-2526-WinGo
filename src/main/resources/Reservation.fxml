@@ -64,12 +64,13 @@
                     </VBox>
 
                     <StackPane VBox.vgrow="ALWAYS">
-                        <Button fx:id="aiAssistantBtn" text="🤖 Assistant IA" onAction="#openSmartChatbot"
-                                style="-fx-background-color: #F0F2F5; -fx-text-fill: #A3B1FF; -fx-font-weight: bold;"/>
+
                         <ScrollPane fx:id="listScroll" fitToWidth="true" style="-fx-background: transparent; -fx-background-color: transparent;">
                             <content>
                                 <VBox fx:id="listContainer" spacing="35" style="-fx-background-color: transparent;">
                                     <padding><Insets top="5" right="20" bottom="20" left="0"/></padding>
+                                    <Button fx:id="aiAssistantBtn" text="🤖 Assistant IA" onAction="#openSmartChatbot"
+                                            style="-fx-background-color: #F0F2F5; -fx-text-fill: #A3B1FF; -fx-font-weight: bold;"/>
 
                                     <HBox spacing="15" alignment="CENTER_LEFT">
                                         <HBox alignment="CENTER" style="-fx-background-color: #FFFFFF; -fx-background-radius: 50; -fx-padding: 10 25;">

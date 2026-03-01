@@ -13,7 +13,7 @@ import org.json.JSONObject;
 
 public class ChatbotService {
     // Remplace par ta vraie clé Groq ou OpenAI
-    private static final String API_KEY = "gsk_votre_cle_ici";
+    private static final String API_KEY = "api key";
     private static final String API_URL = "https://api.groq.com/openai/v1/chat/completions";
 
     public String getSmartAIResponse(String userMessage, List<Reservation> reservations, List<Transport> transports) {
@@ -42,7 +42,7 @@ public class ChatbotService {
 
     private String callExternalAPI(String systemContext, String userPrompt) throws Exception {
         JSONObject json = new JSONObject();
-        json.put("model", "mixtral-8x7b-32768");
+        json.put("model", "llama-3.3-70b-versatile");
 
         JSONArray messages = new JSONArray();
         messages.put(new JSONObject().put("role", "system").put("content", systemContext));

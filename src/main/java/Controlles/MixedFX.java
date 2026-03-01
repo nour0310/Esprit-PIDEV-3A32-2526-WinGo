@@ -961,7 +961,8 @@ public class MixedFX {
 
         formOverlay.setVisible(false);
     }
-    private void openSmartChatbot() {
+    @FXML
+    private void openSmartChatbot(javafx.event.ActionEvent event) {
         Stage chatStage = new Stage();
         chatStage.setTitle("TripLove AI Assistant");
 
