@@ -1006,21 +1006,19 @@ public class MixedFX {
         sendBtn.setOnAction(e -> {
             String userText = messageField.getText();
             if (!userText.isEmpty()) {
-                addBubble(chatBox, userText, true); // Ton message en bleu
+                // AJOUT : on passe scrollPane ici
+                addBubble(chatBox, scrollPane, userText, true);
                 messageField.clear();
 
-                // Lancement de l'appel API dans un thread pour ne pas bloquer l'interface
                 new Thread(() -> {
-                    // On utilise les listes de ton MixedFX : reservationList et transportList
                     String aiResponse = aiService.getSmartAIResponse(userText, reservationList, transportList);
-
                     javafx.application.Platform.runLater(() -> {
-                        addBubble(chatBox, aiResponse, false); // Réponse IA en blanc
+                        // AJOUT : on passe scrollPane ici aussi
+                        addBubble(chatBox, scrollPane, aiResponse, false);
                     });
                 }).start();
             }
         });
-
         inputArea.getChildren().addAll(messageField, sendBtn);
         root.getChildren().addAll(scrollPane, inputArea);
 
