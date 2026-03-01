@@ -4,6 +4,7 @@ import com.google.zxing.BarcodeFormat;
 import com.google.zxing.client.j2se.MatrixToImageWriter;
 import com.google.zxing.common.BitMatrix;
 import com.google.zxing.qrcode.QRCodeWriter;
+import javafx.application.Platform;
 import javafx.geometry.Pos;
 import javafx.scene.Cursor;
 import javafx.scene.Scene;
@@ -962,5 +963,97 @@ public class MixedFX {
         listScroll.toFront(); // Ensure the list is back on top
 
         formOverlay.setVisible(false);
+    }
+    private void openSmartChatbot() {
+        Stage chatStage = new Stage();
+        chatStage.setTitle("TripLove AI Assistant");
+
+        // 1. Conteneur Principal (Fond)
+        VBox root = new VBox(10);
+        root.setPadding(new Insets(15));
+        root.setStyle("-fx-background-color: #F1F5F9;");
+
+        // 2. Zone d'affichage des messages
+        ScrollPane scrollPane = new ScrollPane();
+        VBox chatBox = new VBox(12);
+        chatBox.setPadding(new Insets(10));
+        chatBox.setStyle("-fx-background-color: transparent;");
+
+        scrollPane.setContent(chatBox);
+        scrollPane.setFitToWidth(true);
+        scrollPane.setPrefHeight(400);
+        scrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
+        scrollPane.setStyle("-fx-background: transparent; -fx-background-color: transparent; -fx-border-color: transparent;");
+
+        // 3. Zone de saisie
+        HBox inputArea = new HBox(10);
+        inputArea.setAlignment(Pos.CENTER);
+        inputArea.setPadding(new Insets(10, 0, 0, 0));
+
+        TextField messageField = new TextField();
+        messageField.setPromptText("Posez une question sur vos voyages...");
+        messageField.setPrefWidth(260);
+        messageField.setStyle("-fx-background-radius: 25; -fx-padding: 10 15; -fx-border-color: #E2E8F0; -fx-border-radius: 25;");
+
+        Button sendBtn = new Button("✈");
+        sendBtn.setStyle("-fx-background-color: #A3B1FF; -fx-text-fill: white; -fx-font-size: 18px; -fx-background-radius: 50; -fx-min-width: 45; -fx-min-height: 45;");
+        sendBtn.setCursor(Cursor.HAND);
+
+        // Initialisation du service IA
+        Services.ChatbotService aiService = new Services.ChatbotService();
+
+        // 4. LOGIQUE D'ENVOI UNIQUE (L'intelligence est ici)
+        sendBtn.setOnAction(e -> {
+            String userText = messageField.getText();
+            if (!userText.isEmpty()) {
+                addBubble(chatBox, userText, true); // Ton message en bleu
+                messageField.clear();
+
+                // Lancement de l'appel API dans un thread pour ne pas bloquer l'interface
+                new Thread(() -> {
+                    // On utilise les listes de ton MixedFX : reservationList et transportList
+                    String aiResponse = aiService.getSmartAIResponse(userText, reservationList, transportList);
+
+                    javafx.application.Platform.runLater(() -> {
+                        addBubble(chatBox, aiResponse, false); // Réponse IA en blanc
+                    });
+                }).start();
+            }
+        });
+
+        inputArea.getChildren().addAll(messageField, sendBtn);
+        root.getChildren().addAll(scrollPane, inputArea);
+
+        Scene scene = new Scene(root, 380, 520);
+        chatStage.setScene(scene);
+        chatStage.show();
+        // Petit message de bienvenue automatique
+        Platform.runLater(() -> {
+            addBubble(chatBox, scrollPane, "Bonjour ! Je suis l'assistant TripLove. ✨\nComment puis-je vous aider avec vos réservations aujourd'hui ?", false);
+        });
+    }
+    private void addBubble(VBox chatBox, ScrollPane scrollPane, String message, boolean isUser) {
+        HBox container = new HBox();
+        Label label = new Label(message);
+        label.setWrapText(true);
+        label.setMaxWidth(240);
+        label.setPadding(new Insets(10, 15, 10, 15));
+
+        if (isUser) {
+            container.setAlignment(Pos.CENTER_RIGHT);
+            label.setStyle("-fx-background-color: #A3B1FF; -fx-text-fill: white; " +
+                    "-fx-background-radius: 20 20 0 20; -fx-font-size: 13px;");
+        } else {
+            container.setAlignment(Pos.CENTER_LEFT);
+            label.setStyle("-fx-background-color: white; -fx-text-fill: #1E293B; " +
+                    "-fx-background-radius: 20 20 20 0; -fx-font-size: 13px; " +
+                    "-fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.05), 5, 0, 0, 2);");
+        }
+
+        container.getChildren().add(label);
+        chatBox.getChildren().add(container);
+
+        // AUTO-SCROLL FIX : On utilise directement l'objet scrollPane passé en paramètre
+        javafx.application.Platform.runLater(() -> scrollPane.setVvalue(1.0));
     }
 }

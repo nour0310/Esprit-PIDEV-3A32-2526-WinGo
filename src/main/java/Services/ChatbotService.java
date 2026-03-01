@@ -6,6 +6,7 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.util.ArrayList;
 import java.util.List;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -16,6 +17,9 @@ public class ChatbotService {
     private static final String API_URL = "https://api.groq.com/openai/v1/chat/completions";
 
     public String getSmartAIResponse(String userMessage, List<Reservation> reservations, List<Transport> transports) {
+        // Ajoute des vérifications de nullité au début de getSmartAIResponse
+        if (reservations == null) reservations = new ArrayList<>();
+        if (transports == null) transports = new ArrayList<>();
         try {
             // Construction du contexte à partir des listes passées en paramètres
             StringBuilder context = new StringBuilder("Tu es l'assistant TripLove. Voici les données du client :\n");
@@ -38,7 +42,7 @@ public class ChatbotService {
 
     private String callExternalAPI(String systemContext, String userPrompt) throws Exception {
         JSONObject json = new JSONObject();
-        json.put("model", "mixtral-8x7b-32768");
+        json.put("model", "llama-3.3-70b-versatile");
 
         JSONArray messages = new JSONArray();
         messages.put(new JSONObject().put("role", "system").put("content", systemContext));
@@ -62,4 +66,5 @@ public class ChatbotService {
                 .getJSONObject("message")
                 .getString("content");
     }
+
 }
