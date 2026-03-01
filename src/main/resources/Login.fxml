@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+
+<StackPane xmlns="http://javafx.com/javafx"
+           xmlns:fx="http://javafx.com/fxml"
+           fx:controller="Controlles.LoginController"
+           prefWidth="480" prefHeight="580"
+           style="-fx-background-color: #F1F5F9;">
+
+    <VBox alignment="CENTER" spacing="0"
+          style="-fx-background-color: white; -fx-background-radius: 24;
+                 -fx-padding: 50 50 40 50;
+                 -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.10), 30, 0, 0, 8);"
+          maxWidth="400" maxHeight="520">
+
+        <!-- Logo / Titre -->
+        <Label text="🦅 WinGo" style="-fx-font-size: 32px; -fx-font-weight: 900; -fx-text-fill: #6366F1;"/>
+        <Label text="Connexion à votre espace" style="-fx-font-size: 14px; -fx-text-fill: #94A3B8; -fx-padding: 4 0 30 0;"/>
+
+        <!-- Email -->
+        <Label text="Adresse email" style="-fx-font-size: 13px; -fx-font-weight: bold; -fx-text-fill: #1E293B; -fx-padding: 0 0 6 0;"/>
+        <TextField fx:id="emailField"
+                   promptText="exemple@wingo.tn"
+                   style="-fx-background-color: #F8FAFC; -fx-border-color: #E2E8F0;
+                          -fx-border-radius: 10; -fx-background-radius: 10;
+                          -fx-padding: 12 14; -fx-font-size: 14px;
+                          -fx-border-width: 1.5;"/>
+
+        <Region prefHeight="16"/>
+
+        <!-- Mot de passe -->
+        <Label text="Mot de passe" style="-fx-font-size: 13px; -fx-font-weight: bold; -fx-text-fill: #1E293B; -fx-padding: 0 0 6 0;"/>
+        <PasswordField fx:id="passwordField"
+                       promptText="••••••••"
+                       style="-fx-background-color: #F8FAFC; -fx-border-color: #E2E8F0;
+                              -fx-border-radius: 10; -fx-background-radius: 10;
+                              -fx-padding: 12 14; -fx-font-size: 14px;
+                              -fx-border-width: 1.5;"/>
+
+        <Region prefHeight="8"/>
+
+        <!-- Erreur -->
+        <Label fx:id="errorLabel" text=""
+               visible="false"
+               style="-fx-text-fill: #EF4444; -fx-font-size: 13px; -fx-padding: 4 0;"/>
+
+        <Region prefHeight="20"/>
+
+        <!-- Bouton connexion -->
+        <Button fx:id="loginButton" text="Se connecter →"
+                onAction="#handleLogin"
+                maxWidth="Infinity"
+                style="-fx-background-color: #6366F1; -fx-text-fill: white;
+                       -fx-font-size: 15px; -fx-font-weight: bold;
+                       -fx-background-radius: 12; -fx-padding: 14;
+                       -fx-cursor: hand;"/>
+
+        <Region prefHeight="24"/>
+
+        <!-- Comptes de test -->
+        <Separator/>
+        <Label text="Comptes de test" style="-fx-font-size: 11px; -fx-text-fill: #94A3B8; -fx-padding: 14 0 8 0;"/>
+
+        <VBox spacing="4" style="-fx-background-color: #F8FAFC; -fx-background-radius: 10; -fx-padding: 12;">
+            <Label text="👤 client1@wingo.tn  /  pass1" style="-fx-font-size: 12px; -fx-text-fill: #64748B; -fx-font-family: monospace;"/>
+            <Label text="👤 client2@wingo.tn  /  pass2" style="-fx-font-size: 12px; -fx-text-fill: #64748B; -fx-font-family: monospace;"/>
+            <Label text="👤 client3@wingo.tn  /  pass3" style="-fx-font-size: 12px; -fx-text-fill: #64748B; -fx-font-family: monospace;"/>
+            <Label text="🔑 admin@wingo.tn     /  admin" style="-fx-font-size: 12px; -fx-text-fill: #6366F1; -fx-font-weight: bold; -fx-font-family: monospace;"/>
+        </VBox>
+
+    </VBox>
+</StackPane>

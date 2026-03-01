@@ -1,0 +1,229 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.chart.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.effect.DropShadow?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.shape.Circle?>
+
+<HBox prefHeight="850" prefWidth="1300" style="-fx-background-color: #F8FAFC;"
+      xmlns="http://javafx.com/javafx/17"
+      xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="Controlles.ReclamationBackController">
+
+    <!-- ===== SIDEBAR SOMBRE (même style collègue) ===== -->
+    <VBox prefWidth="220" spacing="10" style="-fx-background-color: #0F172A; -fx-padding: 30 18 30 18;">
+        <effect><DropShadow color="#00000040" radius="25" /></effect>
+
+        <!-- Logo -->
+        <HBox alignment="CENTER_LEFT" spacing="15" style="-fx-padding: 0 0 40 10;">
+            <StackPane style="-fx-background-color: linear-gradient(to bottom right, #A3B1FF, #8B5CF6); -fx-background-radius: 12; -fx-padding: 8;">
+                <Label text="🛟" style="-fx-font-size: 20px;" />
+            </StackPane>
+            <VBox>
+                <Label text="WinGo" style="-fx-text-fill: white; -fx-font-size: 22px; -fx-font-weight: 900;" />
+                <Label text="SUPPORT ADMIN" style="-fx-text-fill: #64748B; -fx-font-size: 10px; -fx-font-weight: 800;" />
+            </VBox>
+        </HBox>
+
+        <Label text="MENU PRINCIPAL" style="-fx-text-fill: #334155; -fx-font-size: 11px; -fx-font-weight: 800; -fx-padding: 15 0 10 15;" />
+
+        <!-- Boutons navigation - même style exact collègue -->
+        <ToggleButton fx:id="btnDashboard" text="📊  Dashboard"
+                      mnemonicParsing="false" onAction="#switchToDashboard"
+                      prefWidth="184" selected="true"
+                      style="-fx-background-color: #A3B1FF; -fx-text-fill: white; -fx-alignment: CENTER_LEFT; -fx-padding: 14 22; -fx-background-radius: 14; -fx-cursor: hand; -fx-font-weight: bold; -fx-font-size: 14px;">
+            <toggleGroup><ToggleGroup fx:id="navGroup" /></toggleGroup>
+            <effect><DropShadow color="#A3B1FF4D" radius="10" offsetY="4" /></effect>
+        </ToggleButton>
+
+        <ToggleButton fx:id="btnReclamations" text="🛟  Réclamations"
+                      mnemonicParsing="false" onAction="#switchToReclamations"
+                      prefWidth="184" toggleGroup="$navGroup"
+                      style="-fx-background-color: transparent; -fx-text-fill: #94A3B8; -fx-alignment: CENTER_LEFT; -fx-padding: 14 22; -fx-background-radius: 14; -fx-cursor: hand; -fx-font-weight: bold; -fx-font-size: 14px;" />
+
+        <ToggleButton fx:id="btnSuggestions" text="💡  Suggestions"
+                      mnemonicParsing="false" onAction="#switchToSuggestions"
+                      prefWidth="184" toggleGroup="$navGroup"
+                      style="-fx-background-color: transparent; -fx-text-fill: #94A3B8; -fx-alignment: CENTER_LEFT; -fx-padding: 14 22; -fx-background-radius: 14; -fx-cursor: hand; -fx-font-weight: bold; -fx-font-size: 14px;" />
+
+        <Region VBox.vgrow="ALWAYS" />
+
+        <!-- System Status - même style collègue -->
+        <VBox alignment="CENTER" spacing="10"
+              style="-fx-background-color: #1E293B33; -fx-background-radius: 15; -fx-padding: 20;">
+            <Label text="SYSTEM STATUS" style="-fx-text-fill: #475569; -fx-font-size: 9px; -fx-font-weight: 900;" />
+            <HBox alignment="CENTER" spacing="8">
+                <Circle fill="#10B981" radius="4" />
+                <Label text="Connecté" style="-fx-text-fill: #10B981; -fx-font-size: 11px; -fx-font-weight: bold;" />
+            </HBox>
+        </VBox>
+    </VBox>
+
+    <!-- ===== CONTENU PRINCIPAL ===== -->
+    <StackPane fx:id="contentStack" HBox.hgrow="ALWAYS" style="-fx-padding: 30;">
+
+        <!-- ========== VUE DASHBOARD ========== -->
+        <VBox fx:id="viewDashboard" spacing="25">
+
+            <!-- Header - même style collègue -->
+            <HBox alignment="CENTER_LEFT" spacing="20">
+                <StackPane style="-fx-background-color: #A3B1FF1A; -fx-background-radius: 15; -fx-padding: 15;">
+                    <Label text="👋" style="-fx-font-size: 26px;" />
+                </StackPane>
+                <VBox>
+                    <Label text="Bienvenue, Admin" style="-fx-text-fill: #1E293B; -fx-font-size: 32px; -fx-font-weight: 900;" />
+                    <Label text="Voici l'état actuel des réclamations WinGo" style="-fx-text-fill: #94A3B8; -fx-font-size: 15px; -fx-font-weight: 500;" />
+                </VBox>
+                <Region HBox.hgrow="ALWAYS" />
+                <Button onAction="#loadData" text="🔄 Actualiser"
+                        style="-fx-background-color: #FFFFFF; -fx-background-radius: 12; -fx-padding: 12 25; -fx-text-fill: #A3B1FF; -fx-font-weight: bold; -fx-cursor: hand; -fx-border-color: #E2E8F0; -fx-border-radius: 12; -fx-font-size: 14px;" />
+            </HBox>
+
+            <Separator prefWidth="1000" style="-fx-opacity: 0.3;" />
+
+            <!-- KPI Cards - même style glassmorphism collègue -->
+            <HBox spacing="20">
+                <!-- Card 1 : Total violet gradient -->
+                <VBox prefWidth="220" style="-fx-background-color: linear-gradient(to bottom right, #A3B1FF, #8B5CF6); -fx-background-radius: 25; -fx-padding: 25;">
+                    <effect><DropShadow color="#A3B1FF4D" radius="20" offsetY="10" /></effect>
+                    <Label text="TOTAL RÉCLAMATIONS" style="-fx-text-fill: #E0E7FF; -fx-font-size: 10px; -fx-font-weight: 900;" />
+                    <Label fx:id="kpiTotal" text="0" style="-fx-text-fill: white; -fx-font-size: 42px; -fx-font-weight: 900; -fx-padding: 5 0;" />
+                    <HBox alignment="CENTER_LEFT" spacing="8"
+                          style="-fx-background-color: #FFFFFF22; -fx-background-radius: 20; -fx-padding: 6 12; -fx-max-width: 130;">
+                        <Label text="●" style="-fx-text-fill: #34D399; -fx-font-size: 8px;" />
+                        <Label text="Toutes statuts" style="-fx-text-fill: white; -fx-font-size: 11px; -fx-font-weight: bold;" />
+                    </HBox>
+                </VBox>
+
+                <!-- Card 2 : En attente sombre -->
+                <VBox prefWidth="220" style="-fx-background-color: linear-gradient(to bottom right, #1E293B, #0F172A); -fx-background-radius: 25; -fx-padding: 25;">
+                    <effect><DropShadow color="#00000033" radius="20" offsetY="10" /></effect>
+                    <Label text="EN ATTENTE" style="-fx-text-fill: #94A3B8; -fx-font-size: 10px; -fx-font-weight: 900;" />
+                    <Label fx:id="kpiEnAttente" text="0" style="-fx-text-fill: #F59E0B; -fx-font-size: 42px; -fx-font-weight: 900; -fx-padding: 5 0;" />
+                    <Label text="À traiter en priorité" style="-fx-text-fill: #64748B; -fx-font-size: 11px;" />
+                </VBox>
+
+                <!-- Card 3 : Résolues blanc -->
+                <VBox prefWidth="220" style="-fx-background-color: white; -fx-background-radius: 25; -fx-padding: 25; -fx-border-color: #F1F5F9; -fx-border-width: 1;">
+                    <effect><DropShadow color="#00000008" radius="20" offsetY="10" /></effect>
+                    <Label text="RÉSOLUES" style="-fx-text-fill: #94A3B8; -fx-font-size: 10px; -fx-font-weight: 900;" />
+                    <HBox spacing="10" alignment="BOTTOM_LEFT">
+                        <Label fx:id="kpiResolues" text="0" style="-fx-text-fill: #10B981; -fx-font-size: 42px; -fx-font-weight: 900;" />
+                        <Label text="cas" style="-fx-text-fill: #94A3B8; -fx-font-size: 18px; -fx-font-weight: 600; -fx-padding: 0 0 8 0;" />
+                    </HBox>
+                    <Label text="Taux de résolution" style="-fx-text-fill: #64748B; -fx-font-size: 11px;" />
+                </VBox>
+
+                <!-- Card 4 : Urgentes -->
+                <VBox prefWidth="220" style="-fx-background-color: white; -fx-background-radius: 25; -fx-padding: 25; -fx-border-color: #F1F5F9; -fx-border-width: 1;">
+                    <effect><DropShadow color="#00000008" radius="20" offsetY="10" /></effect>
+                    <Label text="URGENTES (CRITIQUE)" style="-fx-text-fill: #94A3B8; -fx-font-size: 10px; -fx-font-weight: 900;" />
+                    <HBox spacing="10" alignment="BOTTOM_LEFT">
+                        <Label fx:id="kpiUrgentes" text="0" style="-fx-text-fill: #EF4444; -fx-font-size: 42px; -fx-font-weight: 900;" />
+                        <Label text="⚠" style="-fx-text-fill: #EF4444; -fx-font-size: 18px; -fx-padding: 0 0 8 0;" />
+                    </HBox>
+                    <Label text="Nécessitent une action" style="-fx-text-fill: #64748B; -fx-font-size: 11px;" />
+                </VBox>
+            </HBox>
+
+            <!-- Charts Row - même layout collègue -->
+            <HBox spacing="25" VBox.vgrow="ALWAYS">
+
+                <!-- PieChart Statuts - comme "Répartition par Région" de la collègue -->
+                <VBox HBox.hgrow="ALWAYS" spacing="15"
+                      style="-fx-background-color: #FFFFFF; -fx-background-radius: 20; -fx-padding: 25;">
+                    <effect><DropShadow color="#00000005" radius="15" /></effect>
+                    <Label text="Répartition par Statut" style="-fx-text-fill: #1E293B; -fx-font-size: 16px; -fx-font-weight: bold;" />
+                    <PieChart fx:id="statutChart" labelsVisible="true" legendVisible="false" VBox.vgrow="ALWAYS" />
+                </VBox>
+
+                <!-- Top Réclamations récentes - comme "Top Articles" de la collègue -->
+                <VBox prefWidth="400" spacing="15"
+                      style="-fx-background-color: #FFFFFF; -fx-background-radius: 20; -fx-padding: 25;">
+                    <effect><DropShadow color="#00000005" radius="15" /></effect>
+                    <Label text="Réclamations Récentes (non résolues)" style="-fx-text-fill: #1E293B; -fx-font-size: 16px; -fx-font-weight: bold;" />
+                    <ScrollPane fitToWidth="true"
+                                style="-fx-background: transparent; -fx-background-color: transparent; -fx-border-color: transparent;">
+                        <VBox fx:id="recentReclamationsContainer" spacing="12" />
+                    </ScrollPane>
+                </VBox>
+            </HBox>
+        </VBox>
+
+        <!-- ========== VUE RÉCLAMATIONS ========== -->
+        <VBox fx:id="viewReclamations" spacing="20" visible="false">
+
+            <!-- Header -->
+            <HBox alignment="CENTER_LEFT">
+                <VBox>
+                    <Label text="Gestion des Réclamations" style="-fx-text-fill: #1E293B; -fx-font-size: 28px; -fx-font-weight: 900;" />
+                    <Label text="Consultez et répondez aux réclamations des utilisateurs" style="-fx-text-fill: #94A3B8; -fx-font-size: 14px;" />
+                </VBox>
+                <Region HBox.hgrow="ALWAYS" />
+                <Button onAction="#loadReclamations" text="🔄 Actualiser"
+                        style="-fx-background-color: #A3B1FF; -fx-background-radius: 10; -fx-padding: 12 25; -fx-text-fill: white; -fx-font-weight: bold; -fx-cursor: hand;" />
+            </HBox>
+
+            <!-- Barre de recherche style collègue -->
+            <HBox spacing="15" alignment="CENTER_LEFT">
+                <TextField fx:id="recSearchField" promptText="🔍  Rechercher par sujet, type..."
+                           onKeyReleased="#rechercherReclamation" prefWidth="350"
+                           style="-fx-background-color: #FFFFFF; -fx-background-radius: 15; -fx-padding: 12 20; -fx-border-color: #E2E8F0; -fx-border-radius: 15; -fx-font-size: 14px;" />
+                <ComboBox fx:id="filterStatutBox" promptText="Statut"
+                          onAction="#filtrerParStatut"
+                          style="-fx-background-radius: 12; -fx-border-color: #E2E8F0; -fx-border-radius: 12; -fx-padding: 10;" />
+                <ComboBox fx:id="filterPrioriteBox" promptText="Priorité"
+                          onAction="#filtrerParPriorite"
+                          style="-fx-background-radius: 12; -fx-border-color: #E2E8F0; -fx-border-radius: 12; -fx-padding: 10;" />
+                <Region HBox.hgrow="ALWAYS" />
+                <Label fx:id="recCountLabel" text="0 réclamation(s)"
+                       style="-fx-text-fill: #64748B; -fx-font-size: 13px; -fx-font-weight: bold;" />
+            </HBox>
+
+            <!-- ScrollPane avec cartes - même style que les articles de la collègue -->
+            <ScrollPane fitToWidth="true" VBox.vgrow="ALWAYS"
+                        style="-fx-background: transparent; -fx-background-color: transparent; -fx-border-color: transparent;">
+                <VBox fx:id="reclamationsContainer" spacing="15" style="-fx-padding: 5 10 20 5;" />
+            </ScrollPane>
+        </VBox>
+
+        <!-- ========== VUE SUGGESTIONS ========== -->
+        <VBox fx:id="viewSuggestions" spacing="20" visible="false">
+
+            <!-- Header -->
+            <HBox alignment="CENTER_LEFT">
+                <VBox>
+                    <Label text="Gestion des Suggestions" style="-fx-text-fill: #1E293B; -fx-font-size: 28px; -fx-font-weight: 900;" />
+                    <Label text="Examinez et répondez aux suggestions des utilisateurs" style="-fx-text-fill: #94A3B8; -fx-font-size: 14px;" />
+                </VBox>
+                <Region HBox.hgrow="ALWAYS" />
+                <Button onAction="#loadSuggestions" text="🔄 Actualiser"
+                        style="-fx-background-color: #8B5CF6; -fx-background-radius: 10; -fx-padding: 12 25; -fx-text-fill: white; -fx-font-weight: bold; -fx-cursor: hand;" />
+            </HBox>
+
+            <!-- Recherche -->
+            <HBox spacing="15" alignment="CENTER_LEFT">
+                <TextField fx:id="sugSearchField" promptText="🔍  Rechercher par sujet, catégorie..."
+                           onKeyReleased="#rechercherSuggestion" prefWidth="350"
+                           style="-fx-background-color: #FFFFFF; -fx-background-radius: 15; -fx-padding: 12 20; -fx-border-color: #E2E8F0; -fx-border-radius: 15; -fx-font-size: 14px;" />
+                <ComboBox fx:id="filterSugStatutBox" promptText="Statut"
+                          onAction="#filtrerSugParStatut"
+                          style="-fx-background-radius: 12; -fx-border-color: #E2E8F0; -fx-border-radius: 12; -fx-padding: 10;" />
+                <Region HBox.hgrow="ALWAYS" />
+                <Label fx:id="sugCountLabel" text="0 suggestion(s)"
+                       style="-fx-text-fill: #64748B; -fx-font-size: 13px; -fx-font-weight: bold;" />
+            </HBox>
+
+            <!-- ScrollPane cartes suggestions -->
+            <ScrollPane fitToWidth="true" VBox.vgrow="ALWAYS"
+                        style="-fx-background: transparent; -fx-background-color: transparent; -fx-border-color: transparent;">
+                <VBox fx:id="suggestionsContainer" spacing="15" style="-fx-padding: 5 10 20 5;" />
+            </ScrollPane>
+        </VBox>
+
+    </StackPane>
+</HBox>
