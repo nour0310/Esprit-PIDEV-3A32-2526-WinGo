@@ -1,14 +1,25 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Produit{% endblock %}
+{% block title %}Ajouter Produit{% endblock %}
 
-{% block body %}
-    <h1>Formulaire Produit</h1>
+{% block content %}
+    <div style="padding: 180px 0 90px 0; background:#f6f9fb;">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-lg-8">
+                    <div style="background:white; padding:35px; border-radius:20px; box-shadow:0 10px 25px rgba(0,0,0,0.08);">
+                        <h2 style="margin-bottom:25px;">Formulaire Produit</h2>
 
-    {{ form_start(formProduit) }}
-        {{ form_widget(formProduit) }}
-        <button type="submit">Enregistrer</button>
-    {{ form_end(formProduit) }}
+                        {{ form_start(formProduit) }}
+                            {{ form_widget(formProduit) }}
+                            <button type="submit" class="btn btn-primary mt-3">Enregistrer</button>
+                        {{ form_end(formProduit) }}
 
-    <a href="{{ path('produit_list') }}">Retour</a>
+                        <br>
+                        <a href="{{ path('produit_list') }}">Retour à la liste</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 {% endblock %}

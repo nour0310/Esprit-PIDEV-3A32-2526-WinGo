@@ -2,21 +2,25 @@
 
 {% block title %}Détails Produit{% endblock %}
 
-{% block body %}
-    <h1>Détails du produit</h1>
+{% block content %}
+    <div style="padding: 180px 0 90px 0; background:#f6f9fb;">
+        <div class="container">
+            <div style="background:white; padding:35px; border-radius:20px; box-shadow:0 10px 25px rgba(0,0,0,0.08);">
+                <h2>Détails du produit</h2>
 
-    {% if produit %}
-        <p><strong>ID :</strong> {{ produit.id }}</p>
-        <p><strong>ID User :</strong> {{ produit.idUser }}</p>
-        <p><strong>Nom :</strong> {{ produit.nom }}</p>
-        <p><strong>Description :</strong> {{ produit.description }}</p>
-        <p><strong>Prix :</strong> {{ produit.prix }}</p>
-        <p><strong>Région :</strong> {{ produit.region }}</p>
-        <p><strong>Catégorie :</strong> {{ produit.categorie }}</p>
-        <p><strong>Stock :</strong> {{ produit.stock }}</p>
-        <p><strong>Image :</strong> {{ produit.image }}</p>
-        <p><strong>Date ajout :</strong> {{ produit.dateAjout ? produit.dateAjout|date('Y-m-d H:i') : '' }}</p>
-    {% endif %}
+                <p><strong>ID :</strong> {{ produit.id }}</p>
+                <p><strong>ID User :</strong> {{ produit.idUser }}</p>
+                <p><strong>Nom :</strong> {{ produit.nom }}</p>
+                <p><strong>Description :</strong> {{ produit.description }}</p>
+                <p><strong>Prix :</strong> {{ produit.prix }} DT</p>
+                <p><strong>Région :</strong> {{ produit.region }}</p>
+                <p><strong>Catégorie :</strong> {{ produit.categorie }}</p>
+                <p><strong>Stock :</strong> {{ produit.stock }}</p>
+                <p><strong>Image :</strong> {{ produit.image }}</p>
+                <p><strong>Date ajout :</strong> {{ produit.dateAjout ? produit.dateAjout|date('Y-m-d H:i') : '' }}</p>
 
-    <a href="{{ path('produit_list') }}">Retour</a>
+                <a href="{{ path('produit_list') }}" class="btn btn-secondary">Retour</a>
+            </div>
+        </div>
+    </div>
 {% endblock %}
