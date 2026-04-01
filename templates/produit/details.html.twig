@@ -1,0 +1,22 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Détails Produit{% endblock %}
+
+{% block body %}
+    <h1>Détails du produit</h1>
+
+    {% if produit %}
+        <p><strong>ID :</strong> {{ produit.id }}</p>
+        <p><strong>ID User :</strong> {{ produit.idUser }}</p>
+        <p><strong>Nom :</strong> {{ produit.nom }}</p>
+        <p><strong>Description :</strong> {{ produit.description }}</p>
+        <p><strong>Prix :</strong> {{ produit.prix }}</p>
+        <p><strong>Région :</strong> {{ produit.region }}</p>
+        <p><strong>Catégorie :</strong> {{ produit.categorie }}</p>
+        <p><strong>Stock :</strong> {{ produit.stock }}</p>
+        <p><strong>Image :</strong> {{ produit.image }}</p>
+        <p><strong>Date ajout :</strong> {{ produit.dateAjout ? produit.dateAjout|date('Y-m-d H:i') : '' }}</p>
+    {% endif %}
+
+    <a href="{{ path('produit_list') }}">Retour</a>
+{% endblock %}
