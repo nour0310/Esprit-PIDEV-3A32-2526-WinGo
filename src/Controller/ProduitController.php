@@ -14,7 +14,7 @@ use Symfony\Component\Routing\Attribute\Route;
 #[Route('/produit')]
 final class ProduitController extends AbstractController
 {
-    #[Route('/produit/list', name: 'produit_list')]
+    #[Route('/list', name: 'produit_list')]
 public function list(ProduitRepository $repo): Response
 {
     return $this->render('produit/list.html.twig', [

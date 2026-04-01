@@ -2,23 +2,209 @@
 
 {% block title %}Ajouter Produit{% endblock %}
 
+{% block stylesheets %}
+    {{ parent() }}
+    <style>
+        .product_form_section{
+            padding: 170px 0 90px 0;
+            background: #eef2f5;
+        }
+
+        .product_form_box{
+            max-width: 900px;
+            margin: 0 auto;
+            background: #ffffff;
+            border-radius: 24px;
+            box-shadow: 0 18px 40px rgba(0,0,0,0.08);
+            padding: 45px 50px;
+        }
+
+        .product_form_title{
+            font-size: 48px;
+            font-weight: 800;
+            color: #2d2c2c;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+
+        .product_form_subtitle{
+            text-align: center;
+            color: #6d6d6d;
+            margin-bottom: 35px;
+            font-size: 17px;
+        }
+
+        .product_form_box form > div{
+            margin-bottom: 18px;
+        }
+
+        .product_form_box label{
+            display: block;
+            font-size: 15px;
+            font-weight: 700;
+            color: #2d2c2c;
+            margin-bottom: 8px;
+        }
+
+        .product_form_box input,
+        .product_form_box textarea,
+        .product_form_box select{
+            width: 100%;
+            border: 1px solid #dcdcdc;
+            border-radius: 14px;
+            padding: 14px 16px;
+            font-size: 15px;
+            color: #333;
+            background: #fafafa;
+            outline: none;
+            transition: all 0.25s ease;
+            box-shadow: none;
+        }
+
+        .product_form_box textarea{
+            min-height: 130px;
+            resize: vertical;
+        }
+
+        .product_form_box input:focus,
+        .product_form_box textarea:focus,
+        .product_form_box select:focus{
+            border-color: #8d4fff;
+            background: #fff;
+            box-shadow: 0 0 0 4px rgba(141,79,255,0.10);
+        }
+
+        .product_form_grid{
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .product_full{
+            grid-column: 1 / -1;
+        }
+
+        .product_submit_btn{
+            border: none;
+            border-radius: 30px;
+            padding: 14px 28px;
+            font-size: 16px;
+            font-weight: 700;
+            color: #fff;
+            background: linear-gradient(to right, #fa9e1b, #8d4fff);
+            cursor: pointer;
+            transition: 0.25s ease;
+            box-shadow: 0 10px 25px rgba(141,79,255,0.22);
+        }
+
+        .product_submit_btn:hover{
+            transform: translateY(-2px);
+            opacity: 0.95;
+        }
+
+        .product_back_link{
+            display: inline-block;
+            margin-top: 18px;
+            font-weight: 600;
+            color: #8d4fff;
+        }
+
+        .product_back_link:hover{
+            color: #fa9e1b;
+            text-decoration: none;
+        }
+
+        @media (max-width: 767px){
+            .product_form_box{
+                padding: 28px 20px;
+                margin: 0 12px;
+            }
+
+            .product_form_title{
+                font-size: 34px;
+            }
+
+            .product_form_grid{
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+{% endblock %}
+
 {% block content %}
-    <div style="padding: 180px 0 90px 0; background:#f6f9fb;">
+    <div class="product_form_section">
         <div class="container">
-            <div class="row justify-content-center">
-                <div class="col-lg-8">
-                    <div style="background:white; padding:35px; border-radius:20px; box-shadow:0 10px 25px rgba(0,0,0,0.08);">
-                        <h2 style="margin-bottom:25px;">Formulaire Produit</h2>
+            <div class="product_form_box">
+                <h1 class="product_form_title">Ajouter un produit</h1>
+                <p class="product_form_subtitle">Remplissez les informations du produit à publier sur Wingo</p>
 
-                        {{ form_start(formProduit) }}
-                            {{ form_widget(formProduit) }}
-                            <button type="submit" class="btn btn-primary mt-3">Enregistrer</button>
-                        {{ form_end(formProduit) }}
+                {{ form_start(formProduit) }}
 
-                        <br>
-                        <a href="{{ path('produit_list') }}">Retour à la liste</a>
+                    <div class="product_form_grid">
+                        <div>
+                            {{ form_label(formProduit.idUser) }}
+                            {{ form_widget(formProduit.idUser) }}
+                            {{ form_errors(formProduit.idUser) }}
+                        </div>
+
+                        <div>
+                            {{ form_label(formProduit.nom) }}
+                            {{ form_widget(formProduit.nom) }}
+                            {{ form_errors(formProduit.nom) }}
+                        </div>
+
+                        <div class="product_full">
+                            {{ form_label(formProduit.description) }}
+                            {{ form_widget(formProduit.description) }}
+                            {{ form_errors(formProduit.description) }}
+                        </div>
+
+                        <div>
+                            {{ form_label(formProduit.prix) }}
+                            {{ form_widget(formProduit.prix) }}
+                            {{ form_errors(formProduit.prix) }}
+                        </div>
+
+                        <div>
+                            {{ form_label(formProduit.region) }}
+                            {{ form_widget(formProduit.region) }}
+                            {{ form_errors(formProduit.region) }}
+                        </div>
+
+                        <div>
+                            {{ form_label(formProduit.categorie) }}
+                            {{ form_widget(formProduit.categorie) }}
+                            {{ form_errors(formProduit.categorie) }}
+                        </div>
+
+                        <div>
+                            {{ form_label(formProduit.stock) }}
+                            {{ form_widget(formProduit.stock) }}
+                            {{ form_errors(formProduit.stock) }}
+                        </div>
+
+                        <div class="product_full">
+                            {{ form_label(formProduit.image) }}
+                            {{ form_widget(formProduit.image, {
+                                attr: {
+                                    placeholder: 'Ex: huile.png ou https://...'
+                                }
+                            }) }}
+                            {{ form_errors(formProduit.image) }}
+                        </div>
+
+                        <div class="product_full">
+                            {{ form_label(formProduit.dateAjout) }}
+                            {{ form_widget(formProduit.dateAjout) }}
+                            {{ form_errors(formProduit.dateAjout) }}
+                        </div>
                     </div>
-                </div>
+
+                    <button type="submit" class="product_submit_btn">Enregistrer</button>
+
+                {{ form_end(formProduit) }}
+
+                <a href="{{ path('produit_list') }}" class="product_back_link">← Retour à la liste</a>
             </div>
         </div>
     </div>
