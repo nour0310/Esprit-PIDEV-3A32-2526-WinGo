@@ -1,0 +1,49 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Liste Produits{% endblock %}
+
+{% block body %}
+    <h1>Liste des produits</h1>
+
+    <a href="{{ path('produit_add') }}">Ajouter produit</a>
+
+    <table border="1" cellpadding="10">
+        <tr>
+            <th>ID</th>
+            <th>ID User</th>
+            <th>Nom</th>
+            <th>Description</th>
+            <th>Prix</th>
+            <th>Région</th>
+            <th>Catégorie</th>
+            <th>Stock</th>
+            <th>Image</th>
+            <th>Date ajout</th>
+            <th>Actions</th>
+        </tr>
+
+        {% for p in list %}
+            <tr>
+                <td>{{ p.id }}</td>
+                <td>{{ p.idUser }}</td>
+                <td>{{ p.nom }}</td>
+                <td>{{ p.description }}</td>
+                <td>{{ p.prix }}</td>
+                <td>{{ p.region }}</td>
+                <td>{{ p.categorie }}</td>
+                <td>{{ p.stock }}</td>
+                <td>{{ p.image }}</td>
+                <td>{{ p.dateAjout ? p.dateAjout|date('Y-m-d H:i') : '' }}</td>
+                <td>
+                    <a href="{{ path('produit_details', {'id': p.id}) }}">Détails</a>
+                    <a href="{{ path('produit_update', {'id': p.id}) }}">Modifier</a>
+                    <a href="{{ path('produit_delete', {'id': p.id}) }}">Supprimer</a>
+                </td>
+            </tr>
+        {% else %}
+            <tr>
+                <td colspan="11">Aucun produit trouvé</td>
+            </tr>
+        {% endfor %}
+    </table>
+{% endblock %}
