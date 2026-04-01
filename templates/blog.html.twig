@@ -1,0 +1,179 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Blog - Travelix{% endblock %}
+
+{% block stylesheets %}
+<link href="{{ asset('plugins/colorbox/colorbox.css') }}" rel="stylesheet" type="text/css">
+<link rel="stylesheet" type="text/css" href="{{ asset('styles/blog_styles.css') }}">
+<link rel="stylesheet" type="text/css" href="{{ asset('styles/blog_responsive.css') }}">
+{% endblock %}
+
+{% block content %}
+
+	<!-- Home Banner -->
+	<div class="home">
+		<div class="home_background parallax-window" data-parallax="scroll" data-image-src="{{ asset('images/about_background.jpg') }}"></div>
+		<div class="home_content">
+			<div class="home_title">our blog</div>
+		</div>
+	</div>
+
+	<!-- Blog -->
+	<div class="blog">
+		<div class="container">
+			<div class="row">
+
+				<!-- Blog Content -->
+				<div class="col-lg-8">
+					<div class="blog_post_container">
+
+						{% set posts = posts is defined ? posts : [
+							{image: 'blog_1.jpg', day: '01', month: 'Dec, 2017', author: 'Lore Papp', category: 'Uncategorized', comments: 3, title: 'Try these new dream destinations', text: 'Aenean in lacus ligula. Phasellus euismod gravida eros. Aenean nec ipsum aliquet, pharetra magna id, interdum sapien. Etiam id lorem eu nisl pellentesque semper.'},
+							{image: 'blog_2.jpg', day: '01', month: 'Dec, 2017', author: 'Lore Papp', category: 'Uncategorized', comments: 3, title: 'Try these new dream destinations', text: 'Aenean in lacus ligula. Phasellus euismod gravida eros. Aenean nec ipsum aliquet, pharetra magna id, interdum sapien. Etiam id lorem eu nisl pellentesque semper.'},
+							{image: 'blog_3.jpg', day: '01', month: 'Dec, 2017', author: 'Lore Papp', category: 'Uncategorized', comments: 3, title: 'Try these new dream destinations', text: 'Aenean in lacus ligula. Phasellus euismod gravida eros. Aenean nec ipsum aliquet, pharetra magna id, interdum sapien. Etiam id lorem eu nisl pellentesque semper.'}
+						] %}
+
+						{% for post in posts %}
+						<div class="blog_post">
+							<div class="blog_post_image">
+								<img src="{{ asset('images/' ~ post.image) }}" alt="">
+								<div class="blog_post_date d-flex flex-column align-items-center justify-content-center">
+									<div class="blog_post_day">{{ post.day }}</div>
+									<div class="blog_post_month">{{ post.month }}</div>
+								</div>
+							</div>
+							<div class="blog_post_meta">
+								<ul>
+									<li class="blog_post_meta_item"><a href="#">by {{ post.author }}</a></li>
+									<li class="blog_post_meta_item"><a href="#">{{ post.category }}</a></li>
+									<li class="blog_post_meta_item"><a href="#">{{ post.comments }} Comments</a></li>
+								</ul>
+							</div>
+							<div class="blog_post_title"><a href="#">{{ post.title }}</a></div>
+							<div class="blog_post_text"><p>{{ post.text }}</p></div>
+							<div class="blog_post_link"><a href="#">read more</a></div>
+						</div>
+						{% endfor %}
+
+					</div>
+
+					<!-- Pagination -->
+					<div class="blog_navigation">
+						<ul>
+							<li class="blog_dot active"><div></div>01.</li>
+							<li class="blog_dot"><div></div>02.</li>
+							<li class="blog_dot"><div></div>03.</li>
+						</ul>
+					</div>
+				</div>
+
+				<!-- Blog Sidebar -->
+				<div class="col-lg-4 sidebar_col">
+
+					<!-- Sidebar Search -->
+					<div class="sidebar_search">
+						<form action="#">
+							<input id="sidebar_search_input" type="search" class="sidebar_search_input" placeholder="" required="required">
+							<button id="sidebar_search_button" type="submit" class="sidebar_search_button trans_300" value="Submit">
+								<svg version="1.1" xmlns="http://www.w3.org/2000/svg" width="17px" height="17px" viewBox="0 0 512 512" enable-background="new 0 0 512 512" xml:space="preserve">
+									<g><g><g><path class="mag_glass" fill="#FFFFFF" d="M78.438,216.78c0,57.906,22.55,112.343,63.493,153.287c40.945,40.944,95.383,63.494,153.287,63.494s112.344-22.55,153.287-63.494C489.451,329.123,512,274.686,512,216.78c0-57.904-22.549-112.342-63.494-153.286C407.563,22.549,353.124,0,295.219,0c-57.904,0-112.342,22.549-153.287,63.494C100.988,104.438,78.439,158.876,78.438,216.78z M119.804,216.78c0-96.725,78.69-175.416,175.415-175.416s175.418,78.691,175.418,175.416c0,96.725-78.691,175.416-175.416,175.416C198.495,392.195,119.804,313.505,119.804,216.78z"/></g></g><g><g><path class="mag_glass" fill="#FFFFFF" d="M6.057,505.942c4.038,4.039,9.332,6.058,14.625,6.058s10.587-2.019,14.625-6.058L171.268,369.98c8.076-8.076,8.076-21.172,0-29.248c-8.076-8.078-21.172-8.078-29.249,0L6.057,476.693C-2.019,484.77-2.019,497.865,6.057,505.942z"/></g></g></g>
+								</svg>
+							</button>
+						</form>
+					</div>
+
+					<!-- Sidebar Archives -->
+					<div class="sidebar_archives">
+						<div class="sidebar_title">Archives</div>
+						<div class="sidebar_list">
+							<ul>
+								<li><a href="#">March 2017</a></li>
+								<li><a href="#">April 2017</a></li>
+								<li><a href="#">May 2017</a></li>
+							</ul>
+						</div>
+					</div>
+
+					<!-- Sidebar Categories -->
+					<div class="sidebar_categories">
+						<div class="sidebar_title">Categories</div>
+						<div class="sidebar_list">
+							<ul>
+								<li><a href="#">Travel</a></li>
+								<li><a href="#">Exotic Destinations</a></li>
+								<li><a href="#">City Breaks</a></li>
+								<li><a href="#">Travel Tips</a></li>
+								<li><a href="#">Lifestyle &amp; Travel</a></li>
+								<li><a href="#">Uncategorized</a></li>
+							</ul>
+						</div>
+					</div>
+
+					<!-- Sidebar Latest Posts -->
+					<div class="sidebar_latest_posts">
+						<div class="sidebar_title">Latest Posts</div>
+						<div class="latest_posts_container">
+							<ul>
+								{% set latest_posts = latest_posts is defined ? latest_posts : [
+									{image: 'latest_1.jpg', title: 'A simple blog post', author: 'Jane Smith', date: 'Aug 25, 2016'},
+									{image: 'latest_2.jpg', title: 'Dream destination for you', author: 'Jane Smith', date: 'Aug 25, 2016'},
+									{image: 'latest_3.jpg', title: 'Tips to travel light', author: 'Jane Smith', date: 'Aug 25, 2016'},
+									{image: 'latest_4.jpg', title: 'How to pick your vacation', author: 'Jane Smith', date: 'Aug 25, 2016'}
+								] %}
+								{% for lpost in latest_posts %}
+								<li class="latest_post clearfix">
+									<div class="latest_post_image"><a href="#"><img src="{{ asset('images/' ~ lpost.image) }}" alt=""></a></div>
+									<div class="latest_post_content">
+										<div class="latest_post_title trans_200"><a href="#">{{ lpost.title }}</a></div>
+										<div class="latest_post_meta">
+											<div class="latest_post_author trans_200"><a href="#">by {{ lpost.author }}</a></div>
+											<div class="latest_post_date trans_200"><a href="#">{{ lpost.date }}</a></div>
+										</div>
+									</div>
+								</li>
+								{% endfor %}
+							</ul>
+						</div>
+					</div>
+
+					<!-- Sidebar Instagram Gallery -->
+					<div class="sidebar_gallery">
+						<div class="sidebar_title">Instagram</div>
+						<div class="gallery_container">
+							<ul class="gallery_items d-flex flex-row align-items-start justify-content-between flex-wrap">
+								{% for i in 1..6 %}
+								<li class="gallery_item">
+									<a class="colorbox" href="{{ asset('images/gallery_' ~ i ~ '.jpg') }}">
+										<img src="{{ asset('images/gallery_' ~ i ~ '.jpg') }}" alt="">
+									</a>
+								</li>
+								{% endfor %}
+							</ul>
+						</div>
+					</div>
+
+					<!-- Sidebar Tags -->
+					<div class="sidebar_tags">
+						<div class="sidebar_title">Tags</div>
+						<ul class="tags_list clearfix">
+							<li class="tag_item"><a href="#">design</a></li>
+							<li class="tag_item"><a href="#">fashion</a></li>
+							<li class="tag_item"><a href="#">music</a></li>
+							<li class="tag_item"><a href="#">video</a></li>
+							<li class="tag_item"><a href="#">photography</a></li>
+							<li class="tag_item"><a href="#">adventure</a></li>
+							<li class="tag_item"><a href="#">travel</a></li>
+						</ul>
+					</div>
+
+				</div>
+			</div>
+		</div>
+	</div>
+
+{% endblock %}
+
+{% block javascripts %}
+<script src="{{ asset('plugins/parallax/parallax.min.js') }}"></script>
+<script src="{{ asset('plugins/colorbox/jquery.colorbox-min.js') }}"></script>
+{% endblock %}
