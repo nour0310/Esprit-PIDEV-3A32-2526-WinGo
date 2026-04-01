@@ -1,0 +1,14 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Produit{% endblock %}
+
+{% block body %}
+    <h1>Formulaire Produit</h1>
+
+    {{ form_start(formProduit) }}
+        {{ form_widget(formProduit) }}
+        <button type="submit">Enregistrer</button>
+    {{ form_end(formProduit) }}
+
+    <a href="{{ path('produit_list') }}">Retour</a>
+{% endblock %}
