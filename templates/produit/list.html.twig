@@ -1,8 +1,10 @@
-{% extends 'base.html.twig' %}
-
-{% block title %}Liste Produits{% endblock %}
-
-{% block body %}
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Liste Produits</title>
+</head>
+<body>
     <h1>Liste des produits</h1>
 
     <a href="{{ path('produit_add') }}">Ajouter produit</a>
@@ -46,4 +48,5 @@
             </tr>
         {% endfor %}
     </table>
-{% endblock %}
+</body>
+</html>

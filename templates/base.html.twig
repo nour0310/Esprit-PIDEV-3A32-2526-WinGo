@@ -69,9 +69,7 @@
         <li class="main_nav_item {% if app.request.attributes.get('_route') == 'events' %}active{% endif %}">
             <a href="#">events</a>
         </li>
-        <li class="main_nav_item {% if app.request.attributes.get('_route') == 'product' %}active{% endif %}">
-            <a href="#">product</a>
-        </li>
+       <li class="main_nav_item"><a href="{{ path('produit_list') }}">Product</a></li>
         <li class="main_nav_item {% if app.request.attributes.get('_route') == 'reservations' %}active{% endif %}">
             <a href="#">reservations</a>
         </li>

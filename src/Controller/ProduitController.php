@@ -14,13 +14,13 @@ use Symfony\Component\Routing\Attribute\Route;
 #[Route('/produit')]
 final class ProduitController extends AbstractController
 {
-    #[Route('/list', name: 'produit_list')]
-    public function list(ProduitRepository $repo): Response
-    {
-        return $this->render('produit/list.html.twig', [
-            'list' => $repo->findAll()
-        ]);
-    }
+    #[Route('/produit/list', name: 'produit_list')]
+public function list(ProduitRepository $repo): Response
+{
+    return $this->render('produit/list.html.twig', [
+        'list' => $repo->findAll()
+    ]);
+}
 
     #[Route('/details/{id}', name: 'produit_details')]
     public function details($id, ProduitRepository $repo): Response
