@@ -1,45 +1,125 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Produits{% endblock %}
+{% block title %}Nos Produits{% endblock %}
 
-{% block body %}
-    <div class="container" style="margin-top: 120px; margin-bottom: 60px;">
-        <h1>Liste des produits</h1>
+{% block stylesheets %}
+    {{ parent() }}
+    <style>
+        .products_section{
+            padding: 180px 0 90px 0;
+            background: #f6f9fb;
+        }
+        .product_card{
+            background: #ffffff;
+            border-radius: 18px;
+            overflow: hidden;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+            margin-bottom: 30px;
+            transition: 0.3s;
+            height: 100%;
+        }
+        .product_card:hover{
+            transform: translateY(-6px);
+        }
+        .product_img{
+            width: 100%;
+            height: 240px;
+            object-fit: cover;
+        }
+        .product_body{
+            padding: 20px;
+        }
+        .product_title{
+            font-size: 22px;
+            font-weight: 700;
+            color: #2d2c2c;
+            margin-bottom: 10px;
+        }
+        .product_price{
+            font-size: 20px;
+            font-weight: 700;
+            color: #fa9e1b;
+            margin-bottom: 10px;
+        }
+        .product_meta{
+            color: #777;
+            font-size: 14px;
+            margin-bottom: 6px;
+        }
+        .product_actions a{
+            margin-right: 10px;
+            display: inline-block;
+            margin-top: 10px;
+        }
+        .add_btn{
+            display: inline-block;
+            padding: 12px 22px;
+            border-radius: 30px;
+            background: linear-gradient(to right, #fa9e1b, #8d4fff);
+            color: white;
+            font-weight: 700;
+            margin-bottom: 30px;
+        }
+        .add_btn:hover{
+            color: white;
+            text-decoration: none;
+            opacity: 0.9;
+        }
+    </style>
+{% endblock %}
 
-        <a href="{{ path('produit_add') }}" class="btn btn-primary" style="margin-bottom: 20px;">
-            Ajouter produit
-        </a>
+{% block content %}
+    <div class="products_section">
+        <div class="container">
+            <div class="row">
+                <div class="col text-center">
+                    <h2 style="font-size:42px; font-weight:800; margin-bottom:15px;">Nos Produits</h2>
+                    <p style="color:#666;">Découvrez les produits disponibles sur Wingo</p>
+                </div>
+            </div>
 
-        <table border="1" cellpadding="10" cellspacing="0" style="width:100%; background:white;">
-            <tr>
-                <th>ID</th>
-                <th>Nom</th>
-                <th>Prix</th>
-                <th>Région</th>
-                <th>Catégorie</th>
-                <th>Stock</th>
-                <th>Actions</th>
-            </tr>
+            <div class="row">
+                <div class="col text-center">
+                    <a href="{{ path('produit_add') }}" class="add_btn">Ajouter un produit</a>
+                </div>
+            </div>
 
-            {% for p in list %}
-                <tr>
-                    <td>{{ p.id }}</td>
-                    <td>{{ p.nom }}</td>
-                    <td>{{ p.prix }}</td>
-                    <td>{{ p.region }}</td>
-                    <td>{{ p.categorie }}</td>
-                    <td>{{ p.stock }}</td>
-                    <td>
-                        <a href="{{ path('produit_details', {'id': p.id}) }}">Détails</a>
-                        <a href="{{ path('produit_update', {'id': p.id}) }}">Modifier</a>
-                        <a href="{{ path('produit_delete', {'id': p.id}) }}">Supprimer</a>
-                    </td>
-                </tr>
-            {% else %}
-                <tr>
-                    <td colspan="7">Aucun produit trouvé</td>
-                </tr>
-            {% endfor %}
-        </table>
+            <div class="row">
+                {% for p in list %}
+                    <div class="col-lg-4 col-md-6">
+                        <div class="product_card">
+                            <img
+                                src="{{ p.image ? asset(p.image) : asset('images/test.png') }}"
+                                alt="{{ p.nom }}"
+                                class="product_img"
+                            >
+
+                            <div class="product_body">
+                                <div class="product_title">{{ p.nom }}</div>
+                                <div class="product_price">{{ p.prix }} DT</div>
+
+                                <div class="product_meta"><strong>Région :</strong> {{ p.region }}</div>
+                                <div class="product_meta"><strong>Catégorie :</strong> {{ p.categorie }}</div>
+                                <div class="product_meta"><strong>Stock :</strong> {{ p.stock }}</div>
+
+                                <p style="margin-top:10px; color:#555;">
+                                    {{ p.description|default('Pas de description')|slice(0, 100) }}
+                                </p>
+
+                                <div class="product_actions">
+                                    <a href="{{ path('produit_details', {'id': p.id}) }}" class="btn btn-info btn-sm">Détails</a>
+                                    <a href="{{ path('produit_update', {'id': p.id}) }}" class="btn btn-warning btn-sm">Modifier</a>
+                                    <a href="{{ path('produit_delete', {'id': p.id}) }}" class="btn btn-danger btn-sm">Supprimer</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {% else %}
+                    <div class="col-12 text-center">
+                        <p>Aucun produit trouvé.</p>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
     </div>
 {% endblock %}
