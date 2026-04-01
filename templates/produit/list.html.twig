@@ -1,52 +1,45 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <meta charset="UTF-8">
-    <title>Liste Produits</title>
-</head>
-<body>
-    <h1>Liste des produits</h1>
+{% extends 'base.html.twig' %}
 
-    <a href="{{ path('produit_add') }}">Ajouter produit</a>
+{% block title %}Produits{% endblock %}
 
-    <table border="1" cellpadding="10">
-        <tr>
-            <th>ID</th>
-            <th>ID User</th>
-            <th>Nom</th>
-            <th>Description</th>
-            <th>Prix</th>
-            <th>Région</th>
-            <th>Catégorie</th>
-            <th>Stock</th>
-            <th>Image</th>
-            <th>Date ajout</th>
-            <th>Actions</th>
-        </tr>
+{% block body %}
+    <div class="container" style="margin-top: 120px; margin-bottom: 60px;">
+        <h1>Liste des produits</h1>
 
-        {% for p in list %}
+        <a href="{{ path('produit_add') }}" class="btn btn-primary" style="margin-bottom: 20px;">
+            Ajouter produit
+        </a>
+
+        <table border="1" cellpadding="10" cellspacing="0" style="width:100%; background:white;">
             <tr>
-                <td>{{ p.id }}</td>
-                <td>{{ p.idUser }}</td>
-                <td>{{ p.nom }}</td>
-                <td>{{ p.description }}</td>
-                <td>{{ p.prix }}</td>
-                <td>{{ p.region }}</td>
-                <td>{{ p.categorie }}</td>
-                <td>{{ p.stock }}</td>
-                <td>{{ p.image }}</td>
-                <td>{{ p.dateAjout ? p.dateAjout|date('Y-m-d H:i') : '' }}</td>
-                <td>
-                    <a href="{{ path('produit_details', {'id': p.id}) }}">Détails</a>
-                    <a href="{{ path('produit_update', {'id': p.id}) }}">Modifier</a>
-                    <a href="{{ path('produit_delete', {'id': p.id}) }}">Supprimer</a>
-                </td>
+                <th>ID</th>
+                <th>Nom</th>
+                <th>Prix</th>
+                <th>Région</th>
+                <th>Catégorie</th>
+                <th>Stock</th>
+                <th>Actions</th>
             </tr>
-        {% else %}
-            <tr>
-                <td colspan="11">Aucun produit trouvé</td>
-            </tr>
-        {% endfor %}
-    </table>
-</body>
-</html>
+
+            {% for p in list %}
+                <tr>
+                    <td>{{ p.id }}</td>
+                    <td>{{ p.nom }}</td>
+                    <td>{{ p.prix }}</td>
+                    <td>{{ p.region }}</td>
+                    <td>{{ p.categorie }}</td>
+                    <td>{{ p.stock }}</td>
+                    <td>
+                        <a href="{{ path('produit_details', {'id': p.id}) }}">Détails</a>
+                        <a href="{{ path('produit_update', {'id': p.id}) }}">Modifier</a>
+                        <a href="{{ path('produit_delete', {'id': p.id}) }}">Supprimer</a>
+                    </td>
+                </tr>
+            {% else %}
+                <tr>
+                    <td colspan="7">Aucun produit trouvé</td>
+                </tr>
+            {% endfor %}
+        </table>
+    </div>
+{% endblock %}
