@@ -184,13 +184,9 @@
                         </div>
 
                         <div class="product_full">
-                            {{ form_label(formProduit.image) }}
-                            {{ form_widget(formProduit.image, {
-                                attr: {
-                                    placeholder: 'Ex: huile.png ou https://...'
-                                }
-                            }) }}
-                            {{ form_errors(formProduit.image) }}
+                            {{ form_label(formProduit.imageFile) }}
+                            {{ form_widget(formProduit.imageFile) }}
+                            {{ form_errors(formProduit.imageFile) }}
                         </div>
 
                         <div class="product_full">
