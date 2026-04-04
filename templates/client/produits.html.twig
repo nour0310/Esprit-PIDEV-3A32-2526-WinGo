@@ -8,8 +8,8 @@
         .client_products_section {
             padding: 190px 0 110px 0;
             background:
-                radial-gradient(circle at top left, rgba(141,79,255,0.18), transparent 30%),
-                radial-gradient(circle at top right, rgba(250,158,27,0.18), transparent 30%),
+                radial-gradient(circle at top left, rgba(141,79,255,0.10), transparent 28%),
+                radial-gradient(circle at top right, rgba(250,158,27,0.10), transparent 28%),
                 linear-gradient(180deg, #eef3f8 0%, #f7f9fc 100%);
             min-height: 100vh;
         }
@@ -18,14 +18,12 @@
             position: relative;
             overflow: hidden;
             border-radius: 34px;
-            padding: 65px 45px;
-            margin-bottom: 65px;
+            padding: 60px 40px;
+            margin-bottom: 60px;
             background: linear-gradient(135deg, rgba(255,255,255,0.88), rgba(255,255,255,0.68));
             backdrop-filter: blur(18px);
             -webkit-backdrop-filter: blur(18px);
-            box-shadow:
-                0 20px 60px rgba(26, 35, 80, 0.12),
-                inset 0 1px 0 rgba(255,255,255,0.55);
+            box-shadow: 0 20px 60px rgba(26, 35, 80, 0.10);
             border: 1px solid rgba(255,255,255,0.45);
             text-align: center;
         }
@@ -43,7 +41,7 @@
             height: 280px;
             top: -80px;
             left: -70px;
-            background: radial-gradient(circle, rgba(250,158,27,0.25), transparent 70%);
+            background: radial-gradient(circle, rgba(250,158,27,0.22), transparent 70%);
         }
 
         .hero_glow_2 {
@@ -51,7 +49,7 @@
             height: 320px;
             right: -100px;
             bottom: -120px;
-            background: radial-gradient(circle, rgba(141,79,255,0.22), transparent 70%);
+            background: radial-gradient(circle, rgba(141,79,255,0.18), transparent 70%);
         }
 
         .products_hero_sub,
@@ -86,7 +84,7 @@
         }
 
         .products_hero_title {
-            font-size: 64px;
+            font-size: 58px;
             font-weight: 900;
             line-height: 1;
             margin: 0;
@@ -105,7 +103,7 @@
             color: #6b49d8;
             font-size: 13px;
             font-weight: 800;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.06);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.05);
             border: 1px solid rgba(255,255,255,0.65);
         }
 
@@ -120,31 +118,30 @@
         .products_top_stats {
             display: flex;
             justify-content: center;
-            gap: 20px;
+            gap: 18px;
             flex-wrap: wrap;
         }
 
         .wow_stat_card {
             min-width: 170px;
-            padding: 20px 22px;
-            border-radius: 24px;
+            padding: 18px 22px;
+            border-radius: 22px;
             background: rgba(255,255,255,0.72);
-            box-shadow: 0 12px 30px rgba(0,0,0,0.06);
+            box-shadow: 0 12px 30px rgba(0,0,0,0.05);
             border: 1px solid rgba(255,255,255,0.55);
         }
 
         .products_stat_icon {
-            width: 50px;
-            height: 50px;
+            width: 48px;
+            height: 48px;
             margin: 0 auto 12px auto;
             border-radius: 16px;
             display: flex;
             align-items: center;
             justify-content: center;
             color: #fff;
-            font-size: 20px;
+            font-size: 19px;
             background: linear-gradient(135deg, #fa9e1b, #8d4fff);
-            box-shadow: 0 12px 28px rgba(141,79,255,0.22);
         }
 
         .products_stat_num {
@@ -165,7 +162,7 @@
         }
 
         .products_hero_actions {
-            margin-top: 34px;
+            margin-top: 32px;
             display: flex;
             justify-content: center;
             align-items: center;
@@ -186,7 +183,7 @@
             text-transform: uppercase;
             letter-spacing: 0.6px;
             text-decoration: none !important;
-            box-shadow: 0 16px 35px rgba(141,79,255,0.24);
+            box-shadow: 0 16px 35px rgba(141,79,255,0.20);
             transition: all 0.3s ease;
         }
 
@@ -208,153 +205,220 @@
             border: 1px solid rgba(255,255,255,0.55);
         }
 
-        .showcase_layout {
-            display: grid;
-            grid-template-columns: 1.55fr 0.95fr;
-            gap: 28px;
+        .products_grid {
             margin-top: 10px;
-            margin-bottom: 36px;
         }
 
-        .featured_product_card {
-            display: grid;
-            grid-template-columns: 1.05fr 1fr;
-            background: rgba(255,255,255,0.95);
-            border-radius: 32px;
-            overflow: hidden;
-            box-shadow: 0 22px 55px rgba(25, 30, 70, 0.12);
-            min-height: 460px;
-        }
-
-        .featured_product_media {
+        .product_hover_card {
             position: relative;
-            min-height: 100%;
+            border-radius: 28px;
+            overflow: hidden;
+            background: rgba(255,255,255,0.92);
+            box-shadow: 0 16px 38px rgba(25, 30, 70, 0.10);
+            height: 360px;
+            transition: all 0.35s ease;
+        }
+
+        .product_hover_card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 25px 55px rgba(25, 30, 70, 0.16);
+        }
+
+        .product_image_zone {
+            position: absolute;
+            inset: 0;
+            height: 100%;
+            width: 100%;
             background: linear-gradient(135deg, #5d7cf3, #8d4fff);
         }
 
-        .featured_product_media img {
+        .product_image_zone img {
             width: 100%;
             height: 100%;
             object-fit: cover;
         }
 
-        .featured_product_media::after {
+        .product_image_zone::after {
             content: "";
             position: absolute;
             inset: 0;
-            background: linear-gradient(to top, rgba(20,16,40,0.35), rgba(20,16,40,0.02));
+            background: linear-gradient(to top, rgba(17,17,30,0.22), rgba(17,17,30,0.03));
         }
 
-        .featured_placeholder {
+        .product_placeholder {
+            width: 100%;
             height: 100%;
             display: flex;
             align-items: center;
             justify-content: center;
-            color: rgba(255,255,255,0.75);
-            font-size: 70px;
+            color: rgba(255,255,255,0.80);
+            font-size: 58px;
         }
 
-        .featured_badge {
+        .product_category_badge {
             position: absolute;
-            top: 22px;
-            left: 22px;
-            z-index: 3;
-            padding: 10px 18px;
+            top: 18px;
+            left: 18px;
+            z-index: 4;
+            padding: 9px 16px;
             border-radius: 999px;
             background: linear-gradient(135deg, #fa9e1b, #ff7b54);
             color: #fff;
             font-size: 12px;
             font-weight: 800;
             text-transform: uppercase;
-            letter-spacing: 0.7px;
+            letter-spacing: 0.6px;
         }
 
-        .featured_product_content {
-            padding: 38px 34px;
+        .product_stock_badge {
+            position: absolute;
+            right: 18px;
+            bottom: 18px;
+            z-index: 4;
+            padding: 9px 14px;
+            border-radius: 999px;
+            font-size: 12px;
+            font-weight: 800;
+            color: #fff;
+            background: linear-gradient(135deg, #43a047, #66bb6a);
+        }
+
+        .product_basic_content {
+            position: absolute;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            z-index: 3;
+            padding: 22px 22px 20px 22px;
+            background: linear-gradient(to top, rgba(255,255,255,0.98), rgba(255,255,255,0.88));
+            transition: all 0.35s ease;
+        }
+
+        .product_title_basic {
+            font-size: 28px;
+            font-weight: 900;
+            color: #1f2235;
+            margin-bottom: 10px;
+            line-height: 1.05;
+        }
+
+        .product_price_basic {
+            font-size: 28px;
+            font-weight: 900;
+            background: linear-gradient(135deg, #fa9e1b, #8d4fff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 6px;
+        }
+
+        .product_region_basic {
+            color: #7b8095;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .product_hover_details {
+            position: absolute;
+            inset: auto 0 0 0;
+            z-index: 5;
+            padding: 28px 22px 22px 22px;
+            background: rgba(255,255,255,0.98);
+            transform: translateY(105%);
+            opacity: 0;
+            transition: all 0.38s ease;
+            min-height: 58%;
             display: flex;
             flex-direction: column;
-            justify-content: center;
+            justify-content: flex-start;
         }
 
-        .featured_label {
+        .product_hover_card:hover .product_hover_details {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        .product_hover_card:hover .product_basic_content {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        .product_hover_label {
             display: inline-block;
             width: fit-content;
             padding: 8px 14px;
             border-radius: 999px;
-            background: rgba(141,79,255,0.1);
+            background: rgba(141,79,255,0.10);
             color: #7157d8;
             font-size: 12px;
             font-weight: 800;
             text-transform: uppercase;
+            margin-bottom: 14px;
+        }
+
+        .product_hover_title {
+            font-size: 34px;
+            font-weight: 900;
+            line-height: 1.02;
+            color: #1f2235;
+            margin-bottom: 14px;
+        }
+
+        .product_hover_desc {
+            font-size: 14px;
+            color: #73778a;
+            line-height: 1.8;
             margin-bottom: 16px;
         }
 
-        .featured_title {
-            font-size: 42px;
-            font-weight: 900;
-            line-height: 1.05;
-            color: #1f2235;
+        .product_hover_meta {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            flex-wrap: wrap;
             margin-bottom: 18px;
         }
 
-        .featured_desc {
-            font-size: 15px;
-            color: #73778a;
-            line-height: 1.9;
-            margin-bottom: 22px;
-        }
-
-        .featured_meta {
-            display: flex;
-            align-items: center;
-            gap: 18px;
-            flex-wrap: wrap;
-            margin-bottom: 26px;
-        }
-
-        .featured_price {
-            font-size: 34px;
+        .product_hover_price {
+            font-size: 32px;
             font-weight: 900;
             background: linear-gradient(135deg, #fa9e1b, #8d4fff);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
         }
 
-        .featured_region {
-            color: #7b8095;
-            font-size: 15px;
+        .product_hover_region {
+            color: #7a8094;
+            font-size: 14px;
             font-weight: 600;
         }
 
-        .featured_actions {
+        .product_hover_actions {
             display: flex;
             align-items: center;
             justify-content: space-between;
-            gap: 14px;
+            gap: 12px;
             flex-wrap: wrap;
         }
 
-        .featured_stock {
-            padding: 10px 16px;
+        .product_hover_tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 9px 14px;
             border-radius: 999px;
+            background: rgba(141,79,255,0.08);
+            color: #6c52c9;
             font-size: 12px;
             font-weight: 800;
-            color: #fff;
+            text-transform: uppercase;
         }
 
-        .featured_stock.ok {
-            background: linear-gradient(135deg, #43a047, #66bb6a);
-        }
-
-        .featured_stock.empty {
-            background: linear-gradient(135deg, #d32f2f, #ef5350);
-        }
-
-        .featured_btn {
+        .product_hover_btn {
             display: inline-flex;
             align-items: center;
             gap: 10px;
-            padding: 14px 24px;
+            padding: 12px 20px;
             border-radius: 999px;
             background: linear-gradient(135deg, #fa9e1b, #8d4fff);
             color: #fff !important;
@@ -363,164 +427,6 @@
             font-weight: 800;
             text-transform: uppercase;
             letter-spacing: 0.6px;
-        }
-
-        .side_products_column {
-            display: flex;
-            flex-direction: column;
-            gap: 22px;
-        }
-
-        .side_product_card {
-            background: rgba(255,255,255,0.94);
-            border-radius: 28px;
-            overflow: hidden;
-            box-shadow: 0 16px 38px rgba(25, 30, 70, 0.1);
-            min-height: 218px;
-        }
-
-        .side_product_img {
-            position: relative;
-            height: 150px;
-            background: linear-gradient(135deg, #5d7cf3, #8d4fff);
-        }
-
-        .side_product_img img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-
-        .side_badge {
-            position: absolute;
-            top: 16px;
-            left: 16px;
-            padding: 8px 14px;
-            border-radius: 999px;
-            background: linear-gradient(135deg, #fa9e1b, #ff7b54);
-            color: #fff;
-            font-size: 11px;
-            font-weight: 800;
-            text-transform: uppercase;
-        }
-
-        .side_placeholder {
-            height: 100%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: rgba(255,255,255,0.75);
-            font-size: 48px;
-        }
-
-        .side_product_body {
-            padding: 22px;
-        }
-
-        .side_title {
-            font-size: 28px;
-            font-weight: 900;
-            color: #1f2235;
-            margin-bottom: 10px;
-        }
-
-        .side_price {
-            font-size: 24px;
-            font-weight: 900;
-            background: linear-gradient(135deg, #fa9e1b, #8d4fff);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            margin-bottom: 6px;
-        }
-
-        .side_region {
-            color: #7a8094;
-            font-size: 14px;
-            font-weight: 600;
-        }
-
-        .modern_grid_rest {
-            margin-top: 10px;
-        }
-
-        .modern_mini_card {
-            background: rgba(255,255,255,0.94);
-            border-radius: 26px;
-            overflow: hidden;
-            box-shadow: 0 16px 35px rgba(25, 30, 70, 0.09);
-            height: 100%;
-            transition: 0.3s ease;
-        }
-
-        .modern_mini_card:hover {
-            transform: translateY(-8px);
-        }
-
-        .modern_mini_img {
-            position: relative;
-            height: 220px;
-            background: linear-gradient(135deg, #5d7cf3, #8d4fff);
-        }
-
-        .modern_mini_img img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-
-        .modern_mini_badge {
-            position: absolute;
-            top: 16px;
-            left: 16px;
-            padding: 8px 14px;
-            border-radius: 999px;
-            background: linear-gradient(135deg, #fa9e1b, #ff7b54);
-            color: #fff;
-            font-size: 11px;
-            font-weight: 800;
-            text-transform: uppercase;
-        }
-
-        .modern_mini_placeholder {
-            height: 100%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: rgba(255,255,255,0.78);
-            font-size: 48px;
-        }
-
-        .modern_mini_body {
-            padding: 20px;
-        }
-
-        .modern_mini_title {
-            font-size: 24px;
-            font-weight: 900;
-            color: #20243a;
-            margin-bottom: 10px;
-        }
-
-        .modern_mini_bottom {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            gap: 12px;
-            flex-wrap: wrap;
-        }
-
-        .modern_mini_price {
-            font-size: 24px;
-            font-weight: 900;
-            background: linear-gradient(135deg, #fa9e1b, #8d4fff);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-
-        .modern_mini_region {
-            color: #7d8296;
-            font-size: 14px;
-            font-weight: 600;
         }
 
         .client_empty_state {
@@ -534,6 +440,10 @@
         }
 
         @media (max-width: 991px) {
+            .client_products_section {
+                padding-top: 160px;
+            }
+
             .products_hero_box_wow {
                 padding: 45px 22px;
             }
@@ -550,24 +460,20 @@
                 min-width: 140px;
             }
 
-            .showcase_layout {
-                grid-template-columns: 1fr;
+            .product_hover_card {
+                height: auto;
+                min-height: 360px;
             }
 
-            .featured_product_card {
-                grid-template-columns: 1fr;
+            .product_hover_details {
+                position: relative;
+                transform: none;
+                opacity: 1;
+                min-height: auto;
             }
 
-            .featured_product_media {
-                min-height: 280px;
-            }
-
-            .featured_title {
-                font-size: 32px;
-            }
-
-            .client_products_section {
-                padding-top: 160px;
+            .product_basic_content {
+                display: none;
             }
         }
     </style>
@@ -577,7 +483,7 @@
     <div class="client_products_section">
         <div class="container">
 
-            <div class="products_hero_box products_hero_box_wow">
+            <div class="products_hero_box_wow">
                 <div class="hero_glow hero_glow_1"></div>
                 <div class="hero_glow hero_glow_2"></div>
 
@@ -591,10 +497,10 @@
                 </div>
 
                 <p class="products_hero_text">
-                    Bonjour, <strong>{{ app.user.fullName }}</strong>. Explorez une vitrine raffinée de produits tunisiens entre artisanat, élégance et authenticité.
+                    Bonjour, <strong>{{ app.user.fullName }}</strong>. Découvrez une présentation élégante : affichage simple au départ, puis détails premium au survol.
                 </p>
 
-                <div class="products_top_stats wow_stats">
+                <div class="products_top_stats">
                     <div class="wow_stat_card">
                         <div class="products_stat_icon"><i class="fa fa-shopping-bag"></i></div>
                         <div class="products_stat_num">{{ produits|length }}</div>
@@ -609,139 +515,90 @@
 
                     <div class="wow_stat_card">
                         <div class="products_stat_icon"><i class="fa fa-star"></i></div>
-                        <div class="products_stat_num">100%</div>
-                        <div class="products_stat_label">Style local</div>
+                        <div class="products_stat_num">Hover</div>
+                        <div class="products_stat_label">Effet interactif</div>
                     </div>
                 </div>
 
                 <div class="products_hero_actions">
                     <a href="#products-grid" class="products_hero_btn_main">
-                        Explorer la collection <i class="fa fa-arrow-right"></i>
+                        Voir les produits <i class="fa fa-arrow-right"></i>
                     </a>
                     <div class="products_hero_note">
-                        <i class="fa fa-diamond"></i> Design exclusif WinGo
+                        <i class="fa fa-diamond"></i> Affichage dynamique
                     </div>
                 </div>
             </div>
 
-            <div id="products-grid">
+            <div class="row products_grid" id="products-grid">
+                {% for p in produits %}
+                    <div class="col-lg-4 col-md-6 mb-4">
+                        <div class="product_hover_card">
 
-                {% if produits|length > 0 %}
-                    <div class="showcase_layout">
-
-                        {% set featured = produits|first %}
-                        <div class="featured_product_card">
-                            <div class="featured_product_media">
-                                {% if featured.image %}
-                                    <img src="{{ asset('images/' ~ featured.image) }}" alt="{{ featured.nom }}">
+                            <div class="product_image_zone">
+                                {% if p.image %}
+                                    <img src="{{ asset('images/' ~ p.image) }}" alt="{{ p.nom }}">
                                 {% else %}
-                                    <div class="featured_placeholder"><i class="fa fa-shopping-bag"></i></div>
-                                {% endif %}
-
-                                {% if featured.categorie %}
-                                    <span class="featured_badge">{{ featured.categorie }}</span>
+                                    <div class="product_placeholder"><i class="fa fa-shopping-bag"></i></div>
                                 {% endif %}
                             </div>
 
-                            <div class="featured_product_content">
-                                <div class="featured_label">Produit Vedette</div>
-                                <h2 class="featured_title">{{ featured.nom }}</h2>
+                            {% if p.categorie %}
+                                <span class="product_category_badge">{{ p.categorie }}</span>
+                            {% endif %}
 
-                                <p class="featured_desc">
-                                    {% if featured.description %}
-                                        {{ featured.description|slice(0, 180) }}{% if featured.description|length > 180 %}...{% endif %}
+                            {% if p.stock > 0 %}
+                                <span class="product_stock_badge">En stock {{ p.stock }}</span>
+                            {% endif %}
+
+                            <div class="product_basic_content">
+                                <div class="product_title_basic">{{ p.nom }}</div>
+                                <div class="product_price_basic">{{ p.prix }} TND</div>
+                                {% if p.region %}
+                                    <div class="product_region_basic"><i class="fa fa-map-marker"></i> {{ p.region }}</div>
+                                {% endif %}
+                            </div>
+
+                            <div class="product_hover_details">
+                                <div class="product_hover_label">Produit vedette</div>
+                                <div class="product_hover_title">{{ p.nom }}</div>
+
+                                <div class="product_hover_desc">
+                                    {% if p.description %}
+                                        {{ p.description|slice(0, 120) }}{% if p.description|length > 120 %}...{% endif %}
                                     {% else %}
                                         Pas de description disponible pour ce produit.
                                     {% endif %}
-                                </p>
+                                </div>
 
-                                <div class="featured_meta">
-                                    <div class="featured_price">{{ featured.prix }} TND</div>
-                                    {% if featured.region %}
-                                        <div class="featured_region"><i class="fa fa-map-marker"></i> {{ featured.region }}</div>
+                                <div class="product_hover_meta">
+                                    <div class="product_hover_price">{{ p.prix }} TND</div>
+                                    {% if p.region %}
+                                        <div class="product_hover_region"><i class="fa fa-map-marker"></i> {{ p.region }}</div>
                                     {% endif %}
                                 </div>
 
-                                <div class="featured_actions">
-                                    <span class="featured_stock {% if featured.stock > 0 %}ok{% else %}empty{% endif %}">
-                                        {% if featured.stock > 0 %}En stock {{ featured.stock }}{% else %}Rupture{% endif %}
-                                    </span>
+                                <div class="product_hover_actions">
+                                    <div class="product_hover_tag">
+                                        <i class="fa fa-diamond"></i> Produit local
+                                    </div>
 
-                                    <a href="{{ path('client_dashboard') }}" class="featured_btn">
+                                    <a href="{{ path('client_dashboard') }}" class="product_hover_btn">
                                         Explorer <i class="fa fa-arrow-right"></i>
                                     </a>
                                 </div>
                             </div>
-                        </div>
 
-                        <div class="side_products_column">
-                            {% for p in produits|slice(1, 2) %}
-                                <div class="side_product_card">
-                                    <div class="side_product_img">
-                                        {% if p.image %}
-                                            <img src="{{ asset('images/' ~ p.image) }}" alt="{{ p.nom }}">
-                                        {% else %}
-                                            <div class="side_placeholder"><i class="fa fa-shopping-bag"></i></div>
-                                        {% endif %}
-
-                                        {% if p.categorie %}
-                                            <span class="side_badge">{{ p.categorie }}</span>
-                                        {% endif %}
-                                    </div>
-
-                                    <div class="side_product_body">
-                                        <h3 class="side_title">{{ p.nom }}</h3>
-                                        <div class="side_price">{{ p.prix }} TND</div>
-
-                                        {% if p.region %}
-                                            <div class="side_region"><i class="fa fa-map-marker"></i> {{ p.region }}</div>
-                                        {% endif %}
-                                    </div>
-                                </div>
-                            {% endfor %}
-                        </div>
-
-                    </div>
-
-                    <div class="modern_grid_rest">
-                        <div class="row">
-                            {% for p in produits|slice(3) %}
-                                <div class="col-lg-4 col-md-6 mb-4">
-                                    <div class="modern_mini_card">
-                                        <div class="modern_mini_img">
-                                            {% if p.image %}
-                                                <img src="{{ asset('images/' ~ p.image) }}" alt="{{ p.nom }}">
-                                            {% else %}
-                                                <div class="modern_mini_placeholder"><i class="fa fa-shopping-bag"></i></div>
-                                            {% endif %}
-
-                                            {% if p.categorie %}
-                                                <span class="modern_mini_badge">{{ p.categorie }}</span>
-                                            {% endif %}
-                                        </div>
-
-                                        <div class="modern_mini_body">
-                                            <div class="modern_mini_title">{{ p.nom }}</div>
-                                            <div class="modern_mini_bottom">
-                                                <div class="modern_mini_price">{{ p.prix }} TND</div>
-                                                {% if p.region %}
-                                                    <div class="modern_mini_region">{{ p.region }}</div>
-                                                {% endif %}
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            {% endfor %}
                         </div>
                     </div>
-
                 {% else %}
-                    <div class="client_empty_state">
-                        <i class="fa fa-shopping-bag"></i><br><br>
-                        Aucun produit disponible pour le moment.
+                    <div class="col-12">
+                        <div class="client_empty_state">
+                            <i class="fa fa-shopping-bag"></i><br><br>
+                            Aucun produit disponible pour le moment.
+                        </div>
                     </div>
-                {% endif %}
-
+                {% endfor %}
             </div>
 
         </div>
