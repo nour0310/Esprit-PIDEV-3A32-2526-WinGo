@@ -5,44 +5,17 @@
 {% block stylesheets %}
     {{ parent() }}
     <style>
-        .dashboard_hero {
-            height: 420px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            text-align: center;
-            position: relative;
-            background-image: linear-gradient(rgba(45, 15, 80, 0.45), rgba(25, 20, 70, 0.55)), url('{{ asset('images/sidibou.jpg') }}');
-            background-size: cover;
-            background-position: center center;
+        .dashboard_content_section {
+            padding-top: 70px;
+            padding-bottom: 80px;
+            background: #f3f6f9;
         }
 
-        .dashboard_hero_content h1 {
-            font-size: 64px;
-            font-weight: 800;
-            color: #ffffff;
-            margin-bottom: 10px;
-            text-transform: uppercase;
+        .stats_dashboard_row {
+            margin-bottom: 40px;
         }
 
-        .dashboard_hero_content p {
-            color: #ffffff;
-            font-size: 20px;
-            margin-bottom: 25px;
-        }
-
-        .dashboard_section {
-            padding: 80px 0;
-            background: #ffffff;
-        }
-
-        .stats_row {
-            margin-top: -70px;
-            position: relative;
-            z-index: 5;
-        }
-
-        .stat_card {
+        .stat_dashboard_card {
             background: #ffffff;
             border-radius: 18px;
             box-shadow: 0 15px 35px rgba(0,0,0,0.08);
@@ -51,22 +24,22 @@
             height: 100%;
         }
 
-        .stat_num {
-            font-size: 38px;
+        .stat_dashboard_num {
+            font-size: 40px;
             font-weight: 800;
             background: linear-gradient(to right, #fa9e1b, #8d4fff);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-            margin-bottom: 8px;
+            margin-bottom: 10px;
         }
 
-        .stat_label {
+        .stat_dashboard_label {
             color: #777;
             font-size: 15px;
             font-weight: 600;
         }
 
-        .dash_block {
+        .dashboard_box {
             background: #fff;
             border-radius: 18px;
             padding: 35px;
@@ -74,20 +47,20 @@
             margin-bottom: 35px;
         }
 
-        .dash_title {
+        .dashboard_box_title {
             font-size: 28px;
             font-weight: 700;
             color: #2d2c2c;
             margin-bottom: 25px;
         }
 
-        .quick_actions {
+        .dashboard_actions {
             display: flex;
             gap: 15px;
             flex-wrap: wrap;
         }
 
-        .quick_btn {
+        .dashboard_action_btn {
             display: inline-block;
             padding: 12px 22px;
             border-radius: 30px;
@@ -96,15 +69,15 @@
             font-weight: 700;
             text-decoration: none !important;
             background: linear-gradient(to right, #fa9e1b, #8d4fff);
-            transition: 0.3s ease;
+            transition: all 0.3s ease;
         }
 
-        .quick_btn:hover {
+        .dashboard_action_btn:hover {
             transform: translateY(-2px);
             opacity: 0.95;
         }
 
-        .article_card_custom {
+        .dashboard_article_card {
             background: #fff;
             border-radius: 18px;
             overflow: hidden;
@@ -113,7 +86,7 @@
             height: 100%;
         }
 
-        .article_img_custom {
+        .dashboard_article_img {
             height: 220px;
             position: relative;
             background: linear-gradient(to right, #6a85f1, #8d4fff);
@@ -123,18 +96,18 @@
             overflow: hidden;
         }
 
-        .article_img_custom img {
+        .dashboard_article_img img {
             width: 100%;
             height: 100%;
             object-fit: cover;
         }
 
-        .article_placeholder {
+        .dashboard_article_placeholder {
             color: rgba(255,255,255,0.7);
             font-size: 52px;
         }
 
-        .article_cat {
+        .dashboard_article_cat {
             position: absolute;
             top: 15px;
             left: 15px;
@@ -147,18 +120,18 @@
             text-transform: uppercase;
         }
 
-        .article_body_custom {
+        .dashboard_article_body {
             padding: 22px;
         }
 
-        .article_title_custom {
+        .dashboard_article_title {
             font-size: 22px;
             font-weight: 700;
             color: #2d2c2c;
             margin-bottom: 10px;
         }
 
-        .article_meta_custom {
+        .dashboard_article_meta {
             color: #929191;
             font-size: 14px;
             display: flex;
@@ -166,7 +139,7 @@
             flex-wrap: wrap;
         }
 
-        .empty_state_custom {
+        .dashboard_empty {
             padding: 50px 20px;
             text-align: center;
             color: #999;
@@ -175,25 +148,25 @@
             border-radius: 16px;
         }
 
-        .reclamation_table {
+        .dashboard_table {
             width: 100%;
             border-collapse: collapse;
         }
 
-        .reclamation_table th,
-        .reclamation_table td {
+        .dashboard_table th,
+        .dashboard_table td {
             padding: 14px 12px;
             border-bottom: 1px solid #eee;
             text-align: left;
             font-size: 14px;
         }
 
-        .reclamation_table th {
+        .dashboard_table th {
             color: #2d2c2c;
             font-weight: 700;
         }
 
-        .badge_pending {
+        .dashboard_badge {
             display: inline-block;
             padding: 6px 12px;
             border-radius: 20px;
@@ -202,112 +175,219 @@
             font-weight: 700;
             font-size: 12px;
         }
-
-        @media (max-width: 991px) {
-            .dashboard_hero {
-                height: 320px;
-            }
-
-            .dashboard_hero_content h1 {
-                font-size: 40px;
-            }
-
-            .dashboard_hero_content p {
-                font-size: 16px;
-            }
-        }
     </style>
 {% endblock %}
 
 {% block content %}
 
-    <div class="dashboard_hero">
-        <div class="dashboard_hero_content">
-            <h1>Mon Dashboard</h1>
-            <p>Bienvenue, {{ app.user.fullName }} ! Voici votre espace personnel.</p>
-            <div class="button home_slider_button">
-                <div class="button_bcg"></div>
-                <a href="{{ path('client_produits') }}">Explorer<span></span><span></span><span></span></a>
+    <!-- SAME DESIGN AS HOME PAGE -->
+    <div class="home">
+        <div class="home_slider_container">
+            <div class="owl-carousel owl-theme home_slider">
+
+                <div class="owl-item home_slider_item">
+                    <div class="home_slider_background" style="background-image:url({{ asset('images/sidibou.jpg') }})"></div>
+                    <div class="home_slider_content text-center">
+                        <div class="home_slider_content_inner" data-animation-in="flipInX" data-animation-out="animate-out fadeOut">
+                            <h1>Mon</h1>
+                            <h1>Dashboard</h1>
+                            <div style="color:#fff;font-size:22px;margin-top:10px;">
+                                Bienvenue, {{ app.user.fullName }} ! Voici votre espace personnel.
+                            </div>
+                            <div class="button home_slider_button" style="margin-top:25px;">
+                                <div class="button_bcg"></div>
+                                <a href="{{ path('client_produits') }}">
+                                    explorer
+                                    <span></span><span></span><span></span>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="owl-item home_slider_item">
+                    <div class="home_slider_background" style="background-image:url({{ asset('images/sidibou.jpg') }})"></div>
+                    <div class="home_slider_content text-center">
+                        <div class="home_slider_content_inner" data-animation-in="flipInX" data-animation-out="animate-out fadeOut">
+                            <h1>{{ my_reservations|length }}</h1>
+                            <h1>Réservations</h1>
+                            <div class="button home_slider_button" style="margin-top:25px;">
+                                <div class="button_bcg"></div>
+                                <a href="{{ path('client_reservations') }}">
+                                    voir plus
+                                    <span></span><span></span><span></span>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="owl-item home_slider_item">
+                    <div class="home_slider_background" style="background-image:url({{ asset('images/sidibou.jpg') }})"></div>
+                    <div class="home_slider_content text-center">
+                        <div class="home_slider_content_inner" data-animation-in="flipInX" data-animation-out="animate-out fadeOut">
+                            <h1>{{ recent_articles|length }}</h1>
+                            <h1>Articles</h1>
+                            <div class="button home_slider_button" style="margin-top:25px;">
+                                <div class="button_bcg"></div>
+                                <a href="{{ path('client_articles') }}">
+                                    découvrir
+                                    <span></span><span></span><span></span>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="home_slider_nav home_slider_prev">
+                <svg version="1.1" xmlns="http://www.w3.org/2000/svg" width="28px" height="33px" viewBox="0 0 28 33" enable-background="new 0 0 28 33" xml:space="preserve">
+                    <defs><linearGradient id='home_grad_prev'><stop offset='0%' stop-color='#fa9e1b'/><stop offset='100%' stop-color='#8d4fff'/></linearGradient></defs>
+                    <path class="nav_path" fill="#F3F6F9" d="M19,0H9C4.029,0,0,4.029,0,9v15c0,4.971,4.029,9,9,9h10c4.97,0,9-4.029,9-9V9C28,4.029,23.97,0,19,0z M26,23.091C26,27.459,22.545,31,18.285,31H9.714C5.454,31,2,27.459,2,23.091V9.909C2,5.541,5.454,2,9.714,2h8.571C22.545,2,26,5.541,26,9.909V23.091z"/>
+                    <polygon class="nav_arrow" fill="#F3F6F9" points="15.044,22.222 16.377,20.888 12.374,16.885 16.377,12.882 15.044,11.55 9.708,16.885 11.04,18.219 11.042,18.219"/>
+                </svg>
+            </div>
+
+            <div class="home_slider_nav home_slider_next">
+                <svg version="1.1" xmlns="http://www.w3.org/2000/svg" width="28px" height="33px" viewBox="0 0 28 33" enable-background="new 0 0 28 33" xml:space="preserve">
+                    <defs><linearGradient id='home_grad_next'><stop offset='0%' stop-color='#fa9e1b'/><stop offset='100%' stop-color='#8d4fff'/></linearGradient></defs>
+                    <path class="nav_path" fill="#F3F6F9" d="M19,0H9C4.029,0,0,4.029,0,9v15c0,4.971,4.029,9,9,9h10c4.97,0,9-4.029,9-9V9C28,4.029,23.97,0,19,0z M26,23.091C26,27.459,22.545,31,18.285,31H9.714C5.454,31,2,27.459,2,23.091V9.909C2,5.541,5.454,2,9.714,2h8.571C22.545,2,26,5.541,26,9.909V23.091z"/>
+                    <polygon class="nav_arrow" fill="#F3F6F9" points="13.044,11.551 11.71,12.885 15.714,16.888 11.71,20.891 13.044,22.224 18.379,16.888 17.048,15.554 17.046,15.554"/>
+                </svg>
+            </div>
+
+            <div class="home_slider_dots">
+                <ul id="home_slider_custom_dots" class="home_slider_custom_dots">
+                    <li class="home_slider_custom_dot active"><div></div>01.</li>
+                    <li class="home_slider_custom_dot"><div></div>02.</li>
+                    <li class="home_slider_custom_dot"><div></div>03.</li>
+                </ul>
             </div>
         </div>
     </div>
 
-    <div class="container stats_row">
-        <div class="row">
-            <div class="col-lg-3 col-md-6 mb-4">
-                <div class="stat_card">
-                    <div class="stat_num">{{ my_reservations|length }}</div>
-                    <div class="stat_label"><i class="fa fa-calendar"></i> Réservations</div>
-                </div>
-            </div>
-            <div class="col-lg-3 col-md-6 mb-4">
-                <div class="stat_card">
-                    <div class="stat_num">{{ my_commandes|length }}</div>
-                    <div class="stat_label"><i class="fa fa-shopping-cart"></i> Commandes</div>
-                </div>
-            </div>
-            <div class="col-lg-3 col-md-6 mb-4">
-                <div class="stat_card">
-                    <div class="stat_num">{{ recent_articles|length }}</div>
-                    <div class="stat_label"><i class="fa fa-newspaper-o"></i> Articles</div>
-                </div>
-            </div>
-            <div class="col-lg-3 col-md-6 mb-4">
-                <div class="stat_card">
-                    <div class="stat_num">{{ my_reclamations|length }}</div>
-                    <div class="stat_label"><i class="fa fa-exclamation-circle"></i> Réclamations</div>
+    <!-- SAME SEARCH BAR STYLE AS HOME PAGE -->
+    <div class="search">
+        <div class="container fill_height">
+            <div class="row fill_height">
+                <div class="col fill_height">
+
+                    <div class="search_tabs_container">
+                        <div class="search_tabs d-flex flex-lg-row flex-column align-items-lg-center align-items-start justify-content-lg-between justify-content-start">
+                            <div class="search_tab active d-flex flex-row align-items-center justify-content-lg-center justify-content-start">
+                                <img src="{{ asset('images/suitcase.png') }}" alt="">dashboard
+                            </div>
+                            <div class="search_tab d-flex flex-row align-items-center justify-content-lg-center justify-content-start">
+                                <img src="{{ asset('images/bus.png') }}" alt="">articles
+                            </div>
+                            <div class="search_tab d-flex flex-row align-items-center justify-content-lg-center justify-content-start">
+                                <img src="{{ asset('images/departure.png') }}" alt="">produits
+                            </div>
+                            <div class="search_tab d-flex flex-row align-items-center justify-content-lg-center justify-content-start">
+                                <img src="{{ asset('images/island.png') }}" alt="">réservations
+                            </div>
+                            <div class="search_tab d-flex flex-row align-items-center justify-content-lg-center justify-content-start">
+                                <img src="{{ asset('images/cruise.png') }}" alt="">réclamations
+                            </div>
+                            <div class="search_tab d-flex flex-row align-items-center justify-content-lg-center justify-content-start">
+                                <img src="{{ asset('images/diving.png') }}" alt="">profil
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="search_panel active">
+                        <div class="search_panel_content d-flex flex-lg-row flex-column align-items-lg-center align-items-start justify-content-lg-between justify-content-start">
+                            <div class="search_item">
+                                <div>articles</div>
+                                <input type="text" class="destination search_input" value="{{ recent_articles|length }} articles" readonly>
+                            </div>
+                            <div class="search_item">
+                                <div>réservations</div>
+                                <input type="text" class="check_in search_input" value="{{ my_reservations|length }} réservations" readonly>
+                            </div>
+                            <div class="search_item">
+                                <div>commandes</div>
+                                <input type="text" class="check_out search_input" value="{{ my_commandes|length }} commandes" readonly>
+                            </div>
+                            <div class="search_item">
+                                <div>réclamations</div>
+                                <input type="text" class="check_out search_input" value="{{ my_reclamations|length }} réclamations" readonly>
+                            </div>
+                            <a href="{{ path('client_articles') }}" class="button search_button" style="display:inline-block;text-align:center;line-height:46px;">
+                                ouvrir<span></span><span></span><span></span>
+                            </a>
+                        </div>
+                    </div>
+
                 </div>
             </div>
         </div>
     </div>
 
-    <div class="dashboard_section">
+    <!-- FUNCTIONAL DASHBOARD CONTENT -->
+    <div class="dashboard_content_section">
         <div class="container">
 
-            <div class="dash_block">
-                <div class="dash_title">Actions rapides</div>
-                <div class="quick_actions">
-                    <a href="{{ path('client_articles') }}" class="quick_btn">
-                        <i class="fa fa-newspaper-o"></i> Voir les articles
-                    </a>
-                    <a href="{{ path('client_produits') }}" class="quick_btn">
-                        <i class="fa fa-shopping-bag"></i> Explorer les produits
-                    </a>
-                    <a href="{{ path('client_reservations') }}" class="quick_btn">
-                        <i class="fa fa-calendar-plus-o"></i> Mes réservations
-                    </a>
-                    <a href="{{ path('app_profile') }}" class="quick_btn">
-                        <i class="fa fa-user"></i> Mon profil
-                    </a>
+            <div class="row stats_dashboard_row">
+                <div class="col-lg-3 col-md-6 mb-4">
+                    <div class="stat_dashboard_card">
+                        <div class="stat_dashboard_num">{{ my_reservations|length }}</div>
+                        <div class="stat_dashboard_label"><i class="fa fa-calendar"></i> Réservations</div>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-6 mb-4">
+                    <div class="stat_dashboard_card">
+                        <div class="stat_dashboard_num">{{ my_commandes|length }}</div>
+                        <div class="stat_dashboard_label"><i class="fa fa-shopping-cart"></i> Commandes</div>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-6 mb-4">
+                    <div class="stat_dashboard_card">
+                        <div class="stat_dashboard_num">{{ recent_articles|length }}</div>
+                        <div class="stat_dashboard_label"><i class="fa fa-newspaper-o"></i> Articles</div>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-6 mb-4">
+                    <div class="stat_dashboard_card">
+                        <div class="stat_dashboard_num">{{ my_reclamations|length }}</div>
+                        <div class="stat_dashboard_label"><i class="fa fa-exclamation-circle"></i> Réclamations</div>
+                    </div>
                 </div>
             </div>
 
-            <div class="dash_block">
-                <div class="dash_title">Articles récents</div>
+            <div class="dashboard_box">
+                <div class="dashboard_box_title">Actions rapides</div>
+                <div class="dashboard_actions">
+                    <a href="{{ path('client_articles') }}" class="dashboard_action_btn"><i class="fa fa-newspaper-o"></i> Voir les articles</a>
+                    <a href="{{ path('client_produits') }}" class="dashboard_action_btn"><i class="fa fa-shopping-bag"></i> Explorer les produits</a>
+                    <a href="{{ path('client_reservations') }}" class="dashboard_action_btn"><i class="fa fa-calendar-plus-o"></i> Mes réservations</a>
+                    <a href="{{ path('app_profile') }}" class="dashboard_action_btn"><i class="fa fa-user"></i> Mon profil</a>
+                </div>
+            </div>
+
+            <div class="dashboard_box">
+                <div class="dashboard_box_title">Articles récents</div>
                 <div class="row">
                     {% for article in recent_articles %}
                         <div class="col-lg-4 col-md-6">
-                            <div class="article_card_custom">
-                                <div class="article_img_custom">
+                            <div class="dashboard_article_card">
+                                <div class="dashboard_article_img">
                                     {% if article.image %}
-                                        <img src="{{ article.image }}" alt="{{ article.titre }}" onerror="this.style.display='none'; this.parentNode.querySelector('.article_placeholder').style.display='flex';">
-                                        <div class="article_placeholder" style="display:none;">
-                                            <i class="fa fa-image"></i>
-                                        </div>
+                                        <img src="{{ article.image }}" alt="{{ article.titre }}" onerror="this.style.display='none'; this.parentNode.querySelector('.dashboard_article_placeholder').style.display='flex';">
+                                        <div class="dashboard_article_placeholder" style="display:none;"><i class="fa fa-image"></i></div>
                                     {% else %}
-                                        <div class="article_placeholder">
-                                            <i class="fa fa-image"></i>
-                                        </div>
+                                        <div class="dashboard_article_placeholder"><i class="fa fa-image"></i></div>
                                     {% endif %}
 
                                     {% if article.categorie %}
-                                        <span class="article_cat">{{ article.categorie }}</span>
+                                        <span class="dashboard_article_cat">{{ article.categorie }}</span>
                                     {% endif %}
                                 </div>
 
-                                <div class="article_body_custom">
-                                    <div class="article_title_custom">{{ article.titre }}</div>
-                                    <div class="article_meta_custom">
+                                <div class="dashboard_article_body">
+                                    <div class="dashboard_article_title">{{ article.titre }}</div>
+                                    <div class="dashboard_article_meta">
                                         {% if article.region %}
                                             <span><i class="fa fa-map-marker"></i> {{ article.region }}</span>
                                         {% endif %}
@@ -320,7 +400,7 @@
                         </div>
                     {% else %}
                         <div class="col-12">
-                            <div class="empty_state_custom">
+                            <div class="dashboard_empty">
                                 <i class="fa fa-newspaper-o"></i> Aucun article disponible
                             </div>
                         </div>
@@ -329,10 +409,10 @@
             </div>
 
             {% if my_reclamations|length > 0 %}
-                <div class="dash_block">
-                    <div class="dash_title">Mes dernières réclamations</div>
+                <div class="dashboard_box">
+                    <div class="dashboard_box_title">Mes dernières réclamations</div>
                     <div class="table-responsive">
-                        <table class="reclamation_table">
+                        <table class="dashboard_table">
                             <thead>
                                 <tr>
                                     <th>Sujet</th>
@@ -346,7 +426,7 @@
                                     <tr>
                                         <td>{{ rec.sujet ?? 'Sans sujet' }}</td>
                                         <td>{{ rec.typeReclamation ?? '-' }}</td>
-                                        <td><span class="badge_pending">{{ rec.statut }}</span></td>
+                                        <td><span class="dashboard_badge">{{ rec.statut }}</span></td>
                                         <td>{{ rec.dateReclamation ? rec.dateReclamation|date('d/m/Y') : '-' }}</td>
                                     </tr>
                                 {% endfor %}
