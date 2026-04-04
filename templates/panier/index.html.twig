@@ -52,6 +52,16 @@
             margin: 0;
         }
 
+        .flash_success{
+            margin-bottom: 20px;
+            background: #eefaf0;
+            border: 1px solid #cdebd3;
+            color: #2e7d32;
+            padding: 14px 18px;
+            border-radius: 16px;
+            font-weight: 600;
+        }
+
         .cart_table_box{
             background: rgba(255,255,255,0.96);
             border-radius: 26px;
@@ -154,6 +164,20 @@
             padding: 8px 14px;
             font-weight: 700;
             color: #1f2235;
+        }
+
+        .remove_btn{
+            margin-top: 10px;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            border: none;
+            background: #fff1f1;
+            color: #d32f2f;
+            padding: 10px 14px;
+            border-radius: 999px;
+            font-weight: 700;
+            cursor: pointer;
         }
 
         .cart_total_box{
@@ -292,6 +316,10 @@
     <div class="cart_section">
         <div class="container">
 
+            {% for message in app.flashes('success') %}
+                <div class="flash_success">{{ message }}</div>
+            {% endfor %}
+
             <div class="cart_hero">
                 <div class="cart_badge">Mon panier</div>
                 <h1 class="cart_title">Panier WinGo</h1>
@@ -300,134 +328,106 @@
                 </p>
             </div>
 
-            {# ===== VERSION TEMPORAIRE DESIGN ===== #}
-            {# Plus tard on remplacera ça par les vraies données du panier depuis le controller #}
+            {% if cartItems is not empty %}
+                <div class="row">
+                    <div class="col-lg-8">
+                        <div class="cart_table_box">
+                            <div class="cart_table_header">
+                                <h3 class="cart_table_title">Produits sélectionnés</h3>
+                                <div class="cart_count_badge">{{ cartCount }} article(s)</div>
+                            </div>
 
-            <div class="row">
-                <div class="col-lg-8">
-                    <div class="cart_table_box">
-                        <div class="cart_table_header">
-                            <h3 class="cart_table_title">Produits sélectionnés</h3>
-                            <div class="cart_count_badge">3 articles</div>
-                        </div>
+                            {% for item in cartItems %}
+                                <div class="cart_item">
+                                    <div class="row align-items-center">
+                                        <div class="col-lg-7">
+                                            <div class="cart_product">
+                                                {% if item.produit.image %}
+                                                    <img src="{{ asset('images/' ~ item.produit.image) }}" alt="{{ item.produit.nom }}" class="cart_product_img">
+                                                {% else %}
+                                                    <div class="cart_product_placeholder">
+                                                        <i class="fa fa-shopping-bag"></i>
+                                                    </div>
+                                                {% endif %}
 
-                        <div class="cart_item">
-                            <div class="row align-items-center">
-                                <div class="col-lg-7">
-                                    <div class="cart_product">
-                                        <img src="{{ asset('images/Assiette.png') }}" alt="Produit" class="cart_product_img">
-                                        <div>
-                                            <div class="cart_product_name">Assiette</div>
-                                            <div class="cart_product_meta"><i class="fa fa-map-marker"></i> Ben Arous</div>
-                                            <div class="cart_product_meta">Catégorie : Artisanat</div>
+                                                <div>
+                                                    <div class="cart_product_name">{{ item.produit.nom }}</div>
+                                                    <div class="cart_product_meta"><i class="fa fa-map-marker"></i> {{ item.produit.region }}</div>
+                                                    <div class="cart_product_meta">Catégorie : {{ item.produit.categorie }}</div>
+
+                                                    <form method="post" action="{{ path('panier_delete', {'id': item.panier.id}) }}">
+                                                        <button type="submit" class="remove_btn">
+                                                            <i class="fa fa-trash"></i> Supprimer
+                                                        </button>
+                                                    </form>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="col-lg-2 mt-3 mt-lg-0">
+                                            <div class="qty_box">Qté : {{ item.panier.quantite }}</div>
+                                        </div>
+
+                                        <div class="col-lg-3 mt-3 mt-lg-0 text-lg-end">
+                                            <div class="cart_price">{{ item.lineTotal|number_format(2, '.', '') }} DT</div>
                                         </div>
                                     </div>
                                 </div>
-                                <div class="col-lg-2 mt-3 mt-lg-0">
-                                    <div class="qty_box">Qté : 1</div>
-                                </div>
-                                <div class="col-lg-3 mt-3 mt-lg-0 text-lg-end">
-                                    <div class="cart_price">40.00 DT</div>
-                                </div>
-                            </div>
+                            {% endfor %}
                         </div>
+                    </div>
 
-                        <div class="cart_item">
-                            <div class="row align-items-center">
-                                <div class="col-lg-7">
-                                    <div class="cart_product">
-                                        <img src="{{ asset('images/Collier.png') }}" alt="Produit" class="cart_product_img">
-                                        <div>
-                                            <div class="cart_product_name">Collier</div>
-                                            <div class="cart_product_meta"><i class="fa fa-map-marker"></i> Nabeul</div>
-                                            <div class="cart_product_meta">Catégorie : Bijoux</div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-lg-2 mt-3 mt-lg-0">
-                                    <div class="qty_box">Qté : 1</div>
-                                </div>
-                                <div class="col-lg-3 mt-3 mt-lg-0 text-lg-end">
-                                    <div class="cart_price">20.00 DT</div>
-                                </div>
-                            </div>
-                        </div>
+                    <div class="col-lg-4 mt-4 mt-lg-0">
+                        <div class="cart_total_box">
+                            <h3 class="cart_total_title">Résumé de commande</h3>
 
-                        <div class="cart_item">
-                            <div class="row align-items-center">
-                                <div class="col-lg-7">
-                                    <div class="cart_product">
-                                        <img src="{{ asset('images/Assiette.png') }}" alt="Produit" class="cart_product_img">
-                                        <div>
-                                            <div class="cart_product_name">Huile d'Olive</div>
-                                            <div class="cart_product_meta"><i class="fa fa-map-marker"></i> Kairouan</div>
-                                            <div class="cart_product_meta">Catégorie : Gastronomie</div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-lg-2 mt-3 mt-lg-0">
-                                    <div class="qty_box">Qté : 1</div>
-                                </div>
-                                <div class="col-lg-3 mt-3 mt-lg-0 text-lg-end">
-                                    <div class="cart_price">14.00 DT</div>
-                                </div>
+                            <div class="cart_total_row">
+                                <span>Sous-total</span>
+                                <strong>{{ subtotal|number_format(2, '.', '') }} DT</strong>
                             </div>
+
+                            <div class="cart_total_row">
+                                <span>Livraison</span>
+                                <strong>{{ livraison|number_format(2, '.', '') }} DT</strong>
+                            </div>
+
+                            <div class="cart_total_row">
+                                <span>Réduction</span>
+                                <strong>{{ reduction|number_format(2, '.', '') }} DT</strong>
+                            </div>
+
+                            <div class="cart_total_final">
+                                <span><strong>Total</strong></span>
+                                <div class="cart_total_amount">{{ total|number_format(2, '.', '') }} DT</div>
+                            </div>
+
+                            <a href="#" class="cart_btn cart_btn_primary">
+                                <i class="fa fa-credit-card"></i>
+                                Commander
+                            </a>
+
+                            <a href="{{ path('client_produits') }}" class="cart_btn cart_btn_soft">
+                                <i class="fa fa-arrow-left"></i>
+                                Continuer mes achats
+                            </a>
                         </div>
                     </div>
                 </div>
-
-                <div class="col-lg-4 mt-4 mt-lg-0">
-                    <div class="cart_total_box">
-                        <h3 class="cart_total_title">Résumé de commande</h3>
-
-                        <div class="cart_total_row">
-                            <span>Sous-total</span>
-                            <strong>74.00 DT</strong>
-                        </div>
-
-                        <div class="cart_total_row">
-                            <span>Livraison</span>
-                            <strong>7.00 DT</strong>
-                        </div>
-
-                        <div class="cart_total_row">
-                            <span>Réduction</span>
-                            <strong>0.00 DT</strong>
-                        </div>
-
-                        <div class="cart_total_final">
-                            <span><strong>Total</strong></span>
-                            <div class="cart_total_amount">81.00 DT</div>
-                        </div>
-
-                        <a href="#" class="cart_btn cart_btn_primary">
-                            <i class="fa fa-credit-card"></i>
-                            Commander
-                        </a>
-
-                        <a href="{{ path('client_produits') }}" class="cart_btn cart_btn_soft">
-                            <i class="fa fa-arrow-left"></i>
-                            Continuer mes achats
-                        </a>
+            {% else %}
+                <div class="empty_cart">
+                    <div class="empty_cart_icon">
+                        <i class="fa fa-shopping-cart"></i>
                     </div>
+                    <div class="empty_cart_title">Votre panier est vide</div>
+                    <div class="empty_cart_text">
+                        Ajoutez des produits pour commencer vos achats.
+                    </div>
+                    <a href="{{ path('client_produits') }}" class="cart_btn cart_btn_primary" style="max-width:260px;margin:0 auto;">
+                        <i class="fa fa-shopping-bag"></i>
+                        Voir les produits
+                    </a>
                 </div>
-            </div>
-
-            {# ===== Si plus tard le panier est vide, utilise ça à la place =====
-            <div class="empty_cart">
-                <div class="empty_cart_icon">
-                    <i class="fa fa-shopping-cart"></i>
-                </div>
-                <div class="empty_cart_title">Votre panier est vide</div>
-                <div class="empty_cart_text">
-                    Ajoutez des produits pour commencer vos achats.
-                </div>
-                <a href="{{ path('client_produits') }}" class="cart_btn cart_btn_primary" style="max-width:260px;margin:0 auto;">
-                    <i class="fa fa-shopping-bag"></i>
-                    Voir les produits
-                </a>
-            </div>
-            #}
+            {% endif %}
         </div>
     </div>
 {% endblock %}
