@@ -105,15 +105,25 @@
             border-bottom: none;
         }
 
-        .cart_product{
+        .cart_item_row{
             display: flex;
-            gap: 20px;
             align-items: center;
+            justify-content: space-between;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .cart_left{
+            display: flex;
+            align-items: center;
+            gap: 18px;
+            min-width: 0;
+            flex: 1 1 420px;
         }
 
         .cart_product_img{
-            width: 110px;
-            height: 110px;
+            width: 95px;
+            height: 95px;
             border-radius: 18px;
             object-fit: cover;
             flex-shrink: 0;
@@ -121,23 +131,28 @@
         }
 
         .cart_product_placeholder{
-            width: 110px;
-            height: 110px;
+            width: 95px;
+            height: 95px;
             border-radius: 18px;
             display: flex;
             align-items: center;
             justify-content: center;
             background: linear-gradient(135deg, #5d7cf3, #8d4fff);
             color: #fff;
-            font-size: 34px;
+            font-size: 30px;
             flex-shrink: 0;
         }
 
+        .cart_info{
+            min-width: 0;
+        }
+
         .cart_product_name{
-            font-size: 24px;
+            font-size: 22px;
             font-weight: 800;
             color: #1f2235;
             margin-bottom: 8px;
+            line-height: 1.15;
         }
 
         .cart_product_meta{
@@ -146,64 +161,86 @@
             margin-bottom: 6px;
         }
 
+        .remove_btn{
+            margin-top: 10px;
+            width: 38px;
+            height: 38px;
+            border: none;
+            border-radius: 50%;
+            background: #fff1f1;
+            color: #d32f2f;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            transition: 0.2s ease;
+        }
+
+        .remove_btn:hover{
+            transform: translateY(-1px);
+            background: #ffe5e5;
+        }
+
+        .cart_right{
+            display: flex;
+            align-items: center;
+            gap: 18px;
+            flex: 0 0 auto;
+            margin-left: auto;
+        }
+
+        .qty_box{
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            background: #f8f9fd;
+            border: 1px solid #e8ebf3;
+            border-radius: 999px;
+            padding: 6px 10px;
+        }
+
+        .qty_btn_form{
+            margin: 0;
+        }
+
+        .qty_btn{
+            width: 30px;
+            height: 30px;
+            border: 1px solid #d9deea;
+            border-radius: 50%;
+            background: #ffffff;
+            color: #1f2235;
+            font-size: 18px;
+            font-weight: 700;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            line-height: 1;
+            transition: 0.2s ease;
+        }
+
+        .qty_btn:hover{
+            background: #f1f4fb;
+        }
+
+        .qty_value{
+            min-width: 58px;
+            text-align: center;
+            font-weight: 800;
+            color: #1f2235;
+            font-size: 14px;
+        }
+
         .cart_price{
-            font-size: 26px;
+            min-width: 115px;
+            text-align: right;
+            font-size: 24px;
             font-weight: 900;
             background: linear-gradient(135deg, #fa9e1b, #8d4fff);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-        }
-
-       .qty_box{
-    display: inline-flex;
-    align-items: center;
-    gap: 10px;
-    background: #f8f9fd;
-    border: 1px solid #eef0f8;
-    border-radius: 999px;
-    padding: 6px 10px;
-    font-weight: 700;
-    color: #1f2235;
-}
-
-.qty_btn_form{
-    margin: 0;
-}
-
-.qty_btn{
-    width: 34px;
-    height: 34px;
-    border: none;
-    border-radius: 50%;
-    background: linear-gradient(135deg, #fa9e1b, #8d4fff);
-    color: #fff;
-    font-size: 18px;
-    font-weight: 800;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    line-height: 1;
-}
-
-.qty_value{
-    min-width: 55px;
-    text-align: center;
-    font-weight: 800;
-}
-
-        .remove_btn{
-            margin-top: 10px;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            border: none;
-            background: #fff1f1;
-            color: #d32f2f;
-            padding: 10px 14px;
-            border-radius: 999px;
-            font-weight: 700;
-            cursor: pointer;
+            white-space: nowrap;
         }
 
         .cart_total_box{
@@ -243,14 +280,16 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
+            gap: 12px;
         }
 
         .cart_total_amount{
-            font-size: 30px;
+            font-size: 32px;
             font-weight: 900;
             background: linear-gradient(135deg, #fa9e1b, #8d4fff);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
+            white-space: nowrap;
         }
 
         .cart_btn{
@@ -326,13 +365,35 @@
                 font-size: 40px;
             }
 
-            .cart_product{
+            .cart_total_box{
+                position: static;
+            }
+
+            .cart_item_row{
                 flex-direction: column;
                 align-items: flex-start;
             }
 
-            .cart_total_box{
-                position: static;
+            .cart_right{
+                width: 100%;
+                justify-content: space-between;
+                margin-left: 0;
+            }
+
+            .cart_price{
+                text-align: left;
+            }
+        }
+
+        @media (max-width: 575px){
+            .cart_left{
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .cart_right{
+                flex-direction: column;
+                align-items: flex-start;
             }
         }
     </style>
@@ -365,46 +426,42 @@
 
                             {% for item in cartItems %}
                                 <div class="cart_item">
-                                    <div class="row align-items-center">
-                                        <div class="col-lg-7">
-                                            <div class="cart_product">
-                                                {% if item.produit.image %}
-                                                    <img src="{{ asset('images/' ~ item.produit.image) }}" alt="{{ item.produit.nom }}" class="cart_product_img">
-                                                {% else %}
-                                                    <div class="cart_product_placeholder">
-                                                        <i class="fa fa-shopping-bag"></i>
-                                                    </div>
-                                                {% endif %}
-
-                                                <div>
-                                                    <div class="cart_product_name">{{ item.produit.nom }}</div>
-                                                    <div class="cart_product_meta"><i class="fa fa-map-marker"></i> {{ item.produit.region }}</div>
-                                                    <div class="cart_product_meta">Catégorie : {{ item.produit.categorie }}</div>
-
-                                                    <form method="post" action="{{ path('panier_delete', {'id': item.panier.id}) }}">
-                                                        <button type="submit" class="remove_btn">
-                                                            <i class="fa fa-trash"></i> Supprimer
-                                                        </button>
-                                                    </form>
+                                    <div class="cart_item_row">
+                                        <div class="cart_left">
+                                            {% if item.produit.image %}
+                                                <img src="{{ asset('images/' ~ item.produit.image) }}" alt="{{ item.produit.nom }}" class="cart_product_img">
+                                            {% else %}
+                                                <div class="cart_product_placeholder">
+                                                    <i class="fa fa-shopping-bag"></i>
                                                 </div>
+                                            {% endif %}
+
+                                            <div class="cart_info">
+                                                <div class="cart_product_name">{{ item.produit.nom }}</div>
+                                                <div class="cart_product_meta"><i class="fa fa-map-marker"></i> {{ item.produit.region }}</div>
+                                                <div class="cart_product_meta">Catégorie : {{ item.produit.categorie }}</div>
+
+                                                <form method="post" action="{{ path('panier_delete', {'id': item.panier.id}) }}">
+                                                    <button type="submit" class="remove_btn" title="Supprimer">
+                                                        <i class="fa fa-trash"></i>
+                                                    </button>
+                                                </form>
                                             </div>
                                         </div>
 
-                                        <div class="col-lg-2 mt-3 mt-lg-0">
-<div class="qty_box">
-    <form method="post" action="{{ path('panier_decrease', {'id': item.panier.id}) }}" class="qty_btn_form">
-        <button type="submit" class="qty_btn">-</button>
-    </form>
+                                        <div class="cart_right">
+                                            <div class="qty_box">
+                                                <form method="post" action="{{ path('panier_decrease', {'id': item.panier.id}) }}" class="qty_btn_form">
+                                                    <button type="submit" class="qty_btn">-</button>
+                                                </form>
 
-    <span class="qty_value">Qté : {{ item.panier.quantite }}</span>
+                                                <span class="qty_value">{{ item.panier.quantite }}</span>
 
-    <form method="post" action="{{ path('panier_increase', {'id': item.panier.id}) }}" class="qty_btn_form">
-        <button type="submit" class="qty_btn">+</button>
-    </form>
-</div>
-                                        </div>
+                                                <form method="post" action="{{ path('panier_increase', {'id': item.panier.id}) }}" class="qty_btn_form">
+                                                    <button type="submit" class="qty_btn">+</button>
+                                                </form>
+                                            </div>
 
-                                        <div class="col-lg-3 mt-3 mt-lg-0 text-lg-end">
                                             <div class="cart_price">{{ item.lineTotal|number_format(2, '.', '') }} DT</div>
                                         </div>
                                     </div>
