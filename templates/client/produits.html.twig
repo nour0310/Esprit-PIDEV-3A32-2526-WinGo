@@ -438,14 +438,19 @@
                     </div>
                 </div>
 
-                <div class="products_hero_actions">
-                    <a href="#products-grid" class="products_hero_btn_main">
-                        Voir les produits <i class="fa fa-arrow-right"></i>
-                    </a>
-                    <div class="products_hero_note">
-                        <i class="fa fa-diamond"></i> Bouton au survol
-                    </div>
-                </div>
+               <div class="products_hero_actions">
+    <a href="#products-grid" class="products_hero_btn_main">
+        Voir les produits <i class="fa fa-arrow-right"></i>
+    </a>
+
+    <a href="{{ path('app_panier') }}" class="products_hero_btn_main" style="background: linear-gradient(135deg, #5d7cf3, #8d4fff);">
+        Voir panier <i class="fa fa-shopping-cart"></i>
+    </a>
+
+    <div class="products_hero_note">
+        <i class="fa fa-diamond"></i> Bouton au survol
+    </div>
+</div>
             </div>
 
             <div class="row products_grid" id="products-grid">
