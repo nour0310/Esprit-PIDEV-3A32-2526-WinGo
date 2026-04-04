@@ -391,7 +391,17 @@
                                         </div>
 
                                         <div class="col-lg-2 mt-3 mt-lg-0">
-                                            <div class="qty_box">Qté : {{ item.panier.quantite }}</div>
+<div class="qty_box">
+    <form method="post" action="{{ path('panier_decrease', {'id': item.panier.id}) }}" class="qty_btn_form">
+        <button type="submit" class="qty_btn">-</button>
+    </form>
+
+    <span class="qty_value">Qté : {{ item.panier.quantite }}</span>
+
+    <form method="post" action="{{ path('panier_increase', {'id': item.panier.id}) }}" class="qty_btn_form">
+        <button type="submit" class="qty_btn">+</button>
+    </form>
+</div>
                                         </div>
 
                                         <div class="col-lg-3 mt-3 mt-lg-0 text-lg-end">
