@@ -1,20 +1,433 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Hello PanierController!{% endblock %}
+{% block title %}Mon Panier - WinGo{% endblock %}
 
-{% block body %}
-<style>
-    .example-wrapper { margin: 1em auto; max-width: 800px; width: 95%; font: 18px/1.5 sans-serif; }
-    .example-wrapper code { background: #F5F5F5; padding: 2px 6px; }
-</style>
+{% block stylesheets %}
+    {{ parent() }}
+    <style>
+        .cart_section{
+            padding: 180px 0 90px 0;
+            background:
+                radial-gradient(circle at top left, rgba(141,79,255,0.10), transparent 28%),
+                radial-gradient(circle at top right, rgba(250,158,27,0.10), transparent 28%),
+                linear-gradient(180deg, #eef3f8 0%, #f7f9fc 100%);
+            min-height: 100vh;
+        }
 
-<div class="example-wrapper">
-    <h1>Hello {{ controller_name }}! ✅</h1>
+        .cart_hero{
+            background: linear-gradient(135deg, rgba(255,255,255,0.90), rgba(255,255,255,0.72));
+            border-radius: 30px;
+            padding: 42px 34px;
+            box-shadow: 0 18px 45px rgba(25,30,70,0.10);
+            margin-bottom: 35px;
+            border: 1px solid rgba(255,255,255,0.55);
+        }
 
-    This friendly message is coming from:
-    <ul>
-        <li>Your controller at <code>C:/Users/WIKI/Desktop/projetWeb/src/Controller/PanierController.php</code></li>
-        <li>Your template at <code>C:/Users/WIKI/Desktop/projetWeb/templates/panier/index.html.twig</code></li>
-    </ul>
-</div>
+        .cart_badge{
+            display: inline-block;
+            padding: 8px 18px;
+            border-radius: 999px;
+            background: linear-gradient(135deg, #fa9e1b, #8d4fff);
+            color: #fff;
+            font-size: 12px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.7px;
+            margin-bottom: 16px;
+        }
+
+        .cart_title{
+            font-size: 52px;
+            font-weight: 900;
+            line-height: 1.05;
+            margin-bottom: 10px;
+            background: linear-gradient(135deg, #1d2140 10%, #8d4fff 58%, #fa9e1b 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .cart_subtitle{
+            font-size: 17px;
+            color: #71758a;
+            margin: 0;
+        }
+
+        .cart_table_box{
+            background: rgba(255,255,255,0.96);
+            border-radius: 26px;
+            overflow: hidden;
+            box-shadow: 0 16px 38px rgba(25,30,70,0.10);
+            margin-bottom: 30px;
+        }
+
+        .cart_table_header{
+            padding: 22px 28px;
+            border-bottom: 1px solid #eef1f6;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .cart_table_title{
+            font-size: 24px;
+            font-weight: 800;
+            color: #1f2235;
+            margin: 0;
+        }
+
+        .cart_count_badge{
+            padding: 10px 16px;
+            border-radius: 999px;
+            background: rgba(141,79,255,0.10);
+            color: #6b49d8;
+            font-size: 13px;
+            font-weight: 800;
+        }
+
+        .cart_item{
+            padding: 24px 28px;
+            border-bottom: 1px solid #f1f3f8;
+        }
+
+        .cart_item:last-child{
+            border-bottom: none;
+        }
+
+        .cart_product{
+            display: flex;
+            gap: 20px;
+            align-items: center;
+        }
+
+        .cart_product_img{
+            width: 110px;
+            height: 110px;
+            border-radius: 18px;
+            object-fit: cover;
+            flex-shrink: 0;
+            background: #f4f6fb;
+        }
+
+        .cart_product_placeholder{
+            width: 110px;
+            height: 110px;
+            border-radius: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #5d7cf3, #8d4fff);
+            color: #fff;
+            font-size: 34px;
+            flex-shrink: 0;
+        }
+
+        .cart_product_name{
+            font-size: 24px;
+            font-weight: 800;
+            color: #1f2235;
+            margin-bottom: 8px;
+        }
+
+        .cart_product_meta{
+            color: #7b8095;
+            font-size: 14px;
+            margin-bottom: 6px;
+        }
+
+        .cart_price{
+            font-size: 26px;
+            font-weight: 900;
+            background: linear-gradient(135deg, #fa9e1b, #8d4fff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .qty_box{
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            background: #f8f9fd;
+            border: 1px solid #eef0f8;
+            border-radius: 999px;
+            padding: 8px 14px;
+            font-weight: 700;
+            color: #1f2235;
+        }
+
+        .cart_total_box{
+            background: rgba(255,255,255,0.96);
+            border-radius: 26px;
+            box-shadow: 0 16px 38px rgba(25,30,70,0.10);
+            padding: 28px;
+            position: sticky;
+            top: 140px;
+        }
+
+        .cart_total_title{
+            font-size: 24px;
+            font-weight: 800;
+            color: #1f2235;
+            margin-bottom: 18px;
+        }
+
+        .cart_total_row{
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 14px;
+            color: #6f7489;
+            font-size: 15px;
+        }
+
+        .cart_total_row strong{
+            color: #1f2235;
+        }
+
+        .cart_total_final{
+            margin-top: 18px;
+            padding-top: 18px;
+            border-top: 1px solid #edf0f6;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .cart_total_amount{
+            font-size: 30px;
+            font-weight: 900;
+            background: linear-gradient(135deg, #fa9e1b, #8d4fff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .cart_btn{
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            width: 100%;
+            padding: 14px 22px;
+            border-radius: 999px;
+            border: none;
+            text-decoration: none !important;
+            font-size: 14px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.6px;
+            transition: 0.3s ease;
+            margin-top: 14px;
+        }
+
+        .cart_btn_primary{
+            background: linear-gradient(135deg, #fa9e1b, #8d4fff);
+            color: #fff !important;
+            box-shadow: 0 12px 28px rgba(141,79,255,0.18);
+        }
+
+        .cart_btn_soft{
+            background: #eef2ff;
+            color: #5d63a8 !important;
+        }
+
+        .cart_btn:hover{
+            transform: translateY(-2px);
+            opacity: 0.97;
+        }
+
+        .empty_cart{
+            background: rgba(255,255,255,0.96);
+            border-radius: 26px;
+            box-shadow: 0 16px 38px rgba(25,30,70,0.10);
+            text-align: center;
+            padding: 60px 30px;
+        }
+
+        .empty_cart_icon{
+            width: 90px;
+            height: 90px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #fa9e1b, #8d4fff);
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 36px;
+            margin: 0 auto 20px auto;
+        }
+
+        .empty_cart_title{
+            font-size: 30px;
+            font-weight: 900;
+            color: #1f2235;
+            margin-bottom: 10px;
+        }
+
+        .empty_cart_text{
+            color: #71758a;
+            font-size: 16px;
+            margin-bottom: 24px;
+        }
+
+        @media (max-width: 991px){
+            .cart_title{
+                font-size: 40px;
+            }
+
+            .cart_product{
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .cart_total_box{
+                position: static;
+            }
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+    <div class="cart_section">
+        <div class="container">
+
+            <div class="cart_hero">
+                <div class="cart_badge">Mon panier</div>
+                <h1 class="cart_title">Panier WinGo</h1>
+                <p class="cart_subtitle">
+                    Retrouvez ici tous les produits que vous avez ajoutés à votre panier.
+                </p>
+            </div>
+
+            {# ===== VERSION TEMPORAIRE DESIGN ===== #}
+            {# Plus tard on remplacera ça par les vraies données du panier depuis le controller #}
+
+            <div class="row">
+                <div class="col-lg-8">
+                    <div class="cart_table_box">
+                        <div class="cart_table_header">
+                            <h3 class="cart_table_title">Produits sélectionnés</h3>
+                            <div class="cart_count_badge">3 articles</div>
+                        </div>
+
+                        <div class="cart_item">
+                            <div class="row align-items-center">
+                                <div class="col-lg-7">
+                                    <div class="cart_product">
+                                        <img src="{{ asset('images/Assiette.png') }}" alt="Produit" class="cart_product_img">
+                                        <div>
+                                            <div class="cart_product_name">Assiette</div>
+                                            <div class="cart_product_meta"><i class="fa fa-map-marker"></i> Ben Arous</div>
+                                            <div class="cart_product_meta">Catégorie : Artisanat</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-lg-2 mt-3 mt-lg-0">
+                                    <div class="qty_box">Qté : 1</div>
+                                </div>
+                                <div class="col-lg-3 mt-3 mt-lg-0 text-lg-end">
+                                    <div class="cart_price">40.00 DT</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="cart_item">
+                            <div class="row align-items-center">
+                                <div class="col-lg-7">
+                                    <div class="cart_product">
+                                        <img src="{{ asset('images/Collier.png') }}" alt="Produit" class="cart_product_img">
+                                        <div>
+                                            <div class="cart_product_name">Collier</div>
+                                            <div class="cart_product_meta"><i class="fa fa-map-marker"></i> Nabeul</div>
+                                            <div class="cart_product_meta">Catégorie : Bijoux</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-lg-2 mt-3 mt-lg-0">
+                                    <div class="qty_box">Qté : 1</div>
+                                </div>
+                                <div class="col-lg-3 mt-3 mt-lg-0 text-lg-end">
+                                    <div class="cart_price">20.00 DT</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="cart_item">
+                            <div class="row align-items-center">
+                                <div class="col-lg-7">
+                                    <div class="cart_product">
+                                        <img src="{{ asset('images/Assiette.png') }}" alt="Produit" class="cart_product_img">
+                                        <div>
+                                            <div class="cart_product_name">Huile d'Olive</div>
+                                            <div class="cart_product_meta"><i class="fa fa-map-marker"></i> Kairouan</div>
+                                            <div class="cart_product_meta">Catégorie : Gastronomie</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-lg-2 mt-3 mt-lg-0">
+                                    <div class="qty_box">Qté : 1</div>
+                                </div>
+                                <div class="col-lg-3 mt-3 mt-lg-0 text-lg-end">
+                                    <div class="cart_price">14.00 DT</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-4 mt-4 mt-lg-0">
+                    <div class="cart_total_box">
+                        <h3 class="cart_total_title">Résumé de commande</h3>
+
+                        <div class="cart_total_row">
+                            <span>Sous-total</span>
+                            <strong>74.00 DT</strong>
+                        </div>
+
+                        <div class="cart_total_row">
+                            <span>Livraison</span>
+                            <strong>7.00 DT</strong>
+                        </div>
+
+                        <div class="cart_total_row">
+                            <span>Réduction</span>
+                            <strong>0.00 DT</strong>
+                        </div>
+
+                        <div class="cart_total_final">
+                            <span><strong>Total</strong></span>
+                            <div class="cart_total_amount">81.00 DT</div>
+                        </div>
+
+                        <a href="#" class="cart_btn cart_btn_primary">
+                            <i class="fa fa-credit-card"></i>
+                            Commander
+                        </a>
+
+                        <a href="{{ path('client_produits') }}" class="cart_btn cart_btn_soft">
+                            <i class="fa fa-arrow-left"></i>
+                            Continuer mes achats
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            {# ===== Si plus tard le panier est vide, utilise ça à la place =====
+            <div class="empty_cart">
+                <div class="empty_cart_icon">
+                    <i class="fa fa-shopping-cart"></i>
+                </div>
+                <div class="empty_cart_title">Votre panier est vide</div>
+                <div class="empty_cart_text">
+                    Ajoutez des produits pour commencer vos achats.
+                </div>
+                <a href="{{ path('client_produits') }}" class="cart_btn cart_btn_primary" style="max-width:260px;margin:0 auto;">
+                    <i class="fa fa-shopping-bag"></i>
+                    Voir les produits
+                </a>
+            </div>
+            #}
+        </div>
+    </div>
 {% endblock %}
