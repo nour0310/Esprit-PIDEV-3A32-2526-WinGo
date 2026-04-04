@@ -1,95 +1,362 @@
-{% extends 'client/base_client.html.twig' %}
+{% extends 'base.html.twig' %}
+
 {% block title %}Mon Dashboard - WinGo{% endblock %}
-{% block page_title %}Mon Tableau de Bord{% endblock %}
-{% block page_subtitle %}Bienvenue, {{ app.user.fullName }} ! Voici votre espace personnel.{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <style>
+        .dashboard_hero {
+            height: 420px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            position: relative;
+            background-image: linear-gradient(rgba(45, 15, 80, 0.45), rgba(25, 20, 70, 0.55)), url('{{ asset('images/sidibou.jpg') }}');
+            background-size: cover;
+            background-position: center center;
+        }
+
+        .dashboard_hero_content h1 {
+            font-size: 64px;
+            font-weight: 800;
+            color: #ffffff;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+        }
+
+        .dashboard_hero_content p {
+            color: #ffffff;
+            font-size: 20px;
+            margin-bottom: 25px;
+        }
+
+        .dashboard_section {
+            padding: 80px 0;
+            background: #ffffff;
+        }
+
+        .stats_row {
+            margin-top: -70px;
+            position: relative;
+            z-index: 5;
+        }
+
+        .stat_card {
+            background: #ffffff;
+            border-radius: 18px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.08);
+            padding: 30px 20px;
+            text-align: center;
+            height: 100%;
+        }
+
+        .stat_num {
+            font-size: 38px;
+            font-weight: 800;
+            background: linear-gradient(to right, #fa9e1b, #8d4fff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 8px;
+        }
+
+        .stat_label {
+            color: #777;
+            font-size: 15px;
+            font-weight: 600;
+        }
+
+        .dash_block {
+            background: #fff;
+            border-radius: 18px;
+            padding: 35px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.06);
+            margin-bottom: 35px;
+        }
+
+        .dash_title {
+            font-size: 28px;
+            font-weight: 700;
+            color: #2d2c2c;
+            margin-bottom: 25px;
+        }
+
+        .quick_actions {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .quick_btn {
+            display: inline-block;
+            padding: 12px 22px;
+            border-radius: 30px;
+            color: #fff !important;
+            font-size: 14px;
+            font-weight: 700;
+            text-decoration: none !important;
+            background: linear-gradient(to right, #fa9e1b, #8d4fff);
+            transition: 0.3s ease;
+        }
+
+        .quick_btn:hover {
+            transform: translateY(-2px);
+            opacity: 0.95;
+        }
+
+        .article_card_custom {
+            background: #fff;
+            border-radius: 18px;
+            overflow: hidden;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+            margin-bottom: 30px;
+            height: 100%;
+        }
+
+        .article_img_custom {
+            height: 220px;
+            position: relative;
+            background: linear-gradient(to right, #6a85f1, #8d4fff);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        .article_img_custom img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .article_placeholder {
+            color: rgba(255,255,255,0.7);
+            font-size: 52px;
+        }
+
+        .article_cat {
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            background: #fa9e1b;
+            color: #fff;
+            font-size: 12px;
+            font-weight: 700;
+            padding: 6px 12px;
+            border-radius: 20px;
+            text-transform: uppercase;
+        }
+
+        .article_body_custom {
+            padding: 22px;
+        }
+
+        .article_title_custom {
+            font-size: 22px;
+            font-weight: 700;
+            color: #2d2c2c;
+            margin-bottom: 10px;
+        }
+
+        .article_meta_custom {
+            color: #929191;
+            font-size: 14px;
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .empty_state_custom {
+            padding: 50px 20px;
+            text-align: center;
+            color: #999;
+            font-size: 18px;
+            background: #f8f8f8;
+            border-radius: 16px;
+        }
+
+        .reclamation_table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .reclamation_table th,
+        .reclamation_table td {
+            padding: 14px 12px;
+            border-bottom: 1px solid #eee;
+            text-align: left;
+            font-size: 14px;
+        }
+
+        .reclamation_table th {
+            color: #2d2c2c;
+            font-weight: 700;
+        }
+
+        .badge_pending {
+            display: inline-block;
+            padding: 6px 12px;
+            border-radius: 20px;
+            background: rgba(250, 158, 27, 0.12);
+            color: #fa9e1b;
+            font-weight: 700;
+            font-size: 12px;
+        }
+
+        @media (max-width: 991px) {
+            .dashboard_hero {
+                height: 320px;
+            }
+
+            .dashboard_hero_content h1 {
+                font-size: 40px;
+            }
+
+            .dashboard_hero_content p {
+                font-size: 16px;
+            }
+        }
+    </style>
+{% endblock %}
 
 {% block content %}
-<!-- Stats -->
-<div class="stat_row">
-    <div class="stat_mini">
-        <div class="stat_mini_num">{{ my_reservations|length }}</div>
-        <div class="stat_mini_label"><i class="fa fa-calendar"></i> Réservations</div>
-    </div>
-    <div class="stat_mini">
-        <div class="stat_mini_num">{{ my_commandes|length }}</div>
-        <div class="stat_mini_label"><i class="fa fa-shopping-cart"></i> Commandes</div>
-    </div>
-    <div class="stat_mini">
-        <div class="stat_mini_num">{{ recent_articles|length }}</div>
-        <div class="stat_mini_label"><i class="fa fa-newspaper-o"></i> Articles</div>
-    </div>
-    <div class="stat_mini">
-        <div class="stat_mini_num">{{ my_reclamations|length }}</div>
-        <div class="stat_mini_label"><i class="fa fa-exclamation-circle"></i> Réclamations</div>
-    </div>
-</div>
 
-<!-- Quick Actions -->
-<div class="dash_card">
-    <div class="dash_card_title"><i class="fa fa-bolt"></i> Actions rapides</div>
-    <div style="display:flex;gap:10px;flex-wrap:wrap;">
-        <a href="{{ path('client_articles') }}" style="background:linear-gradient(135deg,#fa9e1b,#8d4fff);color:#fff;padding:10px 20px;border-radius:10px;text-decoration:none;font-size:14px;font-weight:600;">
-            <i class="fa fa-newspaper-o"></i> Voir les articles
-        </a>
-        <a href="{{ path('client_produits') }}" style="background:linear-gradient(135deg,#2196F3,#0d47a1);color:#fff;padding:10px 20px;border-radius:10px;text-decoration:none;font-size:14px;font-weight:600;">
-            <i class="fa fa-shopping-bag"></i> Explorer les produits
-        </a>
-        <a href="{{ path('client_reservations') }}" style="background:linear-gradient(135deg,#4CAF50,#1b5e20);color:#fff;padding:10px 20px;border-radius:10px;text-decoration:none;font-size:14px;font-weight:600;">
-            <i class="fa fa-calendar-plus-o"></i> Mes réservations
-        </a>
-        <a href="{{ path('app_profile') }}" style="background:linear-gradient(135deg,#607D8B,#263238);color:#fff;padding:10px 20px;border-radius:10px;text-decoration:none;font-size:14px;font-weight:600;">
-            <i class="fa fa-user"></i> Mon profil
-        </a>
-    </div>
-</div>
-
-<!-- Recent Articles -->
-<div class="dash_card">
-    <div class="dash_card_title"><i class="fa fa-newspaper-o"></i> Articles récents</div>
-    <div class="article_grid">
-        {% for article in recent_articles %}
-        <div class="article_card">
-            <div class="article_img">
-                {% if article.image %}
-                    <img src="{{ article.image }}" alt="{{ article.titre }}" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
-                    <div class="article_img_placeholder" style="display:none"><i class="fa fa-image"></i></div>
-                {% else %}
-                    <div class="article_img_placeholder"><i class="fa fa-image"></i></div>
-                {% endif %}
-                {% if article.categorie %}
-                    <span class="article_cat">{{ article.categorie }}</span>
-                {% endif %}
+    <div class="dashboard_hero">
+        <div class="dashboard_hero_content">
+            <h1>Mon Dashboard</h1>
+            <p>Bienvenue, {{ app.user.fullName }} ! Voici votre espace personnel.</p>
+            <div class="button home_slider_button">
+                <div class="button_bcg"></div>
+                <a href="{{ path('client_produits') }}">Explorer<span></span><span></span><span></span></a>
             </div>
-            <div class="article_body">
-                <div class="article_title">{{ article.titre }}</div>
-                <div class="article_meta">
-                    {% if article.region %}<span><i class="fa fa-map-marker"></i> {{ article.region }}</span>{% endif %}
-                    {% if article.datePublication %}<span><i class="fa fa-clock-o"></i> {{ article.datePublication|date('d/m/Y') }}</span>{% endif %}
+        </div>
+    </div>
+
+    <div class="container stats_row">
+        <div class="row">
+            <div class="col-lg-3 col-md-6 mb-4">
+                <div class="stat_card">
+                    <div class="stat_num">{{ my_reservations|length }}</div>
+                    <div class="stat_label"><i class="fa fa-calendar"></i> Réservations</div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6 mb-4">
+                <div class="stat_card">
+                    <div class="stat_num">{{ my_commandes|length }}</div>
+                    <div class="stat_label"><i class="fa fa-shopping-cart"></i> Commandes</div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6 mb-4">
+                <div class="stat_card">
+                    <div class="stat_num">{{ recent_articles|length }}</div>
+                    <div class="stat_label"><i class="fa fa-newspaper-o"></i> Articles</div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6 mb-4">
+                <div class="stat_card">
+                    <div class="stat_num">{{ my_reclamations|length }}</div>
+                    <div class="stat_label"><i class="fa fa-exclamation-circle"></i> Réclamations</div>
                 </div>
             </div>
         </div>
-        {% else %}
-        <div class="empty_state" style="grid-column:1/-1"><i class="fa fa-newspaper-o"></i> Aucun article disponible</div>
-        {% endfor %}
     </div>
-</div>
 
-{% if my_reclamations|length > 0 %}
-<div class="dash_card">
-    <div class="dash_card_title"><i class="fa fa-exclamation-circle"></i> Mes dernières réclamations</div>
-    <table class="data_table">
-        <thead><tr><th>Sujet</th><th>Type</th><th>Statut</th><th>Date</th></tr></thead>
-        <tbody>
-            {% for rec in my_reclamations %}
-            <tr>
-                <td>{{ rec.sujet ?? 'Sans sujet' }}</td>
-                <td>{{ rec.typeReclamation ?? '-' }}</td>
-                <td><span class="badge_s badge_pending">{{ rec.statut }}</span></td>
-                <td>{{ rec.dateReclamation ? rec.dateReclamation|date('d/m/Y') : '-' }}</td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-</div>
-{% endif %}
+    <div class="dashboard_section">
+        <div class="container">
+
+            <div class="dash_block">
+                <div class="dash_title">Actions rapides</div>
+                <div class="quick_actions">
+                    <a href="{{ path('client_articles') }}" class="quick_btn">
+                        <i class="fa fa-newspaper-o"></i> Voir les articles
+                    </a>
+                    <a href="{{ path('client_produits') }}" class="quick_btn">
+                        <i class="fa fa-shopping-bag"></i> Explorer les produits
+                    </a>
+                    <a href="{{ path('client_reservations') }}" class="quick_btn">
+                        <i class="fa fa-calendar-plus-o"></i> Mes réservations
+                    </a>
+                    <a href="{{ path('app_profile') }}" class="quick_btn">
+                        <i class="fa fa-user"></i> Mon profil
+                    </a>
+                </div>
+            </div>
+
+            <div class="dash_block">
+                <div class="dash_title">Articles récents</div>
+                <div class="row">
+                    {% for article in recent_articles %}
+                        <div class="col-lg-4 col-md-6">
+                            <div class="article_card_custom">
+                                <div class="article_img_custom">
+                                    {% if article.image %}
+                                        <img src="{{ article.image }}" alt="{{ article.titre }}" onerror="this.style.display='none'; this.parentNode.querySelector('.article_placeholder').style.display='flex';">
+                                        <div class="article_placeholder" style="display:none;">
+                                            <i class="fa fa-image"></i>
+                                        </div>
+                                    {% else %}
+                                        <div class="article_placeholder">
+                                            <i class="fa fa-image"></i>
+                                        </div>
+                                    {% endif %}
+
+                                    {% if article.categorie %}
+                                        <span class="article_cat">{{ article.categorie }}</span>
+                                    {% endif %}
+                                </div>
+
+                                <div class="article_body_custom">
+                                    <div class="article_title_custom">{{ article.titre }}</div>
+                                    <div class="article_meta_custom">
+                                        {% if article.region %}
+                                            <span><i class="fa fa-map-marker"></i> {{ article.region }}</span>
+                                        {% endif %}
+                                        {% if article.datePublication %}
+                                            <span><i class="fa fa-clock-o"></i> {{ article.datePublication|date('d/m/Y') }}</span>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    {% else %}
+                        <div class="col-12">
+                            <div class="empty_state_custom">
+                                <i class="fa fa-newspaper-o"></i> Aucun article disponible
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            {% if my_reclamations|length > 0 %}
+                <div class="dash_block">
+                    <div class="dash_title">Mes dernières réclamations</div>
+                    <div class="table-responsive">
+                        <table class="reclamation_table">
+                            <thead>
+                                <tr>
+                                    <th>Sujet</th>
+                                    <th>Type</th>
+                                    <th>Statut</th>
+                                    <th>Date</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for rec in my_reclamations %}
+                                    <tr>
+                                        <td>{{ rec.sujet ?? 'Sans sujet' }}</td>
+                                        <td>{{ rec.typeReclamation ?? '-' }}</td>
+                                        <td><span class="badge_pending">{{ rec.statut }}</span></td>
+                                        <td>{{ rec.dateReclamation ? rec.dateReclamation|date('d/m/Y') : '-' }}</td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            {% endif %}
+
+        </div>
+    </div>
+
 {% endblock %}
