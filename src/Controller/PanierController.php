@@ -37,7 +37,7 @@ final class PanierController extends AbstractController
                 continue;
             }
 
-            $lineTotal = (float)$ligne->getPrixUnitaire() * $ligne->getQuantite();
+            $lineTotal = (float) $ligne->getPrixUnitaire() * $ligne->getQuantite();
             $subtotal += $lineTotal;
 
             $cartItems[] = [
@@ -103,6 +103,52 @@ final class PanierController extends AbstractController
         }
 
         return $this->redirectToRoute('produit_details', ['id' => $produit->getId()]);
+    }
+
+    #[IsGranted('ROLE_USER')]
+    #[Route('/panier/increase/{id}', name: 'panier_increase', methods: ['POST'])]
+    public function increase(
+        int $id,
+        PanierRepository $panierRepository,
+        EntityManagerInterface $em
+    ): Response {
+        /** @var \App\Entity\Utilisateur $user */
+        $user = $this->getUser();
+
+        $ligne = $panierRepository->find($id);
+
+        if (!$ligne || $ligne->getIdUser() !== $user->getId()) {
+            throw $this->createNotFoundException('Ligne panier introuvable.');
+        }
+
+        $ligne->setQuantite($ligne->getQuantite() + 1);
+        $em->flush();
+
+        return $this->redirectToRoute('app_panier');
+    }
+
+    #[IsGranted('ROLE_USER')]
+    #[Route('/panier/decrease/{id}', name: 'panier_decrease', methods: ['POST'])]
+    public function decrease(
+        int $id,
+        PanierRepository $panierRepository,
+        EntityManagerInterface $em
+    ): Response {
+        /** @var \App\Entity\Utilisateur $user */
+        $user = $this->getUser();
+
+        $ligne = $panierRepository->find($id);
+
+        if (!$ligne || $ligne->getIdUser() !== $user->getId()) {
+            throw $this->createNotFoundException('Ligne panier introuvable.');
+        }
+
+        if ($ligne->getQuantite() > 1) {
+            $ligne->setQuantite($ligne->getQuantite() - 1);
+            $em->flush();
+        }
+
+        return $this->redirectToRoute('app_panier');
     }
 
     #[IsGranted('ROLE_USER')]
