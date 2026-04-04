@@ -1,0 +1,88 @@
+{% extends 'base.html.twig' %}
+{% block title %}Mon Profil - WinGo{% endblock %}
+
+{% block stylesheets %}
+<link rel="stylesheet" type="text/css" href="{{ asset('styles/main_styles.css') }}">
+<style>
+    .profile_section { min-height: 80vh; padding-top: 200px; padding-bottom: 60px; background: #f8f9fa; }
+    .profile_card { background: #fff; border-radius: 20px; box-shadow: 0 8px 30px rgba(0,0,0,0.08); overflow: hidden; }
+    .profile_header { background: linear-gradient(135deg, #1a1a2e 0%, #0f3460 100%); padding: 40px; color: #fff; text-align: center; position: relative; }
+    .profile_avatar { width: 90px; height: 90px; border-radius: 50%; background: linear-gradient(135deg, #fa9e1b, #8d4fff); display: flex; align-items: center; justify-content: center; font-size: 36px; font-weight: 800; color: #fff; margin: 0 auto 16px; border: 4px solid rgba(255,255,255,0.2); }
+    .profile_name { font-size: 24px; font-weight: 700; margin-bottom: 6px; }
+    .profile_role { font-size: 13px; background: #fa9e1b; padding: 3px 14px; border-radius: 20px; display: inline-block; }
+    .profile_body { padding: 36px; }
+    .info_grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 20px; margin-bottom: 30px; }
+    .info_item { background: #f8f9fa; border-radius: 12px; padding: 18px; }
+    .info_label { font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: #aaa; margin-bottom: 6px; font-weight: 600; }
+    .info_value { font-size: 15px; font-weight: 600; color: #333; }
+    .profile_actions { display: flex; gap: 12px; flex-wrap: wrap; }
+    .btn_primary { background: linear-gradient(135deg, #fa9e1b, #8d4fff); color: #fff; padding: 12px 24px; border-radius: 10px; text-decoration: none; font-weight: 600; font-size: 14px; border: none; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; }
+    .btn_primary:hover { opacity: 0.9; color: #fff; }
+    .btn_outline { background: #fff; color: #333; padding: 12px 24px; border-radius: 10px; text-decoration: none; font-weight: 600; font-size: 14px; border: 2px solid #e8e8e8; display: inline-flex; align-items: center; gap: 8px; }
+    .btn_outline:hover { border-color: #fa9e1b; color: #fa9e1b; }
+    .flash_success { background: #e8f5e9; border-left: 4px solid #4CAF50; color: #2e7d32; padding: 14px 18px; border-radius: 8px; margin-bottom: 20px; }
+    .bio_box { background: #f8f9fa; border-radius: 12px; padding: 18px; margin-bottom: 24px; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="profile_section">
+    <div class="container">
+        {% for message in app.flashes('success') %}
+            <div class="flash_success" style="margin-bottom:20px"><i class="fa fa-check-circle"></i> {{ message }}</div>
+        {% endfor %}
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <div class="profile_card">
+                    <div class="profile_header">
+                        <div class="profile_avatar">{{ user.prenom|first|upper }}</div>
+                        <div class="profile_name">{{ user.fullName }}</div>
+                        <div class="profile_role">{{ user.type ?? 'CLIENT' }}</div>
+                    </div>
+                    <div class="profile_body">
+                        {% if profil and profil.bio %}
+                        <div class="bio_box">
+                            <div class="info_label">Bio</div>
+                            <p style="color:#555;margin:0;line-height:1.6;">{{ profil.bio }}</p>
+                        </div>
+                        {% endif %}
+
+                        <div class="info_grid">
+                            <div class="info_item">
+                                <div class="info_label"><i class="fa fa-user"></i> Prénom</div>
+                                <div class="info_value">{{ user.prenom }}</div>
+                            </div>
+                            <div class="info_item">
+                                <div class="info_label"><i class="fa fa-user"></i> Nom</div>
+                                <div class="info_value">{{ user.nom }}</div>
+                            </div>
+                            <div class="info_item">
+                                <div class="info_label"><i class="fa fa-envelope"></i> Email</div>
+                                <div class="info_value">{{ user.email }}</div>
+                            </div>
+                            <div class="info_item">
+                                <div class="info_label"><i class="fa fa-phone"></i> Téléphone</div>
+                                <div class="info_value">{{ user.telephone ?? 'Non renseigné' }}</div>
+                            </div>
+                            <div class="info_item">
+                                <div class="info_label"><i class="fa fa-birthday-cake"></i> Âge</div>
+                                <div class="info_value">{{ user.age ? user.age ~ ' ans' : 'Non renseigné' }}</div>
+                            </div>
+                            <div class="info_item">
+                                <div class="info_label"><i class="fa fa-check-circle"></i> Vérifié</div>
+                                <div class="info_value">{{ user.isVerified ? 'Oui' : 'Non' }}</div>
+                            </div>
+                        </div>
+
+                        <div class="profile_actions">
+                            <a href="{{ path('app_profile_edit') }}" class="btn_primary"><i class="fa fa-edit"></i> Modifier le profil</a>
+                            <a href="{{ path('app_profile_password') }}" class="btn_outline"><i class="fa fa-lock"></i> Changer le mot de passe</a>
+                            <a href="{{ path(user.isAdmin ? 'admin_dashboard' : 'client_dashboard') }}" class="btn_outline"><i class="fa fa-tachometer"></i> Mon dashboard</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

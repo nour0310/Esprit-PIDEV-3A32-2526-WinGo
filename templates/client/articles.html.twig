@@ -1,0 +1,35 @@
+{% extends 'client/base_client.html.twig' %}
+{% block title %}Articles - WinGo{% endblock %}
+{% block page_title %}Articles & Actualités{% endblock %}
+
+{% block content %}
+<div class="article_grid">
+    {% for article in articles %}
+    <div class="article_card">
+        <div class="article_img">
+            {% if article.image %}
+                <img src="{{ article.image }}" alt="{{ article.titre }}" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+                <div class="article_img_placeholder" style="display:none"><i class="fa fa-image"></i></div>
+            {% else %}
+                <div class="article_img_placeholder"><i class="fa fa-image"></i></div>
+            {% endif %}
+            {% if article.categorie %}
+                <span class="article_cat">{{ article.categorie }}</span>
+            {% endif %}
+        </div>
+        <div class="article_body">
+            <div class="article_title">{{ article.titre }}</div>
+            {% if article.contenu %}
+                <p style="font-size:13px;color:#777;margin:8px 0;line-height:1.5;">{{ article.contenu|slice(0,120) }}{% if article.contenu|length > 120 %}...{% endif %}</p>
+            {% endif %}
+            <div class="article_meta">
+                {% if article.region %}<span><i class="fa fa-map-marker"></i> {{ article.region }}</span>{% endif %}
+                {% if article.datePublication %}<span><i class="fa fa-clock-o"></i> {{ article.datePublication|date('d/m/Y') }}</span>{% endif %}
+            </div>
+        </div>
+    </div>
+    {% else %}
+    <div class="empty_state" style="grid-column:1/-1"><i class="fa fa-newspaper-o"></i> Aucun article disponible</div>
+    {% endfor %}
+</div>
+{% endblock %}

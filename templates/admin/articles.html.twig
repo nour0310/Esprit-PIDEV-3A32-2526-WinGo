@@ -1,0 +1,35 @@
+{% extends 'admin/base_admin.html.twig' %}
+{% block title %}Articles - Admin WinGo{% endblock %}
+{% block page_title %}Gestion des Articles{% endblock %}
+
+{% block content %}
+<div class="data_card">
+    <div class="data_card_header">
+        <div class="data_card_title"><i class="fa fa-newspaper-o" style="color:#fa9e1b"></i> Articles ({{ articles|length }})</div>
+    </div>
+    <table>
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>Titre</th>
+                <th>Région</th>
+                <th>Catégorie</th>
+                <th>Date de publication</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for article in articles %}
+            <tr>
+                <td>{{ article.id }}</td>
+                <td><strong>{{ article.titre }}</strong></td>
+                <td>{{ article.region ?? '-' }}</td>
+                <td>{{ article.categorie ?? '-' }}</td>
+                <td>{{ article.datePublication ? article.datePublication|date('d/m/Y H:i') : '-' }}</td>
+            </tr>
+            {% else %}
+            <tr><td colspan="5" style="text-align:center;color:#aaa;padding:40px;">Aucun article</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}
