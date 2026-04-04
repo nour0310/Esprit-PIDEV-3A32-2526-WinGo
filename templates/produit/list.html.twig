@@ -11,6 +11,7 @@
         }
 
         .product_card{
+            position: relative;
             background: #ffffff;
             border-radius: 18px;
             overflow: hidden;
@@ -22,6 +23,7 @@
 
         .product_card:hover{
             transform: translateY(-6px);
+            box-shadow: 0 18px 35px rgba(0,0,0,0.14);
         }
 
         .product_img_wrap{
@@ -39,12 +41,13 @@
         .product_overlay{
             position: absolute;
             inset: 0;
-            background: rgba(20, 20, 35, 0.45);
+            background: rgba(20, 20, 35, 0.50);
             display: flex;
             align-items: center;
             justify-content: center;
             opacity: 0;
             transition: 0.3s ease;
+            z-index: 5;
         }
 
         .product_card:hover .product_overlay{
