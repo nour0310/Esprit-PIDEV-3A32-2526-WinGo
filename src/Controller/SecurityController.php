@@ -10,6 +10,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
+use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
 class SecurityController extends AbstractController
 {
@@ -30,8 +31,12 @@ class SecurityController extends AbstractController
     }
 
     #[Route('/register', name: 'app_register')]
-    public function register(Request $request, EntityManagerInterface $em, UtilisateurRepository $repo): Response
-    {
+    public function register(
+        Request $request,
+        EntityManagerInterface $em,
+        UtilisateurRepository $repo,
+        UserPasswordHasherInterface $passwordHasher
+    ): Response {
         if ($this->getUser()) {
             return $this->redirectToRoute('app_dashboard_redirect');
         }
@@ -55,10 +60,12 @@ class SecurityController extends AbstractController
                 $user->setNom($nom);
                 $user->setPrenom($prenom);
                 $user->setEmail($email);
-                $user->setMotDePasse($password);
                 $user->setType('CLIENT');
                 $user->setTelephone($telephone ? (int) $telephone : null);
                 $user->setAge($age ? (int) $age : null);
+
+                $hashedPassword = $passwordHasher->hashPassword($user, $password);
+                $user->setMotDePasse($hashedPassword);
 
                 $em->persist($user);
                 $em->flush();
