@@ -1,40 +1,361 @@
-{% extends 'client/base_client.html.twig' %}
+{% extends 'base.html.twig' %}
+
 {% block title %}Produits - WinGo{% endblock %}
-{% block page_title %}Boutique WinGo{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <style>
+        .client_products_section {
+            padding-top: 70px;
+            padding-bottom: 90px;
+            background: #f3f6f9;
+        }
+
+        .client_products_box {
+            background: #ffffff;
+            border-radius: 18px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.06);
+            padding: 35px;
+            margin-bottom: 35px;
+        }
+
+        .client_products_title {
+            font-size: 30px;
+            font-weight: 700;
+            color: #2d2c2c;
+            margin-bottom: 10px;
+        }
+
+        .client_products_subtitle {
+            color: #777;
+            margin-bottom: 0;
+            font-size: 15px;
+        }
+
+        .client_product_card {
+            background: #ffffff;
+            border-radius: 18px;
+            overflow: hidden;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+            margin-bottom: 30px;
+            transition: 0.3s ease;
+            height: 100%;
+        }
+
+        .client_product_card:hover {
+            transform: translateY(-6px);
+        }
+
+        .client_product_img {
+            height: 240px;
+            position: relative;
+            background: linear-gradient(to right, #6a85f1, #8d4fff);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        .client_product_img img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .client_product_placeholder {
+            color: rgba(255,255,255,0.75);
+            font-size: 54px;
+        }
+
+        .client_product_cat {
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            background: #fa9e1b;
+            color: #fff;
+            font-size: 12px;
+            font-weight: 700;
+            padding: 6px 12px;
+            border-radius: 20px;
+            text-transform: uppercase;
+        }
+
+        .client_product_body {
+            padding: 22px;
+        }
+
+        .client_product_title {
+            font-size: 24px;
+            font-weight: 700;
+            color: #2d2c2c;
+            margin-bottom: 10px;
+        }
+
+        .client_product_desc {
+            font-size: 14px;
+            color: #777;
+            line-height: 1.7;
+            margin-bottom: 14px;
+            min-height: 70px;
+        }
+
+        .client_product_price {
+            font-size: 24px;
+            font-weight: 800;
+            background: linear-gradient(to right, #fa9e1b, #8d4fff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .client_product_meta {
+            margin-top: 10px;
+            color: #929191;
+            font-size: 14px;
+            display: flex;
+            gap: 14px;
+            flex-wrap: wrap;
+        }
+
+        .client_stock_badge {
+            display: inline-block;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .client_stock_ok {
+            background: rgba(76, 175, 80, 0.14);
+            color: #2e7d32;
+        }
+
+        .client_stock_empty {
+            background: rgba(244, 67, 54, 0.12);
+            color: #c62828;
+        }
+
+        .client_empty_state {
+            padding: 50px 20px;
+            text-align: center;
+            color: #999;
+            font-size: 18px;
+            background: #f8f8f8;
+            border-radius: 16px;
+        }
+    </style>
+{% endblock %}
 
 {% block content %}
-<div class="article_grid">
-    {% for p in produits %}
-    <div class="article_card">
-        <div class="article_img" style="background:linear-gradient(135deg,#fa9e1b33,#8d4fff33)">
-            {% if p.image %}
-                <img src="{{ p.image }}" alt="{{ p.nom }}" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
-                <div class="article_img_placeholder" style="display:none"><i class="fa fa-shopping-bag"></i></div>
-            {% else %}
-                <div class="article_img_placeholder"><i class="fa fa-shopping-bag"></i></div>
-            {% endif %}
-            {% if p.categorie %}
-                <span class="article_cat">{{ p.categorie }}</span>
-            {% endif %}
-        </div>
-        <div class="article_body">
-            <div class="article_title">{{ p.nom }}</div>
-            {% if p.description %}
-                <p style="font-size:13px;color:#777;margin:8px 0;line-height:1.5;">{{ p.description|slice(0,100) }}{% if p.description|length > 100 %}...{% endif %}</p>
-            {% endif %}
-            <div style="display:flex;justify-content:space-between;align-items:center;margin-top:12px;">
-                <div style="font-size:20px;font-weight:800;background:linear-gradient(135deg,#fa9e1b,#8d4fff);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">{{ p.prix }} TND</div>
-                <span class="badge_s {% if p.stock > 0 %}badge_done{% else %}badge_pending{% endif %}">
-                    {% if p.stock > 0 %}En stock ({{ p.stock }}){% else %}Rupture{% endif %}
-                </span>
+
+    <!-- même design home page -->
+    <div class="home">
+        <div class="home_slider_container">
+            <div class="owl-carousel owl-theme home_slider">
+
+                <div class="owl-item home_slider_item">
+                    <div class="home_slider_background" style="background-image:url({{ asset('images/sidibou.jpg') }})"></div>
+                    <div class="home_slider_content text-center">
+                        <div class="home_slider_content_inner" data-animation-in="flipInX" data-animation-out="animate-out fadeOut">
+                            <h1>Nos</h1>
+                            <h1>Produits</h1>
+                            <div style="color:#fff;font-size:22px;margin-top:10px;">
+                                Découvrez la boutique WinGo
+                            </div>
+                            <div class="button home_slider_button" style="margin-top:25px;">
+                                <div class="button_bcg"></div>
+                                <a href="#liste-produits">
+                                    explorer
+                                    <span></span><span></span><span></span>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="owl-item home_slider_item">
+                    <div class="home_slider_background" style="background-image:url({{ asset('images/sidibou.jpg') }})"></div>
+                    <div class="home_slider_content text-center">
+                        <div class="home_slider_content_inner" data-animation-in="flipInX" data-animation-out="animate-out fadeOut">
+                            <h1>{{ produits|length }}</h1>
+                            <h1>Produits</h1>
+                            <div class="button home_slider_button" style="margin-top:25px;">
+                                <div class="button_bcg"></div>
+                                <a href="#liste-produits">
+                                    voir plus
+                                    <span></span><span></span><span></span>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="owl-item home_slider_item">
+                    <div class="home_slider_background" style="background-image:url({{ asset('images/sidibou.jpg') }})"></div>
+                    <div class="home_slider_content text-center">
+                        <div class="home_slider_content_inner" data-animation-in="flipInX" data-animation-out="animate-out fadeOut">
+                            <h1>WinGo</h1>
+                            <h1>Boutique</h1>
+                            <div class="button home_slider_button" style="margin-top:25px;">
+                                <div class="button_bcg"></div>
+                                <a href="{{ path('client_dashboard') }}">
+                                    dashboard
+                                    <span></span><span></span><span></span>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
             </div>
-            {% if p.region %}
-                <div class="article_meta" style="margin-top:8px;"><span><i class="fa fa-map-marker"></i> {{ p.region }}</span></div>
-            {% endif %}
+
+            <div class="home_slider_nav home_slider_prev">
+                <svg version="1.1" xmlns="http://www.w3.org/2000/svg" width="28px" height="33px" viewBox="0 0 28 33" enable-background="new 0 0 28 33" xml:space="preserve">
+                    <defs><linearGradient id='home_grad_prev_products'><stop offset='0%' stop-color='#fa9e1b'/><stop offset='100%' stop-color='#8d4fff'/></linearGradient></defs>
+                    <path class="nav_path" fill="#F3F6F9" d="M19,0H9C4.029,0,0,4.029,0,9v15c0,4.971,4.029,9,9,9h10c4.97,0,9-4.029,9-9V9C28,4.029,23.97,0,19,0z M26,23.091C26,27.459,22.545,31,18.285,31H9.714C5.454,31,2,27.459,2,23.091V9.909C2,5.541,5.454,2,9.714,2h8.571C22.545,2,26,5.541,26,9.909V23.091z"/>
+                    <polygon class="nav_arrow" fill="#F3F6F9" points="15.044,22.222 16.377,20.888 12.374,16.885 16.377,12.882 15.044,11.55 9.708,16.885 11.04,18.219 11.042,18.219"/>
+                </svg>
+            </div>
+
+            <div class="home_slider_nav home_slider_next">
+                <svg version="1.1" xmlns="http://www.w3.org/2000/svg" width="28px" height="33px" viewBox="0 0 28 33" enable-background="new 0 0 28 33" xml:space="preserve">
+                    <defs><linearGradient id='home_grad_next_products'><stop offset='0%' stop-color='#fa9e1b'/><stop offset='100%' stop-color='#8d4fff'/></linearGradient></defs>
+                    <path class="nav_path" fill="#F3F6F9" d="M19,0H9C4.029,0,0,4.029,0,9v15c0,4.971,4.029,9,9,9h10c4.97,0,9-4.029,9-9V9C28,4.029,23.97,0,19,0z M26,23.091C26,27.459,22.545,31,18.285,31H9.714C5.454,31,2,27.459,2,23.091V9.909C2,5.541,5.454,2,9.714,2h8.571C22.545,2,26,5.541,26,9.909V23.091z"/>
+                    <polygon class="nav_arrow" fill="#F3F6F9" points="13.044,11.551 11.71,12.885 15.714,16.888 11.71,20.891 13.044,22.224 18.379,16.888 17.048,15.554 17.046,15.554"/>
+                </svg>
+            </div>
+
+            <div class="home_slider_dots">
+                <ul id="home_slider_custom_dots" class="home_slider_custom_dots">
+                    <li class="home_slider_custom_dot active"><div></div>01.</li>
+                    <li class="home_slider_custom_dot"><div></div>02.</li>
+                    <li class="home_slider_custom_dot"><div></div>03.</li>
+                </ul>
+            </div>
         </div>
     </div>
-    {% else %}
-    <div class="empty_state" style="grid-column:1/-1"><i class="fa fa-shopping-bag"></i> Aucun produit disponible</div>
-    {% endfor %}
-</div>
+
+    <!-- même barre style home -->
+    <div class="search">
+        <div class="container fill_height">
+            <div class="row fill_height">
+                <div class="col fill_height">
+
+                    <div class="search_tabs_container">
+                        <div class="search_tabs d-flex flex-lg-row flex-column align-items-lg-center align-items-start justify-content-lg-between justify-content-start">
+                            <div class="search_tab active d-flex flex-row align-items-center justify-content-lg-center justify-content-start">
+                                <img src="{{ asset('images/suitcase.png') }}" alt="">boutique
+                            </div>
+                            <div class="search_tab d-flex flex-row align-items-center justify-content-lg-center justify-content-start">
+                                <img src="{{ asset('images/bus.png') }}" alt="">articles
+                            </div>
+                            <div class="search_tab d-flex flex-row align-items-center justify-content-lg-center justify-content-start">
+                                <img src="{{ asset('images/departure.png') }}" alt="">dashboard
+                            </div>
+                            <div class="search_tab d-flex flex-row align-items-center justify-content-lg-center justify-content-start">
+                                <img src="{{ asset('images/island.png') }}" alt="">réservations
+                            </div>
+                            <div class="search_tab d-flex flex-row align-items-center justify-content-lg-center justify-content-start">
+                                <img src="{{ asset('images/cruise.png') }}" alt="">réclamations
+                            </div>
+                            <div class="search_tab d-flex flex-row align-items-center justify-content-lg-center justify-content-start">
+                                <img src="{{ asset('images/diving.png') }}" alt="">profil
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="search_panel active">
+                        <div class="search_panel_content d-flex flex-lg-row flex-column align-items-lg-center align-items-start justify-content-lg-between justify-content-start">
+                            <div class="search_item">
+                                <div>produits</div>
+                                <input type="text" class="destination search_input" value="{{ produits|length }} produits" readonly>
+                            </div>
+                            <div class="search_item">
+                                <div>disponibilité</div>
+                                <input type="text" class="check_in search_input" value="Boutique WinGo" readonly>
+                            </div>
+                            <div class="search_item">
+                                <div>navigation</div>
+                                <input type="text" class="check_out search_input" value="Espace client" readonly>
+                            </div>
+                            <div class="search_item">
+                                <div>section</div>
+                                <input type="text" class="check_out search_input" value="Produits" readonly>
+                            </div>
+                            <a href="{{ path('client_dashboard') }}" class="button search_button" style="display:inline-block;text-align:center;line-height:46px;">
+                                retour<span></span><span></span><span></span>
+                            </a>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="client_products_section" id="liste-produits">
+        <div class="container">
+
+            <div class="client_products_box text-center">
+                <div class="client_products_title">Boutique WinGo</div>
+                <p class="client_products_subtitle">Bonjour, {{ app.user.fullName }}. Découvrez nos produits disponibles.</p>
+            </div>
+
+            <div class="row">
+                {% for p in produits %}
+                    <div class="col-lg-4 col-md-6">
+                        <div class="client_product_card">
+                            <div class="client_product_img">
+                                {% if p.image %}
+                                    <img src="{{ p.image }}" alt="{{ p.nom }}" onerror="this.style.display='none'; this.parentNode.querySelector('.client_product_placeholder').style.display='flex';">
+                                    <div class="client_product_placeholder" style="display:none"><i class="fa fa-shopping-bag"></i></div>
+                                {% else %}
+                                    <div class="client_product_placeholder"><i class="fa fa-shopping-bag"></i></div>
+                                {% endif %}
+
+                                {% if p.categorie %}
+                                    <span class="client_product_cat">{{ p.categorie }}</span>
+                                {% endif %}
+                            </div>
+
+                            <div class="client_product_body">
+                                <div class="client_product_title">{{ p.nom }}</div>
+
+                                {% if p.description %}
+                                    <div class="client_product_desc">
+                                        {{ p.description|slice(0, 100) }}{% if p.description|length > 100 %}...{% endif %}
+                                    </div>
+                                {% else %}
+                                    <div class="client_product_desc">Pas de description disponible.</div>
+                                {% endif %}
+
+                                <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;">
+                                    <div class="client_product_price">{{ p.prix }} TND</div>
+
+                                    {% if p.stock > 0 %}
+                                        <span class="client_stock_badge client_stock_ok">En stock ({{ p.stock }})</span>
+                                    {% else %}
+                                        <span class="client_stock_badge client_stock_empty">Rupture</span>
+                                    {% endif %}
+                                </div>
+
+                                <div class="client_product_meta">
+                                    {% if p.region %}
+                                        <span><i class="fa fa-map-marker"></i> {{ p.region }}</span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {% else %}
+                    <div class="col-12">
+                        <div class="client_empty_state">
+                            <i class="fa fa-shopping-bag"></i> Aucun produit disponible
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+
+        </div>
+    </div>
+
 {% endblock %}
