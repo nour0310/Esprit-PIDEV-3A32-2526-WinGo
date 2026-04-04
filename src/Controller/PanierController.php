@@ -7,6 +7,7 @@ use App\Repository\PanierRepository;
 use App\Repository\ProduitRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
@@ -86,7 +87,6 @@ final class PanierController extends AbstractController
         if ($existing) {
             $existing->setQuantite($existing->getQuantite() + 1);
             $em->flush();
-
             $this->addFlash('success', 'Quantité mise à jour dans le panier.');
         } else {
             $panier = new Panier();
@@ -111,20 +111,20 @@ final class PanierController extends AbstractController
         int $id,
         PanierRepository $panierRepository,
         EntityManagerInterface $em
-    ): Response {
+    ): JsonResponse {
         /** @var \App\Entity\Utilisateur $user */
         $user = $this->getUser();
 
         $ligne = $panierRepository->find($id);
 
         if (!$ligne || $ligne->getIdUser() !== $user->getId()) {
-            throw $this->createNotFoundException('Ligne panier introuvable.');
+            return $this->json(['success' => false, 'message' => 'Ligne panier introuvable.'], 404);
         }
 
         $ligne->setQuantite($ligne->getQuantite() + 1);
         $em->flush();
 
-        return $this->redirectToRoute('app_panier');
+        return $this->buildCartJson($panierRepository, $user->getId(), $ligne);
     }
 
     #[IsGranted('ROLE_USER')]
@@ -133,22 +133,30 @@ final class PanierController extends AbstractController
         int $id,
         PanierRepository $panierRepository,
         EntityManagerInterface $em
-    ): Response {
+    ): JsonResponse {
         /** @var \App\Entity\Utilisateur $user */
         $user = $this->getUser();
 
         $ligne = $panierRepository->find($id);
 
         if (!$ligne || $ligne->getIdUser() !== $user->getId()) {
-            throw $this->createNotFoundException('Ligne panier introuvable.');
+            return $this->json(['success' => false, 'message' => 'Ligne panier introuvable.'], 404);
         }
 
         if ($ligne->getQuantite() > 1) {
             $ligne->setQuantite($ligne->getQuantite() - 1);
             $em->flush();
+
+            return $this->buildCartJson($panierRepository, $user->getId(), $ligne);
         }
 
-        return $this->redirectToRoute('app_panier');
+        return $this->json([
+            'success' => true,
+            'removed' => false,
+            'quantity' => $ligne->getQuantite(),
+            'lineTotal' => number_format((float)$ligne->getPrixUnitaire() * $ligne->getQuantite(), 2, '.', ''),
+            'summary' => $this->buildSummary($panierRepository, $user->getId()),
+        ]);
     }
 
     #[IsGranted('ROLE_USER')]
@@ -173,5 +181,40 @@ final class PanierController extends AbstractController
         $this->addFlash('success', 'Produit supprimé du panier.');
 
         return $this->redirectToRoute('app_panier');
+    }
+
+    private function buildCartJson(PanierRepository $panierRepository, int $userId, Panier $ligne): JsonResponse
+    {
+        return $this->json([
+            'success' => true,
+            'removed' => false,
+            'quantity' => $ligne->getQuantite(),
+            'lineTotal' => number_format((float)$ligne->getPrixUnitaire() * $ligne->getQuantite(), 2, '.', ''),
+            'summary' => $this->buildSummary($panierRepository, $userId),
+        ]);
+    }
+
+    private function buildSummary(PanierRepository $panierRepository, int $userId): array
+    {
+        $lignes = $panierRepository->findBy(['idUser' => $userId]);
+
+        $subtotal = 0.0;
+        $cartCount = count($lignes);
+
+        foreach ($lignes as $ligne) {
+            $subtotal += (float)$ligne->getPrixUnitaire() * $ligne->getQuantite();
+        }
+
+        $livraison = $cartCount > 0 ? 7.00 : 0.00;
+        $reduction = 0.00;
+        $total = $subtotal + $livraison - $reduction;
+
+        return [
+            'cartCount' => $cartCount,
+            'subtotal' => number_format($subtotal, 2, '.', ''),
+            'livraison' => number_format($livraison, 2, '.', ''),
+            'reduction' => number_format($reduction, 2, '.', ''),
+            'total' => number_format($total, 2, '.', ''),
+        ];
     }
 }
