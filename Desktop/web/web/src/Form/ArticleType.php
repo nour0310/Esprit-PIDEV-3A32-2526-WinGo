@@ -11,6 +11,8 @@ use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Validator\Constraints\NotBlank;
+use Symfony\Component\Validator\Constraints\Length;
+use Symfony\Component\Validator\Constraints\Regex;
 use Symfony\Component\Validator\Constraints\File;
 
 class ArticleType extends AbstractType
@@ -20,11 +22,21 @@ class ArticleType extends AbstractType
         $builder
             ->add('titre', TextType::class, [
                 'label' => 'Titre',
-                'attr' => ['placeholder' => 'Titre de l\'article']
+                'attr' => ['placeholder' => 'Titre de l\'article'],
+                'constraints' => [
+                    new NotBlank(['message' => 'Le titre est obligatoire']),
+                    new Length(['min' => 3, 'minMessage' => 'Le titre doit contenir au moins {{ limit }} caractères']),
+                    new Regex(['pattern' => '/^[a-zA-ZÀ-ÿ\s\.,!?\'-]+$/u', 'message' => 'Le titre ne doit pas contenir de chiffres'])
+                ]
             ])
             ->add('contenu', TextareaType::class, [
                 'label' => 'Contenu',
-                'attr' => ['rows' => 10]
+                'attr' => ['rows' => 10],
+                'constraints' => [
+                    new NotBlank(['message' => 'Le contenu est obligatoire']),
+                    new Length(['min' => 3, 'minMessage' => 'Le contenu doit contenir au moins {{ limit }} caractères']),
+                    new Regex(['pattern' => '/^[a-zA-ZÀ-ÿ\s\.,!?\'-]+$/u', 'message' => 'Le contenu ne doit pas contenir de chiffres'])
+                ]
             ])
             ->add('region', ChoiceType::class, [
                 'label' => 'Région',
@@ -55,6 +67,9 @@ class ArticleType extends AbstractType
                     'Kébili' => 'Kébili',
                 ],
                 'placeholder' => 'Choisissez une région',
+                'constraints' => [
+                    new NotBlank(['message' => 'Veuillez choisir une région'])
+                ]
             ])
             ->add('categorie', ChoiceType::class, [
                 'label' => 'Catégorie',
@@ -65,6 +80,9 @@ class ArticleType extends AbstractType
                     'Détente' => 'Détente',
                 ],
                 'placeholder' => 'Choisissez une catégorie',
+                'constraints' => [
+                    new NotBlank(['message' => 'Veuillez choisir une catégorie'])
+                ]
             ])
             ->add('image', FileType::class, [
                 'label' => 'Image (obligatoire)',
