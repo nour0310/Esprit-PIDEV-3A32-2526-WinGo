@@ -114,6 +114,16 @@
             text-decoration: none;
         }
 
+        .merchant_info_box{
+            margin-bottom: 25px;
+            padding: 16px 20px;
+            border-radius: 16px;
+            background: #f7f2ff;
+            border: 1px solid #e7dcff;
+            color: #5d4a9e;
+            font-weight: 600;
+        }
+
         @media (max-width: 767px){
             .product_form_box{
                 padding: 28px 20px;
@@ -138,31 +148,29 @@
                 <h1 class="product_form_title">Ajouter un produit</h1>
                 <p class="product_form_subtitle">Remplissez les informations du produit à publier sur Wingo</p>
 
+                <div class="merchant_info_box">
+                    Produit publié par : <strong>{{ app.user.fullName }}</strong>
+                </div>
+
                 {{ form_start(formProduit) }}
 
                     <div class="product_form_grid">
-                        <div>
-                            {{ form_label(formProduit.idUser) }}
-                            {{ form_widget(formProduit.idUser) }}
-                            {{ form_errors(formProduit.idUser) }}
-                        </div>
-
                         <div>
                             {{ form_label(formProduit.nom) }}
                             {{ form_widget(formProduit.nom) }}
                             {{ form_errors(formProduit.nom) }}
                         </div>
 
-                        <div class="product_full">
-                            {{ form_label(formProduit.description) }}
-                            {{ form_widget(formProduit.description) }}
-                            {{ form_errors(formProduit.description) }}
-                        </div>
-
                         <div>
                             {{ form_label(formProduit.prix) }}
                             {{ form_widget(formProduit.prix) }}
                             {{ form_errors(formProduit.prix) }}
+                        </div>
+
+                        <div class="product_full">
+                            {{ form_label(formProduit.description) }}
+                            {{ form_widget(formProduit.description) }}
+                            {{ form_errors(formProduit.description) }}
                         </div>
 
                         <div>
@@ -200,7 +208,7 @@
 
                 {{ form_end(formProduit) }}
 
-                <a href="{{ path('produit_list') }}" class="product_back_link">← Retour à la liste</a>
+                <a href="{{ path('merchant_dashboard') }}" class="product_back_link">← Retour au dashboard commerçant</a>
             </div>
         </div>
     </div>
