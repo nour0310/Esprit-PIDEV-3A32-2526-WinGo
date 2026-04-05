@@ -67,14 +67,6 @@ class Article
     public function getAuteur(): ?Utilisateur { return $this->auteur; }
     public function setAuteur(?Utilisateur $auteur): self { $this->auteur = $auteur; return $this; }
 
-    public function getImage(): ?string { return $this->image; }
-    public function setImage(?string $image): self { $this->image = $image; return $this; }
-
-    public function getRegion(): ?string { return $this->region; }
-    public function setRegion(?string $region): self { $this->region = $region; return $this; }
-
-    public function getCategorie(): ?string { return $this->categorie; }
-    public function setCategorie(?string $categorie): self { $this->categorie = $categorie; return $this; }
 
     /**
      * @return Collection<int, Commentaire>
