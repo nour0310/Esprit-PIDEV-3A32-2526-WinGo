@@ -85,11 +85,10 @@ class ArticleType extends AbstractType
                 ]
             ])
             ->add('image', FileType::class, [
-                'label' => 'Image (obligatoire)',
+                'label' => 'Image (laisser vide pour garder l\'actuelle)',
                 'mapped' => false,
-                'required' => true,
+                'required' => false,
                 'constraints' => [
-                    new NotBlank(['message' => 'Veuillez sélectionner une image']),
                     new File([
                         'maxSize' => '5M',
                     ])

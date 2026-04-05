@@ -214,6 +214,20 @@ class ArticleController extends AbstractController
     #[Route('/article/{id}/edit', name: 'app_article_edit')]
     public function edit(Request $request, Article $article, EntityManagerInterface $em): Response
     {
+        // S'assurer que les champs ne sont pas null pour éviter les erreurs de validation
+        if ($article->getTitre() === null) {
+            $article->setTitre('');
+        }
+        if ($article->getContenu() === null) {
+            $article->setContenu('');
+        }
+        if ($article->getRegion() === null) {
+            $article->setRegion('');
+        }
+        if ($article->getCategorie() === null) {
+            $article->setCategorie('');
+        }
+
         $form = $this->createForm(ArticleType::class, $article);
         $form->handleRequest($request);
 
