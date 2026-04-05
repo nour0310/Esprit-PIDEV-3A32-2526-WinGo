@@ -113,11 +113,12 @@
 	}
 	.back-link:hover { color: var(--form-accent); }
 	
-	/* Styles pour les erreurs de validation */
-	.error-text,
-	ul.help-block,
+	/* Styles pour les erreurs de validation Symfony */
 	.help-block,
-	.form-error-message {
+	.form-error-message,
+	ul.help-block li,
+	div.form-error-message,
+	[class*="error"] {
 		color: #dc3545 !important;
 		font-size: 0.85rem;
 		margin-top: 5px;
