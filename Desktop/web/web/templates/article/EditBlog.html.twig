@@ -156,9 +156,6 @@
 						<div class="alert alert-danger" role="alert">
 							<strong>Le formulaire contient des erreurs.</strong>
 							<ul class="mb-0 mt-2">
-								{% for error in form.vars.errors %}
-									<li>{{ error.message }}</li>
-								{% endfor %}
 								{% for child in form %}
 									{% for error in child.vars.errors %}
 										<li>{{ child.vars.label }} : {{ error.message }}</li>
@@ -167,7 +164,6 @@
 							</ul>
 						</div>
 						{% endif %}
-						{{ form_errors(form) }}
 						{{ form_start(form, {'attr': {'novalidate': 'novalidate', 'class': 'wingo-form', 'enctype': 'multipart/form-data'}}) }}
 							<div class="form-group-custom">
 								{{ form_label(form.titre, 'Titre de votre blog', {'label_attr': {'class': 'form-label'}}) }}
