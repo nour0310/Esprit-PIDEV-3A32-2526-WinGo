@@ -12,6 +12,18 @@ use Symfony\Component\Routing\Attribute\Route;
 
 class CommentaireController extends AbstractController
 {
+    // Afficher le formulaire d'édition (GET)
+    #[Route('/commentaire/{id}/edit', name: 'app_commentaire_edit_form', methods: ['GET'])]
+    public function editForm(Commentaire $commentaire): Response
+    {
+        $form = $this->createForm(CommentaireType::class, $commentaire);
+        return $this->render('commentaire/edit.html.twig', [
+            'commentaire' => $commentaire,
+            'form' => $form->createView(),
+        ]);
+    }
+
+    // Traiter la soumission du formulaire (POST)
     #[Route('/commentaire/{id}/edit', name: 'app_commentaire_edit', methods: ['POST'])]
     public function edit(Request $request, Commentaire $commentaire, EntityManagerInterface $em): Response
     {
@@ -19,6 +31,7 @@ class CommentaireController extends AbstractController
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
             $em->flush();
+            $this->addFlash('success', 'Commentaire modifié.');
         }
         return $this->redirectToRoute('app_article_show', ['id' => $commentaire->getArticle()->getId()]);
     }
