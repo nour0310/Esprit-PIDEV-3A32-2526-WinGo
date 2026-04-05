@@ -507,10 +507,12 @@
                                 <div class="cart_total_amount" id="total-value">{{ total|number_format(2, '.', '') }} DT</div>
                             </div>
 
-                            <a href="#" class="cart_btn cart_btn_primary">
-                                <i class="fa fa-credit-card"></i>
-                                Commander
-                            </a>
+                            <form method="post" action="{{ path('commande_valider') }}">
+    <button type="submit" class="cart_btn cart_btn_primary">
+        <i class="fa fa-credit-card"></i>
+        Commander
+    </button>
+</form>
 
                             <a href="{{ path('client_produits') }}" class="cart_btn cart_btn_soft">
                                 <i class="fa fa-arrow-left"></i>
