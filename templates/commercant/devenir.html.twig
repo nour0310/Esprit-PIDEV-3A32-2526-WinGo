@@ -1,0 +1,164 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Devenir commerçant{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <style>
+        .merchant_section{
+            padding:180px 0 90px 0;
+            background:
+                radial-gradient(circle at top left, rgba(141,79,255,0.10), transparent 28%),
+                radial-gradient(circle at top right, rgba(250,158,27,0.10), transparent 28%),
+                linear-gradient(180deg, #eef3f8 0%, #f7f9fc 100%);
+            min-height:100vh;
+        }
+
+        .merchant_box{
+            max-width:900px;
+            margin:0 auto;
+            background:#fff;
+            border-radius:28px;
+            padding:40px;
+            box-shadow:0 18px 45px rgba(25,30,70,0.10);
+        }
+
+        .merchant_title{
+            font-size:42px;
+            font-weight:900;
+            margin-bottom:10px;
+            background: linear-gradient(135deg, #1d2140 10%, #8d4fff 58%, #fa9e1b 100%);
+            -webkit-background-clip:text;
+            -webkit-text-fill-color:transparent;
+        }
+
+        .merchant_sub{
+            color:#71758a;
+            margin-bottom:30px;
+            line-height:1.8;
+        }
+
+        .status_box{
+            margin-bottom:25px;
+            padding:16px 20px;
+            border-radius:18px;
+            font-weight:700;
+        }
+
+        .status_wait{ background:#fff8e8; color:#a66a00; }
+        .status_ok{ background:#eefaf0; color:#2e7d32; }
+
+        .form_grid{
+            display:grid;
+            grid-template-columns:1fr 1fr;
+            gap:18px;
+        }
+
+        .form_label{
+            display:block;
+            font-weight:700;
+            margin-bottom:8px;
+            color:#1f2235;
+        }
+
+        .form_input{
+            width:100%;
+            border:1px solid #e3e7f1;
+            border-radius:16px;
+            padding:14px 16px;
+            font-size:15px;
+            outline:none;
+            background:#fbfcff;
+        }
+
+        .btn_gradient{
+            margin-top:24px;
+            display:inline-flex;
+            align-items:center;
+            gap:10px;
+            padding:14px 26px;
+            border:none;
+            border-radius:999px;
+            background: linear-gradient(135deg, #fa9e1b, #8d4fff);
+            color:#fff;
+            font-weight:800;
+            text-transform:uppercase;
+            cursor:pointer;
+        }
+
+        .flash_success{
+            margin-bottom:20px;
+            background:#eefaf0;
+            border:1px solid #cdebd3;
+            color:#2e7d32;
+            padding:14px 18px;
+            border-radius:16px;
+            font-weight:600;
+        }
+
+        @media (max-width: 768px){
+            .form_grid{ grid-template-columns:1fr; }
+            .merchant_box{ padding:24px; }
+            .merchant_title{ font-size:32px; }
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+<div class="merchant_section">
+    <div class="container">
+        <div class="merchant_box">
+
+            {% for message in app.flashes('success') %}
+                <div class="flash_success">{{ message }}</div>
+            {% endfor %}
+
+            <h1 class="merchant_title">Devenir commerçant</h1>
+            <p class="merchant_sub">
+                Vos informations actuelles sont déjà affichées. Modifiez-les seulement si vous voulez changer quelque chose avant d’envoyer votre demande.
+            </p>
+
+            {% if userData.type == 'EN_ATTENTE_COMMERCANT' %}
+                <div class="status_box status_wait">
+                    Votre demande est en attente de validation par l’administrateur.
+                </div>
+            {% elseif userData.type == 'COMMERCANT' %}
+                <div class="status_box status_ok">
+                    Votre compte est déjà validé comme commerçant.
+                </div>
+            {% endif %}
+
+            <form method="post">
+                <div class="form_grid">
+                    <div>
+                        <label class="form_label">Nom</label>
+                        <input type="text" name="nom" class="form_input" value="{{ userData.nom }}">
+                    </div>
+
+                    <div>
+                        <label class="form_label">Prénom</label>
+                        <input type="text" name="prenom" class="form_input" value="{{ userData.prenom }}">
+                    </div>
+
+                    <div>
+                        <label class="form_label">Email</label>
+                        <input type="email" name="email" class="form_input" value="{{ userData.email }}">
+                    </div>
+
+                    <div>
+                        <label class="form_label">Téléphone</label>
+                        <input type="text" name="telephone" class="form_input" value="{{ userData.telephone }}">
+                    </div>
+                </div>
+
+                {% if userData.type != 'COMMERCANT' %}
+                    <button type="submit" class="btn_gradient">
+                        <i class="fa fa-paper-plane"></i>
+                        Envoyer la demande
+                    </button>
+                {% endif %}
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

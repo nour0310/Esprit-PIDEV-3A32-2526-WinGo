@@ -1,0 +1,194 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Dashboard Commerçant{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <style>
+        .merchant_dash_section{
+            padding: 180px 0 90px 0;
+            background:
+                radial-gradient(circle at top left, rgba(141,79,255,0.10), transparent 28%),
+                radial-gradient(circle at top right, rgba(250,158,27,0.10), transparent 28%),
+                linear-gradient(180deg, #eef3f8 0%, #f7f9fc 100%);
+            min-height: 100vh;
+        }
+
+        .merchant_dash_box{
+            background:#fff;
+            border-radius:28px;
+            padding:35px;
+            box-shadow:0 18px 45px rgba(25,30,70,0.10);
+            margin-bottom:30px;
+        }
+
+        .merchant_dash_title{
+            font-size:42px;
+            font-weight:900;
+            margin-bottom:10px;
+            background: linear-gradient(135deg, #1d2140 10%, #8d4fff 58%, #fa9e1b 100%);
+            -webkit-background-clip:text;
+            -webkit-text-fill-color:transparent;
+        }
+
+        .merchant_dash_sub{
+            color:#71758a;
+            margin-bottom:25px;
+        }
+
+        .merchant_top_actions{
+            display:flex;
+            gap:12px;
+            flex-wrap:wrap;
+            margin-bottom:20px;
+        }
+
+        .merchant_btn{
+            display:inline-flex;
+            align-items:center;
+            gap:10px;
+            padding:14px 24px;
+            border-radius:999px;
+            color:#fff !important;
+            text-decoration:none !important;
+            font-weight:800;
+            text-transform:uppercase;
+            font-size:14px;
+        }
+
+        .merchant_btn_add{
+            background: linear-gradient(135deg, #ff9800, #ff5e62);
+        }
+
+        .merchant_btn_back{
+            background: linear-gradient(135deg, #5d7cf3, #8d4fff);
+        }
+
+        .merchant_table_wrap{
+            overflow-x:auto;
+        }
+
+        .merchant_table{
+            width:100%;
+            border-collapse:collapse;
+        }
+
+        .merchant_table th,
+        .merchant_table td{
+            padding:16px 14px;
+            border-bottom:1px solid #edf0f6;
+            text-align:left;
+        }
+
+        .merchant_table th{
+            font-size:13px;
+            text-transform:uppercase;
+            color:#7b8095;
+            font-weight:800;
+        }
+
+        .merchant_table td{
+            color:#1f2235;
+            font-weight:600;
+        }
+
+        .table_img{
+            width:70px;
+            height:70px;
+            border-radius:14px;
+            object-fit:cover;
+            background:#f4f6fb;
+        }
+
+        .table_actions{
+            display:flex;
+            gap:8px;
+            flex-wrap:wrap;
+        }
+
+        .action_btn{
+            padding:8px 14px;
+            border-radius:10px;
+            text-decoration:none !important;
+            color:#fff !important;
+            font-size:13px;
+            font-weight:700;
+        }
+
+        .btn_view{ background:#17a2b8; }
+        .btn_edit{ background:#f0ad4e; }
+        .btn_delete{ background:#dc3545; }
+
+        .empty_box{
+            text-align:center;
+            padding:30px;
+            color:#888;
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+<div class="merchant_dash_section">
+    <div class="container">
+        <div class="merchant_dash_box">
+            <h1 class="merchant_dash_title">Dashboard commerçant</h1>
+            <p class="merchant_dash_sub">Gérez ici les produits ajoutés par votre compte.</p>
+
+            <div class="merchant_top_actions">
+                <a href="{{ path('produit_add') }}" class="merchant_btn merchant_btn_add">
+                    <i class="fa fa-plus"></i> Ajouter produit
+                </a>
+
+                <a href="{{ path('client_produits') }}" class="merchant_btn merchant_btn_back">
+                    <i class="fa fa-arrow-left"></i> Retour boutique
+                </a>
+            </div>
+
+            <div class="merchant_table_wrap">
+                <table class="merchant_table">
+                    <thead>
+                        <tr>
+                            <th>Image</th>
+                            <th>Nom</th>
+                            <th>Prix</th>
+                            <th>Région</th>
+                            <th>Catégorie</th>
+                            <th>Stock</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    {% for p in mesProduits %}
+                        <tr>
+                            <td>
+                                {% if p.image %}
+                                    <img src="{{ asset('images/' ~ p.image) }}" alt="{{ p.nom }}" class="table_img">
+                                {% else %}
+                                    <div class="table_img"></div>
+                                {% endif %}
+                            </td>
+                            <td>{{ p.nom }}</td>
+                            <td>{{ p.prix }} DT</td>
+                            <td>{{ p.region }}</td>
+                            <td>{{ p.categorie }}</td>
+                            <td>{{ p.stock }}</td>
+                            <td>
+                                <div class="table_actions">
+                                    <a href="{{ path('produit_details', {'id': p.id}) }}" class="action_btn btn_view">Voir</a>
+                                    <a href="{{ path('produit_update', {'id': p.id}) }}" class="action_btn btn_edit">Modifier</a>
+                                    <a href="{{ path('produit_delete', {'id': p.id}) }}" class="action_btn btn_delete">Supprimer</a>
+                                </div>
+                            </td>
+                        </tr>
+                    {% else %}
+                        <tr>
+                            <td colspan="7" class="empty_box">Vous n'avez encore ajouté aucun produit.</td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

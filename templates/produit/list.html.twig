@@ -1,0 +1,200 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Nos Produits{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <style>
+        .products_section{
+            padding: 180px 0 90px 0;
+            background: #f6f9fb;
+        }
+
+        .product_card{
+            position: relative;
+            background: #ffffff;
+            border-radius: 18px;
+            overflow: hidden;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+            margin-bottom: 30px;
+            transition: 0.3s;
+            height: 100%;
+        }
+
+        .product_card:hover{
+            transform: translateY(-6px);
+            box-shadow: 0 18px 35px rgba(0,0,0,0.14);
+        }
+
+        .product_img_wrap{
+            position: relative;
+            overflow: hidden;
+        }
+
+        .product_img{
+            width: 100%;
+            height: 240px;
+            object-fit: cover;
+            display: block;
+        }
+
+        .product_overlay{
+            position: absolute;
+            inset: 0;
+            background: rgba(20, 20, 35, 0.50);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transition: 0.3s ease;
+            z-index: 5;
+        }
+
+        .product_card:hover .product_overlay{
+            opacity: 1;
+        }
+
+        .explore_btn{
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 24px;
+            border-radius: 30px;
+            background: linear-gradient(to right, #fa9e1b, #8d4fff);
+            color: #fff !important;
+            font-weight: 700;
+            text-decoration: none !important;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.18);
+            transition: 0.3s ease;
+        }
+
+        .explore_btn:hover{
+            transform: scale(1.05);
+            opacity: 0.95;
+        }
+
+        .product_body{
+            padding: 20px;
+        }
+
+        .product_title{
+            font-size: 22px;
+            font-weight: 700;
+            color: #2d2c2c;
+            margin-bottom: 10px;
+        }
+
+        .product_price{
+            font-size: 20px;
+            font-weight: 700;
+            color: #fa9e1b;
+            margin-bottom: 10px;
+        }
+
+        .product_meta{
+            color: #777;
+            font-size: 14px;
+            margin-bottom: 6px;
+        }
+
+        .product_actions a{
+            margin-right: 10px;
+            display: inline-block;
+            margin-top: 10px;
+        }
+
+        .add_btn{
+            display: inline-block;
+            padding: 12px 22px;
+            border-radius: 30px;
+            background: linear-gradient(to right, #fa9e1b, #8d4fff);
+            color: white;
+            font-weight: 700;
+            margin-bottom: 30px;
+        }
+
+        .add_btn:hover{
+            color: white;
+            text-decoration: none;
+            opacity: 0.9;
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+    <div class="products_section">
+        <div class="container">
+            <div class="row">
+                <div class="col text-center">
+                    <h2 style="font-size:42px; font-weight:800; margin-bottom:15px;">Nos Produits</h2>
+                    <p style="color:#666;">Découvrez les produits disponibles sur Wingo</p>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col text-center">
+                    <a href="{{ path('produit_add') }}" class="add_btn">Ajouter un produit</a>
+                    <a href="{{ path('client_produits') }}" class="add_btn" style="margin-left:12px;">Voir version client</a>
+                </div>
+            </div>
+
+            <div class="row">
+                {% for p in list %}
+                    <div class="col-lg-4 col-md-6">
+                        <div class="product_card">
+
+                            <div class="product_img_wrap">
+                                <img src="{{ p.image ? asset('images/' ~ p.image) : asset('images/test.png') }}" alt="{{ p.nom }}" class="product_img">
+
+                                <div class="product_overlay">
+                                    <a href="{{ path('produit_details', {'id': p.id}) }}" class="explore_btn">
+                                        Explorer <i class="fa fa-arrow-right"></i>
+                                    </a>
+                                </div>
+                            </div>
+
+                            <div class="product_body">
+                                <div class="product_title">{{ p.nom }}</div>
+                                <div class="product_price">{{ p.prix }} DT</div>
+
+                                <div class="product_meta"><strong>Région :</strong> {{ p.region }}</div>
+                                <div class="product_meta"><strong>Catégorie :</strong> {{ p.categorie }}</div>
+                                <div class="product_meta"><strong>Stock :</strong> {{ p.stock }}</div>
+
+                                <p style="margin-top:10px; color:#555;">
+                                    {{ p.description|default('Pas de description')|slice(0, 100) }}
+                                </p>
+
+                              <hr style="border:none; border-top: 0.5px solid #eee; margin: 14px 0;">
+
+<div class="product_actions" style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
+
+    {# ✅ Bouton principal "Voir Détails" #}
+    <a href="{{ path('produit_details', {'id': p.id}) }}" 
+       class="btn-details"
+       style="display:inline-flex; align-items:center; gap:6px; padding:9px 20px;
+              border-radius:30px; background:linear-gradient(to right, #fa9e1b, #8d4fff);
+              color:#fff; font-weight:600; font-size:13px; text-decoration:none;">
+        <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
+            <circle cx="8" cy="8" r="7" stroke="white" stroke-width="1.5"/>
+            <path d="M8 7v4M8 5.5v.5" stroke="white" stroke-width="1.5" stroke-linecap="round"/>
+        </svg>
+        Voir détails
+    </a>
+
+    <a href="{{ path('produit_update', {'id': p.id}) }}" class="btn btn-warning btn-sm">Modifier</a>
+    <a href="{{ path('produit_delete', {'id': p.id}) }}" class="btn btn-danger btn-sm">Supprimer</a>
+</div>
+                            </div>
+
+                        </div>
+                    </div>
+                {% else %}
+                    <div class="col-12 text-center">
+                        <p>Aucun produit trouvé.</p>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+{% endblock %}

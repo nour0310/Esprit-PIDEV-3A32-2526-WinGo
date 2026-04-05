@@ -1,0 +1,189 @@
+{% extends 'admin/base_admin.html.twig' %}
+
+{% block title %}Demandes commerçant{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <style>
+        .merchant_admin_section{
+            padding:180px 0 90px 0;
+            background:#f6f9fb;
+            min-height:100vh;
+        }
+
+        .merchant_admin_box{
+            background:#fff;
+            border-radius:24px;
+            padding:30px;
+            box-shadow:0 16px 38px rgba(25,30,70,0.10);
+            margin-bottom:28px;
+        }
+
+        .merchant_admin_title{
+            font-size:36px;
+            font-weight:900;
+            margin-bottom:25px;
+            color:#1f2235;
+        }
+
+        .section_title{
+            font-size:24px;
+            font-weight:800;
+            margin-bottom:18px;
+            color:#1f2235;
+        }
+
+        .flash_success{
+            margin-bottom:20px;
+            background:#eefaf0;
+            border:1px solid #cdebd3;
+            color:#2e7d32;
+            padding:14px 18px;
+            border-radius:16px;
+            font-weight:600;
+        }
+
+        .status_badge{
+            display:inline-block;
+            padding:8px 12px;
+            border-radius:999px;
+            font-size:12px;
+            font-weight:800;
+        }
+
+        .status_wait{
+            background:#fff4dd;
+            color:#a66a00;
+        }
+
+        .status_ok{
+            background:#eefaf0;
+            color:#2e7d32;
+        }
+
+        .action_group{
+            display:flex;
+            gap:8px;
+            flex-wrap:wrap;
+        }
+
+        .btn_accept{
+            border:none;
+            padding:8px 14px;
+            border-radius:10px;
+            background:#28a745;
+            color:#fff;
+            font-weight:700;
+        }
+
+        .btn_refuse{
+            border:none;
+            padding:8px 14px;
+            border-radius:10px;
+            background:#dc3545;
+            color:#fff;
+            font-weight:700;
+        }
+
+        .empty_box{
+            text-align:center;
+            color:#888;
+            padding:20px 0;
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+<div class="merchant_admin_section">
+    <div class="container">
+
+        <div class="merchant_admin_box">
+            <h1 class="merchant_admin_title">Gestion des commerçants</h1>
+
+            {% for message in app.flashes('success') %}
+                <div class="flash_success">{{ message }}</div>
+            {% endfor %}
+
+            <h2 class="section_title">Demandes en attente</h2>
+
+            <div class="table-responsive mb-4">
+                <table class="table align-middle">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Nom complet</th>
+                            <th>Email</th>
+                            <th>Téléphone</th>
+                            <th>Statut</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    {% for u in demandes %}
+                        <tr>
+                            <td>{{ u.id }}</td>
+                            <td>{{ u.prenom }} {{ u.nom }}</td>
+                            <td>{{ u.email }}</td>
+                            <td>{{ u.telephone ?: '-' }}</td>
+                            <td>
+                                <span class="status_badge status_wait">En attente</span>
+                            </td>
+                            <td>
+                                <div class="action_group">
+                                    <form method="post" action="{{ path('admin_demande_commercant_accepter', {'id': u.id}) }}">
+                                        <button type="submit" class="btn_accept">Accepter</button>
+                                    </form>
+                                    <form method="post" action="{{ path('admin_demande_commercant_refuser', {'id': u.id}) }}">
+                                        <button type="submit" class="btn_refuse">Refuser</button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                    {% else %}
+                        <tr>
+                            <td colspan="6" class="empty_box">Aucune demande en attente.</td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="merchant_admin_box">
+            <h2 class="section_title">Commerçants déjà acceptés</h2>
+
+            <div class="table-responsive">
+                <table class="table align-middle">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Nom complet</th>
+                            <th>Email</th>
+                            <th>Téléphone</th>
+                            <th>Type</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    {% for u in commercants %}
+                        <tr>
+                            <td>{{ u.id }}</td>
+                            <td>{{ u.prenom }} {{ u.nom }}</td>
+                            <td>{{ u.email }}</td>
+                            <td>{{ u.telephone ?: '-' }}</td>
+                            <td>
+                                <span class="status_badge status_ok">COMMERCANT</span>
+                            </td>
+                        </tr>
+                    {% else %}
+                        <tr>
+                            <td colspan="5" class="empty_box">Aucun commerçant accepté pour le moment.</td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </div>
+</div>
+{% endblock %}

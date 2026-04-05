@@ -1,0 +1,51 @@
+{% extends 'admin/base_admin.html.twig' %}
+{% block title %}Utilisateurs - Admin WinGo{% endblock %}
+{% block page_title %}Gestion des Utilisateurs{% endblock %}
+
+{% block content %}
+<div class="data_card">
+    <div class="data_card_header">
+        <div class="data_card_title"><i class="fa fa-users" style="color:#fa9e1b"></i> Liste des utilisateurs ({{ users|length }})</div>
+    </div>
+    <table>
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>Nom complet</th>
+                <th>Email</th>
+                <th>Téléphone</th>
+                <th>Âge</th>
+                <th>Rôle</th>
+                <th>Vérifié</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for user in users %}
+            <tr>
+                <td>{{ user.id }}</td>
+                <td><strong>{{ user.fullName }}</strong></td>
+                <td>{{ user.email }}</td>
+                <td>{{ user.telephone ?? '-' }}</td>
+                <td>{{ user.age ?? '-' }}</td>
+                <td>
+                    {% if user.isAdmin %}
+                        <span class="badge_status badge_admin">Admin</span>
+                    {% else %}
+                        <span class="badge_status badge_client">Client</span>
+                    {% endif %}
+                </td>
+                <td>
+                    {% if user.isVerified %}
+                        <span style="color:#4CAF50"><i class="fa fa-check-circle"></i></span>
+                    {% else %}
+                        <span style="color:#ccc"><i class="fa fa-times-circle"></i></span>
+                    {% endif %}
+                </td>
+            </tr>
+            {% else %}
+            <tr><td colspan="7" style="text-align:center;color:#aaa;padding:40px;">Aucun utilisateur</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

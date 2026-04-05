@@ -1,0 +1,30 @@
+{% extends 'admin/base_admin.html.twig' %}
+{% block title %}Suggestions - Admin WinGo{% endblock %}
+{% block page_title %}Gestion des Suggestions{% endblock %}
+
+{% block content %}
+<div class="data_card">
+    <div class="data_card_header">
+        <div class="data_card_title"><i class="fa fa-lightbulb-o" style="color:#fa9e1b"></i> Suggestions ({{ suggestions|length }})</div>
+    </div>
+    <table>
+        <thead>
+            <tr><th>#</th><th>Utilisateur</th><th>Sujet</th><th>Catégorie</th><th>Statut</th><th>Date</th></tr>
+        </thead>
+        <tbody>
+            {% for s in suggestions %}
+            <tr>
+                <td>{{ s.id }}</td>
+                <td>User #{{ s.idUser }}</td>
+                <td>{{ s.sujet ?? '-' }}</td>
+                <td>{{ s.categorie ?? '-' }}</td>
+                <td><span class="badge_status badge_pending">{{ s.statut }}</span></td>
+                <td>{{ s.dateSuggestion ? s.dateSuggestion|date('d/m/Y') : '-' }}</td>
+            </tr>
+            {% else %}
+            <tr><td colspan="6" style="text-align:center;color:#aaa;padding:40px;">Aucune suggestion</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

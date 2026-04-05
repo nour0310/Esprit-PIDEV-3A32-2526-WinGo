@@ -1,0 +1,29 @@
+{% extends 'admin/base_admin.html.twig' %}
+{% block title %}Réservations - Admin WinGo{% endblock %}
+{% block page_title %}Gestion des Réservations{% endblock %}
+
+{% block content %}
+<div class="data_card">
+    <div class="data_card_header">
+        <div class="data_card_title"><i class="fa fa-calendar" style="color:#fa9e1b"></i> Réservations ({{ reservations|length }})</div>
+    </div>
+    <table>
+        <thead>
+            <tr><th>#</th><th>Utilisateur</th><th>Expérience</th><th>Statut</th><th>Date</th></tr>
+        </thead>
+        <tbody>
+            {% for r in reservations %}
+            <tr>
+                <td>{{ r.id }}</td>
+                <td>{{ r.user }}</td>
+                <td>{{ r.exp }}</td>
+                <td><span class="badge_status badge_pending">{{ r.statut }}</span></td>
+                <td>{{ r.date|date('d/m/Y H:i') }}</td>
+            </tr>
+            {% else %}
+            <tr><td colspan="5" style="text-align:center;color:#aaa;padding:40px;">Aucune réservation</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}
