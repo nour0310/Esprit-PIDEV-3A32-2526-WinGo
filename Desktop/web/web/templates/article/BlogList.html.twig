@@ -166,19 +166,27 @@
 					</div>
 				</div>
 
-				<!-- Sidebar (inchangée) -->
+				<!-- Sidebar avec recherche améliorée -->
 				<div class="col-lg-4 sidebar_col">
 					<div class="sidebar_search">
-						<form action="{{ path('blog') }}" method="GET">
-							<input name="q" id="sidebar_search_input" type="search" class="sidebar_search_input" placeholder="Recherche..." value="{{ searchQuery|default('') }}" required="required">
-							<button id="sidebar_search_button" type="submit" class="sidebar_search_button trans_300" value="Submit">
-								<svg version="1.1" xmlns="http://www.w3.org/2000/svg" width="17px" height="17px" viewBox="0 0 512 512" enable-background="new 0 0 512 512" xml:space="preserve">
-									<g><g><g><path class="mag_glass" fill="#FFFFFF" d="M78.438,216.78c0,57.906,22.55,112.343,63.493,153.287c40.945,40.944,95.383,63.494,153.287,63.494s112.344-22.55,153.287-63.494C489.451,329.123,512,274.686,512,216.78c0-57.904-22.549-112.342-63.494-153.286C407.563,22.549,353.124,0,295.219,0c-57.904,0-112.342,22.549-153.287,63.494C100.988,104.438,78.439,158.876,78.438,216.78z M119.804,216.78c0-96.725,78.69-175.416,175.415-175.416s175.418,78.691,175.418,175.416c0,96.725-78.691,175.416-175.416,175.416C198.495,392.195,119.804,313.505,119.804,216.78z"/></g></g><g><g><path class="mag_glass" fill="#FFFFFF" d="M6.057,505.942c4.038,4.039,9.332,6.058,14.625,6.058s10.587-2.019,14.625-6.058L171.268,369.98c8.076-8.076,8.076-21.172,0-29.248c-8.076-8.078-21.172-8.078-29.249,0L6.057,476.693C-2.019,484.77-2.019,497.865,6.057,505.942z"/></g></g></g>
-								</svg>
-							</button>
+						<form action="{{ path('blog') }}" method="GET" class="d-flex flex-column">
+							<div class="d-flex">
+								<input name="q" id="sidebar_search_input" type="search" class="sidebar_search_input flex-grow-1" placeholder="Recherche..." value="{{ searchQuery|default('') }}">
+								<button type="submit" class="sidebar_search_button trans_300" value="Submit">
+									<svg version="1.1" xmlns="http://www.w3.org/2000/svg" width="17px" height="17px" viewBox="0 0 512 512" enable-background="new 0 0 512 512" xml:space="preserve">
+										<g><g><g><path class="mag_glass" fill="#FFFFFF" d="M78.438,216.78c0,57.906,22.55,112.343,63.493,153.287c40.945,40.944,95.383,63.494,153.287,63.494s112.344-22.55,153.287-63.494C489.451,329.123,512,274.686,512,216.78c0-57.904-22.549-112.342-63.494-153.286C407.563,22.549,353.124,0,295.219,0c-57.904,0-112.342,22.549-153.287,63.494C100.988,104.438,78.439,158.876,78.438,216.78z M119.804,216.78c0-96.725,78.69-175.416,175.415-175.416s175.418,78.691,175.418,175.416c0,96.725-78.691,175.416-175.416,175.416C198.495,392.195,119.804,313.505,119.804,216.78z"/></g></g><g><g><path class="mag_glass" fill="#FFFFFF" d="M6.057,505.942c4.038,4.039,9.332,6.058,14.625,6.058s10.587-2.019,14.625-6.058L171.268,369.98c8.076-8.076,8.076-21.172,0-29.248c-8.076-8.078-21.172-8.078-29.249,0L6.057,476.693C-2.019,484.77-2.019,497.865,6.057,505.942z"/></g></g></g>
+									</svg>
+								</button>
+							</div>
+							{% if searchQuery %}
+							<div class="mt-2 text-end">
+								<a href="{{ path('blog') }}" class="btn btn-sm btn-link" style="font-size: 12px; color: #8d4fff;">
+									<i class="fas fa-times"></i> Réinitialiser
+								</a>
+							</div>
+							{% endif %}
 						</form>
 					</div>
-
 
 					<div class="sidebar_categories">
 						<div class="sidebar_title">Categories</div>
