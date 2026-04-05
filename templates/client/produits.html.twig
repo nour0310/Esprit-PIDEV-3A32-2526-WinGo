@@ -513,13 +513,17 @@
                         </div>
                     </div>
                 {% else %}
-                    <div class="col-12">
-                        <div class="client_empty_state">
-                            <i class="fa fa-shopping-bag"></i><br><br>
-                            Aucun produit disponible pour le moment.
-                        </div>
-                    </div>
-                {% endfor %}
+    <div class="col-12">
+        <div class="client_empty_state">
+            <i class="fa fa-shopping-bag"></i><br><br>
+            {% if searchTerm is defined and searchTerm %}
+                Aucun produit trouvé pour "{{ searchTerm }}".
+            {% else %}
+                Aucun produit disponible pour le moment.
+            {% endif %}
+        </div>
+    </div>
+    {% endfor %}
             </div>
 
         </div>
