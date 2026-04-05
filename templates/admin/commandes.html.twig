@@ -55,22 +55,20 @@
                             {{ c.status }}
                         </span>
                     </td>
-                    <td>
-                        {{ c.dateCommande ? c.dateCommande|date('d/m/Y H:i') : '-' }}
-                    </td>
+                    <td>{{ c.dateCommande ? c.dateCommande|date('d/m/Y H:i') : '-' }}</td>
                     <td style="display:flex; gap:8px; flex-wrap:wrap;">
-                        <a href="{{ path('admin_commande_details', {'id': c.idCommande}) }}" class="topbar_btn" style="padding:8px 14px;">
+                        <a href="{{ path('admin_commande_details', {'id': c.id}) }}" class="topbar_btn" style="padding:8px 14px;">
                             Voir
                         </a>
 
                         {% if c.status == 'en_cours' %}
-                            <form method="post" action="{{ path('admin_commande_livrer', {'id': c.idCommande}) }}">
+                            <form method="post" action="{{ path('admin_commande_livrer', {'id': c.id}) }}">
                                 <button type="submit" class="topbar_btn" style="padding:8px 14px; border:none;">
                                     Livrer
                                 </button>
                             </form>
 
-                            <form method="post" action="{{ path('admin_commande_annuler', {'id': c.idCommande}) }}">
+                            <form method="post" action="{{ path('admin_commande_annuler', {'id': c.id}) }}">
                                 <button type="submit" class="topbar_btn" style="padding:8px 14px; border:none; background:linear-gradient(135deg,#dc3545,#ff6b6b);">
                                     Annuler
                                 </button>
