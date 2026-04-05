@@ -73,15 +73,5 @@ class ClientController extends AbstractController
         ]);
     }
 
-     #[Route('/client/produits', name: 'client_produits')]
-    public function clientProduits(Request $request, ProduitRepository $produitRepository): Response
-    {
-        $q = $request->query->get('q');
-        $produits = $produitRepository->findAll();
-
-        return $this->render('client/produits.html.twig', [
-            'produits' => $produits,
-            'searchTerm' => $q,
-        ]);
-    }
+    
 }
