@@ -18,6 +18,9 @@ use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use App\Form\ArticleType;
+use Symfony\Component\HttpFoundation\File\Exception\FileException;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 
@@ -107,6 +110,91 @@ class AdminController extends AbstractController
             $this->addFlash('success', 'Commentaire supprimé.');
         }
         return $this->redirectToRoute('admin_article_commentaires', ['id' => $articleId]);
+    }
+
+    #[Route('/article/{id}/show', name: 'admin_article_show', methods: ['GET'])]
+    public function showArticle(Article $article): Response
+    {
+        return $this->render('admin/article_show.html.twig', [
+            'article' => $article,
+        ]);
+    }
+
+    #[Route('/article/{id}/edit', name: 'admin_article_edit')]
+    public function editArticle(Request $request, Article $article, EntityManagerInterface $em): Response
+    {
+        $form = $this->createForm(ArticleType::class, $article);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $imageFile = $form->get('image')->getData();
+            if (!$imageFile instanceof UploadedFile) {
+                $files = $request->files->get('article');
+                if (\is_array($files) && isset($files['image']) && $files['image'] instanceof UploadedFile) {
+                    $imageFile = $files['image'];
+                }
+            }
+            if ($imageFile instanceof UploadedFile && $imageFile->isValid()) {
+                $uploadDir = $this->getParameter('kernel.project_dir') . DIRECTORY_SEPARATOR . 'public' . DIRECTORY_SEPARATOR . 'uploads' . DIRECTORY_SEPARATOR . 'articles';
+                if (!is_dir($uploadDir)) {
+                    mkdir($uploadDir, 0777, true);
+                }
+                $previousImage = $article->getImage();
+                $originalName = $imageFile->getClientOriginalName();
+                $extension = pathinfo($originalName, PATHINFO_EXTENSION) ?: 'jpg';
+                $newFilename = uniqid('', true) . '.' . $extension;
+                $this->storeUploadedImage($imageFile, $uploadDir, $newFilename);
+                $this->removeStoredArticleImage($previousImage, $uploadDir);
+                $article->setImage($newFilename);
+            }
+            $em->flush();
+            $this->addFlash('success', 'Article modifié avec succès.');
+            return $this->redirectToRoute('admin_articles');
+        }
+
+        return $this->render('admin/article_edit.html.twig', [
+            'form' => $form->createView(),
+            'article' => $article,
+        ]);
+    }
+
+    private function storeUploadedImage(UploadedFile $imageFile, string $uploadDir, string $newFilename): void
+    {
+        $target = $uploadDir . DIRECTORY_SEPARATOR . $newFilename;
+        if ($imageFile->isValid()) {
+            $imageFile->move($uploadDir, $newFilename);
+            return;
+        }
+        if (\UPLOAD_ERR_OK !== $imageFile->getError()) {
+            throw new FileException($imageFile->getErrorMessage());
+        }
+        $tmp = $imageFile->getPathname();
+        if (!is_readable($tmp)) {
+            throw new FileException('Fichier uploadé illisible.');
+        }
+        if (!@copy($tmp, $target)) {
+            throw new FileException('Impossible d\'enregistrer l\'image.');
+        }
+        @chmod($target, 0666 & ~umask());
+    }
+
+    private function removeStoredArticleImage(?string $storedName, string $uploadDir): void
+    {
+        if (!\is_string($storedName) || $storedName === '') {
+            return;
+        }
+        $storedName = trim($storedName);
+        if (filter_var($storedName, FILTER_VALIDATE_URL) || str_starts_with($storedName, '//')) {
+            return;
+        }
+        $base = basename(str_replace('\\', '/', $storedName));
+        if ($base === '' || str_contains($base, '..')) {
+            return;
+        }
+        $path = $uploadDir . DIRECTORY_SEPARATOR . $base;
+        if (is_file($path) && is_readable($path)) {
+            @unlink($path);
+        }
     }
 
     #[Route('/reclamations', name: 'admin_reclamations')]
