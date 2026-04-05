@@ -46,15 +46,17 @@ final class CommercantController extends AbstractController
     }
 
     #[IsGranted('ROLE_ADMIN')]
-    #[Route('/admin/demandes-commercant', name: 'admin_demandes_commercant')]
-    public function adminDemandes(UtilisateurRepository $repo): Response
-    {
-        $demandes = $repo->findBy(['type' => 'EN_ATTENTE_COMMERCANT'], ['id' => 'DESC']);
+#[Route('/admin/demandes-commercant', name: 'admin_demandes_commercant')]
+public function adminDemandes(UtilisateurRepository $repo): Response
+{
+    $demandes = $repo->findBy(['type' => 'EN_ATTENTE_COMMERCANT'], ['id' => 'DESC']);
+    $commercants = $repo->findBy(['type' => 'COMMERCANT'], ['id' => 'DESC']);
 
-        return $this->render('commercant/admin_demandes.html.twig', [
-            'demandes' => $demandes,
-        ]);
-    }
+    return $this->render('commercant/admin_demandes.html.twig', [
+        'demandes' => $demandes,
+        'commercants' => $commercants,
+    ]);
+}
 
     #[IsGranted('ROLE_ADMIN')]
     #[Route('/admin/demande-commercant/accepter/{id}', name: 'admin_demande_commercant_accepter', methods: ['POST'])]
