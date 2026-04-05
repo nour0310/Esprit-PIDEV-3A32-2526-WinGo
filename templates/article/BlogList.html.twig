@@ -163,6 +163,7 @@
 									</a>
 								</div>
 							</div>
+							{% if app.user and (app.user == article.auteur or is_granted('ROLE_ADMIN')) %}
 							<div class="blog-actions-container">
 								<a href="{{ path('app_article_edit', {id: article.id}) }}" class="btn-action-edit">
 									<i class="fas fa-edit"></i> Modifier
@@ -174,6 +175,7 @@
 									</button>
 								</form>
 							</div>
+							{% endif %}
 						</div>
 						{% else %}
 						<p class="text-muted">Aucun article pour le moment.</p>
