@@ -74,8 +74,6 @@ class ArticleType extends AbstractType
                     new NotBlank(['message' => 'Veuillez sélectionner une image']),
                     new File([
                         'maxSize' => '5M',
-                        'mimeTypes' => ['image/jpeg', 'image/png', 'image/webp'],
-                        'mimeTypesMessage' => 'Veuillez choisir une image valide (JPEG, PNG, WEBP)',
                     ])
                 ]
             ])
