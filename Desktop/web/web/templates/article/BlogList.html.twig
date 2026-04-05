@@ -1,0 +1,202 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Blog — WinGo{% endblock %}
+
+{% block stylesheets %}
+<link rel="stylesheet" type="text/css" href="{{ asset('styles/main_styles.css') }}">
+<link rel="stylesheet" type="text/css" href="{{ asset('styles/responsive.css') }}">
+<link href="{{ asset('plugins/colorbox/colorbox.css') }}" rel="stylesheet" type="text/css">
+<link rel="stylesheet" type="text/css" href="{{ asset('styles/blog_styles.css') }}">
+<link rel="stylesheet" type="text/css" href="{{ asset('styles/blog_responsive.css') }}">
+<link rel="stylesheet" type="text/css" href="{{ asset('styles/wingo_blog.css') }}">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+<style>
+.blog_post_image img {
+    width: 100%;
+    height: 350px;
+    object-fit: cover;
+    border-radius: 20px 20px 0 0;
+}
+.btn-action-edit {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(141, 79, 255, 0.1);
+    color: #8d4fff;
+    border: 1px solid rgba(141, 79, 255, 0.2);
+    padding: 8px 20px;
+    border-radius: 25px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.3s ease;
+}
+.btn-action-edit i { margin-right: 5px; }
+.btn-action-edit:hover {
+    background: #8d4fff;
+    color: #fff;
+    box-shadow: 0 5px 15px rgba(141, 79, 255, 0.3);
+    transform: translateY(-2px);
+}
+
+.btn-action-delete {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(220, 53, 69, 0.1);
+    color: #dc3545;
+    border: 1px solid rgba(220, 53, 69, 0.2);
+    padding: 8px 20px;
+    border-radius: 25px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+.btn-action-delete i { margin-right: 5px; }
+.btn-action-delete:hover {
+    background: #dc3545;
+    color: #fff;
+    box-shadow: 0 5px 15px rgba(220, 53, 69, 0.3);
+    transform: translateY(-2px);
+}
+.blog-actions-container {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    margin-top: 20px;
+}
+
+.blog_post_comments a:hover {
+    color: #fa9e1c !important;
+    transform: translateY(-2px);
+}
+
+.blog_post_comments a i {
+    transition: all 0.3s ease;
+}
+
+.blog_post_comments a:hover i {
+    transform: scale(1.1);
+}
+</style>
+{% endblock %}
+
+{% block content %}
+{% set blog_img_fallback = asset('images/placeholder.svg') %}
+	{% for message in app.flashes('success') %}
+		<div class="container pt-3"><div class="alert alert-success text-center" role="alert">{{ message }}</div></div>
+	{% endfor %}
+
+	<!-- Bannière -->
+	<div class="home" style="background-image: url('{{ asset('images/BlogBack.jpg') }}'); background-size: cover; background-position: center; background-repeat: no-repeat; height: 100vh; position: relative;">
+		<div class="home-gradient-overlay"></div>
+		<div class="home_slider_content text-center">
+			<div class="home_slider_content_inner">
+				<h1>discover</h1>
+				<h1>our Blogs</h1>
+				<div class="button home_slider_button"><div class="button_bcg"></div><a href="{{ path('app_article_new') }}">add blog<span></span><span></span><span></span></a></div>
+			</div>
+		</div>
+	</div>
+
+	<!-- Blog -->
+	<div class="blog wingo-blog-section">
+		<div class="container">
+			<div class="row">
+
+				<!-- Blog Content -->
+				<div class="col-lg-8">
+					<div class="blog_post_container">
+
+						{% for article in articles %}
+						{% set im = article.image|default('')|trim %}
+						{% if im is empty %}
+							{% set cover_src = asset('images/placeholder.svg') %}
+						{% elseif im starts with 'http://' or im starts with 'https://' %}
+							{% set cover_src = im %}
+						{% elseif im starts with '//' %}
+							{% set cover_src = 'https:' ~ im %}
+						{% else %}
+							{% set fn = im|replace({'\\':'/'})|split('/')|last %}
+							{% set cover_src = asset('uploads/articles/' ~ fn) %}
+						{% endif %}
+						<div class="blog_post wingo-card">
+							<div class="blog_post_image">
+								<img src="{{ cover_src }}" alt="{{ article.titre|e('html_attr') }}" style="width: 100%; height: 350px; object-fit: cover; border-radius: 20px 20px 0 0;" loading="lazy" decoding="async" onerror="this.onerror=null;this.src='{{ blog_img_fallback|e('html_attr') }}';">
+								<div class="blog_post_date d-flex flex-column align-items-center justify-content-center">
+									<div class="blog_post_day">{% if article.datePublication %}{{ article.datePublication|date('d') }}{% else %}—{% endif %}</div>
+									<div class="blog_post_month">{% if article.datePublication %}{{ article.datePublication|date('M, Y') }}{% else %}—{% endif %}</div>
+								</div>
+							</div>
+							<div class="blog_post_meta">
+								<ul>
+									<li class="blog_post_meta_item"><a href="{{ path('app_article_show', {id: article.id}) }}">{% if article.auteur %}{{ article.auteur.prenom }} {{ article.auteur.nom }}{% else %}Anonyme{% endif %}</a></li>
+									<li class="blog_post_meta_item"><a href="{{ path('blog') }}">{{ article.categorie|default('Non classé') }}</a></li>
+									{% if article.region %}<li class="blog_post_meta_item"><a href="#">{{ article.region }}</a></li>{% endif %}
+								</ul>
+							</div>
+							<div class="blog_post_title"><a href="{{ path('app_article_show', {id: article.id}) }}">{{ article.titre }}</a></div>
+							<div class="blog_post_text"><p>{{ article.contenu|default('')|striptags|slice(0, 280) }}{% if article.contenu and article.contenu|length > 280 %}…{% endif %}</p></div>
+							<div class="blog_post_link">
+								<a href="{{ path('app_article_show', {id: article.id}) }}">read more</a>
+								<div class="blog_post_comments" style="display: inline-block; margin-left: 15px;">
+									<a href="{{ path('app_article_show', {id: article.id}) }}#comments" style="color: #8d4fff; text-decoration: none; font-size: 14px; display: inline-flex; align-items: center;">
+										<i class="fas fa-comment" style="margin-right: 5px;"></i>
+										<span>{{ article.commentaires|length }}</span>
+									</a>
+								</div>
+							</div>
+							<div class="blog-actions-container">
+								<a href="{{ path('app_article_edit', {id: article.id}) }}" class="btn-action-edit">
+									<i class="fas fa-edit"></i> Modifier
+								</a>
+								<form method="post" action="{{ path('app_article_delete', {id: article.id}) }}" style="display: inline-block; margin: 0;" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer cet article ?');">
+									<input type="hidden" name="_token" value="{{ csrf_token('delete' ~ article.id) }}">
+									<button type="submit" class="btn-action-delete">
+										<i class="fas fa-trash-alt"></i> Supprimer
+									</button>
+								</form>
+							</div>
+						</div>
+						{% else %}
+						<p class="text-muted">Aucun article pour le moment.</p>
+						{% endfor %}
+
+					</div>
+				</div>
+
+				<!-- Sidebar (inchangée) -->
+				<div class="col-lg-4 sidebar_col">
+					<div class="sidebar_search">
+						<form action="{{ path('blog') }}" method="GET">
+							<input name="q" id="sidebar_search_input" type="search" class="sidebar_search_input" placeholder="Recherche..." value="{{ searchQuery|default('') }}" required="required">
+							<button id="sidebar_search_button" type="submit" class="sidebar_search_button trans_300" value="Submit">
+								<svg version="1.1" xmlns="http://www.w3.org/2000/svg" width="17px" height="17px" viewBox="0 0 512 512" enable-background="new 0 0 512 512" xml:space="preserve">
+									<g><g><g><path class="mag_glass" fill="#FFFFFF" d="M78.438,216.78c0,57.906,22.55,112.343,63.493,153.287c40.945,40.944,95.383,63.494,153.287,63.494s112.344-22.55,153.287-63.494C489.451,329.123,512,274.686,512,216.78c0-57.904-22.549-112.342-63.494-153.286C407.563,22.549,353.124,0,295.219,0c-57.904,0-112.342,22.549-153.287,63.494C100.988,104.438,78.439,158.876,78.438,216.78z M119.804,216.78c0-96.725,78.69-175.416,175.415-175.416s175.418,78.691,175.418,175.416c0,96.725-78.691,175.416-175.416,175.416C198.495,392.195,119.804,313.505,119.804,216.78z"/></g></g><g><g><path class="mag_glass" fill="#FFFFFF" d="M6.057,505.942c4.038,4.039,9.332,6.058,14.625,6.058s10.587-2.019,14.625-6.058L171.268,369.98c8.076-8.076,8.076-21.172,0-29.248c-8.076-8.078-21.172-8.078-29.249,0L6.057,476.693C-2.019,484.77-2.019,497.865,6.057,505.942z"/></g></g></g>
+								</svg>
+							</button>
+						</form>
+					</div>
+
+
+					<div class="sidebar_categories">
+						<div class="sidebar_title">Categories</div>
+						<div class="sidebar_list">
+							<ul>
+								<li><a href="#">Travel</a></li>
+								<li><a href="#">Exotic Destinations</a></li>
+								<li><a href="#">City Breaks</a></li>
+								<li><a href="#">Travel Tips</a></li>
+								<li><a href="#">Lifestyle &amp; Travel</a></li>
+								<li><a href="#">Uncategorized</a></li>
+							</ul>
+						</div>
+					</div>
+				</div>
+
+			</div>
+		</div>
+	</div>
+
+{% endblock %}
