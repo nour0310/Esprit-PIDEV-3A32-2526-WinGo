@@ -438,7 +438,7 @@
                     </div>
                 </div>
 
-             <div class="products_hero_actions">
+           <div class="products_hero_actions">
     <a href="#products-grid" class="products_hero_btn_main">
         Voir les produits <i class="fa fa-arrow-right"></i>
     </a>
@@ -447,9 +447,23 @@
         Voir panier <i class="fa fa-shopping-cart"></i>
     </a>
 
-    <a href="{{ path('devenir_commercant') }}" class="products_hero_btn_main" style="background: linear-gradient(135deg, #16a085, #2ecc71);">
-        Devenir commerçant <i class="fa fa-store"></i>
-    </a>
+    {% if app.user.type == 'COMMERCANT' %}
+        <a href="{{ path('produit_add') }}" class="products_hero_btn_main" style="background: linear-gradient(135deg, #ff9800, #ff5e62);">
+            Ajouter produit <i class="fa fa-plus"></i>
+        </a>
+
+        <a href="{{ path('merchant_dashboard') }}" class="products_hero_btn_main" style="background: linear-gradient(135deg, #11998e, #38ef7d);">
+            Dashboard commerçant <i class="fa fa-dashboard"></i>
+        </a>
+    {% elseif app.user.type == 'EN_ATTENTE_COMMERCANT' %}
+        <div class="products_hero_note">
+            <i class="fa fa-clock-o"></i> Demande en attente
+        </div>
+    {% else %}
+        <a href="{{ path('devenir_commercant') }}" class="products_hero_btn_main" style="background: linear-gradient(135deg, #16a085, #2ecc71);">
+            Devenir commerçant <i class="fa fa-store"></i>
+        </a>
+    {% endif %}
 
     <div class="products_hero_note">
         <i class="fa fa-diamond"></i> Espace client
