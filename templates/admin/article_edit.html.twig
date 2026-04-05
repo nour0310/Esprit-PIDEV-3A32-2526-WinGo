@@ -1,0 +1,58 @@
+{% extends 'admin/base_admin.html.twig' %}
+{% block title %}Modifier l'article - Admin WinGo{% endblock %}
+{% block page_title %}Modifier un article{% endblock %}
+
+{% block content %}
+<div class="data_card">
+    <div class="data_card_header">
+        <div class="data_card_title"><i class="fa fa-pencil" style="color:#fa9e1b"></i> Édition de l'article #{{ article.id }}</div>
+    </div>
+    
+    <div style="padding: 20px;">
+        {{ form_start(form, {'attr': {'novalidate': 'novalidate', 'enctype': 'multipart/form-data'}}) }}
+            
+            <div style="margin-bottom: 15px;">
+                {{ form_label(form.titre, 'Titre') }}
+                {{ form_widget(form.titre, {'attr': {'class': 'form-control', 'style': 'width: 100%; border: 1px solid #ccc; padding: 10px; border-radius: 5px;'}}) }}
+                <div style="color: red; margin-top: 5px;">{{ form_errors(form.titre) }}</div>
+            </div>
+            
+            <div style="margin-bottom: 15px;">
+                {{ form_label(form.contenu, 'Contenu') }}
+                {{ form_widget(form.contenu, {'attr': {'class': 'form-control', 'rows': 6, 'style': 'width: 100%; border: 1px solid #ccc; padding: 10px; border-radius: 5px;'}}) }}
+                <div style="color: red; margin-top: 5px;">{{ form_errors(form.contenu) }}</div>
+            </div>
+            
+            <div style="display: flex; gap: 20px; margin-bottom: 15px;">
+                <div style="flex: 1;">
+                    {{ form_row(form.region, {'attr': {'class': 'form-control', 'style': 'width: 100%; border: 1px solid #ccc; padding: 10px; border-radius: 5px;'}}) }}
+                </div>
+                <div style="flex: 1;">
+                    {{ form_row(form.categorie, {'attr': {'class': 'form-control', 'style': 'width: 100%; border: 1px solid #ccc; padding: 10px; border-radius: 5px;'}}) }}
+                </div>
+            </div>
+            
+            <div style="margin-bottom: 20px;">
+                {{ form_label(form.image, 'Image (laisser vide pour garder l\'actuelle)') }}
+                {{ form_widget(form.image, {'attr': {'class': 'form-control', 'style': 'width: 100%; border: 1px solid #ccc; padding: 10px; border-radius: 5px;'}}) }}
+                <div style="color: red; margin-top: 5px;">{{ form_errors(form.image) }}</div>
+                
+                {% if article.image %}
+                    <div style="margin-top: 10px;">
+                        <p>Image actuelle :</p>
+                        <img src="{{ path('app_article_image', {id: article.id}) }}" alt="Aperçu" style="max-height: 150px; border-radius: 8px;">
+                    </div>
+                {% endif %}
+            </div>
+            
+            <div style="margin-top: 30px;">
+                <button type="submit" style="background-color: #fa9e1b; color: #fff; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; font-weight: bold;">
+                    Enregistrer les modifications
+                </button>
+                <a href="{{ path('admin_articles') }}" style="margin-left: 15px; color: #666; text-decoration: none;">Annuler et retour</a>
+            </div>
+            
+        {{ form_end(form) }}
+    </div>
+</div>
+{% endblock %}
