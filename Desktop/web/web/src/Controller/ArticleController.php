@@ -302,16 +302,6 @@ class ArticleController extends AbstractController
         @chmod($target, 0666 & ~umask());
     }
 
-    private function guessSafeImageExtension(UploadedFile $file): string
-    {
-        $ext = strtolower((string) $file->getClientOriginalExtension());
-        if ($ext === '' && str_contains($file->getClientOriginalName(), '.')) {
-            $ext = strtolower((string) pathinfo($file->getClientOriginalName(), PATHINFO_EXTENSION));
-        }
-        $ext = preg_replace('/[^a-z0-9]/', '', $ext) ?? '';
-
-        return $ext !== '' ? $ext : 'jpg';
-    }
 
     private function removeStoredArticleImage(?string $storedName, string $uploadDir): void
     {
