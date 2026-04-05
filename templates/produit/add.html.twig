@@ -34,10 +34,6 @@
             font-size: 17px;
         }
 
-        .product_form_box form > div{
-            margin-bottom: 18px;
-        }
-
         .product_form_box label{
             display: block;
             font-size: 15px;
@@ -124,6 +120,22 @@
             font-weight: 600;
         }
 
+        .form_error_block{
+            color: #dc3545;
+            font-size: 13px;
+            font-weight: 600;
+            margin-top: 6px;
+        }
+
+        .form_error_block ul{
+            margin: 0;
+            padding-left: 18px;
+        }
+
+        .form_error_block li{
+            margin: 0;
+        }
+
         @media (max-width: 767px){
             .product_form_box{
                 padding: 28px 20px;
@@ -152,55 +164,55 @@
                     Produit publié par : <strong>{{ app.user.fullName }}</strong>
                 </div>
 
-                {{ form_start(formProduit) }}
+                {{ form_start(formProduit, {'attr': {'novalidate': 'novalidate'}}) }}
 
                     <div class="product_form_grid">
                         <div>
                             {{ form_label(formProduit.nom) }}
                             {{ form_widget(formProduit.nom) }}
-                            {{ form_errors(formProduit.nom) }}
+                            <div class="form_error_block">{{ form_errors(formProduit.nom) }}</div>
                         </div>
 
                         <div>
                             {{ form_label(formProduit.prix) }}
                             {{ form_widget(formProduit.prix) }}
-                            {{ form_errors(formProduit.prix) }}
+                            <div class="form_error_block">{{ form_errors(formProduit.prix) }}</div>
                         </div>
 
                         <div class="product_full">
                             {{ form_label(formProduit.description) }}
                             {{ form_widget(formProduit.description) }}
-                            {{ form_errors(formProduit.description) }}
+                            <div class="form_error_block">{{ form_errors(formProduit.description) }}</div>
                         </div>
 
                         <div>
                             {{ form_label(formProduit.region) }}
                             {{ form_widget(formProduit.region) }}
-                            {{ form_errors(formProduit.region) }}
+                            <div class="form_error_block">{{ form_errors(formProduit.region) }}</div>
                         </div>
 
                         <div>
                             {{ form_label(formProduit.categorie) }}
                             {{ form_widget(formProduit.categorie) }}
-                            {{ form_errors(formProduit.categorie) }}
+                            <div class="form_error_block">{{ form_errors(formProduit.categorie) }}</div>
                         </div>
 
                         <div>
                             {{ form_label(formProduit.stock) }}
                             {{ form_widget(formProduit.stock) }}
-                            {{ form_errors(formProduit.stock) }}
+                            <div class="form_error_block">{{ form_errors(formProduit.stock) }}</div>
                         </div>
 
                         <div class="product_full">
                             {{ form_label(formProduit.imageFile) }}
                             {{ form_widget(formProduit.imageFile) }}
-                            {{ form_errors(formProduit.imageFile) }}
+                            <div class="form_error_block">{{ form_errors(formProduit.imageFile) }}</div>
                         </div>
 
                         <div class="product_full">
                             {{ form_label(formProduit.dateAjout) }}
                             {{ form_widget(formProduit.dateAjout) }}
-                            {{ form_errors(formProduit.dateAjout) }}
+                            <div class="form_error_block">{{ form_errors(formProduit.dateAjout) }}</div>
                         </div>
                     </div>
 
