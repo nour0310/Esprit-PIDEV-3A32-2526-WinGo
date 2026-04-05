@@ -32,7 +32,7 @@ class ArticleController extends AbstractController
             return $this->defaultImage();
         }
 
-        // URL absolue ou protocol-relative (//cdn.example.com/...)
+        // URL absolue ou protocol-relative
         if (str_starts_with($imageName, '//')) {
             return new RedirectResponse('https:' . $imageName);
         }
@@ -40,26 +40,21 @@ class ArticleController extends AbstractController
             return new RedirectResponse($imageName);
         }
 
-        // Nettoyer le nom : si c'est un chemin Windows complet, extraire le nom du fichier
+        // Extraire le nom du fichier (si chemin Windows)
         $cleanName = basename(str_replace('\\', '/', $imageName));
 
-        // Dossier principal où sont stockées les images (après upload)
         $projectDir = $this->getParameter('kernel.project_dir');
         $mainDir = $projectDir . DIRECTORY_SEPARATOR . 'public' . DIRECTORY_SEPARATOR . 'uploads' . DIRECTORY_SEPARATOR . 'articles';
-
-        // Chemins alternatifs pour compatibilité avec l'ancien projet
         $altDirs = [
             $projectDir . DIRECTORY_SEPARATOR . 'public' . DIRECTORY_SEPARATOR . 'images' . DIRECTORY_SEPARATOR . 'uploads',
             $projectDir . DIRECTORY_SEPARATOR . 'public' . DIRECTORY_SEPARATOR . 'images',
         ];
 
-        // Vérifier d'abord dans le dossier principal
         $path = $mainDir . DIRECTORY_SEPARATOR . $cleanName;
         if (is_file($path) && is_readable($path)) {
             return new BinaryFileResponse($path);
         }
 
-        // Sinon, parcourir les dossiers alternatifs
         foreach ($altDirs as $dir) {
             $altPath = $dir . DIRECTORY_SEPARATOR . $cleanName;
             if (is_file($altPath) && is_readable($altPath)) {
@@ -67,10 +62,7 @@ class ArticleController extends AbstractController
             }
         }
 
-        // Dernier recours : essayer de trouver le fichier avec son nom original (si différent du nom nettoyé)
-        // Cela arrive si le nom en base contient des caractères spéciaux ou un chemin relatif
-        $originalName = $imageName;
-        $originalPath = $mainDir . DIRECTORY_SEPARATOR . $originalName;
+        $originalPath = $mainDir . DIRECTORY_SEPARATOR . $imageName;
         if (is_file($originalPath) && is_readable($originalPath)) {
             return new BinaryFileResponse($originalPath);
         }
@@ -84,7 +76,6 @@ class ArticleController extends AbstractController
         if (is_file($path) && is_readable($path)) {
             return new BinaryFileResponse($path);
         }
-
         return new Response(
             '<svg xmlns="http://www.w3.org/2000/svg" width="800" height="400"><rect width="100%" height="100%" fill="#f3efff"/></svg>',
             200,
@@ -92,7 +83,7 @@ class ArticleController extends AbstractController
         );
     }
 
-    // ===================== LISTE DES ARTICLES (avec recherche, catégories, stats, articles populaires) =====================
+    // ===================== LISTE DES ARTICLES =====================
     #[Route('/blog', name: 'blog')]
     public function blog(Request $request, ArticleRepository $articleRepository, CommentaireRepository $commentaireRepository): Response
     {
@@ -100,25 +91,20 @@ class ArticleController extends AbstractController
         $categoryFilter = $request->query->get('category');
 
         $qb = $articleRepository->createQueryBuilder('a');
-        
         if ($searchQuery) {
             $qb->andWhere('a.titre LIKE :query OR a.contenu LIKE :query OR a.categorie LIKE :query')
                ->setParameter('query', '%' . $searchQuery . '%');
         }
-        
         if ($categoryFilter) {
             $qb->andWhere('a.categorie = :category')
                ->setParameter('category', $categoryFilter);
         }
-        
         $qb->orderBy('a.datePublication', 'DESC');
         $articles = $qb->getQuery()->getResult();
 
-        // Statistiques (globales, indépendantes des filtres)
         $totalArticles = $articleRepository->count([]);
         $totalCommentaires = $commentaireRepository->count([]);
 
-        // Articles populaires (top 3 les plus commentés)
         $popularArticles = $articleRepository->createQueryBuilder('a')
             ->leftJoin('a.commentaires', 'c')
             ->groupBy('a.id')
@@ -145,7 +131,6 @@ class ArticleController extends AbstractController
         ]);
     }
 
-    // ===================== LISTE DES ARTICLES (alternative, redirection) =====================
     #[Route('/articles', name: 'app_article_index')]
     public function index(ArticleRepository $articleRepository): Response
     {
@@ -180,25 +165,24 @@ class ArticleController extends AbstractController
                 if (!is_dir($uploadDir)) {
                     mkdir($uploadDir, 0777, true);
                 }
-                // Utilisation de getClientOriginalExtension() au lieu de guessExtension()
-                $originalExtension = $imageFile->getClientOriginalExtension();
-                $extension = $originalExtension ?: 'jpg';
+                // Récupérer l'extension via le nom original (pas besoin de fileinfo)
+                $originalName = $imageFile->getClientOriginalName();
+                $extension = pathinfo($originalName, PATHINFO_EXTENSION);
+                $extension = $extension ?: 'jpg';
                 $newFilename = uniqid('', true) . '.' . $extension;
                 $this->storeUploadedImage($imageFile, $uploadDir, $newFilename);
                 $article->setImage($newFilename);
             }
             $em->persist($article);
             $em->flush();
-
             return $this->redirectToRoute('blog');
         }
-
         return $this->render('article/AjoutBlog.html.twig', [
             'form' => $form->createView(),
         ]);
     }
 
-    // ===================== AFFICHER UN ARTICLE ET SES COMMENTAIRES =====================
+    // ===================== AFFICHER UN ARTICLE =====================
     #[Route('/article/{id}', name: 'app_article_show')]
     public function show(Request $request, Article $article, EntityManagerInterface $em, UtilisateurRepository $userRepo): Response
     {
@@ -247,9 +231,9 @@ class ArticleController extends AbstractController
                     mkdir($uploadDir, 0777, true);
                 }
                 $previousImage = $article->getImage();
-                // Utilisation de getClientOriginalExtension()
-                $originalExtension = $imageFile->getClientOriginalExtension();
-                $extension = $originalExtension ?: 'jpg';
+                $originalName = $imageFile->getClientOriginalName();
+                $extension = pathinfo($originalName, PATHINFO_EXTENSION);
+                $extension = $extension ?: 'jpg';
                 $newFilename = uniqid('', true) . '.' . $extension;
                 $this->storeUploadedImage($imageFile, $uploadDir, $newFilename);
                 $this->removeStoredArticleImage($previousImage, $uploadDir);
@@ -257,10 +241,8 @@ class ArticleController extends AbstractController
             }
             $em->persist($article);
             $em->flush();
-
             return $this->redirectToRoute('blog');
         }
-
         return $this->render('article/EditBlog.html.twig', [
             'form' => $form->createView(),
             'article' => $article,
@@ -278,43 +260,25 @@ class ArticleController extends AbstractController
         return $this->redirectToRoute('blog');
     }
 
-    /**
-     * Enregistre un upload : move() si possible, sinon copie depuis le temporaire
-     * (certains environnements Windows font échouer is_uploaded_file() → isValid() false).
-     */
+    // ===================== FONCTIONS PRIVÉES =====================
     private function storeUploadedImage(UploadedFile $imageFile, string $uploadDir, string $newFilename): void
     {
         $target = $uploadDir . DIRECTORY_SEPARATOR . $newFilename;
-
         if ($imageFile->isValid()) {
             $imageFile->move($uploadDir, $newFilename);
             return;
         }
-
         if (\UPLOAD_ERR_OK !== $imageFile->getError()) {
             throw new FileException($imageFile->getErrorMessage());
         }
-
         $tmp = $imageFile->getPathname();
         if (!is_readable($tmp)) {
             throw new FileException('Fichier uploadé illisible.');
         }
-
         if (!@copy($tmp, $target)) {
             throw new FileException('Impossible d\'enregistrer l\'image.');
         }
-
         @chmod($target, 0666 & ~umask());
-    }
-
-    private function guessSafeImageExtension(UploadedFile $file): string
-    {
-        $ext = strtolower((string) $file->getClientOriginalExtension());
-        if ($ext === '' && str_contains($file->getClientOriginalName(), '.')) {
-            $ext = strtolower((string) pathinfo($file->getClientOriginalName(), PATHINFO_EXTENSION));
-        }
-        $ext = preg_replace('/[^a-z0-9]/', '', $ext) ?? '';
-        return $ext !== '' ? $ext : 'jpg';
     }
 
     private function removeStoredArticleImage(?string $storedName, string $uploadDir): void
