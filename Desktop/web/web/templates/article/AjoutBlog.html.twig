@@ -112,13 +112,21 @@
 		margin-top: 25px;
 	}
 	.back-link:hover { color: var(--form-accent); }
-	.error-text {
-		color: #dc3545;
+	
+	/* Styles pour les erreurs de validation */
+	.error-text,
+	ul.help-block,
+	.help-block,
+	.form-error-message {
+		color: #dc3545 !important;
 		font-size: 0.85rem;
 		margin-top: 5px;
 		display: block;
 		font-weight: 500;
+		list-style: none;
+		padding-left: 0;
 	}
+	
 	@media (max-width: 768px) {
 		.form-body { padding: 30px 20px; }
 		.form-header { padding: 40px 20px; }
@@ -147,12 +155,12 @@
 							<div class="form-group-custom">
 								{{ form_label(form.titre, 'Titre de votre blog', {'label_attr': {'class': 'form-label'}}) }}
 								{{ form_widget(form.titre, {'attr': {'class': 'form-control wingo-input', 'placeholder': 'Donnez un titre captivant...'}}) }}
-								{{ form_errors(form.titre, {'attr': {'class': 'error-text'}}) }}
+								{{ form_errors(form.titre) }}
 							</div>
 							<div class="form-group-custom">
 								{{ form_label(form.contenu, 'Votre histoire', {'label_attr': {'class': 'form-label'}}) }}
 								{{ form_widget(form.contenu, {'attr': {'class': 'form-control wingo-input', 'rows': 8, 'placeholder': 'Racontez votre expérience...'}}) }}
-								{{ form_errors(form.contenu, {'attr': {'class': 'error-text'}}) }}
+								{{ form_errors(form.contenu) }}
 							</div>
 							<div class="row">
 								<div class="col-md-6">
