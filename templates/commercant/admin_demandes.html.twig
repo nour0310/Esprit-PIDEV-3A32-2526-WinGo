@@ -1,0 +1,55 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Demandes commerçant{% endblock %}
+
+{% block content %}
+<div style="padding:180px 0 90px 0; background:#f6f9fb; min-height:100vh;">
+    <div class="container">
+        <div style="background:#fff; border-radius:24px; padding:30px; box-shadow:0 16px 38px rgba(25,30,70,0.10);">
+            <h1 style="font-size:36px; font-weight:900; margin-bottom:25px;">Demandes commerçant</h1>
+
+            {% for message in app.flashes('success') %}
+                <div style="margin-bottom:20px;background:#eefaf0;border:1px solid #cdebd3;color:#2e7d32;padding:14px 18px;border-radius:16px;font-weight:600;">
+                    {{ message }}
+                </div>
+            {% endfor %}
+
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Nom complet</th>
+                        <th>Email</th>
+                        <th>Téléphone</th>
+                        <th>Type actuel</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for u in demandes %}
+                    <tr>
+                        <td>{{ u.id }}</td>
+                        <td>{{ u.prenom }} {{ u.nom }}</td>
+                        <td>{{ u.email }}</td>
+                        <td>{{ u.telephone }}</td>
+                        <td>{{ u.type }}</td>
+                        <td style="display:flex; gap:8px;">
+                            <form method="post" action="{{ path('admin_demande_commercant_accepter', {'id': u.id}) }}">
+                                <button class="btn btn-success btn-sm">Accepter</button>
+                            </form>
+                            <form method="post" action="{{ path('admin_demande_commercant_refuser', {'id': u.id}) }}">
+                                <button class="btn btn-danger btn-sm">Refuser</button>
+                            </form>
+                        </td>
+                    </tr>
+                {% else %}
+                    <tr>
+                        <td colspan="6">Aucune demande en attente.</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
