@@ -1,0 +1,150 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}About Us - Travelix{% endblock %}
+
+{% block stylesheets %}
+<link rel="stylesheet" type="text/css" href="{{ asset('styles/about_styles.css') }}">
+<link rel="stylesheet" type="text/css" href="{{ asset('styles/about_responsive.css') }}">
+{% endblock %}
+
+{% block content %}
+
+	<!-- Home Banner -->
+	<div class="home">
+		<div class="home_background parallax-window" data-parallax="scroll" data-image-src="{{ asset('images/about_background.jpg') }}"></div>
+		<div class="home_content">
+			<div class="home_title">about us</div>
+		</div>
+	</div>
+
+	<!-- Intro -->
+	<div class="intro">
+		<div class="container">
+			<div class="row">
+				<div class="col-lg-7">
+					<div class="intro_image"><img src="{{ asset('images/intro.png') }}" alt=""></div>
+				</div>
+				<div class="col-lg-5">
+					<div class="intro_content">
+						<div class="intro_title">we have the best tours</div>
+						<p class="intro_text">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vivamus quis vulputate eros, iaculis consequat nisl. Nunc et suscipit urna. Integer elementum orci eu vehicula pretium. Donec bibendum tristique condimentum. Aenean in lacus ligula. Phasellus euismod gravida eros. Aenean nec ipsum aliquet, pharetra magna id, interdum sapien.</p>
+						<div class="button intro_button"><div class="button_bcg"></div><a href="#">explore now<span></span><span></span><span></span></a></div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<!-- Stats -->
+	<div class="stats">
+		<div class="container">
+			<div class="row">
+				<div class="col text-center">
+					<div class="section_title">years statistics</div>
+				</div>
+			</div>
+			<div class="row">
+				<div class="col-lg-10 offset-lg-1 text-center">
+					<p class="stats_text">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vivamus quis vulputate eros, iaculis consequat nisl. Nunc et suscipit urna. Integer elementum orci eu vehicula pretium.</p>
+				</div>
+			</div>
+			<div class="row">
+				<div class="col">
+					<div class="stats_years">
+						<div class="stats_years_last">2016</div>
+						<div class="stats_years_new float-right">2017</div>
+					</div>
+				</div>
+			</div>
+			<div class="row">
+				<div class="col">
+					<div class="stats_contents">
+
+						{% set stats = stats is defined ? stats : [
+							{icon: 'stats_1.png', last_value: 1642, new_value: 3527, type: 'Clients', color: '#31124b'},
+							{icon: 'stats_2.png', last_value: 768, new_value: 145, type: 'Returning Clients', color: '#a95ce4'},
+							{icon: 'stats_3.png', last_value: 11546, new_value: 9321, type: 'Reach', color: '#fa6f1b'},
+							{icon: 'stats_4.png', last_value: 3729, new_value: 17429, type: 'Items', color: '#fa9e1b'}
+						] %}
+
+						{% for stat in stats %}
+						<div class="stats_item d-flex flex-md-row flex-column clearfix">
+							<div class="stats_last order-md-1 order-3">
+								<div class="stats_last_icon d-flex flex-column align-items-center justify-content-end">
+									<img src="{{ asset('images/' ~ stat.icon) }}" alt="">
+								</div>
+								<div class="stats_last_content">
+									<div class="stats_number">{{ stat.last_value }}</div>
+									<div class="stats_type">{{ stat.type }}</div>
+								</div>
+							</div>
+							<div class="stats_bar order-md-2 order-2" data-x="{{ stat.last_value }}" data-y="{{ stat.new_value }}" data-color="{{ stat.color }}">
+								<div class="stats_bar_perc"><div><div class="stats_bar_value"></div></div></div>
+							</div>
+							<div class="stats_new order-md-3 order-1 text-right">
+								<div class="stats_new_icon d-flex flex-column align-items-center justify-content-end">
+									<img src="{{ asset('images/' ~ stat.icon) }}" alt="">
+								</div>
+								<div class="stats_new_content">
+									<div class="stats_number">{{ stat.new_value }}</div>
+									<div class="stats_type">{{ stat.type }}</div>
+								</div>
+							</div>
+						</div>
+						{% endfor %}
+
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<!-- Add Banner -->
+	<div class="add">
+		<div class="container">
+			<div class="row">
+				<div class="col">
+					<div class="add_container">
+						<div class="add_background" style="background-image:url({{ asset('images/add.jpg') }})"></div>
+						<div class="add_content">
+							<h1 class="add_title">thailand</h1>
+							<div class="add_subtitle">From <span>$999</span></div>
+							<div class="button add_button"><div class="button_bcg"></div><a href="#">explore now<span></span><span></span><span></span></a></div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<!-- Milestones -->
+	<div class="milestones">
+		<div class="container">
+			<div class="row">
+
+				{% set milestones = milestones is defined ? milestones : [
+					{icon: 'milestone_1.png', value: 255, label: 'Clients'},
+					{icon: 'milestone_2.png', value: 1176, label: 'Projects'},
+					{icon: 'milestone_3.png', value: 39, label: 'Countries'},
+					{icon: 'milestone_4.png', value: 127, label: 'Coffees'}
+				] %}
+
+				{% for milestone in milestones %}
+				<div class="col-lg-3 milestone_col">
+					<div class="milestone text-center">
+						<div class="milestone_icon"><img src="{{ asset('images/' ~ milestone.icon) }}" alt=""></div>
+						<div class="milestone_counter" data-end-value="{{ milestone.value }}">0</div>
+						<div class="milestone_text">{{ milestone.label }}</div>
+					</div>
+				</div>
+				{% endfor %}
+
+			</div>
+		</div>
+	</div>
+
+{% endblock %}
+
+{% block javascripts %}
+<script src="{{ asset('plugins/parallax/parallax.min.js') }}"></script>
+{% endblock %}

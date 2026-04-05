@@ -1,0 +1,31 @@
+{% extends 'admin/base_admin.html.twig' %}
+{% block title %}Transports - Admin WinGo{% endblock %}
+{% block page_title %}Gestion des Transports{% endblock %}
+
+{% block content %}
+<div class="data_card">
+    <div class="data_card_header">
+        <div class="data_card_title"><i class="fa fa-bus" style="color:#fa9e1b"></i> Transports ({{ transports|length }})</div>
+    </div>
+    <table>
+        <thead>
+            <tr><th>#</th><th>Type</th><th>Capacité</th><th>Tarif</th><th>Départ</th><th>Arrivée</th><th>Date départ</th></tr>
+        </thead>
+        <tbody>
+            {% for t in transports %}
+            <tr>
+                <td>{{ t.id }}</td>
+                <td>{{ t.type }}</td>
+                <td>{{ t.capacite }}</td>
+                <td>{{ t.tarif }} TND</td>
+                <td>{{ t.depart }}</td>
+                <td>{{ t.arrivee }}</td>
+                <td>{{ t.datedepart|date('d/m/Y H:i') }}</td>
+            </tr>
+            {% else %}
+            <tr><td colspan="7" style="text-align:center;color:#aaa;padding:40px;">Aucun transport</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}
