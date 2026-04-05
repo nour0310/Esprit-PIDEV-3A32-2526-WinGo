@@ -21,13 +21,13 @@ class Article
     #[Assert\NotBlank(message: "Le titre est obligatoire")]
     #[Assert\Length(min: 3, minMessage: "Le titre doit contenir au moins {{ limit }} caractères")]
     #[Assert\Regex(pattern: '/^[a-zA-ZÀ-ÿ\s\.,!?\'-]+$/u', message: "Le titre ne doit pas contenir de chiffres")]
-    private ?string $titre = null;
+    private string $titre = '';   // initialisé à une chaîne vide
 
     #[ORM\Column(type: 'text', nullable: true)]
     #[Assert\NotBlank(message: "Le contenu est obligatoire")]
     #[Assert\Length(min: 3, minMessage: "Le contenu doit contenir au moins {{ limit }} caractères")]
     #[Assert\Regex(pattern: '/^[a-zA-ZÀ-ÿ\s\.,!?\'-]+$/u', message: "Le contenu ne doit pas contenir de chiffres")]
-    private ?string $contenu = null;
+    private ?string $contenu = ''; // initialisé à une chaîne vide
 
     #[ORM\Column(type: 'datetime', nullable: true)]
     private ?\DateTimeInterface $datePublication = null;
@@ -37,16 +37,15 @@ class Article
     private ?Utilisateur $auteur = null;
 
     #[ORM\Column(type: 'string', length: 255, nullable: true)]
-    // Plus de contrainte NotBlank – l'image est facultative
     private ?string $image = null;
 
     #[ORM\Column(type: 'string', length: 100, nullable: true)]
     #[Assert\NotBlank(message: "Veuillez choisir une région")]
-    private ?string $region = null;
+    private string $region = '';   // initialisé à une chaîne vide
 
     #[ORM\Column(type: 'string', length: 100, nullable: true)]
     #[Assert\NotBlank(message: "Veuillez choisir une catégorie")]
-    private ?string $categorie = null;
+    private string $categorie = ''; // initialisé à une chaîne vide
 
     #[ORM\OneToMany(targetEntity: Commentaire::class, mappedBy: 'article', cascade: ['remove'])]
     private Collection $commentaires;
@@ -59,7 +58,7 @@ class Article
     public function getId(): ?int { return $this->id; }
     public function setId(int $id): self { $this->id = $id; return $this; }
 
-    public function getTitre(): ?string { return $this->titre; }
+    public function getTitre(): string { return $this->titre; }
     public function setTitre(string $titre): self { $this->titre = $titre; return $this; }
 
     public function getContenu(): ?string { return $this->contenu; }
@@ -74,11 +73,11 @@ class Article
     public function getImage(): ?string { return $this->image; }
     public function setImage(?string $image): self { $this->image = $image; return $this; }
 
-    public function getRegion(): ?string { return $this->region; }
-    public function setRegion(?string $region): self { $this->region = $region; return $this; }
+    public function getRegion(): string { return $this->region; }
+    public function setRegion(string $region): self { $this->region = $region; return $this; }
 
-    public function getCategorie(): ?string { return $this->categorie; }
-    public function setCategorie(?string $categorie): self { $this->categorie = $categorie; return $this; }
+    public function getCategorie(): string { return $this->categorie; }
+    public function setCategorie(string $categorie): self { $this->categorie = $categorie; return $this; }
 
     /**
      * @return Collection<int, Commentaire>
