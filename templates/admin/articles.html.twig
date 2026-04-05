@@ -3,9 +3,87 @@
 {% block page_title %}Gestion des Articles{% endblock %}
 
 {% block content %}
+<style>
+    .stats-container {
+        display: flex;
+        gap: 20px;
+        margin-bottom: 20px;
+    }
+    .stat-card {
+        background: #fff;
+        border-radius: 8px;
+        padding: 20px;
+        flex: 1;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        display: flex;
+        align-items: center;
+        gap: 15px;
+    }
+    .stat-icon {
+        font-size: 2rem;
+        color: #fa9e1b;
+        background: rgba(250, 158, 27, 0.1);
+        padding: 15px;
+        border-radius: 50%;
+    }
+    .stat-info h3 { margin: 0; font-size: 1.5rem; color: #333; }
+    .stat-info p { margin: 0; color: #777; font-size: 0.9rem; }
+    .action-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 32px;
+        height: 32px;
+        border-radius: 6px;
+        color: #fff;
+        text-decoration: none;
+        margin-right: 5px;
+        border: none;
+        cursor: pointer;
+        transition: background 0.3s;
+    }
+    .btn-view { background: #17a2b8; }
+    .btn-edit { background: #ffc107; color: #000; }
+    .btn-comments { background: #6f42c1; }
+    .btn-delete { background: #dc3545; }
+    .btn-view:hover { background: #138496; }
+    .btn-edit:hover { background: #e0a800; }
+    .btn-comments:hover { background: #5a32a3; }
+    .btn-delete:hover { background: #c82333; }
+</style>
+
+<div class="stats-container">
+    <div class="stat-card">
+        <i class="fa fa-newspaper-o stat-icon"></i>
+        <div class="stat-info">
+            <h3>{{ total_articles }}</h3>
+            <p>Articles publiés</p>
+        </div>
+    </div>
+    <div class="stat-card">
+        <i class="fa fa-comments-o stat-icon" style="color: #6f42c1; background: rgba(111, 66, 193, 0.1);"></i>
+        <div class="stat-info">
+            <h3>{{ total_commentaires }}</h3>
+            <p>Commentaires totaux</p>
+        </div>
+    </div>
+    <div class="stat-card">
+        <i class="fa fa-star-o stat-icon" style="color: #28a745; background: rgba(40, 167, 69, 0.1);"></i>
+        <div class="stat-info">
+            {% if article_top %}
+                <h3>{{ article_top.commentaires|length }} <small style="font-size: 0.6em; color: #777;">coms</small></h3>
+                <p>Top: {{ article_top.titre|length > 20 ? article_top.titre|slice(0, 20) ~ '...' : article_top.titre }}</p>
+            {% else %}
+                <h3>0</h3>
+                <p>Aucun top article</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
 <div class="data_card">
     <div class="data_card_header">
-        <div class="data_card_title"><i class="fa fa-newspaper-o" style="color:#fa9e1b"></i> Articles ({{ articles|length }})</div>
+        <div class="data_card_title"><i class="fa fa-list" style="color:#fa9e1b"></i> Liste des Articles</div>
     </div>
     <table>
         <thead>
@@ -14,7 +92,9 @@
                 <th>Titre</th>
                 <th>Région</th>
                 <th>Catégorie</th>
-                <th>Date de publication</th>
+                <th>Commentaires</th>
+                <th>Date publication</th>
+                <th>Actions</th>
             </tr>
         </thead>
         <tbody>
@@ -24,10 +104,32 @@
                 <td><strong>{{ article.titre }}</strong></td>
                 <td>{{ article.region ?? '-' }}</td>
                 <td>{{ article.categorie ?? '-' }}</td>
+                <td style="text-align: center;">
+                    <span style="background: rgba(111, 66, 193, 0.1); color: #6f42c1; padding: 2px 8px; border-radius: 10px; font-weight: bold;">
+                        {{ article.commentaires|length }}
+                    </span>
+                </td>
                 <td>{{ article.datePublication ? article.datePublication|date('d/m/Y H:i') : '-' }}</td>
+                <td style="display: flex; gap: 5px;">
+                    <a href="{{ path('app_article_show', {id: article.id}) }}" class="action-btn btn-view" title="Voir l'article" target="_blank">
+                        <i class="fa fa-eye"></i>
+                    </a>
+                    <a href="{{ path('app_article_edit', {id: article.id}) }}" class="action-btn btn-edit" title="Modifier">
+                        <i class="fa fa-pencil"></i>
+                    </a>
+                    <a href="{{ path('admin_article_commentaires', {id: article.id}) }}" class="action-btn btn-comments" title="Gérer les commentaires">
+                        <i class="fa fa-comments"></i>
+                    </a>
+                    <form method="post" action="{{ path('admin_article_delete', {id: article.id}) }}" style="margin: 0;" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer cet article et tous ses commentaires ?');">
+                        <input type="hidden" name="_token" value="{{ csrf_token('delete_admin' ~ article.id) }}">
+                        <button type="submit" class="action-btn btn-delete" title="Supprimer">
+                            <i class="fa fa-trash"></i>
+                        </button>
+                    </form>
+                </td>
             </tr>
             {% else %}
-            <tr><td colspan="5" style="text-align:center;color:#aaa;padding:40px;">Aucun article</td></tr>
+            <tr><td colspan="7" style="text-align:center;color:#aaa;padding:40px;">Aucun article disponible</td></tr>
             {% endfor %}
         </tbody>
     </table>
