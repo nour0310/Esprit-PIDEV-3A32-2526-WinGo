@@ -170,6 +170,7 @@
                         <div>
                             {{ form_label(formProduit.nom) }}
                             {{ form_widget(formProduit.nom) }}
+                            <div id="nom_live_error" class="form_error_block"></div>
                             <div class="form_error_block">{{ form_errors(formProduit.nom) }}</div>
                         </div>
 
