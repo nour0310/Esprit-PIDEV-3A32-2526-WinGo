@@ -2,44 +2,91 @@
 
 namespace App\Entity;
 
-use App\Repository\CommandeRepository;
 use Doctrine\ORM\Mapping as ORM;
 
-#[ORM\Entity(repositoryClass: CommandeRepository::class)]
-#[ORM\Table(name: 'commande')]
+use App\Entity\Utilisateur;
+
+#[ORM\Entity]
 class Commande
 {
+
     #[ORM\Id]
-    #[ORM\GeneratedValue]
-    #[ORM\Column(name: 'id_commande', type: 'integer')]
-    private ?int $id = null;
+    #[ORM\Column(type: "integer")]
+    private int $id_commande;
 
-    #[ORM\Column(name: 'id_user', type: 'integer')]
-    private int $idUser = 0;
+        #[ORM\ManyToOne(targetEntity: Utilisateur::class, inversedBy: "commandes")]
+    #[ORM\JoinColumn(name: 'id_user', referencedColumnName: 'id', onDelete: 'CASCADE')]
+    private Utilisateur $id_user;
 
-    #[ORM\Column(type: 'string', length: 20, columnDefinition: "ENUM('panier','en_cours','livree','annulee') NOT NULL DEFAULT 'en_cours'")]
-    private string $status = 'en_cours';
+    #[ORM\Column(type: "string")]
+    private string $status;
 
-    #[ORM\Column(type: 'decimal', precision: 10, scale: 2, options: ['default' => 0.00])]
-    private string $total = '0.00';
+    #[ORM\Column(type: "float")]
+    private float $total;
 
-    #[ORM\Column(name: 'items_json', type: 'text', nullable: true)]
-    private ?string $itemsJson = null;
+    #[ORM\Column(type: "text")]
+    private string $items_json;
 
-    #[ORM\Column(name: 'date_commande', type: 'datetime', nullable: true)]
-    private ?\DateTimeInterface $dateCommande = null;
+    #[ORM\Column(type: "datetime")]
+    private \DateTimeInterface $date_commande;
 
-    public function __construct() { $this->dateCommande = new \DateTime(); }
+    public function getId_commande()
+    {
+        return $this->id_commande;
+    }
 
-    public function getId(): ?int { return $this->id; }
-    public function getIdUser(): int { return $this->idUser; }
-    public function setIdUser(int $idUser): static { $this->idUser = $idUser; return $this; }
-    public function getStatus(): string { return $this->status; }
-    public function setStatus(string $status): static { $this->status = $status; return $this; }
-    public function getTotal(): string { return $this->total; }
-    public function setTotal(string $total): static { $this->total = $total; return $this; }
-    public function getItemsJson(): ?string { return $this->itemsJson; }
-    public function setItemsJson(?string $itemsJson): static { $this->itemsJson = $itemsJson; return $this; }
-    public function getDateCommande(): ?\DateTimeInterface { return $this->dateCommande; }
-    public function setDateCommande(?\DateTimeInterface $dateCommande): static { $this->dateCommande = $dateCommande; return $this; }
+    public function setId_commande($value)
+    {
+        $this->id_commande = $value;
+    }
+
+    public function getId_user()
+    {
+        return $this->id_user;
+    }
+
+    public function setId_user($value)
+    {
+        $this->id_user = $value;
+    }
+
+    public function getStatus()
+    {
+        return $this->status;
+    }
+
+    public function setStatus($value)
+    {
+        $this->status = $value;
+    }
+
+    public function getTotal()
+    {
+        return $this->total;
+    }
+
+    public function setTotal($value)
+    {
+        $this->total = $value;
+    }
+
+    public function getItems_json()
+    {
+        return $this->items_json;
+    }
+
+    public function setItems_json($value)
+    {
+        $this->items_json = $value;
+    }
+
+    public function getDate_commande()
+    {
+        return $this->date_commande;
+    }
+
+    public function setDate_commande($value)
+    {
+        $this->date_commande = $value;
+    }
 }

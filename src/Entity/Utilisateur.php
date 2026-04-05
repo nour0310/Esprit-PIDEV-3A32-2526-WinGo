@@ -2,213 +2,176 @@
 
 namespace App\Entity;
 
-use App\Repository\UtilisateurRepository;
-use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
-use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
-use Symfony\Component\Security\Core\User\UserInterface;
 
-#[ORM\Entity(repositoryClass: UtilisateurRepository::class)]
-#[ORM\Table(name: 'utilisateur')]
-class Utilisateur implements UserInterface, PasswordAuthenticatedUserInterface
+use Doctrine\Common\Collections\Collection;
+use App\Entity\Produit;
+
+#[ORM\Entity]
+class Utilisateur
 {
+
     #[ORM\Id]
-    #[ORM\GeneratedValue]
-    #[ORM\Column(type: 'integer')]
-    private ?int $id = null;
+    #[ORM\Column(type: "integer")]
+    private int $id;
 
-    #[ORM\Column(type: 'string', length: 50)]
-    private string $nom = '';
+    #[ORM\Column(type: "string", length: 50)]
+    private string $nom;
 
-    #[ORM\Column(type: 'string', length: 50)]
-    private string $prenom = '';
+    #[ORM\Column(type: "string", length: 50)]
+    private string $prenom;
 
-    #[ORM\Column(type: 'string', length: 100, unique: true)]
-    private string $email = '';
+    #[ORM\Column(type: "string", length: 100)]
+    private string $email;
 
-    #[ORM\Column(name: 'mot_de_passe', type: 'string', length: 255)]
-    private string $motDePasse = '';
+    #[ORM\Column(type: "string", length: 255)]
+    private string $mot_de_passe;
 
-    #[ORM\Column(type: 'string', length: 50, nullable: true)]
-    private ?string $type = null;
+    #[ORM\Column(type: "string", length: 50)]
+    private string $type;
 
-    #[ORM\Column(type: 'bigint', nullable: true)]
-    private ?int $telephone = null;
+    #[ORM\Column(type: "bigint")]
+    private string $telephone;
 
-    #[ORM\Column(type: 'integer', nullable: true)]
-    private ?int $age = null;
+    #[ORM\Column(type: "integer")]
+    private int $age;
 
-    #[ORM\Column(name: 'is_verified', type: 'boolean', options: ['default' => false])]
-    private bool $isVerified = false;
+    #[ORM\Column(type: "boolean")]
+    private bool $is_verified;
 
-    #[ORM\Column(name: 'verification_code', type: 'string', length: 10, nullable: true)]
-    private ?string $verificationCode = null;
+    #[ORM\Column(type: "string", length: 10)]
+    private string $verification_code;
 
-    #[ORM\OneToOne(mappedBy: 'utilisateur', targetEntity: Profil::class, cascade: ['persist', 'remove'])]
-    private ?Profil $profil = null;
-
-    public function getId(): ?int
+    public function getId()
     {
         return $this->id;
     }
 
-    public function getNom(): string
+    public function setId($value)
+    {
+        $this->id = $value;
+    }
+
+    public function getNom()
     {
         return $this->nom;
     }
 
-    public function setNom(string $nom): static
+    public function setNom($value)
     {
-        $this->nom = $nom;
-        return $this;
+        $this->nom = $value;
     }
 
-    public function getPrenom(): string
+    public function getPrenom()
     {
         return $this->prenom;
     }
 
-    public function setPrenom(string $prenom): static
+    public function setPrenom($value)
     {
-        $this->prenom = $prenom;
-        return $this;
+        $this->prenom = $value;
     }
 
-    public function getEmail(): string
+    public function getEmail()
     {
         return $this->email;
     }
 
-    public function setEmail(string $email): static
+    public function setEmail($value)
     {
-        $this->email = $email;
-        return $this;
+        $this->email = $value;
     }
 
-    public function getMotDePasse(): string
+    public function getMot_de_passe()
     {
-        return $this->motDePasse;
+        return $this->mot_de_passe;
     }
 
-    public function setMotDePasse(string $motDePasse): static
+    public function setMot_de_passe($value)
     {
-        $this->motDePasse = $motDePasse;
-        return $this;
+        $this->mot_de_passe = $value;
     }
 
-    public function getType(): ?string
+    public function getType()
     {
         return $this->type;
     }
 
-    public function setType(?string $type): static
+    public function setType($value)
     {
-        $this->type = $type;
-        return $this;
+        $this->type = $value;
     }
 
-    public function getTelephone(): ?int
+    public function getTelephone()
     {
         return $this->telephone;
     }
 
-    public function setTelephone(?int $telephone): static
+    public function setTelephone($value)
     {
-        $this->telephone = $telephone;
-        return $this;
+        $this->telephone = $value;
     }
 
-    public function getAge(): ?int
+    public function getAge()
     {
         return $this->age;
     }
 
-    public function setAge(?int $age): static
+    public function setAge($value)
     {
-        $this->age = $age;
-        return $this;
+        $this->age = $value;
     }
 
-    public function isVerified(): bool
+    public function getIs_verified()
     {
-        return $this->isVerified;
+        return $this->is_verified;
     }
 
-    public function setIsVerified(bool $isVerified): static
+    public function setIs_verified($value)
     {
-        $this->isVerified = $isVerified;
-        return $this;
+        $this->is_verified = $value;
     }
 
-    public function getVerificationCode(): ?string
+    public function getVerification_code()
     {
-        return $this->verificationCode;
+        return $this->verification_code;
     }
 
-    public function setVerificationCode(?string $verificationCode): static
+    public function setVerification_code($value)
     {
-        $this->verificationCode = $verificationCode;
-        return $this;
+        $this->verification_code = $value;
     }
 
-    public function getProfil(): ?Profil
-    {
-        return $this->profil;
-    }
+    #[ORM\OneToMany(mappedBy: "id_user", targetEntity: Commande::class)]
+    private Collection $commandes;
 
-    public function setProfil(?Profil $profil): static
-    {
-        $this->profil = $profil;
-        return $this;
-    }
+        public function getCommandes(): Collection
+        {
+            return $this->commandes;
+        }
+    
+        public function addCommande(Commande $commande): self
+        {
+            if (!$this->commandes->contains($commande)) {
+                $this->commandes[] = $commande;
+                $commande->setId_user($this);
+            }
+    
+            return $this;
+        }
+    
+        public function removeCommande(Commande $commande): self
+        {
+            if ($this->commandes->removeElement($commande)) {
+                // set the owning side to null (unless already changed)
+                if ($commande->getId_user() === $this) {
+                    $commande->setId_user(null);
+                }
+            }
+    
+            return $this;
+        }
 
-    // --- UserInterface ---
-
-    public function getUserIdentifier(): string
-    {
-        return $this->email;
-    }
-
-    public function getRoles(): array
-{
-    $type = strtoupper($this->type ?? 'CLIENT');
-
-    if ($type === 'ADMIN') {
-        return ['ROLE_ADMIN', 'ROLE_USER'];
-    }
-
-    if ($type === 'COMMERCANT') {
-        return ['ROLE_COMMERCANT', 'ROLE_USER'];
-    }
-
-    return ['ROLE_CLIENT', 'ROLE_USER'];
-}
-
-public function isCommercant(): bool
-{
-    return strtoupper($this->type ?? '') === 'COMMERCANT';
-}
-
-public function isEnAttenteCommercant(): bool
-{
-    return strtoupper($this->type ?? '') === 'EN_ATTENTE_COMMERCANT';
-}
-
-    public function getPassword(): string
-    {
-        return $this->motDePasse;
-    }
-
-    public function eraseCredentials(): void {}
-
-    public function getFullName(): string
-    {
-        return $this->prenom . ' ' . $this->nom;
-    }
-
-    public function isAdmin(): bool
-    {
-        return strtolower($this->type ?? '') === 'admin';
-    }
+    #[ORM\OneToMany(mappedBy: "id_user", targetEntity: Produit::class)]
+    private Collection $produits;
 }

@@ -2,69 +2,153 @@
 
 namespace App\Entity;
 
-use App\Repository\ReclamationRepository;
 use Doctrine\ORM\Mapping as ORM;
 
-#[ORM\Entity(repositoryClass: ReclamationRepository::class)]
-#[ORM\Table(name: 'reclamation')]
+
+#[ORM\Entity]
 class Reclamation
 {
-    #[ORM\Id]
-    #[ORM\GeneratedValue]
-    #[ORM\Column(name: 'id_reclamation', type: 'integer')]
-    private ?int $id = null;
 
-    #[ORM\Column(name: 'id_user', type: 'integer')]
-    private int $idUser = 0;
+    #[ORM\Column(type: "integer")]
+    private int $id_reclamation;
 
-    #[ORM\Column(name: 'type_reclamation', type: 'string', length: 50, nullable: true)]
-    private ?string $typeReclamation = null;
+    #[ORM\Column(type: "integer")]
+    private int $id_user;
 
-    #[ORM\Column(type: 'string', length: 100, nullable: true)]
-    private ?string $sujet = null;
+    #[ORM\Column(type: "string", length: 50)]
+    private string $type_reclamation;
 
-    #[ORM\Column(type: 'text', nullable: true)]
-    private ?string $description = null;
+    #[ORM\Column(type: "string", length: 100)]
+    private string $sujet;
 
-    #[ORM\Column(name: 'date_reclamation', type: 'datetime', nullable: true)]
-    private ?\DateTimeInterface $dateReclamation = null;
+    #[ORM\Column(type: "text")]
+    private string $description;
 
-    #[ORM\Column(type: 'string', length: 30, options: ['default' => 'En attente'])]
-    private string $statut = 'En attente';
+    #[ORM\Column(type: "datetime")]
+    private \DateTimeInterface $date_reclamation;
 
-    #[ORM\Column(type: 'string', length: 20, nullable: true)]
-    private ?string $priorite = null;
+    #[ORM\Column(type: "string", length: 30)]
+    private string $statut;
 
-    #[ORM\Column(name: 'piece_jointe', type: 'string', length: 255, nullable: true)]
-    private ?string $pieceJointe = null;
+    #[ORM\Column(type: "string", length: 20)]
+    private string $priorite;
 
-    #[ORM\Column(name: 'reponse_admin', type: 'text', nullable: true)]
-    private ?string $reponseAdmin = null;
+    #[ORM\Column(type: "string", length: 255)]
+    private string $piece_jointe;
 
-    #[ORM\Column(name: 'date_reponse', type: 'datetime', nullable: true)]
-    private ?\DateTimeInterface $dateReponse = null;
+    #[ORM\Column(type: "text")]
+    private string $reponse_admin;
 
-    public function __construct() { $this->dateReclamation = new \DateTime(); }
+    #[ORM\Column(type: "datetime")]
+    private \DateTimeInterface $date_reponse;
 
-    public function getId(): ?int { return $this->id; }
-    public function getIdUser(): int { return $this->idUser; }
-    public function setIdUser(int $idUser): static { $this->idUser = $idUser; return $this; }
-    public function getTypeReclamation(): ?string { return $this->typeReclamation; }
-    public function setTypeReclamation(?string $typeReclamation): static { $this->typeReclamation = $typeReclamation; return $this; }
-    public function getSujet(): ?string { return $this->sujet; }
-    public function setSujet(?string $sujet): static { $this->sujet = $sujet; return $this; }
-    public function getDescription(): ?string { return $this->description; }
-    public function setDescription(?string $description): static { $this->description = $description; return $this; }
-    public function getDateReclamation(): ?\DateTimeInterface { return $this->dateReclamation; }
-    public function setDateReclamation(?\DateTimeInterface $dateReclamation): static { $this->dateReclamation = $dateReclamation; return $this; }
-    public function getStatut(): string { return $this->statut; }
-    public function setStatut(string $statut): static { $this->statut = $statut; return $this; }
-    public function getPriorite(): ?string { return $this->priorite; }
-    public function setPriorite(?string $priorite): static { $this->priorite = $priorite; return $this; }
-    public function getPieceJointe(): ?string { return $this->pieceJointe; }
-    public function setPieceJointe(?string $pieceJointe): static { $this->pieceJointe = $pieceJointe; return $this; }
-    public function getReponseAdmin(): ?string { return $this->reponseAdmin; }
-    public function setReponseAdmin(?string $reponseAdmin): static { $this->reponseAdmin = $reponseAdmin; return $this; }
-    public function getDateReponse(): ?\DateTimeInterface { return $this->dateReponse; }
-    public function setDateReponse(?\DateTimeInterface $dateReponse): static { $this->dateReponse = $dateReponse; return $this; }
+    public function getId_reclamation()
+    {
+        return $this->id_reclamation;
+    }
+
+    public function setId_reclamation($value)
+    {
+        $this->id_reclamation = $value;
+    }
+
+    public function getId_user()
+    {
+        return $this->id_user;
+    }
+
+    public function setId_user($value)
+    {
+        $this->id_user = $value;
+    }
+
+    public function getType_reclamation()
+    {
+        return $this->type_reclamation;
+    }
+
+    public function setType_reclamation($value)
+    {
+        $this->type_reclamation = $value;
+    }
+
+    public function getSujet()
+    {
+        return $this->sujet;
+    }
+
+    public function setSujet($value)
+    {
+        $this->sujet = $value;
+    }
+
+    public function getDescription()
+    {
+        return $this->description;
+    }
+
+    public function setDescription($value)
+    {
+        $this->description = $value;
+    }
+
+    public function getDate_reclamation()
+    {
+        return $this->date_reclamation;
+    }
+
+    public function setDate_reclamation($value)
+    {
+        $this->date_reclamation = $value;
+    }
+
+    public function getStatut()
+    {
+        return $this->statut;
+    }
+
+    public function setStatut($value)
+    {
+        $this->statut = $value;
+    }
+
+    public function getPriorite()
+    {
+        return $this->priorite;
+    }
+
+    public function setPriorite($value)
+    {
+        $this->priorite = $value;
+    }
+
+    public function getPiece_jointe()
+    {
+        return $this->piece_jointe;
+    }
+
+    public function setPiece_jointe($value)
+    {
+        $this->piece_jointe = $value;
+    }
+
+    public function getReponse_admin()
+    {
+        return $this->reponse_admin;
+    }
+
+    public function setReponse_admin($value)
+    {
+        $this->reponse_admin = $value;
+    }
+
+    public function getDate_reponse()
+    {
+        return $this->date_reponse;
+    }
+
+    public function setDate_reponse($value)
+    {
+        $this->date_reponse = $value;
+    }
 }

@@ -2,171 +2,143 @@
 
 namespace App\Entity;
 
-use App\Repository\ProduitRepository;
-use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
-use Symfony\Component\Validator\Constraints as Assert;
 
-#[ORM\Entity(repositoryClass: ProduitRepository::class)]
-#[ORM\Table(name: 'produit')]
+use App\Entity\Utilisateur;
+
+#[ORM\Entity]
 class Produit
 {
+
     #[ORM\Id]
-    #[ORM\GeneratedValue]
-    #[ORM\Column(name: 'id_produit')]
-    private ?int $id = null;
+    #[ORM\Column(type: "integer")]
+    private int $id_produit;
 
-    #[ORM\Column(name: 'id_user')]
-    private ?int $idUser = null;
+        #[ORM\ManyToOne(targetEntity: Utilisateur::class, inversedBy: "produits")]
+    #[ORM\JoinColumn(name: 'id_user', referencedColumnName: 'id', onDelete: 'CASCADE')]
+    private Utilisateur $id_user;
 
-   #[ORM\Column(length: 255)]
-    #[Assert\NotBlank(message: 'Le nom du produit est obligatoire.')]
-    #[Assert\Length(
-        min: 3,
-        minMessage: 'Le nom doit contenir au moins {{ limit }} caractères.',
-        max: 100,
-        maxMessage: 'Le nom ne doit pas dépasser {{ limit }} caractères.'
-    )]
-    #[Assert\Regex(
-        pattern: '/^[A-Za-zÀ-ÿ\s]+$/',
-        message: 'Le nom ne doit contenir que des lettres et des espaces.'
-    )]
-    private ?string $nom = null;
+    #[ORM\Column(type: "string", length: 150)]
+    private string $nom;
 
-    #[ORM\Column(type: Types::TEXT, nullable: true)]
-    #[Assert\NotBlank(message: 'La description est obligatoire.')]
-    #[Assert\Length(
-        min: 10,
-        minMessage: 'La description doit contenir au moins {{ limit }} caractères.'
-    )]
-    private ?string $description = null;
+    #[ORM\Column(type: "text")]
+    private string $description;
 
-    #[ORM\Column(type: Types::DECIMAL, precision: 10, scale: 2)]
-    #[Assert\NotBlank(message: 'Le prix est obligatoire.')]
-    #[Assert\Positive(message: 'Le prix doit être un nombre positif.')]
-    private ?string $prix = null;
+    #[ORM\Column(type: "float")]
+    private float $prix;
 
-    #[ORM\Column(length: 100, nullable: true)]
-    #[Assert\NotBlank(message: 'La région est obligatoire.')]
-    private ?string $region = null;
+    #[ORM\Column(type: "string", length: 100)]
+    private string $region;
 
-    #[ORM\Column(name: 'categorie', length: 100, nullable: true)]
-    #[Assert\NotBlank(message: 'La catégorie est obligatoire.')]
-    private ?string $categorie = null;
+    #[ORM\Column(type: "string", length: 100)]
+    private string $categorie;
 
-    #[ORM\Column(options: ['default' => 0])]
-    #[Assert\NotBlank(message: 'Le stock est obligatoire.')]
-    #[Assert\Positive(message: 'Le stock doit être un nombre positif.')]
-    private ?int $stock = 0;
+    #[ORM\Column(type: "integer")]
+    private int $stock;
 
-    #[ORM\Column(length: 255, nullable: true)]
-    private ?string $image = null;
+    #[ORM\Column(type: "string", length: 255)]
+    private string $image;
 
-    #[ORM\Column(name: 'date_ajout', type: Types::DATETIME_MUTABLE, nullable: true)]
-    #[Assert\NotNull(message: 'La date d’ajout est obligatoire.')]
-    private ?\DateTimeInterface $dateAjout = null;
+    #[ORM\Column(type: "datetime")]
+    private \DateTimeInterface $date_ajout;
 
-    public function getId(): ?int
+    public function getId_produit()
     {
-        return $this->id;
+        return $this->id_produit;
     }
 
-    public function getIdUser(): ?int
+    public function setId_produit($value)
     {
-        return $this->idUser;
+        $this->id_produit = $value;
     }
 
-    public function setIdUser(int $idUser): static
+    public function getId_user()
     {
-        $this->idUser = $idUser;
-        return $this;
+        return $this->id_user;
     }
 
-    public function getNom(): ?string
+    public function setId_user($value)
+    {
+        $this->id_user = $value;
+    }
+
+    public function getNom()
     {
         return $this->nom;
     }
 
-    public function setNom(string $nom): static
+    public function setNom($value)
     {
-        $this->nom = $nom;
-        return $this;
+        $this->nom = $value;
     }
 
-    public function getDescription(): ?string
+    public function getDescription()
     {
         return $this->description;
     }
 
-    public function setDescription(?string $description): static
+    public function setDescription($value)
     {
-        $this->description = $description;
-        return $this;
+        $this->description = $value;
     }
 
-    public function getPrix(): ?string
+    public function getPrix()
     {
         return $this->prix;
     }
 
-    public function setPrix(string $prix): static
+    public function setPrix($value)
     {
-        $this->prix = $prix;
-        return $this;
+        $this->prix = $value;
     }
 
-    public function getRegion(): ?string
+    public function getRegion()
     {
         return $this->region;
     }
 
-    public function setRegion(?string $region): static
+    public function setRegion($value)
     {
-        $this->region = $region;
-        return $this;
+        $this->region = $value;
     }
 
-    public function getCategorie(): ?string
+    public function getCategorie()
     {
         return $this->categorie;
     }
 
-    public function setCategorie(?string $categorie): static
+    public function setCategorie($value)
     {
-        $this->categorie = $categorie;
-        return $this;
+        $this->categorie = $value;
     }
 
-    public function getStock(): ?int
+    public function getStock()
     {
         return $this->stock;
     }
 
-    public function setStock(int $stock): static
+    public function setStock($value)
     {
-        $this->stock = $stock;
-        return $this;
+        $this->stock = $value;
     }
 
-    public function getImage(): ?string
+    public function getImage()
     {
         return $this->image;
     }
 
-    public function setImage(?string $image): static
+    public function setImage($value)
     {
-        $this->image = $image;
-        return $this;
+        $this->image = $value;
     }
 
-    public function getDateAjout(): ?\DateTimeInterface
+    public function getDate_ajout()
     {
-        return $this->dateAjout;
+        return $this->date_ajout;
     }
 
-    public function setDateAjout(?\DateTimeInterface $dateAjout): static
+    public function setDate_ajout($value)
     {
-        $this->dateAjout = $dateAjout;
-        return $this;
+        $this->date_ajout = $value;
     }
 }

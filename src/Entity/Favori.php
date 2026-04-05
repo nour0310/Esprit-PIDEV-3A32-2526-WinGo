@@ -6,31 +6,19 @@ use Doctrine\ORM\Mapping as ORM;
 
 
 #[ORM\Entity]
-class Likes
+class Favori
 {
 
     #[ORM\Id]
     #[ORM\Column(type: "integer")]
-    private int $id;
-
-    #[ORM\Column(type: "integer")]
     private int $utilisateur_id;
 
+    #[ORM\Id]
     #[ORM\Column(type: "integer")]
     private int $article_id;
 
     #[ORM\Column(type: "datetime")]
-    private \DateTimeInterface $date_like;
-
-    public function getId()
-    {
-        return $this->id;
-    }
-
-    public function setId($value)
-    {
-        $this->id = $value;
-    }
+    private \DateTimeInterface $date_ajout;
 
     public function getUtilisateur_id()
     {
@@ -52,13 +40,13 @@ class Likes
         $this->article_id = $value;
     }
 
-    public function getDate_like()
+    public function getDate_ajout()
     {
-        return $this->date_like;
+        return $this->date_ajout;
     }
 
-    public function setDate_like($value)
+    public function setDate_ajout($value)
     {
-        $this->date_like = $value;
+        $this->date_ajout = $value;
     }
 }

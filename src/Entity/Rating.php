@@ -2,39 +2,76 @@
 
 namespace App\Entity;
 
-use App\Repository\RatingRepository;
 use Doctrine\ORM\Mapping as ORM;
 
-#[ORM\Entity(repositoryClass: RatingRepository::class)]
-#[ORM\Table(name: 'rating')]
+
+#[ORM\Entity]
 class Rating
 {
+
     #[ORM\Id]
-    #[ORM\GeneratedValue]
-    #[ORM\Column(type: 'integer')]
-    private ?int $id = null;
+    #[ORM\Column(type: "integer")]
+    private int $id;
 
-    #[ORM\Column(name: 'utilisateur_id', type: 'integer')]
-    private int $utilisateurId = 0;
+    #[ORM\Column(type: "integer")]
+    private int $utilisateur_id;
 
-    #[ORM\Column(name: 'article_id', type: 'integer')]
-    private int $articleId = 0;
+    #[ORM\Column(type: "integer")]
+    private int $article_id;
 
-    #[ORM\Column(type: 'integer')]
-    private int $note = 1;
+    #[ORM\Column(type: "integer")]
+    private int $note;
 
-    #[ORM\Column(name: 'date_rating', type: 'datetime', nullable: true)]
-    private ?\DateTimeInterface $dateRating = null;
+    #[ORM\Column(type: "datetime")]
+    private \DateTimeInterface $date_rating;
 
-    public function __construct() { $this->dateRating = new \DateTime(); }
+    public function getId()
+    {
+        return $this->id;
+    }
 
-    public function getId(): ?int { return $this->id; }
-    public function getUtilisateurId(): int { return $this->utilisateurId; }
-    public function setUtilisateurId(int $utilisateurId): static { $this->utilisateurId = $utilisateurId; return $this; }
-    public function getArticleId(): int { return $this->articleId; }
-    public function setArticleId(int $articleId): static { $this->articleId = $articleId; return $this; }
-    public function getNote(): int { return $this->note; }
-    public function setNote(int $note): static { $this->note = $note; return $this; }
-    public function getDateRating(): ?\DateTimeInterface { return $this->dateRating; }
-    public function setDateRating(?\DateTimeInterface $dateRating): static { $this->dateRating = $dateRating; return $this; }
+    public function setId($value)
+    {
+        $this->id = $value;
+    }
+
+    public function getUtilisateur_id()
+    {
+        return $this->utilisateur_id;
+    }
+
+    public function setUtilisateur_id($value)
+    {
+        $this->utilisateur_id = $value;
+    }
+
+    public function getArticle_id()
+    {
+        return $this->article_id;
+    }
+
+    public function setArticle_id($value)
+    {
+        $this->article_id = $value;
+    }
+
+    public function getNote()
+    {
+        return $this->note;
+    }
+
+    public function setNote($value)
+    {
+        $this->note = $value;
+    }
+
+    public function getDate_rating()
+    {
+        return $this->date_rating;
+    }
+
+    public function setDate_rating($value)
+    {
+        $this->date_rating = $value;
+    }
 }
