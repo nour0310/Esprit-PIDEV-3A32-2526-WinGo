@@ -19,13 +19,17 @@ class Produit
     #[ORM\Column(name: 'id_user')]
     private ?int $idUser = null;
 
-    #[ORM\Column(length: 255)]
+   #[ORM\Column(length: 255)]
     #[Assert\NotBlank(message: 'Le nom du produit est obligatoire.')]
     #[Assert\Length(
         min: 3,
         minMessage: 'Le nom doit contenir au moins {{ limit }} caractères.',
         max: 100,
         maxMessage: 'Le nom ne doit pas dépasser {{ limit }} caractères.'
+    )]
+    #[Assert\Regex(
+        pattern: '/^[A-Za-zÀ-ÿ\s]+$/',
+        message: 'Le nom ne doit contenir que des lettres et des espaces.'
     )]
     private ?string $nom = null;
 
