@@ -470,7 +470,11 @@
     </div>
 </div>
             </div>
-
+            {% if searchTerm is defined and searchTerm %}
+                <div style="margin-bottom: 25px; text-align: center;">
+                    <h3>Résultat de recherche : "{{ searchTerm }}"</h3>
+                </div>
+            {% endif %}
             <div class="row products_grid" id="products-grid">
                 {% for p in produits %}
                     <div class="col-lg-4 col-md-6 mb-4">
