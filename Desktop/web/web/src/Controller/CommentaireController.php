@@ -12,7 +12,7 @@ use Symfony\Component\Routing\Attribute\Route;
 
 class CommentaireController extends AbstractController
 {
-    // Récupérer le contenu d'un commentaire en JSON (GET)
+    // Récupérer le contenu d'un commentaire (GET)
     #[Route('/commentaire/{id}/edit', name: 'app_commentaire_edit', methods: ['GET'])]
     public function getCommentaire(Commentaire $commentaire): Response
     {
@@ -20,7 +20,7 @@ class CommentaireController extends AbstractController
     }
 
     // Mettre à jour un commentaire (POST)
-    #[Route('/commentaire/{id}/edit', name: 'app_commentaire_update', methods: ['POST'])]
+    #[Route('/commentaire/{id}/update', name: 'app_commentaire_update', methods: ['POST'])]
     public function update(Request $request, Commentaire $commentaire, EntityManagerInterface $em): Response
     {
         $form = $this->createForm(CommentaireType::class, $commentaire);
