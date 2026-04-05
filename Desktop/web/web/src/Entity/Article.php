@@ -37,7 +37,7 @@ class Article
     private ?Utilisateur $auteur = null;
 
     #[ORM\Column(type: 'string', length: 255, nullable: true)]
-    #[Assert\NotBlank(message: "Veuillez sélectionner une image")]
+    // Plus de contrainte NotBlank – l'image est facultative
     private ?string $image = null;
 
     #[ORM\Column(type: 'string', length: 100, nullable: true)]
