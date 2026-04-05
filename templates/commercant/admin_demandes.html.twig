@@ -1,14 +1,65 @@
 {% extends 'admin/base_admin.html.twig' %}
 
 {% block title %}Demandes commerçant{% endblock %}
+{% block page_title %}Gestion des commerçants{% endblock %}
 
 {% block stylesheets %}
     {{ parent() }}
     <style>
         .merchant_admin_section{
-            padding:180px 0 90px 0;
-            background:#f6f9fb;
-            min-height:100vh;
+            padding: 10px 0 10px 0;
+            min-height: 100vh;
+        }
+
+        .stats_grid{
+            display:grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap:18px;
+            margin-bottom:28px;
+        }
+
+        .stat_card_custom{
+            background:#fff;
+            border-radius:18px;
+            padding:22px;
+            box-shadow:0 12px 30px rgba(25,30,70,0.08);
+            border:1px solid rgba(0,0,0,0.04);
+            display:flex;
+            align-items:center;
+            gap:16px;
+        }
+
+        .stat_icon_custom{
+            width:58px;
+            height:58px;
+            border-radius:16px;
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            font-size:22px;
+            color:#fff;
+            flex-shrink:0;
+        }
+
+        .icon_orange{ background: linear-gradient(135deg, #fa9e1b, #f76b1c); }
+        .icon_purple{ background: linear-gradient(135deg, #8d4fff, #6a11cb); }
+        .icon_green{ background: linear-gradient(135deg, #43a047, #2e7d32); }
+        .icon_blue{ background: linear-gradient(135deg, #2196f3, #1565c0); }
+
+        .stat_number_custom{
+            font-size:30px;
+            font-weight:900;
+            color:#1f2235;
+            line-height:1;
+            margin-bottom:5px;
+        }
+
+        .stat_label_custom{
+            font-size:13px;
+            color:#7b8095;
+            font-weight:700;
+            text-transform:uppercase;
+            letter-spacing:0.5px;
         }
 
         .merchant_admin_box{
@@ -95,7 +146,49 @@
 
 {% block content %}
 <div class="merchant_admin_section">
-    <div class="container">
+    <div class="container-fluid">
+
+        <div class="stats_grid">
+            <div class="stat_card_custom">
+                <div class="stat_icon_custom icon_orange">
+                    <i class="fa fa-clock-o"></i>
+                </div>
+                <div>
+                    <div class="stat_number_custom">{{ totalDemandes }}</div>
+                    <div class="stat_label_custom">Demandes en attente</div>
+                </div>
+            </div>
+
+            <div class="stat_card_custom">
+                <div class="stat_icon_custom icon_green">
+                    <i class="fa fa-store"></i>
+                </div>
+                <div>
+                    <div class="stat_number_custom">{{ totalCommercants }}</div>
+                    <div class="stat_label_custom">Commerçants acceptés</div>
+                </div>
+            </div>
+
+            <div class="stat_card_custom">
+                <div class="stat_icon_custom icon_blue">
+                    <i class="fa fa-user"></i>
+                </div>
+                <div>
+                    <div class="stat_number_custom">{{ totalClients }}</div>
+                    <div class="stat_label_custom">Clients</div>
+                </div>
+            </div>
+
+            <div class="stat_card_custom">
+                <div class="stat_icon_custom icon_purple">
+                    <i class="fa fa-users"></i>
+                </div>
+                <div>
+                    <div class="stat_number_custom">{{ totalUtilisateurs }}</div>
+                    <div class="stat_label_custom">Total utilisateurs</div>
+                </div>
+            </div>
+        </div>
 
         <div class="merchant_admin_box">
             <h1 class="merchant_admin_title">Gestion des commerçants</h1>

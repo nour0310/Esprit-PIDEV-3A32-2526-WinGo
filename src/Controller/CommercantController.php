@@ -80,6 +80,29 @@ public function adminDemandes(UtilisateurRepository $repo): Response
     }
 
     #[IsGranted('ROLE_ADMIN')]
+#[Route('/admin/demandes-commercant', name: 'admin_demandes_commercant')]
+public function adminDemandes(UtilisateurRepository $repo): Response
+{
+    $demandes = $repo->findBy(['type' => 'EN_ATTENTE_COMMERCANT'], ['id' => 'DESC']);
+    $commercants = $repo->findBy(['type' => 'COMMERCANT'], ['id' => 'DESC']);
+    $clients = $repo->findBy(['type' => 'CLIENT'], ['id' => 'DESC']);
+
+    $totalDemandes = count($demandes);
+    $totalCommercants = count($commercants);
+    $totalClients = count($clients);
+    $totalUtilisateurs = $totalDemandes + $totalCommercants + $totalClients;
+
+    return $this->render('commercant/admin_demandes.html.twig', [
+        'demandes' => $demandes,
+        'commercants' => $commercants,
+        'totalDemandes' => $totalDemandes,
+        'totalCommercants' => $totalCommercants,
+        'totalClients' => $totalClients,
+        'totalUtilisateurs' => $totalUtilisateurs,
+    ]);
+}
+
+    #[IsGranted('ROLE_ADMIN')]
     #[Route('/admin/demande-commercant/refuser/{id}', name: 'admin_demande_commercant_refuser', methods: ['POST'])]
     public function refuser(
         int $id,
@@ -99,4 +122,6 @@ public function adminDemandes(UtilisateurRepository $repo): Response
 
         return $this->redirectToRoute('admin_demandes_commercant');
     }
+
+    
 }
