@@ -21,13 +21,13 @@ class Article
     #[Assert\NotBlank(message: "Le titre est obligatoire")]
     #[Assert\Length(min: 3, minMessage: "Le titre doit contenir au moins {{ limit }} caractères")]
     #[Assert\Regex(pattern: '/^[a-zA-ZÀ-ÿ\s\.,!?\'-]+$/u', message: "Le titre ne doit pas contenir de chiffres")]
-    private string $titre = '';   // ← initialisé à chaîne vide
+    private string $titre = '';
 
     #[ORM\Column(type: 'text', nullable: true)]
     #[Assert\NotBlank(message: "Le contenu est obligatoire")]
     #[Assert\Length(min: 3, minMessage: "Le contenu doit contenir au moins {{ limit }} caractères")]
     #[Assert\Regex(pattern: '/^[a-zA-ZÀ-ÿ\s\.,!?\'-]+$/u', message: "Le contenu ne doit pas contenir de chiffres")]
-    private string $contenu = ''; // ← initialisé à chaîne vide
+    private string $contenu = '';
 
     #[ORM\Column(type: 'datetime', nullable: true)]
     private ?\DateTimeInterface $datePublication = null;
@@ -41,11 +41,11 @@ class Article
 
     #[ORM\Column(type: 'string', length: 100, nullable: true)]
     #[Assert\NotBlank(message: "Veuillez choisir une région")]
-    private string $region = '';   // ← initialisé à chaîne vide
+    private string $region = '';
 
     #[ORM\Column(type: 'string', length: 100, nullable: true)]
     #[Assert\NotBlank(message: "Veuillez choisir une catégorie")]
-    private string $categorie = ''; // ← initialisé à chaîne vide
+    private string $categorie = '';
 
     #[ORM\OneToMany(targetEntity: Commentaire::class, mappedBy: 'article', cascade: ['remove'])]
     private Collection $commentaires;
@@ -55,7 +55,7 @@ class Article
         $this->commentaires = new ArrayCollection();
     }
 
-    // Getters et setters (types adaptés)
+    // Getters et setters (avec gestion du null)
     public function getId(): ?int { return $this->id; }
     public function setId(int $id): self { $this->id = $id; return $this; }
 
