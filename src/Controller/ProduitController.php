@@ -11,6 +11,7 @@ use Symfony\Component\HttpFoundation\File\Exception\FileException;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Component\String\Slugger\SluggerInterface;
 
 #[Route('/produit')]
@@ -32,6 +33,7 @@ final class ProduitController extends AbstractController
         ]);
     }
 
+    #[IsGranted('ROLE_USER')]
     #[Route('/add', name: 'produit_add')]
     public function add(
         ManagerRegistry $manager,
@@ -45,6 +47,10 @@ final class ProduitController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+
+            /** @var \App\Entity\Utilisateur $user */
+            $user = $this->getUser();
+            $produit->setIdUser($user->getId());
 
             $imageFile = $form->get('imageFile')->getData();
 
@@ -72,6 +78,10 @@ final class ProduitController extends AbstractController
             $em->persist($produit);
             $em->flush();
 
+            if (($user->getType() ?? '') === 'COMMERCANT') {
+                return $this->redirectToRoute('merchant_dashboard');
+            }
+
             return $this->redirectToRoute('produit_list');
         }
 
@@ -80,6 +90,7 @@ final class ProduitController extends AbstractController
         ]);
     }
 
+    #[IsGranted('ROLE_USER')]
     #[Route('/update/{id}', name: 'produit_update')]
     public function update(
         $id,
@@ -93,6 +104,13 @@ final class ProduitController extends AbstractController
 
         if (!$produit) {
             throw $this->createNotFoundException('Produit introuvable');
+        }
+
+        /** @var \App\Entity\Utilisateur $user */
+        $user = $this->getUser();
+
+        if (($user->getType() ?? '') === 'COMMERCANT' && $produit->getIdUser() !== $user->getId()) {
+            throw $this->createAccessDeniedException('Vous ne pouvez modifier que vos propres produits.');
         }
 
         $form = $this->createForm(ProduitType::class, $produit);
@@ -121,6 +139,10 @@ final class ProduitController extends AbstractController
 
             $em->flush();
 
+            if (($user->getType() ?? '') === 'COMMERCANT') {
+                return $this->redirectToRoute('merchant_dashboard');
+            }
+
             return $this->redirectToRoute('produit_list');
         }
 
@@ -129,15 +151,29 @@ final class ProduitController extends AbstractController
         ]);
     }
 
+    #[IsGranted('ROLE_USER')]
     #[Route('/delete/{id}', name: 'produit_delete')]
     public function delete($id, ProduitRepository $repo, ManagerRegistry $manager): Response
     {
         $em = $manager->getManager();
         $produit = $repo->find($id);
 
-        if ($produit) {
-            $em->remove($produit);
-            $em->flush();
+        if (!$produit) {
+            return $this->redirectToRoute('produit_list');
+        }
+
+        /** @var \App\Entity\Utilisateur $user */
+        $user = $this->getUser();
+
+        if (($user->getType() ?? '') === 'COMMERCANT' && $produit->getIdUser() !== $user->getId()) {
+            throw $this->createAccessDeniedException('Vous ne pouvez supprimer que vos propres produits.');
+        }
+
+        $em->remove($produit);
+        $em->flush();
+
+        if (($user->getType() ?? '') === 'COMMERCANT') {
+            return $this->redirectToRoute('merchant_dashboard');
         }
 
         return $this->redirectToRoute('produit_list');
