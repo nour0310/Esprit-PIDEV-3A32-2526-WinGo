@@ -88,8 +88,8 @@
             <a href="#">reservations</a>
         </li>
        
-        <li class="main_nav_item {% if app.request.attributes.get('_route') == 'blogs' %}active{% endif %}">
-            <a href="#">blogs</a>
+        <li class="main_nav_item {% if app.request.attributes.get('_route') == 'blog' %}active{% endif %}">
+            <a href="{{ path('blog') }}">blogs</a>
         </li>
         <li class="main_nav_item {% if app.request.attributes.get('_route') == 'reclamation' %}active{% endif %}">
             <a href="#">reclamation</a>
