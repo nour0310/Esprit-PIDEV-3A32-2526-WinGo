@@ -93,6 +93,6 @@ class SecurityController extends AbstractController
             return $this->redirectToRoute('admin_dashboard');
         }
 
-        return $this->redirectToRoute('client_dashboard');
+        return $this->redirectToRoute('blog');
     }
 }
