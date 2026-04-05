@@ -12,14 +12,12 @@ use Symfony\Component\Routing\Attribute\Route;
 
 class CommentaireController extends AbstractController
 {
-    // Récupérer le contenu d'un commentaire (GET)
     #[Route('/commentaire/{id}/edit', name: 'app_commentaire_edit', methods: ['GET'])]
     public function getCommentaire(Commentaire $commentaire): JsonResponse
     {
         return $this->json(['contenu' => $commentaire->getContenu()]);
     }
 
-    // Mettre à jour un commentaire (AJAX POST)
     #[Route('/commentaire/{id}/update', name: 'app_commentaire_update', methods: ['POST'])]
     public function update(Request $request, Commentaire $commentaire, EntityManagerInterface $em): JsonResponse
     {
@@ -32,7 +30,6 @@ class CommentaireController extends AbstractController
         return $this->json(['success' => false], 400);
     }
 
-    // Supprimer un commentaire (POST avec redirection)
     #[Route('/commentaire/{id}/delete', name: 'app_commentaire_delete', methods: ['POST'])]
     public function delete(Request $request, Commentaire $commentaire, EntityManagerInterface $em): Response
     {
