@@ -2,63 +2,36 @@
 
 namespace App\Entity;
 
+use App\Repository\ProfilRepository;
 use Doctrine\ORM\Mapping as ORM;
 
-
-#[ORM\Entity]
+#[ORM\Entity(repositoryClass: ProfilRepository::class)]
+#[ORM\Table(name: 'profil')]
 class Profil
 {
-
     #[ORM\Id]
-    #[ORM\Column(type: "integer")]
-    private int $id;
+    #[ORM\GeneratedValue]
+    #[ORM\Column(type: 'integer')]
+    private ?int $id = null;
 
-    #[ORM\Column(type: "integer")]
-    private int $utilisateur_id;
+    #[ORM\OneToOne(inversedBy: 'profil', targetEntity: Utilisateur::class)]
+    #[ORM\JoinColumn(name: 'utilisateur_id', referencedColumnName: 'id', nullable: true)]
+    private ?Utilisateur $utilisateur = null;
 
-    #[ORM\Column(type: "string", length: 255)]
-    private string $bio;
+    #[ORM\Column(type: 'string', length: 255, nullable: true)]
+    private ?string $bio = null;
 
-    #[ORM\Column(type: "string", length: 255)]
-    private string $image;
+    #[ORM\Column(type: 'string', length: 255, nullable: true)]
+    private ?string $image = null;
 
-    public function getId()
-    {
-        return $this->id;
-    }
+    public function getId(): ?int { return $this->id; }
 
-    public function setId($value)
-    {
-        $this->id = $value;
-    }
+    public function getUtilisateur(): ?Utilisateur { return $this->utilisateur; }
+    public function setUtilisateur(?Utilisateur $utilisateur): static { $this->utilisateur = $utilisateur; return $this; }
 
-    public function getUtilisateur_id()
-    {
-        return $this->utilisateur_id;
-    }
+    public function getBio(): ?string { return $this->bio; }
+    public function setBio(?string $bio): static { $this->bio = $bio; return $this; }
 
-    public function setUtilisateur_id($value)
-    {
-        $this->utilisateur_id = $value;
-    }
-
-    public function getBio()
-    {
-        return $this->bio;
-    }
-
-    public function setBio($value)
-    {
-        $this->bio = $value;
-    }
-
-    public function getImage()
-    {
-        return $this->image;
-    }
-
-    public function setImage($value)
-    {
-        $this->image = $value;
-    }
+    public function getImage(): ?string { return $this->image; }
+    public function setImage(?string $image): static { $this->image = $image; return $this; }
 }

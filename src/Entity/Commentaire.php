@@ -2,89 +2,44 @@
 
 namespace App\Entity;
 
+use App\Repository\CommentaireRepository;
 use Doctrine\ORM\Mapping as ORM;
 
-
-#[ORM\Entity]
+#[ORM\Entity(repositoryClass: CommentaireRepository::class)]
+#[ORM\Table(name: 'commentaire')]
 class Commentaire
 {
-
     #[ORM\Id]
-    #[ORM\Column(type: "integer")]
-    private int $id;
+    #[ORM\GeneratedValue]
+    #[ORM\Column(type: 'integer')]
+    private ?int $id = null;
 
-    #[ORM\Column(type: "text")]
-    private string $contenu;
+    #[ORM\Column(type: 'text')]
+    private string $contenu = '';
 
-    #[ORM\Column(type: "datetime")]
-    private \DateTimeInterface $date_commentaire;
+    #[ORM\Column(name: 'date_commentaire', type: 'datetime', nullable: true)]
+    private ?\DateTimeInterface $dateCommentaire = null;
 
-    #[ORM\Column(type: "integer")]
-    private int $utilisateur;
+    #[ORM\Column(name: 'utilisateur', type: 'integer', nullable: true)]
+    private ?int $utilisateur = null;
 
-    #[ORM\Column(type: "integer")]
-    private int $article_id;
+    #[ORM\Column(name: 'article_id', type: 'integer', nullable: true)]
+    private ?int $articleId = null;
 
-    #[ORM\Column(type: "integer")]
-    private int $parent_id;
+    #[ORM\Column(name: 'parent_id', type: 'integer', nullable: true)]
+    private ?int $parentId = null;
 
-    public function getId()
-    {
-        return $this->id;
-    }
+    public function __construct() { $this->dateCommentaire = new \DateTime(); }
 
-    public function setId($value)
-    {
-        $this->id = $value;
-    }
-
-    public function getContenu()
-    {
-        return $this->contenu;
-    }
-
-    public function setContenu($value)
-    {
-        $this->contenu = $value;
-    }
-
-    public function getDate_commentaire()
-    {
-        return $this->date_commentaire;
-    }
-
-    public function setDate_commentaire($value)
-    {
-        $this->date_commentaire = $value;
-    }
-
-    public function getUtilisateur()
-    {
-        return $this->utilisateur;
-    }
-
-    public function setUtilisateur($value)
-    {
-        $this->utilisateur = $value;
-    }
-
-    public function getArticle_id()
-    {
-        return $this->article_id;
-    }
-
-    public function setArticle_id($value)
-    {
-        $this->article_id = $value;
-    }
-
-    public function getParent_id()
-    {
-        return $this->parent_id;
-    }
-
-    public function setParent_id($value)
-    {
-        $this->parent_id = $value;
-    }
+    public function getId(): ?int { return $this->id; }
+    public function getContenu(): string { return $this->contenu; }
+    public function setContenu(string $contenu): static { $this->contenu = $contenu; return $this; }
+    public function getDateCommentaire(): ?\DateTimeInterface { return $this->dateCommentaire; }
+    public function setDateCommentaire(?\DateTimeInterface $dateCommentaire): static { $this->dateCommentaire = $dateCommentaire; return $this; }
+    public function getUtilisateur(): ?int { return $this->utilisateur; }
+    public function setUtilisateur(?int $utilisateur): static { $this->utilisateur = $utilisateur; return $this; }
+    public function getArticleId(): ?int { return $this->articleId; }
+    public function setArticleId(?int $articleId): static { $this->articleId = $articleId; return $this; }
+    public function getParentId(): ?int { return $this->parentId; }
+    public function setParentId(?int $parentId): static { $this->parentId = $parentId; return $this; }
 }

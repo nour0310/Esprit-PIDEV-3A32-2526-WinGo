@@ -2,140 +2,64 @@
 
 namespace App\Entity;
 
+use App\Repository\SuggestionRepository;
 use Doctrine\ORM\Mapping as ORM;
 
-
-#[ORM\Entity]
+#[ORM\Entity(repositoryClass: SuggestionRepository::class)]
+#[ORM\Table(name: 'suggestion')]
 class Suggestion
 {
+    #[ORM\Id]
+    #[ORM\GeneratedValue]
+    #[ORM\Column(name: 'id_suggestion', type: 'integer')]
+    private ?int $id = null;
 
-    #[ORM\Column(type: "integer")]
-    private int $id_suggestion;
+    #[ORM\Column(name: 'id_user', type: 'integer')]
+    private int $idUser = 0;
 
-    #[ORM\Column(type: "integer")]
-    private int $id_user;
+    #[ORM\Column(type: 'string', length: 100, nullable: true)]
+    private ?string $sujet = null;
 
-    #[ORM\Column(type: "string", length: 100)]
-    private string $sujet;
+    #[ORM\Column(type: 'text', nullable: true)]
+    private ?string $description = null;
 
-    #[ORM\Column(type: "text")]
-    private string $description;
+    #[ORM\Column(type: 'string', length: 50, nullable: true)]
+    private ?string $categorie = null;
 
-    #[ORM\Column(type: "string", length: 50)]
-    private string $categorie;
+    #[ORM\Column(name: 'date_suggestion', type: 'datetime', nullable: true)]
+    private ?\DateTimeInterface $dateSuggestion = null;
 
-    #[ORM\Column(type: "datetime")]
-    private \DateTimeInterface $date_suggestion;
+    #[ORM\Column(type: 'string', length: 30, options: ['default' => 'Recue'])]
+    private string $statut = 'Recue';
 
-    #[ORM\Column(type: "string", length: 30)]
-    private string $statut;
+    #[ORM\Column(name: 'reponse_admin', type: 'text', nullable: true)]
+    private ?string $reponseAdmin = null;
 
-    #[ORM\Column(type: "text")]
-    private string $reponse_admin;
+    #[ORM\Column(name: 'date_reponse', type: 'datetime', nullable: true)]
+    private ?\DateTimeInterface $dateReponse = null;
 
-    #[ORM\Column(type: "datetime")]
-    private \DateTimeInterface $date_reponse;
+    #[ORM\Column(name: 'id_reclamation', type: 'integer', nullable: true)]
+    private ?int $idReclamation = null;
 
-    #[ORM\Column(type: "integer")]
-    private int $id_reclamation;
+    public function __construct() { $this->dateSuggestion = new \DateTime(); }
 
-    public function getId_suggestion()
-    {
-        return $this->id_suggestion;
-    }
-
-    public function setId_suggestion($value)
-    {
-        $this->id_suggestion = $value;
-    }
-
-    public function getId_user()
-    {
-        return $this->id_user;
-    }
-
-    public function setId_user($value)
-    {
-        $this->id_user = $value;
-    }
-
-    public function getSujet()
-    {
-        return $this->sujet;
-    }
-
-    public function setSujet($value)
-    {
-        $this->sujet = $value;
-    }
-
-    public function getDescription()
-    {
-        return $this->description;
-    }
-
-    public function setDescription($value)
-    {
-        $this->description = $value;
-    }
-
-    public function getCategorie()
-    {
-        return $this->categorie;
-    }
-
-    public function setCategorie($value)
-    {
-        $this->categorie = $value;
-    }
-
-    public function getDate_suggestion()
-    {
-        return $this->date_suggestion;
-    }
-
-    public function setDate_suggestion($value)
-    {
-        $this->date_suggestion = $value;
-    }
-
-    public function getStatut()
-    {
-        return $this->statut;
-    }
-
-    public function setStatut($value)
-    {
-        $this->statut = $value;
-    }
-
-    public function getReponse_admin()
-    {
-        return $this->reponse_admin;
-    }
-
-    public function setReponse_admin($value)
-    {
-        $this->reponse_admin = $value;
-    }
-
-    public function getDate_reponse()
-    {
-        return $this->date_reponse;
-    }
-
-    public function setDate_reponse($value)
-    {
-        $this->date_reponse = $value;
-    }
-
-    public function getId_reclamation()
-    {
-        return $this->id_reclamation;
-    }
-
-    public function setId_reclamation($value)
-    {
-        $this->id_reclamation = $value;
-    }
+    public function getId(): ?int { return $this->id; }
+    public function getIdUser(): int { return $this->idUser; }
+    public function setIdUser(int $idUser): static { $this->idUser = $idUser; return $this; }
+    public function getSujet(): ?string { return $this->sujet; }
+    public function setSujet(?string $sujet): static { $this->sujet = $sujet; return $this; }
+    public function getDescription(): ?string { return $this->description; }
+    public function setDescription(?string $description): static { $this->description = $description; return $this; }
+    public function getCategorie(): ?string { return $this->categorie; }
+    public function setCategorie(?string $categorie): static { $this->categorie = $categorie; return $this; }
+    public function getDateSuggestion(): ?\DateTimeInterface { return $this->dateSuggestion; }
+    public function setDateSuggestion(?\DateTimeInterface $dateSuggestion): static { $this->dateSuggestion = $dateSuggestion; return $this; }
+    public function getStatut(): string { return $this->statut; }
+    public function setStatut(string $statut): static { $this->statut = $statut; return $this; }
+    public function getReponseAdmin(): ?string { return $this->reponseAdmin; }
+    public function setReponseAdmin(?string $reponseAdmin): static { $this->reponseAdmin = $reponseAdmin; return $this; }
+    public function getDateReponse(): ?\DateTimeInterface { return $this->dateReponse; }
+    public function setDateReponse(?\DateTimeInterface $dateReponse): static { $this->dateReponse = $dateReponse; return $this; }
+    public function getIdReclamation(): ?int { return $this->idReclamation; }
+    public function setIdReclamation(?int $idReclamation): static { $this->idReclamation = $idReclamation; return $this; }
 }

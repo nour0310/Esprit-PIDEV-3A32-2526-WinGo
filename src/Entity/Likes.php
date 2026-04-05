@@ -2,63 +2,34 @@
 
 namespace App\Entity;
 
+use App\Repository\LikesRepository;
 use Doctrine\ORM\Mapping as ORM;
 
-
-#[ORM\Entity]
+#[ORM\Entity(repositoryClass: LikesRepository::class)]
+#[ORM\Table(name: 'likes')]
 class Likes
 {
-
     #[ORM\Id]
-    #[ORM\Column(type: "integer")]
-    private int $id;
+    #[ORM\GeneratedValue]
+    #[ORM\Column(type: 'integer')]
+    private ?int $id = null;
 
-    #[ORM\Column(type: "integer")]
-    private int $utilisateur_id;
+    #[ORM\Column(name: 'utilisateur_id', type: 'integer')]
+    private int $utilisateurId = 0;
 
-    #[ORM\Column(type: "integer")]
-    private int $article_id;
+    #[ORM\Column(name: 'article_id', type: 'integer')]
+    private int $articleId = 0;
 
-    #[ORM\Column(type: "datetime")]
-    private \DateTimeInterface $date_like;
+    #[ORM\Column(name: 'date_like', type: 'datetime', nullable: true)]
+    private ?\DateTimeInterface $dateLike = null;
 
-    public function getId()
-    {
-        return $this->id;
-    }
+    public function __construct() { $this->dateLike = new \DateTime(); }
 
-    public function setId($value)
-    {
-        $this->id = $value;
-    }
-
-    public function getUtilisateur_id()
-    {
-        return $this->utilisateur_id;
-    }
-
-    public function setUtilisateur_id($value)
-    {
-        $this->utilisateur_id = $value;
-    }
-
-    public function getArticle_id()
-    {
-        return $this->article_id;
-    }
-
-    public function setArticle_id($value)
-    {
-        $this->article_id = $value;
-    }
-
-    public function getDate_like()
-    {
-        return $this->date_like;
-    }
-
-    public function setDate_like($value)
-    {
-        $this->date_like = $value;
-    }
+    public function getId(): ?int { return $this->id; }
+    public function getUtilisateurId(): int { return $this->utilisateurId; }
+    public function setUtilisateurId(int $utilisateurId): static { $this->utilisateurId = $utilisateurId; return $this; }
+    public function getArticleId(): int { return $this->articleId; }
+    public function setArticleId(int $articleId): static { $this->articleId = $articleId; return $this; }
+    public function getDateLike(): ?\DateTimeInterface { return $this->dateLike; }
+    public function setDateLike(?\DateTimeInterface $dateLike): static { $this->dateLike = $dateLike; return $this; }
 }
