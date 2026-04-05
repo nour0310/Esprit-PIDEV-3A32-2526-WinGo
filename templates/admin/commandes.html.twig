@@ -32,7 +32,7 @@
             {% for c in commandes %}
                 {% set client = userRepo.find(c.idUser) %}
                 <tr>
-                    <td>{{ c.idCommande }}</td>
+                    <td>{{ c.id }}</td>
                     <td>
                         {% if client %}
                             <strong>{{ client.fullName }}</strong><br>
