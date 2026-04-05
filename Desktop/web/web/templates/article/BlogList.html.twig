@@ -79,6 +79,22 @@
 .blog_post_comments a:hover i {
     transform: scale(1.1);
 }
+
+/* Styles pour les nouvelles sections de la sidebar */
+.sidebar_stats .stat_item {
+    transition: all 0.3s ease;
+}
+.sidebar_stats .stat_item:hover .stat_value {
+    transform: scale(1.05);
+    color: #fa9e1c !important;
+}
+.popular_item a {
+    transition: all 0.3s ease;
+}
+.popular_item a:hover {
+    color: #fa9e1c !important;
+    padding-left: 5px;
+}
 </style>
 {% endblock %}
 
@@ -166,8 +182,9 @@
 					</div>
 				</div>
 
-				<!-- Sidebar avec recherche ET filtres par catégorie -->
+				<!-- Sidebar enrichie -->
 				<div class="col-lg-4 sidebar_col">
+					<!-- Recherche -->
 					<div class="sidebar_search">
 						<form action="{{ path('blog') }}" method="GET" class="d-flex flex-column">
 							<div class="d-flex">
@@ -188,8 +205,42 @@
 						</form>
 					</div>
 
-					<!-- Filtre par catégories (dynamique) -->
-					<div class="sidebar_categories">
+					<!-- Statistiques -->
+					<div class="sidebar_stats" style="margin-top: 40px;">
+						<div class="sidebar_title">Statistiques</div>
+						<div class="stats_list" style="margin-top: 20px;">
+							<div class="stat_item" style="margin-bottom: 12px; display: flex; justify-content: space-between;">
+								<span><i class="fas fa-newspaper"></i> Total articles</span>
+								<span class="stat_value" style="font-weight: 600; color: #8d4fff;">{{ totalArticles }}</span>
+							</div>
+							<div class="stat_item" style="margin-bottom: 12px; display: flex; justify-content: space-between;">
+								<span><i class="fas fa-comments"></i> Total commentaires</span>
+								<span class="stat_value" style="font-weight: 600; color: #8d4fff;">{{ totalCommentaires }}</span>
+							</div>
+						</div>
+					</div>
+
+					<!-- Articles populaires (les plus commentés) -->
+					<div class="sidebar_popular" style="margin-top: 40px;">
+						<div class="sidebar_title">Articles populaires</div>
+						<div class="popular_list" style="margin-top: 20px;">
+							{% for popular in popularArticles %}
+							<div class="popular_item" style="margin-bottom: 15px; border-bottom: 1px solid #eee; padding-bottom: 10px;">
+								<a href="{{ path('app_article_show', {id: popular.id}) }}" style="font-weight: 500; color: #333; text-decoration: none; transition: 0.3s;">
+									{{ popular.titre }}
+								</a>
+								<div style="font-size: 12px; color: #999; margin-top: 5px;">
+									<i class="fas fa-comment"></i> {{ popular.commentaires|length }} commentaire(s)
+								</div>
+							</div>
+							{% else %}
+							<p>Aucun article populaire.</p>
+							{% endfor %}
+						</div>
+					</div>
+
+					<!-- Catégories (dynamique) -->
+					<div class="sidebar_categories" style="margin-top: 40px;">
 						<div class="sidebar_title">Catégories</div>
 						<div class="sidebar_list">
 							<ul>
@@ -211,7 +262,6 @@
 						</div>
 						{% endif %}
 					</div>
-
 				</div>
 
 			</div>
