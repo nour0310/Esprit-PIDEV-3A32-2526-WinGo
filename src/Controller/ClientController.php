@@ -9,6 +9,7 @@ use App\Repository\ReclamationRepository;
 use App\Repository\ReservationRepository;
 use App\Repository\TransportRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
@@ -29,10 +30,10 @@ class ClientController extends AbstractController
         $user = $this->getUser();
 
         return $this->render('client/dashboard.html.twig', [
-            'recent_articles'    => $articleRepo->findBy([], ['id' => 'DESC'], 6),
-            'my_reservations'    => $reservationRepo->findBy(['user' => $user->getEmail()], ['id' => 'DESC'], 5),
-            'my_commandes'       => $commandeRepo->findBy(['idUser' => $user->getId()], ['id' => 'DESC'], 5),
-            'my_reclamations'    => $reclamationRepo->findBy(['idUser' => $user->getId()], ['id' => 'DESC'], 5),
+            'recent_articles' => $articleRepo->findBy([], ['id' => 'DESC'], 6),
+            'my_reservations' => $reservationRepo->findBy(['user' => $user->getEmail()], ['id' => 'DESC'], 5),
+            'my_commandes' => $commandeRepo->findBy(['idUser' => $user->getId()], ['id' => 'DESC'], 5),
+            'my_reclamations' => $reclamationRepo->findBy(['idUser' => $user->getId()], ['id' => 'DESC']),
         ]);
     }
 
@@ -45,10 +46,19 @@ class ClientController extends AbstractController
     }
 
     #[Route('/produits', name: 'client_produits')]
-    public function produits(ProduitRepository $repo): Response
+    public function produits(Request $request, ProduitRepository $repo): Response
     {
+        $searchTerm = trim($request->query->get('q', ''));
+
+        if ($searchTerm !== '') {
+            $produits = $repo->searchByNom($searchTerm);
+        } else {
+            $produits = $repo->findAll();
+        }
+
         return $this->render('client/produits.html.twig', [
-            'produits' => $repo->findAll(),
+            'produits' => $produits,
+            'searchTerm' => $searchTerm,
         ]);
     }
 
@@ -57,9 +67,10 @@ class ClientController extends AbstractController
     {
         /** @var \App\Entity\Utilisateur $user */
         $user = $this->getUser();
+
         return $this->render('client/reservations.html.twig', [
             'reservations' => $repo->findBy(['user' => $user->getEmail()]),
-            'transports'   => $transportRepo->findAll(),
+            'transports' => $transportRepo->findAll(),
         ]);
     }
 
@@ -68,10 +79,9 @@ class ClientController extends AbstractController
     {
         /** @var \App\Entity\Utilisateur $user */
         $user = $this->getUser();
+
         return $this->render('client/reclamations.html.twig', [
             'reclamations' => $repo->findBy(['idUser' => $user->getId()], ['id' => 'DESC']),
         ]);
     }
-
-    
 }
