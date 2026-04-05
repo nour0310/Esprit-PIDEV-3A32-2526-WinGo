@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\Entity\Commande;
 use App\Repository\ArticleRepository;
 use App\Repository\CommandeRepository;
 use App\Repository\ProduitRepository;
@@ -10,12 +11,11 @@ use App\Repository\ReservationRepository;
 use App\Repository\SuggestionRepository;
 use App\Repository\TransportRepository;
 use App\Repository\UtilisateurRepository;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
-use App\Entity\Commande;
-use Doctrine\ORM\EntityManagerInterface;
 
 #[IsGranted('ROLE_ADMIN')]
 #[Route('/admin')]
@@ -31,12 +31,12 @@ class AdminController extends AbstractController
         ReclamationRepository $reclamationRepo,
     ): Response {
         return $this->render('admin/dashboard.html.twig', [
-            'total_users'       => count($userRepo->findAll()),
-            'total_articles'    => count($articleRepo->findAll()),
-            'total_commandes'   => count($commandeRepo->findAll()),
-            'total_reservations'=> count($reservationRepo->findAll()),
-            'total_reclamations'=> count($reclamationRepo->findAll()),
-            'recent_users'      => $userRepo->findBy([], ['id' => 'DESC'], 5),
+            'total_users'         => count($userRepo->findAll()),
+            'total_articles'      => count($articleRepo->findAll()),
+            'total_commandes'     => count($commandeRepo->findAll()),
+            'total_reservations'  => count($reservationRepo->findAll()),
+            'total_reclamations'  => count($reclamationRepo->findAll()),
+            'recent_users'        => $userRepo->findBy([], ['id' => 'DESC'], 5),
             'recent_reclamations' => $reclamationRepo->findBy([], ['id' => 'DESC'], 5),
         ]);
     }
@@ -95,5 +95,50 @@ class AdminController extends AbstractController
         return $this->render('admin/suggestions.html.twig', [
             'suggestions' => $repo->findAll(),
         ]);
+    }
+
+    #[Route('/commandes', name: 'admin_commandes')]
+    public function commandes(CommandeRepository $repo, UtilisateurRepository $userRepo): Response
+    {
+        $commandes = $repo->findBy([], ['idCommande' => 'DESC']);
+
+        return $this->render('admin/commandes.html.twig', [
+            'commandes' => $commandes,
+            'userRepo' => $userRepo,
+        ]);
+    }
+
+    #[Route('/commande/{id}', name: 'admin_commande_details')]
+    public function commandeDetails(Commande $commande, UtilisateurRepository $userRepo): Response
+    {
+        $items = json_decode($commande->getItemsJson() ?? '[]', true);
+
+        return $this->render('admin/commande_details.html.twig', [
+            'commande' => $commande,
+            'items' => $items,
+            'client' => $userRepo->find($commande->getIdUser()),
+        ]);
+    }
+
+    #[Route('/commande/{id}/livrer', name: 'admin_commande_livrer', methods: ['POST'])]
+    public function livrer(Commande $commande, EntityManagerInterface $em): Response
+    {
+        $commande->setStatus('livree');
+        $em->flush();
+
+        $this->addFlash('success', 'Commande marquée comme livrée.');
+
+        return $this->redirectToRoute('admin_commandes');
+    }
+
+    #[Route('/commande/{id}/annuler', name: 'admin_commande_annuler', methods: ['POST'])]
+    public function annuler(Commande $commande, EntityManagerInterface $em): Response
+    {
+        $commande->setStatus('annulee');
+        $em->flush();
+
+        $this->addFlash('success', 'Commande annulée.');
+
+        return $this->redirectToRoute('admin_commandes');
     }
 }
