@@ -21,13 +21,13 @@ class Article
     #[Assert\NotBlank(message: "Le titre est obligatoire")]
     #[Assert\Length(min: 3, minMessage: "Le titre doit contenir au moins {{ limit }} caractères")]
     #[Assert\Regex(pattern: '/^[a-zA-ZÀ-ÿ\s\.,!?\'-]+$/u', message: "Le titre ne doit pas contenir de chiffres")]
-    private string $titre = '';   // initialisé à une chaîne vide
+    private string $titre = '';   // ← initialisé à chaîne vide
 
     #[ORM\Column(type: 'text', nullable: true)]
     #[Assert\NotBlank(message: "Le contenu est obligatoire")]
     #[Assert\Length(min: 3, minMessage: "Le contenu doit contenir au moins {{ limit }} caractères")]
     #[Assert\Regex(pattern: '/^[a-zA-ZÀ-ÿ\s\.,!?\'-]+$/u', message: "Le contenu ne doit pas contenir de chiffres")]
-    private ?string $contenu = ''; // initialisé à une chaîne vide
+    private string $contenu = ''; // ← initialisé à chaîne vide
 
     #[ORM\Column(type: 'datetime', nullable: true)]
     private ?\DateTimeInterface $datePublication = null;
@@ -41,11 +41,11 @@ class Article
 
     #[ORM\Column(type: 'string', length: 100, nullable: true)]
     #[Assert\NotBlank(message: "Veuillez choisir une région")]
-    private string $region = '';   // initialisé à une chaîne vide
+    private string $region = '';   // ← initialisé à chaîne vide
 
     #[ORM\Column(type: 'string', length: 100, nullable: true)]
     #[Assert\NotBlank(message: "Veuillez choisir une catégorie")]
-    private string $categorie = ''; // initialisé à une chaîne vide
+    private string $categorie = ''; // ← initialisé à chaîne vide
 
     #[ORM\OneToMany(targetEntity: Commentaire::class, mappedBy: 'article', cascade: ['remove'])]
     private Collection $commentaires;
@@ -55,14 +55,21 @@ class Article
         $this->commentaires = new ArrayCollection();
     }
 
+    // Getters et setters (types adaptés)
     public function getId(): ?int { return $this->id; }
     public function setId(int $id): self { $this->id = $id; return $this; }
 
     public function getTitre(): string { return $this->titre; }
-    public function setTitre(string $titre): self { $this->titre = $titre; return $this; }
+    public function setTitre(?string $titre): self { 
+        $this->titre = $titre ?? '';
+        return $this; 
+    }
 
-    public function getContenu(): ?string { return $this->contenu; }
-    public function setContenu(?string $contenu): self { $this->contenu = $contenu; return $this; }
+    public function getContenu(): string { return $this->contenu; }
+    public function setContenu(?string $contenu): self { 
+        $this->contenu = $contenu ?? '';
+        return $this; 
+    }
 
     public function getDatePublication(): ?\DateTimeInterface { return $this->datePublication; }
     public function setDatePublication(?\DateTimeInterface $datePublication): self { $this->datePublication = $datePublication; return $this; }
@@ -74,10 +81,16 @@ class Article
     public function setImage(?string $image): self { $this->image = $image; return $this; }
 
     public function getRegion(): string { return $this->region; }
-    public function setRegion(string $region): self { $this->region = $region; return $this; }
+    public function setRegion(?string $region): self { 
+        $this->region = $region ?? '';
+        return $this; 
+    }
 
     public function getCategorie(): string { return $this->categorie; }
-    public function setCategorie(string $categorie): self { $this->categorie = $categorie; return $this; }
+    public function setCategorie(?string $categorie): self { 
+        $this->categorie = $categorie ?? '';
+        return $this; 
+    }
 
     /**
      * @return Collection<int, Commentaire>
