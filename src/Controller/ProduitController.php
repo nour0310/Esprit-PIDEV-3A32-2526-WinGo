@@ -178,4 +178,16 @@ final class ProduitController extends AbstractController
 
         return $this->redirectToRoute('produit_list');
     }
+
+    #[Route('/client/produits', name: 'client_produits')]
+    public function produitsClient(Request $request, ProduitRepository $produitRepository): Response
+    {
+        $q = $request->query->get('q');
+        $produits = $produitRepository->searchByNom($q);
+
+        return $this->render('client/produits.html.twig', [
+            'produits' => $produits,
+            'searchTerm' => $q,
+        ]);
+    }
 }
