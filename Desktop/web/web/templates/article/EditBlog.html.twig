@@ -8,196 +8,354 @@
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 <style>
-	:root {
-		--form-primary: #8d4fff;
-		--form-primary-light: rgba(141, 79, 255, 0.15);
-		--form-accent: #fa9e1c;
-		--form-gray: #f7f9fc;
-	}
-	body { background-color: #f9f9fc; }
-	.form-card {
-		background: #fff;
-		border-radius: 24px;
-		box-shadow: 0 20px 50px rgba(0,0,0,0.06);
-		overflow: hidden;
-		margin-top: 40px;
-		position: relative;
-		z-index: 10;
-	}
-	.form-header {
-		background: linear-gradient(135deg, var(--form-primary) 0%, var(--form-accent) 100%);
-		padding: 50px 30px;
-		text-align: center;
-		color: white;
-	}
-	.form-header h3 {
-		font-family: 'Playfair Display', serif;
-		font-size: 2.4rem;
-		font-weight: 700;
-		margin: 0;
-		text-shadow: 0 2px 10px rgba(0,0,0,0.1);
-	}
-	.form-header p {
-		margin-top: 15px;
-		font-size: 1.1rem;
-		opacity: 0.9;
-		color: white;
-	}
-	.form-body {
-		padding: 50px 60px;
-	}
-	.form-group-custom {
-		margin-bottom: 25px;
-	}
-	.form-label {
-		font-weight: 600;
-		color: #333;
-		margin-bottom: 12px;
-		display: block;
-		font-size: 0.95rem;
-	}
-	.form-label i {
-		color: var(--form-primary);
-		margin-right: 8px;
-	}
-	.wingo-input {
-		background-color: var(--form-gray);
-		border: 2px solid transparent !important;
-		border-radius: 16px !important;
-		padding: 16px 20px !important;
-		font-size: 1rem !important;
-		color: #333 !important;
-		transition: all 0.3s ease !important;
-		width: 100%;
-		box-shadow: none !important;
-	}
-	select.wingo-input {
-		padding-top: 0 !important;
-		padding-bottom: 0 !important;
-		height: 56px !important;
-		line-height: 56px !important;
-	}
-	.wingo-input:focus {
-		background-color: #fff;
-		border-color: var(--form-primary) !important;
-		box-shadow: 0 8px 25px var(--form-primary-light) !important;
-	}
-	.submit-btn {
-		background: linear-gradient(135deg, var(--form-primary) 0%, var(--form-accent) 100%);
-		color: #fff;
-		border: none;
-		padding: 16px 50px;
-		font-size: 1.1rem;
-		font-weight: 600;
-		border-radius: 50px;
-		cursor: pointer;
-		transition: all 0.3s ease;
-		box-shadow: 0 10px 25px rgba(141, 79, 255, 0.3);
-		display: inline-flex;
-		align-items: center;
-		justify-content: center;
-		gap: 10px;
-	}
-	.submit-btn:hover {
-		transform: translateY(-3px);
-		box-shadow: 0 15px 35px rgba(250, 158, 28, 0.4);
-		color: #fff;
-	}
-	.back-link {
-		color: var(--form-primary);
-		text-decoration: none;
-		font-weight: 600;
-		transition: all 0.3s ease;
-		display: inline-block;
-		margin-top: 25px;
-	}
-	.back-link:hover { color: var(--form-accent); }
+		:root {
+			--form-primary: #8d4fff;
+			--form-primary-light: rgba(141, 79, 255, 0.15);
+			--form-accent: #fa9e1c;
+			--form-gray: #f7f9fc;
+		}
+		
+		body {
+		    background-color: #f9f9fc;
+		}
+		
+		.form-card {
+			background: #fff;
+			border-radius: 24px;
+			box-shadow: 0 20px 50px rgba(0,0,0,0.06);
+			overflow: hidden;
+			margin-top: 40px;
+			position: relative;
+			z-index: 10;
+		}
 
-	/* Styles pour les erreurs de validation Symfony */
-	.help-block,
-	.form-error-message,
-	ul.help-block li,
-	div.form-error-message,
-	[class*="error"] {
-		color: #dc3545 !important;
-		font-size: 0.85rem;
-		margin-top: 5px;
-		display: block;
-		font-weight: 500;
-		list-style: none;
-		padding-left: 0;
-	}
+		.form-header {
+			background: linear-gradient(135deg, var(--form-primary) 0%, var(--form-accent) 100%);
+			padding: 50px 30px;
+			text-align: center;
+			color: white;
+		}
+		
+		.form-header h3 {
+			font-family: 'Playfair Display', serif;
+			font-size: 2.4rem;
+			font-weight: 700;
+			margin: 0;
+			text-shadow: 0 2px 10px rgba(0,0,0,0.1);
+		}
+		
+		.form-header p {
+			margin-top: 15px;
+			font-size: 1.1rem;
+			opacity: 0.9;
+			color: white;
+		}
 
-	@media (max-width: 768px) {
-		.form-body { padding: 30px 20px; }
-		.form-header { padding: 40px 20px; }
-	}
+		.form-body {
+			padding: 50px 60px;
+		}
+
+		.form-group-custom {
+			margin-bottom: 25px;
+		}
+
+		.form-label {
+			font-weight: 600;
+			color: #333;
+			margin-bottom: 12px;
+			display: block;
+			font-size: 0.95rem;
+		}
+
+		.form-label i {
+			color: var(--form-primary);
+			margin-right: 8px;
+		}
+
+		.wingo-input {
+			background-color: var(--form-gray);
+			border: 2px solid transparent !important;
+			border-radius: 16px !important;
+			padding: 16px 20px !important;
+			font-size: 1rem !important;
+			color: #333 !important;
+			transition: all 0.3s ease !important;
+			width: 100%;
+			box-shadow: none !important;
+		}
+		
+		select.wingo-input {
+		    padding-top: 0 !important;
+		    padding-bottom: 0 !important;
+		    height: 56px !important;
+		    line-height: 56px !important;
+		}
+
+		.wingo-input:focus {
+			background-color: #fff;
+			border-color: var(--form-primary) !important;
+			box-shadow: 0 8px 25px var(--form-primary-light) !important;
+		}
+
+		.submit-btn {
+			background: linear-gradient(135deg, var(--form-primary) 0%, var(--form-accent) 100%);
+			color: #fff;
+			border: none;
+			padding: 16px 50px;
+			font-size: 1.1rem;
+			font-weight: 600;
+			border-radius: 50px;
+			cursor: pointer;
+			transition: all 0.3s ease;
+			box-shadow: 0 10px 25px rgba(141, 79, 255, 0.3);
+			display: inline-flex;
+			align-items: center;
+			justify-content: center;
+			gap: 10px;
+		}
+
+		.submit-btn:hover {
+			transform: translateY(-3px);
+			box-shadow: 0 15px 35px rgba(250, 158, 28, 0.4);
+			color: #fff;
+		}
+
+		.back-link {
+			color: var(--form-primary);
+			text-decoration: none;
+			font-weight: 600;
+			transition: all 0.3s ease;
+			display: inline-block;
+			margin-top: 25px;
+		}
+		
+		.back-link:hover {
+		    color: var(--form-accent);
+		}
+		
+		/* Validation Styles */
+		.error-text {
+		    color: #dc3545;
+		    font-size: 0.85rem;
+		    margin-top: 5px;
+		    display: block;
+		    font-weight: 500;
+		}
+		
+		.success-text {
+		    color: #28a745;
+		    font-size: 0.85rem;
+		    margin-top: 5px;
+		    display: block;
+		    font-weight: 500;
+		}
+		
+		.wingo-input.is-invalid {
+		    border-color: #dc3545 !important;
+		    background-color: #fff8f8;
+		}
+		
+		.wingo-input.is-valid {
+		    border-color: #28a745 !important;
+		    background-color: #f8fff9;
+		}
+
+		@media (max-width: 768px) {
+			.form-body { padding: 30px 20px; }
+			.form-header { padding: 40px 20px; }
+		}
 </style>
 {% endblock %}
 
 {% block content %}
-	<div class="home" style="background-image: url('{{ asset('images/BlogBack.jpg') }}'); background-size: cover; background-position: center; background-repeat: no-repeat; height: 350px; position: relative;">
+	<!-- Hero Section -->
+	<div class="home" style="background-image: url('{{ asset('images/BlogBack1.jpg') }}'); background-size: cover; background-position: center; background-repeat: no-repeat; height: 350px; position: relative;">
 		<div class="home-gradient-overlay" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(45, 52, 54, 0.6);"></div>
 		<div style="position: absolute; top: 50%; width: 100%; text-align: center; transform: translateY(-50%);">
-			<h1 style="font-family: 'Playfair Display', serif; color: white; font-size: 3.5rem; font-weight: 700;">EDIT A BLOG</h1>
+		    <h1 style="font-family: 'Playfair Display', serif; color: white; font-size: 3.5rem; font-weight: 700;">EDIT A BLOG</h1>
 		</div>
 	</div>
 
+	<!-- Edit Blog Form Section -->
 	<div class="container" style="padding-bottom: 80px;">
 		<div class="row justify-content-center">
 			<div class="col-lg-8">
 				<div class="form-card">
+					
+					<!-- Form Header -->
 					<div class="form-header">
 						<h3>Modifiez votre histoire</h3>
 						<p>Mettez à jour votre expérience de voyage en Tunisie</p>
 					</div>
+
+					<!-- Form Body -->
 					<div class="form-body">
-						{% if not form.vars.valid %}
-						<div class="alert alert-danger" role="alert">
-							<strong>Le formulaire contient des erreurs.</strong>
-							<ul class="mb-0 mt-2">
-								{% for child in form %}
-									{% for error in child.vars.errors %}
-										<li>{{ child.vars.label }} : {{ error.message }}</li>
-									{% endfor %}
-								{% endfor %}
-							</ul>
-						</div>
-						{% endif %}
-						{{ form_start(form, {'attr': {'novalidate': 'novalidate', 'class': 'wingo-form', 'enctype': 'multipart/form-data'}}) }}
+						{{ form_start(form, {'attr': {'novalidate': 'novalidate', 'class': 'wingo-form', 'id': 'edit-article-form'}}) }}
+							
+							<!-- Title Field -->
 							<div class="form-group-custom">
-								{{ form_label(form.titre, 'Titre de votre blog', {'label_attr': {'class': 'form-label'}}) }}
-								{{ form_widget(form.titre, {'attr': {'class': 'form-control wingo-input', 'placeholder': 'Donnez un titre captivant...'}}) }}
-								{{ form_errors(form.titre, {'attr': {'class': 'error-text'}}) }}
+								<label class="form-label">
+									<i class="fas fa-heading"></i> Titre de votre blog
+								</label>
+								{{ form_widget(form.titre, {'attr': {'class': 'form-control wingo-input', 'placeholder': 'Donnez un titre captivant à votre histoire...'}}) }}
 							</div>
+
+							<!-- Content Field -->
 							<div class="form-group-custom">
-								{{ form_label(form.contenu, 'Votre histoire', {'label_attr': {'class': 'form-label'}}) }}
-								{{ form_widget(form.contenu, {'attr': {'class': 'form-control wingo-input', 'rows': 8, 'placeholder': 'Racontez votre expérience...'}}) }}
-								{{ form_errors(form.contenu, {'attr': {'class': 'error-text'}}) }}
+								<label class="form-label">
+									<i class="fas fa-pen"></i> Votre histoire
+								</label>
+								{{ form_widget(form.contenu, {'attr': {'class': 'form-control wingo-input', 'placeholder': 'Racontez votre expérience, vos découvertes, vos émotions...', 'rows': 8, 'style': 'resize: vertical;'}}) }}
 							</div>
+
 							<div class="row">
-								<div class="col-md-6">
-									{{ form_row(form.region, {'attr': {'class': 'wingo-input'}, 'row_attr': {'class': 'form-group-custom'}}) }}
+								<div class="col-md-12">
+									<!-- Date Field (Hidden) -->
+									{{ form_widget(form.datePublication, {'attr': {'style': 'display: none;'}}) }}
 								</div>
 								<div class="col-md-6">
-									{{ form_row(form.categorie, {'attr': {'class': 'wingo-input'}, 'row_attr': {'class': 'form-group-custom'}}) }}
+									<!-- Region Field -->
+									<div class="form-group-custom">
+										<label for="region_field" class="form-label">
+											<i class="fas fa-map-marker-alt"></i> Région
+										</label>
+										{{ form_widget(form.region, {'attr': {'class': 'form-control wingo-input', 'id': 'region_field', 'placeholder': 'Tunis, Sousse, Sfax...'}}) }}
+									</div>
+								</div>
+								<div class="col-md-6">
+									<!-- Category Field -->
+									<div class="form-group-custom">
+										<label for="categorie_field" class="form-label">
+											<i class="fas fa-tag"></i> Catégorie
+										</label>
+										{{ form_widget(form.categorie, {'attr': {'class': 'form-control wingo-input', 'id': 'categorie_field', 'placeholder': 'Aventure, Culture...'}}) }}
+									</div>
 								</div>
 							</div>
-							<div class="form-group-custom">
-								{{ form_label(form.image, 'Image (laisser vide pour garder l\'actuelle)', {'label_attr': {'class': 'form-label'}}) }}
-								{{ form_widget(form.image, {'attr': {'class': 'form-control wingo-input'}}) }}
-								{{ form_errors(form.image) }}
+
+							<div class="row">
+								<div class="col-md-12">
+									<!-- Image Field -->
+									<div class="form-group-custom">
+										<label class="form-label">
+											<i class="fas fa-image"></i> Image (laisser vide pour garder l'actuelle)
+										</label>
+										{{ form_widget(form.image, {'attr': {'class': 'form-control wingo-input'}}) }}
+									</div>
+								</div>
 							</div>
+
+							<!-- Author Field (Hidden) -->
+							{{ form_widget(form.auteur, {'attr': {'style': 'display: none;'}}) }}
+
+							<!-- Submit Button -->
 							<div class="text-center mt-4">
-								<button type="submit" class="submit-btn">Mettre à jour l'article</button>
+								<button type="submit" class="submit-btn" formnovalidate>
+									<i class="fas fa-save"></i> Mettre à jour l'article
+								</button>
 							</div>
+
 						{{ form_end(form) }}
+
+						<!-- Back Button -->
 						<div class="text-center">
-							<a href="{{ path('app_article_index') }}" class="back-link">Retour aux articles</a>
+							<a href="{{ path('blog') }}" class="back-link">
+								<i class="fas fa-arrow-left"></i> Retour aux articles
+							</a>
 						</div>
 					</div>
 				</div>
 			</div>
 		</div>
 	</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    const form = document.getElementById('edit-article-form');
+    
+    if (form) {
+        form.addEventListener('submit', function(event) {
+            let isValid = true;
+            
+            // Réinitialiser les erreurs
+            document.querySelectorAll('.error-text, .success-text').forEach(el => el.remove());
+            document.querySelectorAll('.wingo-input').forEach(el => {
+                el.classList.remove('is-invalid');
+                el.classList.remove('is-valid');
+            });
+            
+            // Fonction pour ajouter un message
+            function showMessage(input, message, isError = true) {
+                if (isError) {
+                    input.classList.add('is-invalid');
+                    isValid = false;
+                } else {
+                    input.classList.add('is-valid');
+                }
+                
+                const msg = document.createElement('span');
+                msg.className = isError ? 'error-text' : 'success-text';
+                msg.innerText = message;
+                
+                // Insérer après l'input
+                input.parentNode.appendChild(msg);
+            }
+            
+            // Validation Titre (identique à AjoutBlog)
+            const titreInput = document.getElementById('article_titre');
+            if (titreInput) {
+                const titreValue = titreInput.value.trim();
+                const regexLettres = /^[a-zA-ZÀ-ÿ\s\.,!?'-]+$/;
+                
+                if (titreValue === '') {
+                    showMessage(titreInput, 'Il faut remplir ce champ.');
+                } else if (!regexLettres.test(titreValue)) {
+                    showMessage(titreInput, 'Ce champ doit contenir seulement des lettres.');
+                } else {
+                    showMessage(titreInput, 'Correct.', false);
+                }
+            }
+            
+            // Validation Contenu (identique à AjoutBlog)
+            const contenuInput = document.getElementById('article_contenu');
+            if (contenuInput) {
+                const contenuValue = contenuInput.value.trim();
+                const sansChiffres = /^[^0-9]+$/;
+                
+                if (contenuValue === '') {
+                    showMessage(contenuInput, 'Il faut remplir ce champ.');
+                } else if (!sansChiffres.test(contenuValue)) {
+                    showMessage(contenuInput, 'Le contenu ne doit contenir aucun chiffre.');
+                } else {
+                    showMessage(contenuInput, 'Correct.', false);
+                }
+            }
+            
+            // Validation Categorie
+            const categorieInput = document.getElementById('categorie_field') || document.getElementById('article_categorie');
+            if (categorieInput) {
+                if (categorieInput.value === '') {
+                    showMessage(categorieInput, 'Il faut sélectionner une option.');
+                } else {
+                    showMessage(categorieInput, 'Correct.', false);
+                }
+            }
+            
+            // Validation Region
+            const regionInput = document.getElementById('region_field') || document.getElementById('article_region');
+            if (regionInput) {
+                if (regionInput.value === '') {
+                    showMessage(regionInput, 'Il faut sélectionner une option.');
+                } else {
+                    showMessage(regionInput, 'Correct.', false);
+                }
+            }
+            
+            if (!isValid) {
+                event.preventDefault(); // Bloquer l'envoi
+            }
+        });
+    }
+});
+</script>
 {% endblock %}
