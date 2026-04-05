@@ -11,7 +11,6 @@
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 <style>
-	/* Garde tous tes styles existants, inchangés */
 	:root {
 		--primary-color: #8d4fff;
 		--accent-color: #fa9e1c;
@@ -266,6 +265,43 @@
 	}
 	.clearfix::after { content: ""; clear: both; display: table; }
 	.error-text { color: #dc3545; font-size: 0.85rem; margin-top: 5px; display: block; }
+
+	/* Styles pour l'édition inline */
+	.edit-comment-form {
+		display: none;
+		margin-top: 15px;
+		padding: 15px;
+		background: #f8f9fa;
+		border-radius: 12px;
+	}
+	.edit-comment-form textarea {
+		width: 100%;
+		padding: 12px;
+		border-radius: 12px;
+		border: 1px solid #e0e0e0;
+		resize: vertical;
+		font-family: inherit;
+	}
+	.edit-actions {
+		margin-top: 10px;
+		text-align: right;
+	}
+	.btn-save, .btn-cancel {
+		padding: 6px 20px;
+		border-radius: 20px;
+		border: none;
+		cursor: pointer;
+		font-size: 0.85rem;
+	}
+	.btn-save {
+		background: linear-gradient(135deg, #8d4fff, #fa9e1c);
+		color: white;
+		margin-right: 10px;
+	}
+	.btn-cancel {
+		background: #e9ecef;
+		color: #333;
+	}
 </style>
 {% endblock %}
 
@@ -326,13 +362,13 @@
     		    <div class="comments-list">
     		        {% for comm in article.commentaires %}
     		            {% set commAuthorName = comm.utilisateur ? comm.utilisateur.prenom ~ ' ' ~ comm.utilisateur.nom : 'Visiteur' %}
-    		            <div class="comment-card">
+    		            <div class="comment-card" id="comment-card-{{ comm.id }}">
     		                <div class="comment-header">
     		                    <div class="comment-avatar">{{ commAuthorName|slice(0, 1)|upper }}</div>
     		                    <div class="comment-author">{{ commAuthorName }}</div>
     		                    <div class="comment-date">{{ comm.dateCommentaire ? comm.dateCommentaire|date('d/m/Y H:i') : '' }}</div>
     		                    <div class="comment-actions" style="margin-left: 15px;">
-    		                        <a href="javascript:void(0);" onclick="editComment({{ comm.id }})" class="btn-edit" style="color: #8d4fff; margin-right: 8px;">
+    		                        <a href="javascript:void(0);" onclick="showEditForm({{ comm.id }})" class="btn-edit" style="color: #8d4fff; margin-right: 8px;">
     		                            <i class="fas fa-edit"></i>
     		                        </a>
     		                        <form method="post" action="{{ path('app_commentaire_delete', {id: comm.id}) }}" style="display:inline-block; margin:0;" onsubmit="return confirm('Supprimer ce commentaire ?');">
@@ -341,7 +377,16 @@
     		                        </form>
     		                    </div>
     		                </div>
-    		                <div class="comment-body">{{ comm.contenu|nl2br }}</div>
+    		                <div class="comment-body" id="comment-body-{{ comm.id }}">
+    		                    {{ comm.contenu|nl2br }}
+    		                </div>
+    		                <div class="edit-comment-form" id="edit-form-{{ comm.id }}">
+    		                    <textarea id="edit-text-{{ comm.id }}" rows="3">{{ comm.contenu }}</textarea>
+    		                    <div class="edit-actions">
+    		                        <button class="btn-save" onclick="saveComment({{ comm.id }})">Enregistrer</button>
+    		                        <button class="btn-cancel" onclick="hideEditForm({{ comm.id }})">Annuler</button>
+    		                    </div>
+    		                </div>
     		            </div>
     		        {% else %}
     		            <p style="color: #888; font-style: italic;">Aucun commentaire pour le moment. Soyez le premier !</p>
@@ -349,11 +394,11 @@
     		    </div>
 
     		    <div class="comment-form-container">
-    		        <h4 class="comment-form-title" id="comment-form-title">Laisser un commentaire</h4>
-    		        {{ form_start(commentForm, {'attr': {'novalidate': 'novalidate', 'class': 'clearfix', 'id': 'main-comment-form'}}) }}
-    		            {{ form_widget(commentForm.contenu, {'id': 'commentaire_contenu', 'attr': {'class': 'wingo-input', 'rows': 4}}) }}
+    		        <h4 class="comment-form-title">Laisser un commentaire</h4>
+    		        {{ form_start(commentForm, {'attr': {'novalidate': 'novalidate', 'class': 'clearfix'}}) }}
+    		            {{ form_widget(commentForm.contenu, {'attr': {'class': 'wingo-input', 'rows': 4, 'id': 'new-comment-content'}}) }}
     		            {{ form_errors(commentForm.contenu, {'attr': {'class': 'error-text'}}) }}
-    		            <button type="submit" class="btn-submit-comment" id="comment-submit-btn">
+    		            <button type="submit" class="btn-submit-comment">
     		                <i class="fas fa-paper-plane" style="margin-right: 8px;"></i> Publier
     		            </button>
     		        {{ form_end(commentForm) }}
@@ -365,51 +410,60 @@
 </div>
 
 <script>
-async function editComment(id) {
-    // Récupérer le contenu du commentaire via l'API GET
-    const response = await fetch('/commentaire/' + id + '/edit');
-    const data = await response.json();
-    
-    // Pré-remplir le textarea
-    document.getElementById('commentaire_contenu').value = data.contenu;
-    
-    // Changer le titre
-    document.getElementById('comment-form-title').innerText = "Modifier votre commentaire";
-    
-    // Changer le bouton
-    const submitBtn = document.getElementById('comment-submit-btn');
-    submitBtn.innerHTML = '<i class="fas fa-edit" style="margin-right: 8px;"></i> Mettre à jour';
-    
-    // Changer l'action du formulaire vers la route POST (update)
-    document.getElementById('main-comment-form').action = "/commentaire/" + id + "/update";
-    
-    // Afficher le bouton Annuler
-    let cancelBtn = document.getElementById('cancel-edit-btn');
-    if (!cancelBtn) {
-        cancelBtn = document.createElement('button');
-        cancelBtn.type = 'button';
-        cancelBtn.id = 'cancel-edit-btn';
-        cancelBtn.className = 'btn-submit-comment';
-        cancelBtn.style.background = '#6c757d';
-        cancelBtn.style.marginRight = '15px';
-        cancelBtn.innerHTML = '<i class="fas fa-times" style="margin-right: 8px;"></i> Annuler';
-        cancelBtn.onclick = cancelEdit;
-        document.getElementById('main-comment-form').appendChild(cancelBtn);
-    } else {
-        cancelBtn.style.display = 'inline-block';
+function showEditForm(commentId) {
+    // Masquer tous les formulaires d'édition ouverts
+    document.querySelectorAll('.edit-comment-form').forEach(form => {
+        form.style.display = 'none';
+    });
+    const form = document.getElementById('edit-form-' + commentId);
+    if (form) {
+        form.style.display = 'block';
+        // Scroll fluide vers ce formulaire
+        form.scrollIntoView({ behavior: 'smooth', block: 'center' });
     }
-    
-    // ** SCROLL VERS LE FORMULAIRE EN BAS **
-    document.getElementById('main-comment-form').scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
-function cancelEdit() {
-    // Réinitialiser
-    document.getElementById('commentaire_contenu').value = '';
-    document.getElementById('comment-form-title').innerText = "Laisser un commentaire";
-    document.getElementById('comment-submit-btn').innerHTML = '<i class="fas fa-paper-plane" style="margin-right: 8px;"></i> Publier';
-    document.getElementById('main-comment-form').action = "";
-    document.getElementById('cancel-edit-btn').style.display = 'none';
+function hideEditForm(commentId) {
+    const form = document.getElementById('edit-form-' + commentId);
+    if (form) {
+        form.style.display = 'none';
+        // Remettre le texte original
+        const originalText = document.getElementById('comment-body-' + commentId).innerText.replace(/\n/g, '');
+        document.getElementById('edit-text-' + commentId).value = originalText;
+    }
+}
+
+async function saveComment(commentId) {
+    const newContent = document.getElementById('edit-text-' + commentId).value;
+    if (!newContent.trim()) {
+        alert('Le commentaire ne peut pas être vide.');
+        return;
+    }
+    try {
+        const response = await fetch('/commentaire/' + commentId + '/update', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest'
+            },
+            body: JSON.stringify({ contenu: newContent })
+        });
+        if (response.ok) {
+            const data = await response.json();
+            if (data.success) {
+                // Mettre à jour l'affichage du commentaire
+                document.getElementById('comment-body-' + commentId).innerHTML = data.contenu.replace(/\n/g, '<br>');
+                hideEditForm(commentId);
+            } else {
+                alert('Erreur lors de la mise à jour.');
+            }
+        } else {
+            alert('Erreur serveur.');
+        }
+    } catch (error) {
+        console.error(error);
+        alert('Impossible de communiquer avec le serveur.');
+    }
 }
 </script>
 {% endblock %}
