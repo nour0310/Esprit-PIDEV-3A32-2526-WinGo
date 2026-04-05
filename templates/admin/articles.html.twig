@@ -104,25 +104,6 @@
                 <td><strong>{{ article.titre }}</strong></td>
                 <td>{{ article.region ?? '-' }}</td>
                 <td>{{ article.categorie ?? '-' }}</td>
-                <td style="text-align: center;">
-                    <span style="background: rgba(111, 66, 193, 0.1); color: #6f42c1; padding: 2px 8px; border-radius: 10px; font-weight: bold;">
-                        {{ article.commentaires|length }}
-                    </span>
-                </td>
-                <td>{{ article.datePublication ? article.datePublication|date('d/m/Y H:i') : '-' }}</td>
-                <td style="display: flex; gap: 5px;">
-                    <a href="{{ path('app_article_show', {id: article.id}) }}" class="action-btn btn-view" title="Voir l'article" target="_blank">
-                        <i class="fa fa-eye"></i>
-                    </a>
-                    <a href="{{ path('app_article_edit', {id: article.id}) }}" class="action-btn btn-edit" title="Modifier">
-                        <i class="fa fa-pencil"></i>
-                    </a>
-                    <a href="{{ path('admin_article_commentaires', {id: article.id}) }}" class="action-btn btn-comments" title="Gérer les commentaires">
-                        <i class="fa fa-comments"></i>
-                    </a>
-                    <form method="post" action="{{ path('admin_article_delete', {id: article.id}) }}" style="margin: 0;" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer cet article et tous ses commentaires ?');">
-                        <input type="hidden" name="_token" value="{{ csrf_token('delete_admin' ~ article.id) }}">
-                        <button type="submit" class="action-btn btn-delete" title="Supprimer">
                             <i class="fa fa-trash"></i>
                         </button>
                     </form>

@@ -1,0 +1,52 @@
+{% extends 'admin/base_admin.html.twig' %}
+{% block title %}Voir l'article - Admin WinGo{% endblock %}
+{% block page_title %}Détail de l'article{% endblock %}
+
+{% block content %}
+<div class="data_card">
+    <div class="data_card_header">
+        <div class="data_card_title">
+            <i class="fa fa-eye" style="color:#17a2b8"></i> Aperçu de l'article #{{ article.id }}
+            <a href="{{ path('admin_articles') }}" style="float: right; font-size: 14px; text-decoration: none; color: #fa9e1b;">&laquo; Retour à la liste</a>
+        </div>
+    </div>
+    
+    <div style="padding: 30px;">
+        <div style="display: flex; gap: 30px;">
+            <div style="flex: 2;">
+                <h1 style="margin-top: 0;">{{ article.titre }}</h1>
+                
+                <div style="display: flex; gap: 15px; margin-bottom: 25px; color: #666;">
+                    <span><i class="fa fa-calendar"></i> {{ article.datePublication ? article.datePublication|date('d/m/Y H:i') : '-' }}</span>
+                    <span><i class="fa fa-map-marker"></i> {{ article.region ?? 'Non précisé' }}</span>
+                    <span><i class="fa fa-tag"></i> {{ article.categorie ?? 'Non précisé' }}</span>
+                    <span><i class="fa fa-user"></i> {{ article.auteur ? article.auteur.nom : 'Inconnu' }}</span>
+                </div>
+                
+                <div style="line-height: 1.8; color: #333; font-size: 1.1em; white-space: pre-line;">
+                    {{ article.contenu }}
+                </div>
+            </div>
+            
+            <div style="flex: 1;">
+                <div style="background: #f9f9fc; padding: 20px; border-radius: 10px; border: 1px solid #eee;">
+                    <h3 style="margin-top: 0;">Image à la une</h3>
+                    <img src="{{ path('app_article_image', {id: article.id}) }}" alt="Image" style="width: 100%; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
+                </div>
+                
+                <div style="background: #f9f9fc; padding: 20px; border-radius: 10px; border: 1px solid #eee; margin-top: 20px;">
+                    <h3 style="margin-top: 0;">Actions administrateur</h3>
+                    <div style="display: flex; flex-direction: column; gap: 10px;">
+                        <a href="{{ path('admin_article_edit', {id: article.id}) }}" style="display: block; text-align: center; background: #ffc107; color: #000; padding: 10px; text-decoration: none; border-radius: 5px; font-weight: bold;">
+                            <i class="fa fa-pencil"></i> Modifier l'article
+                        </a>
+                        <a href="{{ path('admin_article_commentaires', {id: article.id}) }}" style="display: block; text-align: center; background: #6f42c1; color: #fff; padding: 10px; text-decoration: none; border-radius: 5px; font-weight: bold;">
+                            <i class="fa fa-comments"></i> Gérer les commentaires ({{ article.commentaires|length }})
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
