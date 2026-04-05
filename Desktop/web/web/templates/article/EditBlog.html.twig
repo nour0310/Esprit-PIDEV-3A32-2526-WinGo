@@ -209,10 +209,7 @@
 							</div>
 
 							<div class="row">
-								<div class="col-md-12">
-									<!-- Date Field (Hidden) -->
-									{{ form_widget(form.datePublication, {'attr': {'style': 'display: none;'}}) }}
-								</div>
+								<!-- Le champ datePublication a été volontairement supprimé car inutile en édition -->
 								<div class="col-md-6">
 									<!-- Region Field -->
 									<div class="form-group-custom">
@@ -284,7 +281,6 @@ document.addEventListener("DOMContentLoaded", function() {
                 el.classList.remove('is-valid');
             });
             
-            // Fonction pour ajouter un message
             function showMessage(input, message, isError = true) {
                 if (isError) {
                     input.classList.add('is-invalid');
@@ -292,12 +288,9 @@ document.addEventListener("DOMContentLoaded", function() {
                 } else {
                     input.classList.add('is-valid');
                 }
-                
                 const msg = document.createElement('span');
                 msg.className = isError ? 'error-text' : 'success-text';
                 msg.innerText = message;
-                
-                // Insérer après l'input
                 input.parentNode.appendChild(msg);
             }
             
@@ -306,7 +299,6 @@ document.addEventListener("DOMContentLoaded", function() {
             if (titreInput) {
                 const titreValue = titreInput.value.trim();
                 const regexLettres = /^[a-zA-ZÀ-ÿ\s\.,!?'-]+$/;
-                
                 if (titreValue === '') {
                     showMessage(titreInput, 'Il faut remplir ce champ.');
                 } else if (!regexLettres.test(titreValue)) {
@@ -316,12 +308,11 @@ document.addEventListener("DOMContentLoaded", function() {
                 }
             }
             
-            // Validation Contenu (identique à AjoutBlog)
+            // Validation Contenu (identique à AjoutBlog : aucun chiffre)
             const contenuInput = document.getElementById('article_contenu');
             if (contenuInput) {
                 const contenuValue = contenuInput.value.trim();
                 const sansChiffres = /^[^0-9]+$/;
-                
                 if (contenuValue === '') {
                     showMessage(contenuInput, 'Il faut remplir ce champ.');
                 } else if (!sansChiffres.test(contenuValue)) {
@@ -331,7 +322,7 @@ document.addEventListener("DOMContentLoaded", function() {
                 }
             }
             
-            // Validation Categorie
+            // Validation Catégorie
             const categorieInput = document.getElementById('categorie_field') || document.getElementById('article_categorie');
             if (categorieInput) {
                 if (categorieInput.value === '') {
@@ -341,7 +332,7 @@ document.addEventListener("DOMContentLoaded", function() {
                 }
             }
             
-            // Validation Region
+            // Validation Région
             const regionInput = document.getElementById('region_field') || document.getElementById('article_region');
             if (regionInput) {
                 if (regionInput.value === '') {
@@ -352,7 +343,7 @@ document.addEventListener("DOMContentLoaded", function() {
             }
             
             if (!isValid) {
-                event.preventDefault(); // Bloquer l'envoi
+                event.preventDefault();
             }
         });
     }
