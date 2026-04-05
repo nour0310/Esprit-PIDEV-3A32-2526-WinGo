@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\Entity\Commande;
 use App\Entity\Panier;
 use App\Repository\PanierRepository;
 use App\Repository\ProduitRepository;
@@ -179,6 +180,79 @@ final class PanierController extends AbstractController
         $em->flush();
 
         $this->addFlash('success', 'Produit supprimé du panier.');
+
+        return $this->redirectToRoute('app_panier');
+    }
+
+    #[IsGranted('ROLE_USER')]
+    #[Route('/commande/valider', name: 'commande_valider', methods: ['POST'])]
+    public function commander(
+        PanierRepository $panierRepository,
+        ProduitRepository $produitRepository,
+        EntityManagerInterface $em
+    ): Response {
+        /** @var \App\Entity\Utilisateur $user */
+        $user = $this->getUser();
+
+        $lignesPanier = $panierRepository->findBy(['idUser' => $user->getId()]);
+
+        if (!$lignesPanier) {
+            $this->addFlash('success', 'Votre panier est vide.');
+            return $this->redirectToRoute('app_panier');
+        }
+
+        $items = [];
+        $subtotal = 0.0;
+
+        foreach ($lignesPanier as $ligne) {
+            $produit = $produitRepository->find($ligne->getIdProduit());
+
+            if (!$produit) {
+                continue;
+            }
+
+            $prixUnitaire = (float) $ligne->getPrixUnitaire();
+            $quantite = $ligne->getQuantite();
+            $sousTotal = $prixUnitaire * $quantite;
+
+            $subtotal += $sousTotal;
+
+            $items[] = [
+                'id_produit' => $produit->getId(),
+                'nom' => $produit->getNom(),
+                'prix_unitaire' => $prixUnitaire,
+                'quantite' => $quantite,
+                'sous_total' => $sousTotal,
+                'image' => $produit->getImage(),
+                'region' => $produit->getRegion(),
+                'categorie' => $produit->getCategorie(),
+            ];
+        }
+
+        if (empty($items)) {
+            $this->addFlash('success', 'Aucun produit valide dans le panier.');
+            return $this->redirectToRoute('app_panier');
+        }
+
+        $livraison = 7.00;
+        $total = $subtotal + $livraison;
+
+        $commande = new Commande();
+        $commande->setIdUser($user->getId());
+        $commande->setStatus('en_cours');
+        $commande->setTotal(number_format($total, 2, '.', ''));
+        $commande->setItemsJson(json_encode($items, JSON_UNESCAPED_UNICODE));
+        $commande->setDateCommande(new \DateTime());
+
+        $em->persist($commande);
+
+        foreach ($lignesPanier as $ligne) {
+            $em->remove($ligne);
+        }
+
+        $em->flush();
+
+        $this->addFlash('success', 'Commande enregistrée avec succès.');
 
         return $this->redirectToRoute('app_panier');
     }
