@@ -180,7 +180,10 @@ class ArticleController extends AbstractController
                 if (!is_dir($uploadDir)) {
                     mkdir($uploadDir, 0777, true);
                 }
-                $newFilename = uniqid('', true) . '.' . $this->guessSafeImageExtension($imageFile);
+                // Utilisation de getClientOriginalExtension() au lieu de guessExtension()
+                $originalExtension = $imageFile->getClientOriginalExtension();
+                $extension = $originalExtension ?: 'jpg';
+                $newFilename = uniqid('', true) . '.' . $extension;
                 $this->storeUploadedImage($imageFile, $uploadDir, $newFilename);
                 $article->setImage($newFilename);
             }
@@ -244,7 +247,10 @@ class ArticleController extends AbstractController
                     mkdir($uploadDir, 0777, true);
                 }
                 $previousImage = $article->getImage();
-                $newFilename = uniqid('', true) . '.' . $this->guessSafeImageExtension($imageFile);
+                // Utilisation de getClientOriginalExtension()
+                $originalExtension = $imageFile->getClientOriginalExtension();
+                $extension = $originalExtension ?: 'jpg';
+                $newFilename = uniqid('', true) . '.' . $extension;
                 $this->storeUploadedImage($imageFile, $uploadDir, $newFilename);
                 $this->removeStoredArticleImage($previousImage, $uploadDir);
                 $article->setImage($newFilename);
@@ -282,7 +288,6 @@ class ArticleController extends AbstractController
 
         if ($imageFile->isValid()) {
             $imageFile->move($uploadDir, $newFilename);
-
             return;
         }
 
@@ -302,6 +307,15 @@ class ArticleController extends AbstractController
         @chmod($target, 0666 & ~umask());
     }
 
+    private function guessSafeImageExtension(UploadedFile $file): string
+    {
+        $ext = strtolower((string) $file->getClientOriginalExtension());
+        if ($ext === '' && str_contains($file->getClientOriginalName(), '.')) {
+            $ext = strtolower((string) pathinfo($file->getClientOriginalName(), PATHINFO_EXTENSION));
+        }
+        $ext = preg_replace('/[^a-z0-9]/', '', $ext) ?? '';
+        return $ext !== '' ? $ext : 'jpg';
+    }
 
     private function removeStoredArticleImage(?string $storedName, string $uploadDir): void
     {
