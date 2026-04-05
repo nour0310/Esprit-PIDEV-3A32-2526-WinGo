@@ -3,9 +3,7 @@
 namespace App\Form;
 
 use App\Entity\Produit;
-use App\Repository\UtilisateurRepository;
 use Symfony\Component\Form\AbstractType;
-use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\DateTimeType;
 use Symfony\Component\Form\Extension\Core\Type\FileType;
 use Symfony\Component\Form\Extension\Core\Type\IntegerType;
@@ -18,29 +16,9 @@ use Symfony\Component\Validator\Constraints\File;
 
 class ProduitType extends AbstractType
 {
-    private UtilisateurRepository $utilisateurRepository;
-
-    public function __construct(UtilisateurRepository $utilisateurRepository)
-    {
-        $this->utilisateurRepository = $utilisateurRepository;
-    }
-
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
-        $users = $this->utilisateurRepository->findAll();
-
-        $choices = [];
-        foreach ($users as $user) {
-            $label = $user->getNom() . ' ' . $user->getPrenom() . ' (' . $user->getEmail() . ')';
-            $choices[$label] = $user->getId();
-        }
-
         $builder
-            ->add('idUser', ChoiceType::class, [
-                'label' => 'Utilisateur',
-                'choices' => $choices,
-                'placeholder' => 'Choisir un utilisateur'
-            ])
             ->add('nom', TextType::class, [
                 'label' => 'Nom'
             ])
