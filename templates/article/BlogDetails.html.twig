@@ -349,14 +349,14 @@
     		</div>
 
     		<div class="article-actions" style="margin-bottom: 40px;">
-    			<a href="{{ path('app_article_index') }}" class="btn-custom btn-secondary-outline">
+    			<a href="{{ path('blog') }}" class="btn-custom btn-secondary-outline">
     				<i class="fas fa-arrow-left" style="margin-right: 8px;"></i> Retour aux blogs
     			</a>
-				{% if app.user and (app.user == article.auteur or is_granted('ROLE_ADMIN')) %}
+                {% if app.user and (app.user == article.auteur or is_granted('ROLE_ADMIN')) %}
     			<a href="{{ path('app_article_edit', {id: article.id}) }}" class="btn-custom btn-primary-gradient">
     				<i class="fas fa-edit" style="margin-right: 8px;"></i> Modifier l'article
     			</a>
-				{% endif %}
+    			{% endif %}
     		</div>
 
     		<div class="comments-section">
@@ -369,7 +369,7 @@
     		                    <div class="comment-avatar">{{ commAuthorName|slice(0, 1)|upper }}</div>
     		                    <div class="comment-author">{{ commAuthorName }}</div>
     		                    <div class="comment-date">{{ comm.dateCommentaire ? comm.dateCommentaire|date('d/m/Y H:i') : '' }}</div>
-								{% if app.user and (app.user == comm.utilisateur or is_granted('ROLE_ADMIN')) %}
+    		                    {% if app.user and (app.user == comm.utilisateur or is_granted('ROLE_ADMIN')) %}
     		                    <div class="comment-actions" style="margin-left: 15px;">
     		                        <a href="javascript:void(0);" onclick="showEditForm({{ comm.id }})" class="btn-edit" style="color: #8d4fff; margin-right: 8px;">
     		                            <i class="fas fa-edit"></i>
@@ -379,7 +379,7 @@
     		                            <button type="submit" style="color: #dc3545; background: transparent; border: none; cursor: pointer; padding: 0;"><i class="fas fa-trash-alt"></i></button>
     		                        </form>
     		                    </div>
-								{% endif %}
+    		                    {% endif %}
     		                </div>
     		                <div class="comment-body" id="comment-body-{{ comm.id }}">
     		                    {{ comm.contenu|nl2br }}
@@ -459,7 +459,7 @@ async function saveComment(commentId) {
                 document.getElementById('comment-body-' + commentId).innerHTML = data.contenu.replace(/\n/g, '<br>');
                 hideEditForm(commentId);
             } else {
-                alert('Erreur lors de la mise à jour.');
+                alert('Erreur lors de la mise à jour : ' + (data.message || ''));
             }
         } else {
             alert('Erreur serveur.');
