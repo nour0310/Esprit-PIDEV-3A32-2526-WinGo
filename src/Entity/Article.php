@@ -25,8 +25,12 @@ class Article
     #[ORM\Column(name: 'date_publication', type: 'datetime', nullable: true)]
     private ?\DateTimeInterface $datePublication = null;
 
-    #[ORM\Column(name: 'auteur', type: 'integer', nullable: true)]
-    private ?int $auteur = null;
+    #[ORM\ManyToOne(targetEntity: Utilisateur::class)]
+    #[ORM\JoinColumn(name: 'auteur', referencedColumnName: 'id', nullable: true)]
+    private ?Utilisateur $auteur = null;
+
+    #[ORM\OneToMany(mappedBy: 'article', targetEntity: Commentaire::class, cascade: ['remove'])]
+    private Collection $commentaires;
 
     #[ORM\Column(type: 'string', length: 255, nullable: true)]
     private ?string $image = null;
@@ -47,6 +51,7 @@ class Article
     public function __construct()
     {
         $this->tags = new ArrayCollection();
+        $this->commentaires = new ArrayCollection();
         $this->datePublication = new \DateTime();
     }
 
@@ -57,8 +62,26 @@ class Article
     public function setContenu(?string $contenu): static { $this->contenu = $contenu; return $this; }
     public function getDatePublication(): ?\DateTimeInterface { return $this->datePublication; }
     public function setDatePublication(?\DateTimeInterface $datePublication): static { $this->datePublication = $datePublication; return $this; }
-    public function getAuteur(): ?int { return $this->auteur; }
-    public function setAuteur(?int $auteur): static { $this->auteur = $auteur; return $this; }
+    public function getAuteur(): ?Utilisateur { return $this->auteur; }
+    public function setAuteur(?Utilisateur $auteur): static { $this->auteur = $auteur; return $this; }
+
+    /** @return Collection<int, Commentaire> */
+    public function getCommentaires(): Collection { return $this->commentaires; }
+    public function addCommentaire(Commentaire $commentaire): static {
+        if (!$this->commentaires->contains($commentaire)) {
+            $this->commentaires->add($commentaire);
+            $commentaire->setArticle($this);
+        }
+        return $this;
+    }
+    public function removeCommentaire(Commentaire $commentaire): static {
+        if ($this->commentaires->removeElement($commentaire)) {
+            if ($commentaire->getArticle() === $this) {
+                $commentaire->setArticle(null);
+            }
+        }
+        return $this;
+    }
     public function getImage(): ?string { return $this->image; }
     public function setImage(?string $image): static { $this->image = $image; return $this; }
     public function getRegion(): ?string { return $this->region; }
