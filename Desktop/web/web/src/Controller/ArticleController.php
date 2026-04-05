@@ -7,6 +7,7 @@ use App\Entity\Commentaire;
 use App\Form\ArticleType;
 use App\Form\CommentaireType;
 use App\Repository\ArticleRepository;
+use App\Repository\CommentaireRepository;
 use App\Repository\UtilisateurRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -91,9 +92,9 @@ class ArticleController extends AbstractController
         );
     }
 
-    // ===================== LISTE DES ARTICLES (avec recherche et catégories) =====================
+    // ===================== LISTE DES ARTICLES (avec recherche, catégories, stats, articles populaires) =====================
     #[Route('/blog', name: 'blog')]
-    public function blog(Request $request, ArticleRepository $articleRepository): Response
+    public function blog(Request $request, ArticleRepository $articleRepository, CommentaireRepository $commentaireRepository): Response
     {
         $searchQuery = $request->query->get('q');
         $categoryFilter = $request->query->get('category');
@@ -113,6 +114,19 @@ class ArticleController extends AbstractController
         $qb->orderBy('a.datePublication', 'DESC');
         $articles = $qb->getQuery()->getResult();
 
+        // Statistiques (globales, indépendantes des filtres)
+        $totalArticles = $articleRepository->count([]);
+        $totalCommentaires = $commentaireRepository->count([]);
+
+        // Articles populaires (top 3 les plus commentés)
+        $popularArticles = $articleRepository->createQueryBuilder('a')
+            ->leftJoin('a.commentaires', 'c')
+            ->groupBy('a.id')
+            ->orderBy('COUNT(c.id)', 'DESC')
+            ->setMaxResults(3)
+            ->getQuery()
+            ->getResult();
+
         $categories = [
             'Aventure' => 'Aventure',
             'Culture' => 'Culture',
@@ -125,10 +139,13 @@ class ArticleController extends AbstractController
             'searchQuery' => $searchQuery,
             'categoryFilter' => $categoryFilter,
             'categories' => $categories,
+            'totalArticles' => $totalArticles,
+            'totalCommentaires' => $totalCommentaires,
+            'popularArticles' => $popularArticles,
         ]);
     }
 
-    // ===================== LISTE DES ARTICLES (alternative, peut être supprimée) =====================
+    // ===================== LISTE DES ARTICLES (alternative, redirection) =====================
     #[Route('/articles', name: 'app_article_index')]
     public function index(ArticleRepository $articleRepository): Response
     {
