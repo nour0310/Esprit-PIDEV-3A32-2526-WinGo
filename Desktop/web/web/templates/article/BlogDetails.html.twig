@@ -11,6 +11,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 <style>
+	/* Garde tous tes styles existants, inchangés */
 	:root {
 		--primary-color: #8d4fff;
 		--accent-color: #fa9e1c;
@@ -379,8 +380,8 @@ async function editComment(id) {
     const submitBtn = document.getElementById('comment-submit-btn');
     submitBtn.innerHTML = '<i class="fas fa-edit" style="margin-right: 8px;"></i> Mettre à jour';
     
-    // Changer l'action du formulaire
-    document.getElementById('main-comment-form').action = "/commentaire/" + id + "/edit";
+    // Changer l'action du formulaire vers la route POST (update)
+    document.getElementById('main-comment-form').action = "/commentaire/" + id + "/update";
     
     // Afficher le bouton Annuler
     let cancelBtn = document.getElementById('cancel-edit-btn');
@@ -397,6 +398,9 @@ async function editComment(id) {
     } else {
         cancelBtn.style.display = 'inline-block';
     }
+    
+    // ** SCROLL VERS LE FORMULAIRE EN BAS **
+    document.getElementById('main-comment-form').scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
 function cancelEdit() {
