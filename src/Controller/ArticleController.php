@@ -139,14 +139,15 @@ class ArticleController extends AbstractController
 
     // ===================== AJOUTER UN ARTICLE =====================
     #[Route('/article/new', name: 'app_article_new')]
-    public function new(Request $request, EntityManagerInterface $em, UtilisateurRepository $userRepo): Response
+    public function new(Request $request, EntityManagerInterface $em): Response
     {
         $article = new Article();
         $article->setDatePublication(new \DateTime());
 
-        $auteur = $userRepo->find(1);
-        if ($auteur) {
-            $article->setAuteur($auteur);
+        /** @var \App\Entity\Utilisateur $user */
+        $user = $this->getUser();
+        if ($user) {
+            $article->setAuteur($user);
         }
 
         $form = $this->createForm(ArticleType::class, $article);
@@ -183,15 +184,16 @@ class ArticleController extends AbstractController
 
     // ===================== AFFICHER UN ARTICLE =====================
     #[Route('/article/{id}', name: 'app_article_show')]
-    public function show(Request $request, Article $article, EntityManagerInterface $em, UtilisateurRepository $userRepo): Response
+    public function show(Request $request, Article $article, EntityManagerInterface $em): Response
     {
         $commentaire = new Commentaire();
         $commentaire->setArticle($article);
         $commentaire->setDateCommentaire(new \DateTime());
 
-        $utilisateur = $userRepo->find(1);
-        if ($utilisateur) {
-            $commentaire->setUtilisateur($utilisateur);
+        /** @var \App\Entity\Utilisateur $user */
+        $user = $this->getUser();
+        if ($user) {
+            $commentaire->setUtilisateur($user);
         }
 
         $form = $this->createForm(CommentaireType::class, $commentaire);
@@ -213,6 +215,11 @@ class ArticleController extends AbstractController
     #[Route('/article/{id}/edit', name: 'app_article_edit')]
     public function edit(Request $request, Article $article, EntityManagerInterface $em): Response
     {
+        if ($this->getUser() !== $article->getAuteur() && !$this->isGranted('ROLE_ADMIN')) {
+            $this->addFlash('error', 'Vous n\'êtes pas autorisé à modifier cet article.');
+            return $this->redirectToRoute('blog');
+        }
+
         // Les vérifications de null ne sont plus nécessaires si l'entité gère correctement les valeurs par défaut.
         // (Les setters acceptent ?string et convertissent null en chaîne vide)
         $form = $this->createForm(ArticleType::class, $article);
@@ -254,6 +261,11 @@ class ArticleController extends AbstractController
     #[Route('/article/{id}/delete', name: 'app_article_delete', methods: ['POST'])]
     public function delete(Request $request, Article $article, EntityManagerInterface $em): Response
     {
+        if ($this->getUser() !== $article->getAuteur() && !$this->isGranted('ROLE_ADMIN')) {
+            $this->addFlash('error', 'Action non autorisée.');
+            return $this->redirectToRoute('blog');
+        }
+
         if ($this->isCsrfTokenValid('delete' . $article->getId(), $request->request->get('_token'))) {
             $em->remove($article);
             $em->flush();
