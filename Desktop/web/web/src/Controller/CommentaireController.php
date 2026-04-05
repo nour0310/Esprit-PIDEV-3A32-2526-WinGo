@@ -12,26 +12,21 @@ use Symfony\Component\Routing\Attribute\Route;
 
 class CommentaireController extends AbstractController
 {
-    // Afficher le formulaire d'édition (GET)
-    #[Route('/commentaire/{id}/edit', name: 'app_commentaire_edit_form', methods: ['GET'])]
-    public function editForm(Commentaire $commentaire): Response
+    // Récupérer le contenu d'un commentaire en JSON (GET)
+    #[Route('/commentaire/{id}/edit', name: 'app_commentaire_edit', methods: ['GET'])]
+    public function getCommentaire(Commentaire $commentaire): Response
     {
-        $form = $this->createForm(CommentaireType::class, $commentaire);
-        return $this->render('commentaire/edit.html.twig', [
-            'commentaire' => $commentaire,
-            'form' => $form->createView(),
-        ]);
+        return $this->json(['contenu' => $commentaire->getContenu()]);
     }
 
-    // Traiter la soumission du formulaire (POST)
-    #[Route('/commentaire/{id}/edit', name: 'app_commentaire_edit', methods: ['POST'])]
-    public function edit(Request $request, Commentaire $commentaire, EntityManagerInterface $em): Response
+    // Mettre à jour un commentaire (POST)
+    #[Route('/commentaire/{id}/edit', name: 'app_commentaire_update', methods: ['POST'])]
+    public function update(Request $request, Commentaire $commentaire, EntityManagerInterface $em): Response
     {
         $form = $this->createForm(CommentaireType::class, $commentaire);
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
             $em->flush();
-            $this->addFlash('success', 'Commentaire modifié.');
         }
         return $this->redirectToRoute('app_article_show', ['id' => $commentaire->getArticle()->getId()]);
     }
