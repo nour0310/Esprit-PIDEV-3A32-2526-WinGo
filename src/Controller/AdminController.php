@@ -2,17 +2,21 @@
 
 namespace App\Controller;
 
+use App\Entity\Article;
 use App\Entity\Commande;
+use App\Entity\Commentaire;
 use App\Repository\ArticleRepository;
 use App\Repository\CommandeRepository;
 use App\Repository\ProduitRepository;
 use App\Repository\ReclamationRepository;
 use App\Repository\ReservationRepository;
 use App\Repository\SuggestionRepository;
+use App\Repository\CommentaireRepository;
 use App\Repository\TransportRepository;
 use App\Repository\UtilisateurRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
@@ -50,11 +54,59 @@ class AdminController extends AbstractController
     }
 
     #[Route('/articles', name: 'admin_articles')]
-    public function articles(ArticleRepository $repo): Response
+    public function articles(ArticleRepository $repo, CommentaireRepository $commentRepo): Response
     {
+        $articles = $repo->findBy([], ['id' => 'DESC']);
+        $totalCommentaires = $commentRepo->count([]);
+        
+        $articleMaxComs = null;
+        $maxComs = -1;
+        foreach ($articles as $a) {
+            $count = count($a->getCommentaires());
+            if ($count > $maxComs) {
+                $maxComs = $count;
+                $articleMaxComs = $a;
+            }
+        }
+
         return $this->render('admin/articles.html.twig', [
-            'articles' => $repo->findAll(),
+            'articles' => $articles,
+            'total_articles' => count($articles),
+            'total_commentaires' => $totalCommentaires,
+            'article_top' => $articleMaxComs,
         ]);
+    }
+
+    #[Route('/article/{id}/delete', name: 'admin_article_delete', methods: ['POST'])]
+    public function deleteArticle(Request $request, Article $article, EntityManagerInterface $em): Response
+    {
+        if ($this->isCsrfTokenValid('delete_admin' . $article->getId(), $request->request->get('_token'))) {
+            $em->remove($article);
+            $em->flush();
+            $this->addFlash('success', 'Article et ses commentaires supprimés avec succès.');
+        }
+        return $this->redirectToRoute('admin_articles');
+    }
+
+    #[Route('/article/{id}/commentaires', name: 'admin_article_commentaires')]
+    public function articleCommentaires(Article $article): Response
+    {
+        return $this->render('admin/article_commentaires.html.twig', [
+            'article' => $article,
+            'commentaires' => $article->getCommentaires(),
+        ]);
+    }
+
+    #[Route('/commentaire/{id}/delete-admin', name: 'admin_commentaire_delete', methods: ['POST'])]
+    public function deleteCommentaireAdmin(Request $request, Commentaire $commentaire, EntityManagerInterface $em): Response
+    {
+        $articleId = $commentaire->getArticle()->getId();
+        if ($this->isCsrfTokenValid('delete_comment_admin' . $commentaire->getId(), $request->request->get('_token'))) {
+            $em->remove($commentaire);
+            $em->flush();
+            $this->addFlash('success', 'Commentaire supprimé.');
+        }
+        return $this->redirectToRoute('admin_article_commentaires', ['id' => $articleId]);
     }
 
     #[Route('/reclamations', name: 'admin_reclamations')]
