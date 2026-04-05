@@ -40,4 +40,17 @@ class ProduitRepository extends ServiceEntityRepository
     //            ->getOneOrNullResult()
     //        ;
     //    }
+
+public function searchByNom(?string $q): array
+{
+    $qb = $this->createQueryBuilder('p')
+        ->orderBy('p.id', 'DESC');
+
+    if ($q !== null && trim($q) !== '') {
+        $qb->andWhere('LOWER(p.nom) LIKE LOWER(:q)')
+           ->setParameter('q', '%' . trim($q) . '%');
+    }
+
+    return $qb->getQuery()->getResult();
 }
+    }
