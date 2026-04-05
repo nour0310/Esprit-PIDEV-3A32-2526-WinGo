@@ -10,10 +10,6 @@ use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
-use Symfony\Component\Validator\Constraints\NotBlank;
-use Symfony\Component\Validator\Constraints\Length;
-use Symfony\Component\Validator\Constraints\Regex;
-use Symfony\Component\Validator\Constraints\File;
 
 class ArticleType extends AbstractType
 {
@@ -21,22 +17,12 @@ class ArticleType extends AbstractType
     {
         $builder
             ->add('titre', TextType::class, [
-                'label' => 'Titre',
-                'attr' => ['placeholder' => 'Titre de l\'article'],
-                'constraints' => [
-                    new NotBlank(['message' => 'Le titre est obligatoire']),
-                    new Length(['min' => 3, 'minMessage' => 'Le titre doit contenir au moins {{ limit }} caractères']),
-                    new Regex(['pattern' => '/^[a-zA-ZÀ-ÿ\s\.,!?\'-]+$/u', 'message' => 'Le titre ne doit pas contenir de chiffres'])
-                ]
+                'label' => 'Titre de votre blog',
+                'attr' => ['class' => 'form-control wingo-input', 'placeholder' => 'Donnez un titre captivant...']
             ])
             ->add('contenu', TextareaType::class, [
-                'label' => 'Contenu',
-                'attr' => ['rows' => 10],
-                'constraints' => [
-                    new NotBlank(['message' => 'Le contenu est obligatoire']),
-                    new Length(['min' => 3, 'minMessage' => 'Le contenu doit contenir au moins {{ limit }} caractères']),
-                    new Regex(['pattern' => '/^[a-zA-ZÀ-ÿ\s\.,!?\'-]+$/u', 'message' => 'Le contenu ne doit pas contenir de chiffres'])
-                ]
+                'label' => 'Votre histoire',
+                'attr' => ['class' => 'form-control wingo-input', 'rows' => 8, 'placeholder' => 'Racontez votre expérience...']
             ])
             ->add('region', ChoiceType::class, [
                 'label' => 'Région',
@@ -67,9 +53,7 @@ class ArticleType extends AbstractType
                     'Kébili' => 'Kébili',
                 ],
                 'placeholder' => 'Choisissez une région',
-                'constraints' => [
-                    new NotBlank(['message' => 'Veuillez choisir une région'])
-                ]
+                'attr' => ['class' => 'form-control wingo-input']
             ])
             ->add('categorie', ChoiceType::class, [
                 'label' => 'Catégorie',
@@ -80,19 +64,13 @@ class ArticleType extends AbstractType
                     'Détente' => 'Détente',
                 ],
                 'placeholder' => 'Choisissez une catégorie',
-                'constraints' => [
-                    new NotBlank(['message' => 'Veuillez choisir une catégorie'])
-                ]
+                'attr' => ['class' => 'form-control wingo-input']
             ])
             ->add('image', FileType::class, [
                 'label' => 'Image (laisser vide pour garder l\'actuelle)',
                 'mapped' => false,
                 'required' => false,
-                'constraints' => [
-                    new File([
-                        'maxSize' => '5M',
-                    ])
-                ]
+                'attr' => ['class' => 'form-control wingo-input']
             ])
         ;
     }
