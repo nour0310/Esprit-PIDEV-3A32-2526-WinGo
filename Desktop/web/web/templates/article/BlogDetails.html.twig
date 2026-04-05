@@ -342,5 +342,22 @@
     		            </div>
     		        {% else %}
     		            <p style="color: #888; font-style: italic;">Aucun commentaire pour le moment. Soyez le premier !</p>
-    		
+    		        {% endfor %}
+    		    </div>
+
+    		    <div class="comment-form-container">
+    		        <h4 class="comment-form-title">Laisser un commentaire</h4>
+    		        {{ form_start(commentForm, {'attr': {'novalidate': 'novalidate', 'class': 'clearfix'}}) }}
+    		            {{ form_widget(commentForm.contenu, {'attr': {'class': 'wingo-input', 'rows': 4}}) }}
+    		            {{ form_errors(commentForm.contenu, {'attr': {'class': 'error-text'}}) }}
+    		            <button type="submit" class="btn-submit-comment">
+    		                <i class="fas fa-paper-plane" style="margin-right: 8px;"></i> Publier
+    		            </button>
+    		        {{ form_end(commentForm) }}
+    		    </div>
+    		</div>
+
+    	</div>
+    </div>
+</div>
 {% endblock %}
