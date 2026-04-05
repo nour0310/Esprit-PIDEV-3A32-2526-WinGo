@@ -165,7 +165,6 @@ class ArticleController extends AbstractController
                 if (!is_dir($uploadDir)) {
                     mkdir($uploadDir, 0777, true);
                 }
-                // Récupérer l'extension via le nom original (pas besoin de fileinfo)
                 $originalName = $imageFile->getClientOriginalName();
                 $extension = pathinfo($originalName, PATHINFO_EXTENSION);
                 $extension = $extension ?: 'jpg';
@@ -214,20 +213,8 @@ class ArticleController extends AbstractController
     #[Route('/article/{id}/edit', name: 'app_article_edit')]
     public function edit(Request $request, Article $article, EntityManagerInterface $em): Response
     {
-        // S'assurer que les champs ne sont pas null pour éviter les erreurs de validation
-        if ($article->getTitre() === null) {
-            $article->setTitre('');
-        }
-        if ($article->getContenu() === null) {
-            $article->setContenu('');
-        }
-        if ($article->getRegion() === null) {
-            $article->setRegion('');
-        }
-        if ($article->getCategorie() === null) {
-            $article->setCategorie('');
-        }
-
+        // Les vérifications de null ne sont plus nécessaires si l'entité gère correctement les valeurs par défaut.
+        // (Les setters acceptent ?string et convertissent null en chaîne vide)
         $form = $this->createForm(ArticleType::class, $article);
         $form->handleRequest($request);
 
