@@ -49,16 +49,23 @@ class ClientController extends AbstractController
     public function produits(Request $request, ProduitRepository $repo): Response
     {
         $searchTerm = trim($request->query->get('q', ''));
+        $selectedCategorie = trim($request->query->get('categorie', ''));
+        $selectedRegion = trim($request->query->get('region', ''));
+        $selectedSort = trim($request->query->get('sort', ''));
 
-        if ($searchTerm !== '') {
-            $produits = $repo->searchByNom($searchTerm);
-        } else {
-            $produits = $repo->findAll();
-        }
+        $produits = $repo->findByFilters(
+            $searchTerm !== '' ? $searchTerm : null,
+            $selectedCategorie !== '' ? $selectedCategorie : null,
+            $selectedRegion !== '' ? $selectedRegion : null,
+            $selectedSort !== '' ? $selectedSort : null
+        );
 
         return $this->render('client/produits.html.twig', [
             'produits' => $produits,
             'searchTerm' => $searchTerm,
+            'selectedCategorie' => $selectedCategorie,
+            'selectedRegion' => $selectedRegion,
+            'selectedSort' => $selectedSort,
         ]);
     }
 
