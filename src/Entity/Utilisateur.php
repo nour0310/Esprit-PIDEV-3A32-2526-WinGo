@@ -171,13 +171,29 @@ class Utilisateur implements UserInterface, PasswordAuthenticatedUserInterface
     }
 
     public function getRoles(): array
-    {
-        $type = strtolower($this->type ?? 'client');
-        if ($type === 'admin') {
-            return ['ROLE_ADMIN', 'ROLE_USER'];
-        }
-        return ['ROLE_CLIENT', 'ROLE_USER'];
+{
+    $type = strtoupper($this->type ?? 'CLIENT');
+
+    if ($type === 'ADMIN') {
+        return ['ROLE_ADMIN', 'ROLE_USER'];
     }
+
+    if ($type === 'COMMERCANT') {
+        return ['ROLE_COMMERCANT', 'ROLE_USER'];
+    }
+
+    return ['ROLE_CLIENT', 'ROLE_USER'];
+}
+
+public function isCommercant(): bool
+{
+    return strtoupper($this->type ?? '') === 'COMMERCANT';
+}
+
+public function isEnAttenteCommercant(): bool
+{
+    return strtoupper($this->type ?? '') === 'EN_ATTENTE_COMMERCANT';
+}
 
     public function getPassword(): string
     {
