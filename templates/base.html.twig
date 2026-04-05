@@ -113,16 +113,17 @@
     </svg>
 </div>
 
-<form id="search_form" class="search_form bez_1" method="get" action="{{ path('client_produits') }}">
-    <input
-        type="search"
-        name="q"
-        class="search_content_input bez_1"
-        placeholder="Rechercher un produit..."
-        value="{{ app.request.query.get('q') }}"
-    >
-    <button type="submit" style="display:none;"></button>
-</form>
+    <form id="search_form" class="search_form bez_1" method="get" action="{{ path('client_produits') }}">
+        <input
+            type="search"
+            name="q"
+            class="search_content_input bez_1"
+            placeholder="Rechercher un produit..."
+            value="{{ app.request.query.get('q') }}"
+        >
+        <button type="submit" style="display:none;"></button>
+    </form>
+                        
                         <div class="hamburger">
                             <i class="fa fa-bars trans_200"></i>
                         </div>
