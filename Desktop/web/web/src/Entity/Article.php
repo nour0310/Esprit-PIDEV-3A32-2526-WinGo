@@ -25,6 +25,7 @@ class Article
 
     #[ORM\Column(type: 'text', nullable: true)]
     #[Assert\NotBlank(message: "Le contenu est obligatoire")]
+    #[Assert\Length(min: 3, minMessage: "Le contenu doit contenir au moins {{ limit }} caractères")]
     #[Assert\Regex(pattern: '/^[a-zA-ZÀ-ÿ\s\.,!?\'-]+$/u', message: "Le contenu ne doit pas contenir de chiffres")]
     private ?string $contenu = null;
 
