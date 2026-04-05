@@ -4,6 +4,7 @@ namespace App\Form;
 
 use App\Entity\Produit;
 use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\DateTimeType;
 use Symfony\Component\Form\Extension\Core\Type\FileType;
 use Symfony\Component\Form\Extension\Core\Type\IntegerType;
@@ -30,13 +31,47 @@ class ProduitType extends AbstractType
                 'label' => 'Prix',
                 'currency' => false
             ])
-            ->add('region', TextType::class, [
-                'required' => false,
-                'label' => 'Region'
+            ->add('region', ChoiceType::class, [
+                'label' => 'Région',
+                'placeholder' => 'Choisir un gouvernorat',
+                'choices' => [
+                    'Tunis' => 'Tunis',
+                    'Ariana' => 'Ariana',
+                    'Ben Arous' => 'Ben Arous',
+                    'Manouba' => 'Manouba',
+                    'Nabeul' => 'Nabeul',
+                    'Zaghouan' => 'Zaghouan',
+                    'Bizerte' => 'Bizerte',
+                    'Béja' => 'Béja',
+                    'Jendouba' => 'Jendouba',
+                    'Le Kef' => 'Le Kef',
+                    'Siliana' => 'Siliana',
+                    'Sousse' => 'Sousse',
+                    'Monastir' => 'Monastir',
+                    'Mahdia' => 'Mahdia',
+                    'Sfax' => 'Sfax',
+                    'Kairouan' => 'Kairouan',
+                    'Kasserine' => 'Kasserine',
+                    'Sidi Bouzid' => 'Sidi Bouzid',
+                    'Gabès' => 'Gabès',
+                    'Médenine' => 'Médenine',
+                    'Tataouine' => 'Tataouine',
+                    'Gafsa' => 'Gafsa',
+                    'Tozeur' => 'Tozeur',
+                    'Kébili' => 'Kébili',
+                ]
             ])
-            ->add('categorie', TextType::class, [
-                'required' => false,
-                'label' => 'Categorie'
+            ->add('categorie', ChoiceType::class, [
+                'label' => 'Catégorie',
+                'placeholder' => 'Choisir une catégorie',
+                'choices' => [
+                    'Artisanat' => 'Artisanat',
+                    'Gastronomie' => 'Gastronomie',
+                    'Textile' => 'Textile',
+                    'Bijoux' => 'Bijoux',
+                    'Art' => 'Art',
+                    'Souvenirs' => 'Souvenirs',
+                ]
             ])
             ->add('stock', IntegerType::class, [
                 'label' => 'Stock'
