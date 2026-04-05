@@ -331,7 +331,9 @@
     		                    <div class="comment-author">{{ commAuthorName }}</div>
     		                    <div class="comment-date">{{ comm.dateCommentaire ? comm.dateCommentaire|date('d/m/Y H:i') : '' }}</div>
     		                    <div class="comment-actions" style="margin-left: 15px;">
-    		                        <a href="{{ path('app_commentaire_edit', {id: comm.id}) }}" class="btn-edit" style="color: #8d4fff; margin-right: 8px;"><i class="fas fa-edit"></i></a>
+    		                        <a href="javascript:void(0);" onclick="editComment({{ comm.id }})" class="btn-edit" style="color: #8d4fff; margin-right: 8px;">
+    		                            <i class="fas fa-edit"></i>
+    		                        </a>
     		                        <form method="post" action="{{ path('app_commentaire_delete', {id: comm.id}) }}" style="display:inline-block; margin:0;" onsubmit="return confirm('Supprimer ce commentaire ?');">
     		                            <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ comm.id) }}">
     		                            <button type="submit" style="color: #dc3545; background: transparent; border: none; cursor: pointer; padding: 0;"><i class="fas fa-trash-alt"></i></button>
@@ -346,11 +348,11 @@
     		    </div>
 
     		    <div class="comment-form-container">
-    		        <h4 class="comment-form-title">Laisser un commentaire</h4>
-    		        {{ form_start(commentForm, {'attr': {'novalidate': 'novalidate', 'class': 'clearfix'}}) }}
-    		            {{ form_widget(commentForm.contenu, {'attr': {'class': 'wingo-input', 'rows': 4}}) }}
+    		        <h4 class="comment-form-title" id="comment-form-title">Laisser un commentaire</h4>
+    		        {{ form_start(commentForm, {'attr': {'novalidate': 'novalidate', 'class': 'clearfix', 'id': 'main-comment-form'}}) }}
+    		            {{ form_widget(commentForm.contenu, {'id': 'commentaire_contenu', 'attr': {'class': 'wingo-input', 'rows': 4}}) }}
     		            {{ form_errors(commentForm.contenu, {'attr': {'class': 'error-text'}}) }}
-    		            <button type="submit" class="btn-submit-comment">
+    		            <button type="submit" class="btn-submit-comment" id="comment-submit-btn">
     		                <i class="fas fa-paper-plane" style="margin-right: 8px;"></i> Publier
     		            </button>
     		        {{ form_end(commentForm) }}
@@ -360,4 +362,50 @@
     	</div>
     </div>
 </div>
+
+<script>
+async function editComment(id) {
+    // Récupérer le contenu du commentaire via l'API GET
+    const response = await fetch('/commentaire/' + id + '/edit');
+    const data = await response.json();
+    
+    // Pré-remplir le textarea
+    document.getElementById('commentaire_contenu').value = data.contenu;
+    
+    // Changer le titre
+    document.getElementById('comment-form-title').innerText = "Modifier votre commentaire";
+    
+    // Changer le bouton
+    const submitBtn = document.getElementById('comment-submit-btn');
+    submitBtn.innerHTML = '<i class="fas fa-edit" style="margin-right: 8px;"></i> Mettre à jour';
+    
+    // Changer l'action du formulaire
+    document.getElementById('main-comment-form').action = "/commentaire/" + id + "/edit";
+    
+    // Afficher le bouton Annuler
+    let cancelBtn = document.getElementById('cancel-edit-btn');
+    if (!cancelBtn) {
+        cancelBtn = document.createElement('button');
+        cancelBtn.type = 'button';
+        cancelBtn.id = 'cancel-edit-btn';
+        cancelBtn.className = 'btn-submit-comment';
+        cancelBtn.style.background = '#6c757d';
+        cancelBtn.style.marginRight = '15px';
+        cancelBtn.innerHTML = '<i class="fas fa-times" style="margin-right: 8px;"></i> Annuler';
+        cancelBtn.onclick = cancelEdit;
+        document.getElementById('main-comment-form').appendChild(cancelBtn);
+    } else {
+        cancelBtn.style.display = 'inline-block';
+    }
+}
+
+function cancelEdit() {
+    // Réinitialiser
+    document.getElementById('commentaire_contenu').value = '';
+    document.getElementById('comment-form-title').innerText = "Laisser un commentaire";
+    document.getElementById('comment-submit-btn').innerHTML = '<i class="fas fa-paper-plane" style="margin-right: 8px;"></i> Publier';
+    document.getElementById('main-comment-form').action = "";
+    document.getElementById('cancel-edit-btn').style.display = 'none';
+}
+</script>
 {% endblock %}
