@@ -40,7 +40,7 @@
             display:flex;
             gap:12px;
             flex-wrap:wrap;
-            margin-bottom:20px;
+            margin-bottom:25px;
         }
 
         .merchant_btn{
@@ -62,6 +62,71 @@
 
         .merchant_btn_back{
             background: linear-gradient(135deg, #5d7cf3, #8d4fff);
+        }
+
+        .stats_grid{
+            display:grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap:18px;
+            margin-bottom:30px;
+        }
+
+        .stat_card{
+            background: linear-gradient(135deg, rgba(255,255,255,0.96), rgba(248,249,255,0.92));
+            border-radius:22px;
+            padding:22px;
+            box-shadow:0 14px 35px rgba(25,30,70,0.08);
+            border:1px solid #edf0f6;
+        }
+
+        .stat_icon{
+            width:54px;
+            height:54px;
+            border-radius:16px;
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            color:#fff;
+            font-size:20px;
+            margin-bottom:14px;
+            background: linear-gradient(135deg, #fa9e1b, #8d4fff);
+        }
+
+        .stat_value{
+            font-size:30px;
+            font-weight:900;
+            color:#1f2235;
+            line-height:1.1;
+            margin-bottom:6px;
+        }
+
+        .stat_label{
+            color:#7b8095;
+            font-size:14px;
+            font-weight:700;
+            text-transform:uppercase;
+            letter-spacing:0.5px;
+        }
+
+        .merchant_info_box{
+            background:#f8f9ff;
+            border:1px solid #eceefe;
+            border-radius:20px;
+            padding:22px;
+            margin-bottom:30px;
+        }
+
+        .merchant_info_box h3{
+            font-size:22px;
+            font-weight:800;
+            color:#1f2235;
+            margin-bottom:10px;
+        }
+
+        .merchant_info_box p{
+            margin:0;
+            color:#6f758a;
+            font-weight:600;
         }
 
         .merchant_table_wrap{
@@ -119,6 +184,21 @@
         .btn_edit{ background:#f0ad4e; }
         .btn_delete{ background:#dc3545; }
 
+        .badge_stock_ok,
+        .badge_stock_low,
+        .badge_stock_out{
+            display:inline-block;
+            padding:7px 12px;
+            border-radius:999px;
+            font-size:12px;
+            font-weight:800;
+            color:#fff;
+        }
+
+        .badge_stock_ok{ background:#28a745; }
+        .badge_stock_low{ background:#ff9800; }
+        .badge_stock_out{ background:#dc3545; }
+
         .empty_box{
             text-align:center;
             padding:30px;
@@ -132,7 +212,7 @@
     <div class="container">
         <div class="merchant_dash_box">
             <h1 class="merchant_dash_title">Dashboard commerçant</h1>
-            <p class="merchant_dash_sub">Gérez ici les produits ajoutés par votre compte.</p>
+            <p class="merchant_dash_sub">Gérez ici les produits ajoutés par votre compte et suivez vos statistiques.</p>
 
             <div class="merchant_top_actions">
                 <a href="{{ path('produit_add') }}" class="merchant_btn merchant_btn_add">
@@ -142,6 +222,58 @@
                 <a href="{{ path('client_produits') }}" class="merchant_btn merchant_btn_back">
                     <i class="fa fa-arrow-left"></i> Retour boutique
                 </a>
+            </div>
+
+            <div class="stats_grid">
+                <div class="stat_card">
+                    <div class="stat_icon"><i class="fa fa-shopping-bag"></i></div>
+                    <div class="stat_value">{{ totalProduits }}</div>
+                    <div class="stat_label">Total produits</div>
+                </div>
+
+                <div class="stat_card">
+                    <div class="stat_icon"><i class="fa fa-check-circle"></i></div>
+                    <div class="stat_value">{{ produitsEnStock }}</div>
+                    <div class="stat_label">Produits en stock</div>
+                </div>
+
+                <div class="stat_card">
+                    <div class="stat_icon"><i class="fa fa-times-circle"></i></div>
+                    <div class="stat_value">{{ produitsRupture }}</div>
+                    <div class="stat_label">Produits en rupture</div>
+                </div>
+
+                <div class="stat_card">
+                    <div class="stat_icon"><i class="fa fa-exclamation-triangle"></i></div>
+                    <div class="stat_value">{{ stockFaible }}</div>
+                    <div class="stat_label">Stock faible</div>
+                </div>
+
+                <div class="stat_card">
+                    <div class="stat_icon"><i class="fa fa-tags"></i></div>
+                    <div class="stat_value">{{ nombreCategories }}</div>
+                    <div class="stat_label">Catégories utilisées</div>
+                </div>
+
+                <div class="stat_card">
+                    <div class="stat_icon"><i class="fa fa-money"></i></div>
+                    <div class="stat_value">{{ valeurStock|number_format(2, '.', ' ') }} DT</div>
+                    <div class="stat_label">Valeur du stock</div>
+                </div>
+            </div>
+
+            <div class="merchant_info_box">
+                <h3>Dernier produit ajouté</h3>
+                {% if dernierProduit %}
+                    <p>
+                        <strong>{{ dernierProduit.nom }}</strong>
+                        {% if dernierProduit.dateAjout %}
+                            — ajouté le {{ dernierProduit.dateAjout|date('d/m/Y H:i') }}
+                        {% endif %}
+                    </p>
+                {% else %}
+                    <p>Aucun produit ajouté pour le moment.</p>
+                {% endif %}
             </div>
 
             <div class="merchant_table_wrap">
@@ -154,6 +286,7 @@
                             <th>Région</th>
                             <th>Catégorie</th>
                             <th>Stock</th>
+                            <th>État</th>
                             <th>Actions</th>
                         </tr>
                     </thead>
@@ -164,7 +297,7 @@
                                 {% if p.image %}
                                     <img src="{{ asset('images/' ~ p.image) }}" alt="{{ p.nom }}" class="table_img">
                                 {% else %}
-                                    <div class="table_img"></div>
+                                    <img src="{{ asset('images/default-product.jpg') }}" alt="Image par défaut" class="table_img">
                                 {% endif %}
                             </td>
                             <td>{{ p.nom }}</td>
@@ -172,6 +305,15 @@
                             <td>{{ p.region }}</td>
                             <td>{{ p.categorie }}</td>
                             <td>{{ p.stock }}</td>
+                            <td>
+                                {% if p.stock == 0 %}
+                                    <span class="badge_stock_out">Rupture</span>
+                                {% elseif p.stock <= 5 %}
+                                    <span class="badge_stock_low">Stock faible</span>
+                                {% else %}
+                                    <span class="badge_stock_ok">Disponible</span>
+                                {% endif %}
+                            </td>
                             <td>
                                 <div class="table_actions">
                                     <a href="{{ path('produit_details', {'id': p.id}) }}" class="action_btn btn_view">Voir</a>
@@ -182,7 +324,7 @@
                         </tr>
                     {% else %}
                         <tr>
-                            <td colspan="7" class="empty_box">Vous n'avez encore ajouté aucun produit.</td>
+                            <td colspan="8" class="empty_box">Vous n'avez encore ajouté aucun produit.</td>
                         </tr>
                     {% endfor %}
                     </tbody>
