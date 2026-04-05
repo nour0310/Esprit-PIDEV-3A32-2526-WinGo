@@ -113,6 +113,21 @@
 	}
 	.back-link:hover { color: var(--form-accent); }
 	
+	/* Styles pour les erreurs de validation Symfony */
+	.help-block,
+	.form-error-message,
+	ul.help-block li,
+	div.form-error-message,
+	[class*="error"] {
+		color: #dc3545 !important;
+		font-size: 0.85rem;
+		margin-top: 5px;
+		display: block;
+		font-weight: 500;
+		list-style: none;
+		padding-left: 0;
+	}
+
 	@media (max-width: 768px) {
 		.form-body { padding: 30px 20px; }
 		.form-header { padding: 40px 20px; }
@@ -166,7 +181,7 @@
 							</div>
 						{{ form_end(form) }}
 						<div class="text-center">
-							<a href="{{ path('app_article_index') }}" class="back-link">Retour aux articles</a>
+							<a href="{{ path('blog') }}" class="back-link">Retour aux articles</a>
 						</div>
 					</div>
 				</div>
