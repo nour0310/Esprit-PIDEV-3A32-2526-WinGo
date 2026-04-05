@@ -244,47 +244,7 @@ class ArticleController extends AbstractController
         ]);
     }
 
-    // ===================== SUPPRIMER UN ARTICLE =====================
-    #[Route('/article/{id}/delete', name: 'app_article_delete', methods: ['POST'])]
-    public function delete(Request $request, Article $article, EntityManagerInterface $em): Response
-    {
-        if ($this->isCsrfTokenValid('delete' . $article->getId(), $request->request->get('_token'))) {
-            $em->remove($article);
-            $em->flush();
-        }
-        return $this->redirectToRoute('blog');
-    }
-
-    /**
-     * Enregistre un upload : move() si possible, sinon copie depuis le temporaire
-     * (certains environnements Windows font échouer is_uploaded_file() → isValid() false).
-     */
-    private function storeUploadedImage(UploadedFile $imageFile, string $uploadDir, string $newFilename): void
-    {
-        $target = $uploadDir . DIRECTORY_SEPARATOR . $newFilename;
-
-        if ($imageFile->isValid()) {
-            $imageFile->move($uploadDir, $newFilename);
-
-            return;
-        }
-
-        if (\UPLOAD_ERR_OK !== $imageFile->getError()) {
-            throw new FileException($imageFile->getErrorMessage());
-        }
-
-        $tmp = $imageFile->getPathname();
-        if (!is_readable($tmp)) {
-            throw new FileException('Fichier uploadé illisible.');
-        }
-
-        if (!@copy($tmp, $target)) {
-            throw new FileException('Impossible d\'enregistrer l\'image.');
-        }
-
-        @chmod($target, 0666 & ~umask());
-    }
-
+    
     private function guessSafeImageExtension(UploadedFile $file): string
     {
         $ext = strtolower((string) $file->getClientOriginalExtension());
