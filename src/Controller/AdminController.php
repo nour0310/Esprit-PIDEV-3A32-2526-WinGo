@@ -100,8 +100,7 @@ class AdminController extends AbstractController
     #[Route('/commandes', name: 'admin_commandes')]
     public function commandes(CommandeRepository $repo, UtilisateurRepository $userRepo): Response
     {
-        $commandes = $repo->findBy([], ['idCommande' => 'DESC']);
-
+        $commandes = $repo->findBy([], ['id' => 'DESC']);
         return $this->render('admin/commandes.html.twig', [
             'commandes' => $commandes,
             'userRepo' => $userRepo,
