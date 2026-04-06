@@ -2,18 +2,25 @@
 
 namespace App\Controller;
 
+use App\Entity\Article;
 use App\Entity\Commande;
+use App\Entity\Commentaire;
 use App\Repository\ArticleRepository;
 use App\Repository\CommandeRepository;
 use App\Repository\ProduitRepository;
 use App\Repository\ReclamationRepository;
 use App\Repository\ReservationRepository;
 use App\Repository\SuggestionRepository;
+use App\Repository\CommentaireRepository;
 use App\Repository\TransportRepository;
 use App\Repository\UtilisateurRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use App\Form\ArticleType;
+use Symfony\Component\HttpFoundation\File\Exception\FileException;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 
@@ -50,11 +57,144 @@ class AdminController extends AbstractController
     }
 
     #[Route('/articles', name: 'admin_articles')]
-    public function articles(ArticleRepository $repo): Response
+    public function articles(ArticleRepository $repo, CommentaireRepository $commentRepo): Response
     {
+        $articles = $repo->findBy([], ['id' => 'DESC']);
+        $totalCommentaires = $commentRepo->count([]);
+        
+        $articleMaxComs = null;
+        $maxComs = -1;
+        foreach ($articles as $a) {
+            $count = count($a->getCommentaires());
+            if ($count > $maxComs) {
+                $maxComs = $count;
+                $articleMaxComs = $a;
+            }
+        }
+
         return $this->render('admin/articles.html.twig', [
-            'articles' => $repo->findAll(),
+            'articles' => $articles,
+            'total_articles' => count($articles),
+            'total_commentaires' => $totalCommentaires,
+            'article_top' => $articleMaxComs,
         ]);
+    }
+
+    #[Route('/article/{id}/delete', name: 'admin_article_delete', methods: ['POST'])]
+    public function deleteArticle(Request $request, Article $article, EntityManagerInterface $em): Response
+    {
+        if ($this->isCsrfTokenValid('delete_admin' . $article->getId(), $request->request->get('_token'))) {
+            $em->remove($article);
+            $em->flush();
+            $this->addFlash('success', 'Article et ses commentaires supprimés avec succès.');
+        }
+        return $this->redirectToRoute('admin_articles');
+    }
+
+    #[Route('/article/{id}/commentaires', name: 'admin_article_commentaires')]
+    public function articleCommentaires(Article $article): Response
+    {
+        return $this->render('admin/article_commentaires.html.twig', [
+            'article' => $article,
+            'commentaires' => $article->getCommentaires(),
+        ]);
+    }
+
+    #[Route('/commentaire/{id}/delete-admin', name: 'admin_commentaire_delete', methods: ['POST'])]
+    public function deleteCommentaireAdmin(Request $request, Commentaire $commentaire, EntityManagerInterface $em): Response
+    {
+        $articleId = $commentaire->getArticle()->getId();
+        if ($this->isCsrfTokenValid('delete_comment_admin' . $commentaire->getId(), $request->request->get('_token'))) {
+            $em->remove($commentaire);
+            $em->flush();
+            $this->addFlash('success', 'Commentaire supprimé.');
+        }
+        return $this->redirectToRoute('admin_article_commentaires', ['id' => $articleId]);
+    }
+
+    #[Route('/article/{id}/show', name: 'admin_article_show', methods: ['GET'])]
+    public function showArticle(Article $article): Response
+    {
+        return $this->render('admin/article_show.html.twig', [
+            'article' => $article,
+        ]);
+    }
+
+    #[Route('/article/{id}/edit', name: 'admin_article_edit')]
+    public function editArticle(Request $request, Article $article, EntityManagerInterface $em): Response
+    {
+        $form = $this->createForm(ArticleType::class, $article);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $imageFile = $form->get('image')->getData();
+            if (!$imageFile instanceof UploadedFile) {
+                $files = $request->files->get('article');
+                if (\is_array($files) && isset($files['image']) && $files['image'] instanceof UploadedFile) {
+                    $imageFile = $files['image'];
+                }
+            }
+            if ($imageFile instanceof UploadedFile && $imageFile->isValid()) {
+                $uploadDir = $this->getParameter('kernel.project_dir') . DIRECTORY_SEPARATOR . 'public' . DIRECTORY_SEPARATOR . 'uploads' . DIRECTORY_SEPARATOR . 'articles';
+                if (!is_dir($uploadDir)) {
+                    mkdir($uploadDir, 0777, true);
+                }
+                $previousImage = $article->getImage();
+                $originalName = $imageFile->getClientOriginalName();
+                $extension = pathinfo($originalName, PATHINFO_EXTENSION) ?: 'jpg';
+                $newFilename = uniqid('', true) . '.' . $extension;
+                $this->storeUploadedImage($imageFile, $uploadDir, $newFilename);
+                $this->removeStoredArticleImage($previousImage, $uploadDir);
+                $article->setImage($newFilename);
+            }
+            $em->flush();
+            $this->addFlash('success', 'Article modifié avec succès.');
+            return $this->redirectToRoute('admin_articles');
+        }
+
+        return $this->render('admin/article_edit.html.twig', [
+            'form' => $form->createView(),
+            'article' => $article,
+        ]);
+    }
+
+    private function storeUploadedImage(UploadedFile $imageFile, string $uploadDir, string $newFilename): void
+    {
+        $target = $uploadDir . DIRECTORY_SEPARATOR . $newFilename;
+        if ($imageFile->isValid()) {
+            $imageFile->move($uploadDir, $newFilename);
+            return;
+        }
+        if (\UPLOAD_ERR_OK !== $imageFile->getError()) {
+            throw new FileException($imageFile->getErrorMessage());
+        }
+        $tmp = $imageFile->getPathname();
+        if (!is_readable($tmp)) {
+            throw new FileException('Fichier uploadé illisible.');
+        }
+        if (!@copy($tmp, $target)) {
+            throw new FileException('Impossible d\'enregistrer l\'image.');
+        }
+        @chmod($target, 0666 & ~umask());
+    }
+
+    private function removeStoredArticleImage(?string $storedName, string $uploadDir): void
+    {
+        if (!\is_string($storedName) || $storedName === '') {
+            return;
+        }
+        $storedName = trim($storedName);
+        if (filter_var($storedName, FILTER_VALIDATE_URL) || str_starts_with($storedName, '//')) {
+            return;
+        }
+        $base = basename(str_replace('\\', '/', $storedName));
+        if ($base === '' || str_contains($base, '..')) {
+            return;
+        }
+        $path = $uploadDir . DIRECTORY_SEPARATOR . $base;
+        if (is_file($path) && is_readable($path)) {
+            @unlink($path);
+        }
     }
 
     #[Route('/reclamations', name: 'admin_reclamations')]
