@@ -1,0 +1,305 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Détails Produit{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <style>
+        .product_detail_section{
+            padding: 180px 0 90px 0;
+            background:
+                radial-gradient(circle at top left, rgba(141,79,255,0.10), transparent 28%),
+                radial-gradient(circle at top right, rgba(250,158,27,0.10), transparent 28%),
+                linear-gradient(180deg, #eef3f8 0%, #f7f9fc 100%);
+            min-height: 100vh;
+        }
+
+        .product_detail_card{
+            background: rgba(255,255,255,0.96);
+            border-radius: 28px;
+            overflow: hidden;
+            box-shadow: 0 18px 45px rgba(25,30,70,0.10);
+            padding: 0;
+        }
+
+        .product_detail_image_wrap{
+            height: 100%;
+            min-height: 520px;
+            background: linear-gradient(135deg, #5d7cf3, #8d4fff);
+            position: relative;
+        }
+
+        .product_detail_image{
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+        .product_detail_placeholder{
+            width: 100%;
+            height: 100%;
+            min-height: 520px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: rgba(255,255,255,0.85);
+            font-size: 80px;
+        }
+
+        .product_detail_badge{
+            position: absolute;
+            top: 22px;
+            left: 22px;
+            padding: 10px 18px;
+            border-radius: 999px;
+            background: linear-gradient(135deg, #fa9e1b, #ff7b54);
+            color: #fff;
+            font-size: 12px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.6px;
+            z-index: 5;
+        }
+
+        .product_detail_stock{
+            position: absolute;
+            bottom: 22px;
+            right: 22px;
+            padding: 10px 16px;
+            border-radius: 999px;
+            background: linear-gradient(135deg, #43a047, #66bb6a);
+            color: #fff;
+            font-size: 12px;
+            font-weight: 800;
+            z-index: 5;
+        }
+
+        .product_detail_body{
+            padding: 40px 38px;
+        }
+
+        .product_detail_title{
+            font-size: 46px;
+            font-weight: 900;
+            color: #1f2235;
+            line-height: 1.05;
+            margin-bottom: 14px;
+        }
+
+        .product_detail_price{
+            font-size: 38px;
+            font-weight: 900;
+            background: linear-gradient(135deg, #fa9e1b, #8d4fff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 18px;
+        }
+
+        .product_detail_desc{
+            font-size: 16px;
+            line-height: 1.95;
+            color: #6f7489;
+            margin-bottom: 28px;
+        }
+
+        .product_detail_meta{
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 14px;
+            margin-bottom: 30px;
+        }
+
+        .meta_box{
+            background: #f8f9fd;
+            border: 1px solid #eef0f8;
+            border-radius: 18px;
+            padding: 16px 18px;
+        }
+
+        .meta_label{
+            font-size: 12px;
+            font-weight: 800;
+            text-transform: uppercase;
+            color: #8a90a8;
+            margin-bottom: 6px;
+            letter-spacing: 0.6px;
+        }
+
+        .meta_value{
+            font-size: 16px;
+            font-weight: 700;
+            color: #1f2235;
+        }
+
+        .detail_actions{
+            display: flex;
+            gap: 14px;
+            flex-wrap: wrap;
+            margin-top: 8px;
+        }
+
+        .btn_gradient{
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            padding: 14px 24px;
+            border-radius: 999px;
+            background: linear-gradient(135deg, #fa9e1b, #8d4fff);
+            color: #fff !important;
+            text-decoration: none !important;
+            border: none;
+            font-size: 14px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.6px;
+            box-shadow: 0 12px 28px rgba(141,79,255,0.18);
+            transition: 0.3s ease;
+            cursor: pointer;
+        }
+
+        .btn_gradient:hover{
+            transform: translateY(-2px);
+            opacity: 0.96;
+        }
+
+        .btn_soft{
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            padding: 14px 24px;
+            border-radius: 999px;
+            background: #eef2ff;
+            color: #5d63a8 !important;
+            text-decoration: none !important;
+            border: none;
+            font-size: 14px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.6px;
+        }
+
+        .flash_success{
+            margin-bottom: 20px;
+            background: #eefaf0;
+            border: 1px solid #cdebd3;
+            color: #2e7d32;
+            padding: 14px 18px;
+            border-radius: 16px;
+            font-weight: 600;
+        }
+
+        @media (max-width: 991px){
+            .product_detail_image_wrap{
+                min-height: 340px;
+            }
+
+            .product_detail_placeholder{
+                min-height: 340px;
+            }
+
+            .product_detail_title{
+                font-size: 34px;
+            }
+
+            .product_detail_meta{
+                grid-template-columns: 1fr;
+            }
+
+            .product_detail_body{
+                padding: 28px 22px;
+            }
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+    <div class="product_detail_section">
+        <div class="container">
+
+            {% for message in app.flashes('success') %}
+                <div class="flash_success">{{ message }}</div>
+            {% endfor %}
+
+            <div class="product_detail_card">
+                <div class="row g-0">
+                    <div class="col-lg-5">
+                        <div class="product_detail_image_wrap">
+                            {% if produit.categorie %}
+                                <span class="product_detail_badge">{{ produit.categorie }}</span>
+                            {% endif %}
+
+                            {% if produit.stock > 0 %}
+                                <span class="product_detail_stock">En stock {{ produit.stock }}</span>
+                            {% else %}
+                                <span class="product_detail_stock" style="background:linear-gradient(135deg,#d32f2f,#ef5350);">
+                                    Rupture
+                                </span>
+                            {% endif %}
+
+                            {% if produit.image %}
+                                <img src="{{ asset('images/' ~ produit.image) }}" alt="{{ produit.nom }}" class="product_detail_image">
+                            {% else %}
+                                <div class="product_detail_placeholder">
+                                    <i class="fa fa-shopping-bag"></i>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="col-lg-7">
+                        <div class="product_detail_body">
+                            <h1 class="product_detail_title">{{ produit.nom }}</h1>
+                            <div class="product_detail_price">{{ produit.prix }} DT</div>
+
+                            <div class="product_detail_desc">
+                                {{ produit.description ?: 'Pas de description disponible pour ce produit.' }}
+                            </div>
+
+                            <div class="product_detail_meta">
+                                <div class="meta_box">
+                                    <div class="meta_label">Région</div>
+                                    <div class="meta_value">{{ produit.region ?: '-' }}</div>
+                                </div>
+
+                                <div class="meta_box">
+                                    <div class="meta_label">Catégorie</div>
+                                    <div class="meta_value">{{ produit.categorie ?: '-' }}</div>
+                                </div>
+
+                                <div class="meta_box">
+                                    <div class="meta_label">Stock</div>
+                                    <div class="meta_value">{{ produit.stock }}</div>
+                                </div>
+
+                                <div class="meta_box">
+                                    <div class="meta_label">Date ajout</div>
+                                    <div class="meta_value">{{ produit.dateAjout ? produit.dateAjout|date('Y-m-d H:i') : '-' }}</div>
+                                </div>
+                            </div>
+
+                            <div class="detail_actions">
+                                {% if produit.stock > 0 %}
+                                    <form method="post" action="{{ path('panier_add', {'id': produit.id}) }}">
+                                        <button type="submit" class="btn_gradient">
+                                            <i class="fa fa-shopping-cart"></i>
+                                            Ajouter au panier
+                                        </button>
+                                    </form>
+                                {% endif %}
+
+                                <a href="{{ path('client_produits') }}" class="btn_soft">
+                                    <i class="fa fa-arrow-left"></i>
+                                    Retour
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+{% endblock %}

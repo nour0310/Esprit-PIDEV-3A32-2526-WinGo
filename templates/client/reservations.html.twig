@@ -1,0 +1,47 @@
+{% extends 'client/base_client.html.twig' %}
+{% block title %}Réservations - WinGo{% endblock %}
+{% block page_title %}Mes Réservations{% endblock %}
+
+{% block content %}
+{% if transports|length > 0 %}
+<div class="dash_card">
+    <div class="dash_card_title"><i class="fa fa-bus"></i> Transports disponibles</div>
+    <table class="data_table">
+        <thead><tr><th>Type</th><th>Capacité</th><th>Tarif</th><th>Départ</th><th>Arrivée</th><th>Date départ</th></tr></thead>
+        <tbody>
+            {% for t in transports %}
+            <tr>
+                <td>{{ t.type }}</td>
+                <td>{{ t.capacite }}</td>
+                <td><strong>{{ t.tarif }} TND</strong></td>
+                <td>{{ t.depart }}</td>
+                <td>{{ t.arrivee }}</td>
+                <td>{{ t.datedepart|date('d/m/Y H:i') }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endif %}
+
+<div class="dash_card">
+    <div class="dash_card_title"><i class="fa fa-calendar"></i> Mes réservations</div>
+    {% if reservations|length > 0 %}
+    <table class="data_table">
+        <thead><tr><th>#</th><th>Expérience</th><th>Statut</th><th>Date</th></tr></thead>
+        <tbody>
+            {% for r in reservations %}
+            <tr>
+                <td>{{ r.id }}</td>
+                <td>{{ r.exp }}</td>
+                <td><span class="badge_s badge_pending">{{ r.statut }}</span></td>
+                <td>{{ r.date|date('d/m/Y H:i') }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <div class="empty_state"><i class="fa fa-calendar"></i> Vous n'avez pas encore de réservations</div>
+    {% endif %}
+</div>
+{% endblock %}

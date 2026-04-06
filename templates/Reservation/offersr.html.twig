@@ -1,0 +1,181 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Offers - Travelix{% endblock %}
+
+{% block stylesheets %}
+<link rel="stylesheet" type="text/css" href="{{ asset('styles/offers_styles.css') }}">
+<link rel="stylesheet" type="text/css" href="{{ asset('styles/offers_responsive.css') }}">
+{% endblock %}
+
+{% block content %}
+
+    <div class="home" style="width: 100%; height: 60vh; position: relative;">
+        <div class="home_background" style="background-image: url('{{ asset('images/about_background.jpg') }}'); background-size: cover; background-position: center; width: 100%; height: 100%; position: absolute; top: 0; left: 0; z-index: 1;"></div>
+        <div class="home_content" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 2; width: 100%; text-align: center;">
+            <div class="home_title" style="color: #FFFFFF; font-size: 72px; font-weight: 800; text-transform: uppercase;">our offers</div>
+        </div>
+    </div>
+
+    <div class="offers">
+
+        <div class="search">
+            <div class="search_inner">
+                <div class="container fill_height no-padding">
+                    <div class="row fill_height no-margin">
+                        <div class="col fill_height no-padding">
+
+                            <div class="search_tabs_container">
+                                <div class="search_tabs d-flex flex-lg-row flex-column align-items-lg-center align-items-start justify-content-lg-between justify-content-start">
+                                    <div class="search_tab active d-flex flex-row align-items-center justify-content-lg-center justify-content-start"><img src="{{ asset('images/suitcase.png') }}" alt=""><span><a href="{{ path('app_front_offers') }}">hotels</a></span></div>
+                                    <div class="search_tab d-flex flex-row align-items-center justify-content-lg-center justify-content-start"><img src="{{ asset('images/bus.png') }}" alt="">car rentals</div>
+                                    <div class="search_tab d-flex flex-row align-items-center justify-content-lg-center justify-content-start"><img src="{{ asset('images/departure.png') }}" alt="">flights</div>
+                                    <div class="search_tab d-flex flex-row align-items-center justify-content-lg-center justify-content-start"><img src="{{ asset('images/island.png') }}" alt="">trips</div>
+                                    <div class="search_tab d-flex flex-row align-items-center justify-content-lg-center justify-content-start"><img src="{{ asset('images/cruise.png') }}" alt="">cruises</div>
+                                    <div class="search_tab d-flex flex-row align-items-center justify-content-lg-center justify-content-start"><img src="{{ asset('images/diving.png') }}" alt="">activities</div>
+                                </div>
+                            </div>
+
+                            <div id="mon_formulaire" class="search_panel active" style="position: relative; z-index: 9999;">
+                                <div style="padding: 30px; margin-top: 20px; background: rgba(0,0,0,0.1); border-radius: 10px;">
+                                    
+                                    {{ form_start(f, {'attr': {'class': 'row align-items-end'}}) }}
+                                        
+                                        <div class="col-md-3 mb-4">
+                                            <label style="color: white; font-weight: 700; text-transform: uppercase; font-size: 13px; margin-bottom: 10px; display: block;">Client Name</label>
+                                            {{ form_widget(f.user, {'attr': {'class': 'form-control', 'style': 'height: 46px; border: none; padding-left: 15px; border-radius: 0;'}}) }}
+                                        </div>
+                                        
+                                        <div class="col-md-3 mb-4">
+                                            <label style="color: white; font-weight: 700; text-transform: uppercase; font-size: 13px; margin-bottom: 10px; display: block;">Statut</label>
+                                            {{ form_widget(f.statut, {'attr': {'class': 'form-control', 'style': 'height: 46px; border: none; border-radius: 0;'}}) }}
+                                        </div>
+                                        
+                                        <div class="col-md-3 mb-4">
+                                            <label style="color: white; font-weight: 700; text-transform: uppercase; font-size: 13px; margin-bottom: 10px; display: block;">Experience</label>
+                                            {{ form_widget(f.exp, {'attr': {'class': 'form-control', 'style': 'height: 46px; border: none; border-radius: 0;'}}) }}
+                                        </div>
+
+                                        <div class="col-md-3 mb-4">
+                                            <label style="color: white; font-weight: 700; text-transform: uppercase; font-size: 13px; margin-bottom: 10px; display: block;">Date</label>
+                                            <div style="background: white; padding: 5px 10px; min-height: 46px; display: flex; align-items: center;">
+                                                {{ form_widget(f.date) }}
+                                            </div>
+                                        </div>
+
+                                        <div class="col-12 mt-2 text-center">
+                                            <button type="submit" class="button search_button">
+                                                {{ editMode ? 'MODIFIER' : 'AJOUTER' }}<span></span><span></span><span></span>
+                                            </button>
+                                        </div>
+
+                                        {# Hidden fields / CSRF Token #}
+                                        <div style="display:none;">
+                                            {{ form_rest(f) }}
+                                        </div>
+                                        
+                                    {{ form_end(f) }}
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="offers_sorting_container d-flex flex-row align-items-end justify-content-start">
+                        <div class="sorting_item" style="margin-right: 30px; margin-bottom: 5px;">
+                            <form action="{{ path('app_front_reservations') }}" method="get">
+                                <input type="text" name="search" value="{{ searchTerm|default('') }}" placeholder="Rechercher par client/statut..." 
+                                       style="height: 40px; border: 1px solid #ededed; padding-left: 15px; border-radius: 5px; width: 250px;">
+                            </form>
+                        </div>
+
+                        <ul class="offers_sorting">
+                            <li>
+                                <span class="sorting_text">date</span>
+                                <i class="fa fa-chevron-down"></i>
+                                <ul>
+                                    <li><a href="{{ path('app_front_reservations', {sort: 'date_desc', search: searchTerm|default('')}) }}">Newest First</a></li>
+                                    <li><a href="{{ path('app_front_reservations', {sort: 'date_asc', search: searchTerm|default('')}) }}">Oldest First</a></li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <div class="offers_grid">
+    {% for reservation in list %}
+        {% set img_index = (loop.index0 % 4) + 1 %}
+        
+        <div class="offers_item rating_4">
+            <div class="row">
+                <div class="col-lg-1 temp_col"></div>
+                <div class="col-lg-3">
+                    <div class="offers_image_container" style="position: relative; width: 100%; height: 260px; overflow: hidden; border-radius: 5px;">
+                        <img src="{{ asset('images/offer_' ~ img_index ~ '.jpg') }}" style="width: 100%; height: 100%; object-fit: cover; position: absolute;">
+                        <div class="offer_name" style="position: absolute; bottom: 20px; left: 0;">
+                            <a href="#" style="background: #fa9e1b; color: #FFFFFF; padding: 10px 20px; font-weight: 700; text-transform: uppercase;">
+                                {{ reservation.statut }}
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-5">
+                    <div class="offers_content">
+                        <div class="offers_price">Reservation #{{ reservation.id }}</div>
+                        <div class="rating_r rating_4 offers_rating"><i></i><i></i><i></i><i></i><i></i></div>
+                        <p class="offers_text">
+                            <strong>Client:</strong> {{ reservation.user }}<br>
+                            <strong>Experience:</strong> {{ reservation.exp }}<br>
+                            <strong>Date:</strong> {{ reservation.date ? reservation.date|date('Y-m-d') : 'N/A' }}
+                        </p>
+                    </div>
+                </div>
+
+                <div class="col-lg-3">
+                    <div class="offers_details">
+                        {# --- START OWNER CHECK --- #}
+                        {# We check if the property is defined and not null before calling the getter #}
+{% if (reservation.user_id and reservation.user_id.id == app.user.id) or is_granted('ROLE_ADMIN') %}                            <div class="offers_details_link">
+                                <a href="{{ path('updateReservation', {'id': reservation.id}) }}#mon_formulaire">
+                                    modifier<span></span><span></span><span></span>
+                                </a>
+                            </div>
+                            <div class="offers_details_info">
+                                <ul>
+                                    <li>
+                                        <a href="{{ path('deleteReservation', {'id': reservation.id}) }}" 
+                                           onclick="return confirm('Supprimer cette réservation ?');" 
+                                           style="color: #fa9e1b; font-weight: 700;">SUPPRIMER</a>
+                                    </li>
+                                </ul>
+                            </div>
+                        {% else %}
+                            <div class="offers_details_info">
+                                <span style="color: #999; font-style: italic;">Consultation uniquement</span>
+                            </div>
+                        {% endif %}
+                        {# --- END OWNER CHECK --- #}
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% else %}
+        <div class="col-12 text-center" style="padding: 50px;">
+            <p>Aucune réservation trouvée.</p>
+        </div>
+    {% endfor %}
+</div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block javascripts %}
+<script src="{{ asset('plugins/parallax/parallax.min.js') }}"></script>
+<script src="{{ asset('plugins/isotope/isotope.pkgd.min.js') }}"></script>
+{% endblock %}

@@ -1,0 +1,555 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Register — {{ event.title }} · WinGo{% endblock %}
+
+{% block stylesheets %}
+<link rel="stylesheet" type="text/css" href="{{ asset('styles/main_styles.css') }}">
+<link rel="stylesheet" type="text/css" href="{{ asset('styles/responsive.css') }}">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+    :root {
+        --gold: #fa9e1b;
+        --violet: #8d4fff;
+        --deep: #31124b;
+        --ink: #1a1a2e;
+        --mist: #f6f9fb;
+        --white: #ffffff;
+        --grey: #929191;
+        --success: #27ae60;
+        --danger: #e74c3c;
+    }
+    * { box-sizing: border-box; }
+    body { font-family: 'DM Sans', sans-serif; }
+
+    .front_reg_section {
+        min-height: 100vh;
+        background: var(--mist);
+        padding-top: 110px;
+        padding-bottom: 80px;
+    }
+
+    .event_hero_banner {
+        background: linear-gradient(135deg, var(--ink) 0%, var(--deep) 60%, #5a1a8a 100%);
+        border-radius: 18px;
+        padding: 36px 40px;
+        margin-bottom: 32px;
+        position: relative;
+        overflow: hidden;
+        display: flex;
+        align-items: center;
+        gap: 30px;
+    }
+    .event_hero_banner::before {
+        content: '';
+        position: absolute;
+        width: 350px; height: 350px;
+        border-radius: 50%;
+        background: radial-gradient(circle, rgba(250,158,27,0.2), transparent 70%);
+        right: -80px; top: -80px;
+    }
+    .event_hero_thumb {
+        width: 100px; height: 100px;
+        border-radius: 14px;
+        background: linear-gradient(135deg, var(--gold), var(--violet));
+        overflow: hidden;
+        flex-shrink: 0;
+        position: relative;
+        z-index: 1;
+    }
+    .event_hero_thumb img { width: 100%; height: 100%; object-fit: cover; }
+    .event_hero_info { position: relative; z-index: 1; }
+    .event_hero_type {
+        display: inline-block;
+        font-size: 10px;
+        font-weight: 700;
+        letter-spacing: 2px;
+        text-transform: uppercase;
+        color: var(--gold);
+        border: 1px solid rgba(250,158,27,0.4);
+        padding: 4px 12px;
+        border-radius: 12px;
+        margin-bottom: 10px;
+    }
+    .event_hero_title {
+        font-family: 'Playfair Display', serif;
+        font-size: 28px;
+        font-weight: 900;
+        color: #fff;
+        margin-bottom: 10px;
+        line-height: 1.15;
+    }
+    .event_hero_meta {
+        display: flex;
+        gap: 20px;
+        flex-wrap: wrap;
+    }
+    .event_hero_meta span {
+        font-size: 13px;
+        color: rgba(255,255,255,0.6);
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+    .event_hero_meta i { color: var(--gold); }
+    .event_hero_price {
+        margin-left: auto;
+        position: relative;
+        z-index: 1;
+        text-align: right;
+        flex-shrink: 0;
+    }
+    .event_hero_price .amount {
+        font-family: 'Playfair Display', serif;
+        font-size: 38px;
+        font-weight: 900;
+        color: #fff;
+        line-height: 1;
+    }
+    .event_hero_price .amount.free { color: var(--gold); font-size: 28px; }
+    .event_hero_price .per { font-size: 12px; color: rgba(255,255,255,0.4); margin-top: 4px; }
+
+    .reg_layout {
+        display: grid;
+        grid-template-columns: 1fr 340px;
+        gap: 24px;
+        align-items: start;
+    }
+
+    .reg_form_card {
+        background: var(--white);
+        border-radius: 16px;
+        box-shadow: 0 4px 24px rgba(0,0,0,0.07);
+        overflow: hidden;
+    }
+    .reg_form_head {
+        background: linear-gradient(135deg, var(--deep), #5a1a8a);
+        padding: 26px 32px;
+    }
+    .reg_form_head h2 {
+        font-family: 'Playfair Display', serif;
+        font-size: 22px;
+        color: #fff;
+        font-weight: 700;
+        margin-bottom: 4px;
+    }
+    .reg_form_head p { font-size: 13px; color: rgba(255,255,255,0.55); }
+    .reg_form_body { padding: 30px 32px 36px; }
+
+    .steps_bar {
+        display: flex;
+        gap: 0;
+        margin-bottom: 28px;
+    }
+    .step {
+        flex: 1;
+        text-align: center;
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 0.5px;
+        text-transform: uppercase;
+        color: var(--grey);
+        padding-bottom: 10px;
+        border-bottom: 2px solid #eee;
+        transition: all 200ms;
+    }
+    .step.active { color: var(--deep); border-bottom-color: var(--gold); }
+    .step .step_num {
+        display: block;
+        width: 26px; height: 26px;
+        background: #eee;
+        border-radius: 50%;
+        margin: 0 auto 6px;
+        line-height: 26px;
+        font-size: 12px;
+    }
+    .step.active .step_num { background: linear-gradient(135deg, var(--gold), var(--violet)); color: #fff; }
+
+    .fg { margin-bottom: 18px; }
+    .fl {
+        display: block;
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 0.8px;
+        text-transform: uppercase;
+        color: var(--deep);
+        margin-bottom: 7px;
+    }
+    .fi {
+        width: 100%;
+        height: 46px;
+        border: 2px solid #eee;
+        border-radius: 10px;
+        padding: 0 14px;
+        font-family: 'DM Sans', sans-serif;
+        font-size: 14px;
+        color: var(--ink);
+        outline: none;
+        background: #fafafa;
+        transition: all 200ms;
+    }
+    .fi:focus { border-color: var(--gold); background: #fff; box-shadow: 0 0 0 3px rgba(250,158,27,0.1); }
+    select.fi { appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='7' viewBox='0 0 10 7'%3E%3Cpath fill='%23929191' d='M5 7L0 0h10z'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 14px center; cursor: pointer; }
+    .fg_row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+
+    .seats_input_wrap { position: relative; }
+    .seats_input_wrap .fi { padding-right: 80px; }
+    .seats_max_hint {
+        position: absolute;
+        right: 14px;
+        top: 50%;
+        transform: translateY(-50%);
+        font-size: 11px;
+        color: var(--grey);
+        pointer-events: none;
+    }
+
+    .total_price_box {
+        background: linear-gradient(135deg, rgba(250,158,27,0.06), rgba(141,79,255,0.06));
+        border: 1.5px solid rgba(250,158,27,0.2);
+        border-radius: 10px;
+        padding: 16px 20px;
+        margin: 20px 0;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    .total_price_box .label { font-size: 13px; color: var(--grey); }
+    .total_price_box .total {
+        font-family: 'Playfair Display', serif;
+        font-size: 26px;
+        font-weight: 700;
+        color: var(--deep);
+    }
+    .total_price_box .total.free { font-size: 18px; color: var(--success); font-family: 'DM Sans', sans-serif; }
+
+    .btn_register {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        width: 100%;
+        height: 54px;
+        background: linear-gradient(135deg, var(--gold), var(--violet));
+        color: #fff;
+        border: none;
+        border-radius: 12px;
+        font-family: 'DM Sans', sans-serif;
+        font-size: 15px;
+        font-weight: 700;
+        cursor: pointer;
+        transition: all 200ms;
+        text-decoration: none;
+    }
+    .btn_register:hover { opacity: 0.88; transform: translateY(-2px); box-shadow: 0 8px 24px rgba(141,79,255,0.3); }
+    .btn_back_front {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        width: 100%;
+        height: 46px;
+        background: transparent;
+        border: 2px solid #eee;
+        border-radius: 12px;
+        font-family: 'DM Sans', sans-serif;
+        font-size: 13px;
+        font-weight: 600;
+        color: var(--ink);
+        cursor: pointer;
+        transition: all 200ms;
+        text-decoration: none;
+        margin-top: 10px;
+    }
+    .btn_back_front:hover { border-color: var(--deep); color: var(--deep); }
+
+    .info_side_card {
+        background: var(--white);
+        border-radius: 16px;
+        box-shadow: 0 4px 24px rgba(0,0,0,0.07);
+        overflow: hidden;
+    }
+    .info_side_head {
+        height: 160px;
+        background: linear-gradient(135deg, var(--gold), var(--violet));
+        position: relative;
+        overflow: hidden;
+    }
+    .info_side_head img { width: 100%; height: 100%; object-fit: cover; }
+    .info_side_head .overlay { position: absolute; inset: 0; background: rgba(0,0,0,0.25); }
+    .info_side_body { padding: 22px 24px; }
+    .info_side_title {
+        font-family: 'Playfair Display', serif;
+        font-size: 18px;
+        font-weight: 700;
+        color: var(--ink);
+        margin-bottom: 16px;
+        line-height: 1.2;
+    }
+    .info_row {
+        display: flex;
+        gap: 10px;
+        align-items: flex-start;
+        margin-bottom: 12px;
+        font-size: 13px;
+        color: #555;
+    }
+    .info_row i { color: var(--gold); width: 16px; margin-top: 2px; flex-shrink: 0; }
+    .info_row strong { color: var(--ink); }
+
+    .cap_mini_wrap { margin: 16px 0; }
+    .cap_mini_header { display: flex; justify-content: space-between; font-size: 11px; color: var(--grey); margin-bottom: 5px; }
+    .cap_mini_bg { height: 5px; background: #eee; border-radius: 3px; overflow: hidden; }
+    .cap_mini_fill { height: 100%; background: linear-gradient(90deg, var(--gold), var(--violet)); border-radius: 3px; }
+
+    .policy_box {
+        background: #fafbff;
+        border-radius: 10px;
+        padding: 14px 16px;
+        font-size: 12px;
+        color: var(--grey);
+        line-height: 1.7;
+        margin-top: 16px;
+        border: 1px solid #f0f0f0;
+    }
+    .policy_box strong { color: var(--ink); }
+
+    .success_card {
+        background: var(--white);
+        border-radius: 16px;
+        box-shadow: 0 4px 24px rgba(0,0,0,0.07);
+        padding: 60px 40px;
+        text-align: center;
+        max-width: 600px;
+        margin: 0 auto;
+    }
+    .success_icon { font-size: 70px; margin-bottom: 20px; display: block; animation: pop_in 0.5s cubic-bezier(0.34,1.56,0.64,1); }
+    @keyframes pop_in { from { transform: scale(0); } to { transform: scale(1); } }
+    .success_card h2 {
+        font-family: 'Playfair Display', serif;
+        font-size: 30px;
+        color: var(--ink);
+        margin-bottom: 12px;
+    }
+    .success_card p { font-size: 15px; color: var(--grey); line-height: 1.7; margin-bottom: 28px; }
+    .success_ref {
+        display: inline-block;
+        background: var(--mist);
+        border: 1px solid #e0e0e0;
+        border-radius: 8px;
+        padding: 10px 24px;
+        font-family: 'Space Mono', monospace;
+        font-size: 13px;
+        color: var(--deep);
+        margin-bottom: 28px;
+        letter-spacing: 1px;
+    }
+
+    .bc { font-size: 12px; color: var(--grey); margin-bottom: 22px; }
+    .bc a { color: var(--gold); text-decoration: none; }
+    .bc a:hover { text-decoration: underline; }
+    .bc span { margin: 0 6px; }
+</style>
+{% endblock %}
+
+{% block content %}
+<section class="front_reg_section">
+    <div class="container">
+
+        <div class="bc">
+            <a href="{{ path('home') }}">Home</a>
+            <span>/</span>
+            <a href="{{ path('event_front') }}">Events</a>
+            <span>/</span>
+            {{ event.title }}
+            <span>/</span>
+            Register
+        </div>
+
+        {% set filled = event.capacity - event.available_places %}
+        {% set pct = event.capacity > 0 ? ((filled / event.capacity) * 100)|round : 0 %}
+        <div class="event_hero_banner">
+            <div class="event_hero_thumb">
+                {% if event.image_event %}
+                    <img src="{{ asset('images/' ~ event.image_event) }}" alt="{{ event.title }}" onerror="this.style.display='none'">
+                {% endif %}
+            </div>
+            <div class="event_hero_info">
+                <span class="event_hero_type">{{ event.event_type }}</span>
+                <div class="event_hero_title">{{ event.title }}</div>
+                <div class="event_hero_meta">
+                    <span><i class="fa fa-calendar"></i>{{ event.date_event|date('M d, Y') }}</span>
+                    <span><i class="fa fa-clock-o"></i>{{ event.start_time }}</span>
+                    <span><i class="fa fa-map-marker"></i>{{ event.location }}</span>
+                    <span><i class="fa fa-users"></i>{{ event.available_places }} seats left</span>
+                </div>
+            </div>
+            <div class="event_hero_price">
+                <div class="amount {{ event.price == 0 ? 'free' : '' }}">
+                    {{ event.price == 0 ? 'Free' : '$' ~ event.price }}
+                </div>
+                {% if event.price > 0 %}<div class="per">per seat</div>{% endif %}
+            </div>
+        </div>
+
+        {% if event.available_places <= 0 %}
+            <div class="success_card">
+                <span class="success_icon">😔</span>
+                <h2>Sold Out</h2>
+                <p>Unfortunately all seats for <strong>{{ event.title }}</strong> have been taken. Check back later or explore other events.</p>
+                <a href="{{ path('event_front') }}" class="btn_register" style="max-width:280px; margin:0 auto;">
+                    <i class="fa fa-arrow-left"></i> Browse Other Events
+                </a>
+            </div>
+
+        {% elseif mode == 'new' %}
+            <div class="reg_layout">
+                <div>
+                    <div class="reg_form_card">
+                        <div class="reg_form_head">
+                            <h2>Secure Your Spot</h2>
+                            <p>Fill in your details below — takes less than a minute</p>
+                        </div>
+                        <div class="reg_form_body">
+                            <div class="steps_bar">
+                                <div class="step active"><span class="step_num">1</span>Your Info</div>
+                                <div class="step active"><span class="step_num">2</span>Seats</div>
+                                <div class="step active"><span class="step_num">3</span>Confirm</div>
+                            </div>
+
+                            {% if error is defined %}
+                                <div style="background:#ffebee; color:#c62828; padding:12px; border-radius:8px; margin-bottom:20px;">
+                                    <i class="fa fa-exclamation-triangle"></i> {{ error }}
+                                </div>
+                            {% endif %}
+
+                            <form method="post" id="regForm">
+                                <input type="hidden" name="id_user" value="0">
+                                <input type="hidden" name="date_participation" value="{{ "now"|date('Y-m-d H:i:s') }}">
+                                <input type="hidden" name="statut" value="pending">
+
+                                <div class="fg_row">
+                                    <div class="fg">
+                                        <label class="fl">Last Name</label>
+                                        <input type="text" name="nom_participant" class="fi" placeholder="Doe" required>
+                                    </div>
+                                    <div class="fg">
+                                        <label class="fl">First Name</label>
+                                        <input type="text" name="prenom_participant" class="fi" placeholder="John" required>
+                                    </div>
+                                </div>
+
+                                <div class="fg">
+                                    <label class="fl">Email Address</label>
+                                    <input type="email" name="email_participant" class="fi" placeholder="john.doe@email.com" required>
+                                </div>
+
+                                <div class="fg">
+                                    <label class="fl">Phone Number</label>
+                                    <input type="text" name="telephone" class="fi" placeholder="+216 XX XXX XXX" required>
+                                </div>
+
+                                <div class="fg">
+                                    <label class="fl">Number of Seats</label>
+                                    <div class="seats_input_wrap">
+                                        <input type="number" name="nombre_places" class="fi" id="seatsInput"
+                                            value="1" min="1" max="{{ event.available_places }}"
+                                            oninput="updateTotal()" required>
+                                        <span class="seats_max_hint">max {{ event.available_places }}</span>
+                                    </div>
+                                </div>
+
+                                {% if event.price > 0 %}
+                                <div class="total_price_box">
+                                    <div class="label">Total amount due</div>
+                                    <div class="total" id="totalPrice">${{ event.price }}</div>
+                                </div>
+                                {% else %}
+                                <div class="total_price_box">
+                                    <div class="label">This is a free event</div>
+                                    <div class="total free">✓ No charge</div>
+                                </div>
+                                {% endif %}
+
+                                <button type="submit" class="btn_register">
+                                    <i class="fa fa-check-circle"></i> Confirm Registration
+                                </button>
+                                <a href="{{ path('event_front') }}" class="btn_back_front">
+                                    <i class="fa fa-arrow-left"></i> Back to Events
+                                </a>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="info_side_card">
+                    <div class="info_side_head">
+                        {% if event.image_event %}
+                            <img src="{{ asset('images/' ~ event.image_event) }}" alt="{{ event.title }}" onerror="this.style.display='none'">
+                        {% endif %}
+                        <div class="overlay"></div>
+                    </div>
+                    <div class="info_side_body">
+                        <div class="info_side_title">{{ event.title }}</div>
+                        <div class="info_row"><i class="fa fa-calendar"></i><div><strong>{{ event.date_event|date('l, M d Y') }}</strong></div></div>
+                        <div class="info_row"><i class="fa fa-clock-o"></i><div>Starts at <strong>{{ event.start_time }}</strong></div></div>
+                        <div class="info_row"><i class="fa fa-map-marker"></i><div>{{ event.location }}</div></div>
+                        <div class="info_row"><i class="fa fa-leaf"></i><div>{{ event.season }} season</div></div>
+                        <div class="info_row"><i class="fa fa-tag"></i><div>{{ event.price == 0 ? 'Free entry' : '$' ~ event.price ~ ' per seat' }}</div></div>
+
+                        <div class="cap_mini_wrap">
+                            <div class="cap_mini_header">
+                                <span>{{ event.available_places }} seats remaining</span>
+                                <span>{{ pct }}% filled</span>
+                            </div>
+                            <div class="cap_mini_bg">
+                                <div class="cap_mini_fill" style="width:{{ pct }}%;"></div>
+                            </div>
+                        </div>
+
+                        <div class="policy_box">
+                            <strong>Registration Policy</strong><br>
+                            Your registration will be <strong>pending</strong> until confirmed. You'll receive details at the email provided. Cancellations accepted up to 48h before the event.
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        {% elseif mode == 'show' %}
+            <div class="success_card">
+                <span class="success_icon">🎉</span>
+                <h2>You're Registered!</h2>
+                <p>
+                    Welcome, <strong>{{ participation.prenom_participant }} {{ participation.nom_participant }}</strong>!<br>
+                    Your spot at <strong>{{ event.title }}</strong> is confirmed.<br>
+                    A summary has been sent to <strong>{{ participation.email_participant }}</strong>.
+                </p>
+                <div class="success_ref">REF-{{ participation.id_participation|number_format(0, '', '-') }}</div>
+                <div style="display:flex; flex-direction:column; gap:10px; max-width:280px; margin:0 auto;">
+                    <a href="{{ path('event_front') }}" class="btn_register">
+                        <i class="fa fa-search"></i> Browse More Events
+                    </a>
+                </div>
+
+                <div style="margin-top:32px; text-align:left; background:#fafbff; border-radius:12px; padding:20px 24px;">
+                    <div style="font-size:11px; font-weight:700; letter-spacing:1px; text-transform:uppercase; color:var(--grey); margin-bottom:14px;">Booking Summary</div>
+                    <div class="info_row"><i class="fa fa-user"></i><div>{{ participation.prenom_participant }} {{ participation.nom_participant }}</div></div>
+                    <div class="info_row"><i class="fa fa-envelope"></i><div>{{ participation.email_participant }}</div></div>
+                    <div class="info_row"><i class="fa fa-phone"></i><div>{{ participation.telephone }}</div></div>
+                    <div class="info_row"><i class="fa fa-ticket"></i><div><strong>{{ participation.nombre_places }}</strong> seat{{ participation.nombre_places > 1 ? 's' : '' }}</div></div>
+                    <div class="info_row"><i class="fa fa-calendar"></i><div>{{ event.date_event|date('F d, Y') }} at {{ event.start_time }}</div></div>
+                    <div class="info_row"><i class="fa fa-map-marker"></i><div>{{ event.location }}</div></div>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+</section>
+
+<script>
+    const PRICE_PER_SEAT = {{ event.price }};
+    function updateTotal() {
+        const seats = parseInt(document.getElementById('seatsInput').value) || 1;
+        const el = document.getElementById('totalPrice');
+        if (el) el.textContent = '$' + (seats * PRICE_PER_SEAT).toFixed(2);
+    }
+</script>
+{% endblock %}

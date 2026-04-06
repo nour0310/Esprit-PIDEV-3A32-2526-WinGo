@@ -1,0 +1,909 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Events - WinGo{% endblock %}
+
+{% block stylesheets %}
+<link rel="stylesheet" type="text/css" href="{{ asset('styles/main_styles.css') }}">
+<link rel="stylesheet" type="text/css" href="{{ asset('styles/responsive.css') }}">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+    :root {
+        --gold: #fa9e1b;
+        --violet: #8d4fff;
+        --deep: #31124b;
+        --ink: #1a1a2e;
+        --mist: #f6f9fb;
+        --white: #ffffff;
+        --grey: #929191;
+        --success: #27ae60;
+        --danger: #e74c3c;
+    }
+
+    * { box-sizing: border-box; }
+
+    body { font-family: 'DM Sans', sans-serif; }
+
+    /* ── Hero ── */
+    .front_hero {
+        min-height: 420px;
+        background: linear-gradient(135deg, var(--ink) 0%, var(--deep) 55%, #5a1a8a 100%);
+        display: flex;
+        align-items: flex-end;
+        padding: 0 0 60px;
+        position: relative;
+        overflow: hidden;
+    }
+    .front_hero::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+    }
+    .front_hero_orb {
+        position: absolute;
+        border-radius: 50%;
+        filter: blur(80px);
+        opacity: 0.25;
+    }
+    .orb1 { width: 500px; height: 500px; background: var(--gold); top: -200px; right: -100px; }
+    .orb2 { width: 300px; height: 300px; background: var(--violet); bottom: -100px; left: 10%; }
+    .front_hero .container { position: relative; z-index: 2; }
+    .front_hero_eyebrow {
+        display: inline-block;
+        font-family: 'DM Sans', sans-serif;
+        font-size: 11px;
+        font-weight: 600;
+        letter-spacing: 3px;
+        text-transform: uppercase;
+        color: var(--gold);
+        margin-bottom: 16px;
+        padding: 6px 16px;
+        border: 1px solid rgba(250,158,27,0.4);
+        border-radius: 20px;
+    }
+    .front_hero_title {
+        font-family: 'Playfair Display', serif;
+        font-size: clamp(38px, 6vw, 72px);
+        font-weight: 900;
+        color: #fff;
+        line-height: 1.05;
+        margin-bottom: 20px;
+    }
+    .front_hero_title em {
+        font-style: italic;
+        background: linear-gradient(90deg, var(--gold), var(--violet));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+    .front_hero_sub {
+        color: rgba(255,255,255,0.6);
+        font-size: 16px;
+        font-weight: 300;
+        max-width: 500px;
+        line-height: 1.7;
+    }
+
+    /* ── Filter bar ── */
+    .filter_bar {
+        background: var(--white);
+        box-shadow: 0 4px 30px rgba(0,0,0,0.08);
+        padding: 20px 30px;
+        display: flex;
+        gap: 12px;
+        align-items: center;
+        flex-wrap: wrap;
+        position: sticky;
+        top: 0;
+        z-index: 100;
+    }
+    .filter_pill {
+        height: 38px;
+        line-height: 38px;
+        padding: 0 18px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 600;
+        border: 2px solid #ebebeb;
+        color: var(--grey);
+        cursor: pointer;
+        transition: all 200ms;
+        background: none;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    .filter_pill:hover, .filter_pill.active {
+        border-color: var(--gold);
+        color: var(--deep);
+        background: rgba(250,158,27,0.08);
+    }
+    .filter_search {
+        margin-left: auto;
+        height: 40px;
+        border: 2px solid #ebebeb;
+        border-radius: 20px;
+        padding: 0 18px;
+        font-size: 13px;
+        font-family: 'DM Sans', sans-serif;
+        outline: none;
+        min-width: 220px;
+        transition: border-color 200ms;
+    }
+    .filter_search:focus { border-color: var(--gold); }
+
+    /* ── Events grid ── */
+    .events_front_section {
+        background: var(--mist);
+        padding: 60px 0 100px;
+    }
+    .events_grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+        gap: 28px;
+        margin-top: 40px;
+    }
+
+    /* ── Event card (front) ── */
+    .fe_card {
+        background: var(--white);
+        border-radius: 16px;
+        overflow: hidden;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+        transition: all 300ms cubic-bezier(0.34, 1.56, 0.64, 1);
+        cursor: pointer;
+        display: flex;
+        flex-direction: column;
+    }
+    .fe_card:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 20px 50px rgba(49,18,75,0.15);
+    }
+    .fe_card_thumb {
+        position: relative;
+        height: 230px;
+        background: linear-gradient(135deg, var(--gold), var(--violet));
+        overflow: hidden;
+    }
+    .fe_card_thumb img {
+        width: 100%; height: 100%;
+        object-fit: cover;
+        transition: transform 400ms ease;
+    }
+    .fe_card:hover .fe_card_thumb img { transform: scale(1.05); }
+    .fe_card_type {
+        position: absolute;
+        top: 16px; left: 16px;
+        background: rgba(0,0,0,0.55);
+        backdrop-filter: blur(8px);
+        color: #fff;
+        font-size: 10px;
+        font-weight: 700;
+        letter-spacing: 1.5px;
+        text-transform: uppercase;
+        padding: 5px 12px;
+        border-radius: 12px;
+    }
+    .fe_card_price_tag {
+        position: absolute;
+        bottom: 16px; right: 16px;
+        background: var(--deep);
+        color: #fff;
+        font-family: 'Playfair Display', serif;
+        font-size: 20px;
+        font-weight: 700;
+        padding: 8px 18px;
+        border-radius: 12px;
+    }
+    .fe_card_price_tag.free { background: var(--success); font-family: 'DM Sans', sans-serif; font-size: 13px; }
+
+    .fe_card_season_dot {
+        position: absolute;
+        top: 16px; right: 16px;
+        width: 34px; height: 34px;
+        border-radius: 50%;
+        background: rgba(255,255,255,0.2);
+        backdrop-filter: blur(6px);
+        display: flex; align-items: center; justify-content: center;
+        font-size: 16px;
+    }
+
+    .fe_card_body {
+        padding: 24px 26px 28px;
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+    }
+    .fe_card_title {
+        font-family: 'Playfair Display', serif;
+        font-size: 20px;
+        font-weight: 700;
+        color: var(--ink);
+        margin-bottom: 12px;
+        line-height: 1.25;
+    }
+    .fe_card_info {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        margin-bottom: 18px;
+    }
+    .fe_info_row {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 13px;
+        color: var(--grey);
+        font-weight: 400;
+    }
+    .fe_info_row .icon { color: var(--gold); font-size: 12px; width: 16px; }
+
+    /* capacity bar */
+    .fe_cap_wrap { margin-bottom: 20px; }
+    .fe_cap_header { display: flex; justify-content: space-between; font-size: 11px; color: var(--grey); margin-bottom: 5px; font-weight: 500; }
+    .fe_cap_bg { height: 5px; background: #eee; border-radius: 3px; overflow: hidden; }
+    .fe_cap_fill { height: 100%; border-radius: 3px; background: linear-gradient(90deg, var(--gold), var(--violet)); }
+    .fe_cap_fill.full { background: var(--danger); }
+
+    /* status */
+    .fe_status {
+        display: inline-block;
+        padding: 3px 12px;
+        border-radius: 10px;
+        font-size: 10px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-bottom: 18px;
+    }
+    .fe_status.active { background: rgba(39,174,96,0.12); color: var(--success); }
+    .fe_status.cancelled { background: rgba(231,76,60,0.12); color: var(--danger); }
+    .fe_status.soldout { background: rgba(49,18,75,0.1); color: var(--deep); }
+    .fe_status.pending { background: rgba(250,158,27,0.12); color: #c47a00; }
+
+    .fe_card_cta {
+        margin-top: auto;
+        display: flex;
+        gap: 10px;
+    }
+    .btn_front {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 7px;
+        height: 46px;
+        padding: 0 24px;
+        border-radius: 23px;
+        font-family: 'DM Sans', sans-serif;
+        font-size: 13px;
+        font-weight: 600;
+        text-decoration: none;
+        cursor: pointer;
+        border: none;
+        transition: all 200ms ease;
+        white-space: nowrap;
+    }
+    .btn_primary_front {
+        background: linear-gradient(135deg, var(--gold), var(--violet));
+        color: #fff !important;
+        flex: 1;
+    }
+    .btn_primary_front:hover { opacity: 0.88; transform: scale(1.02); color: #fff !important; }
+    .btn_ghost_front {
+        background: transparent;
+        border: 2px solid #e4e4e4;
+        color: var(--ink) !important;
+    }
+    .btn_ghost_front:hover { border-color: var(--deep); background: var(--deep); color: #fff !important; }
+
+    .sold_out_overlay {
+        position: absolute;
+        inset: 0;
+        background: rgba(0,0,0,0.45);
+        display: flex; align-items: center; justify-content: center;
+    }
+    .sold_out_badge {
+        background: var(--danger);
+        color: #fff;
+        font-weight: 800;
+        font-size: 13px;
+        letter-spacing: 2px;
+        text-transform: uppercase;
+        padding: 10px 24px;
+        border-radius: 4px;
+        transform: rotate(-8deg);
+    }
+
+    /* ── Section heading ── */
+    .section_heading { text-align: center; margin-bottom: 10px; }
+    .section_heading h2 {
+        font-family: 'Playfair Display', serif;
+        font-size: 38px;
+        font-weight: 900;
+        color: var(--ink);
+        margin-bottom: 8px;
+    }
+    .section_heading p { color: var(--grey); font-size: 15px; font-weight: 300; }
+    .section_divider {
+        width: 50px;
+        height: 3px;
+        background: linear-gradient(90deg, var(--gold), var(--violet));
+        border-radius: 2px;
+        margin: 12px auto 0;
+    }
+
+    /* ── Empty state ── */
+    .front_empty {
+        text-align: center;
+        padding: 100px 30px;
+        grid-column: 1/-1;
+    }
+    .front_empty_icon {
+        font-size: 64px;
+        margin-bottom: 20px;
+        opacity: 0.2;
+    }
+    .front_empty h3 {
+        font-family: 'Playfair Display', serif;
+        font-size: 26px;
+        color: var(--ink);
+        margin-bottom: 10px;
+    }
+    .front_empty p { color: var(--grey); font-size: 15px; }
+
+    /* ── Modal (detail view) ── */
+    .fe_modal_overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(10,5,30,0.75);
+        backdrop-filter: blur(6px);
+        z-index: 9999;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 300ms;
+    }
+    .fe_modal_overlay.open { opacity: 1; pointer-events: all; }
+    .fe_modal {
+        background: var(--white);
+        border-radius: 20px;
+        max-width: 700px;
+        width: 100%;
+        max-height: 90vh;
+        overflow-y: auto;
+        transform: translateY(30px) scale(0.97);
+        transition: transform 300ms cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    .fe_modal_overlay.open .fe_modal { transform: translateY(0) scale(1); }
+    .fe_modal_image { height: 280px; background: linear-gradient(135deg, var(--gold), var(--violet)); position: relative; overflow: hidden; }
+    .fe_modal_image img { width: 100%; height: 100%; object-fit: cover; }
+    .fe_modal_close {
+        position: absolute;
+        top: 16px; right: 16px;
+        width: 38px; height: 38px;
+        background: rgba(255,255,255,0.9);
+        border: none;
+        border-radius: 50%;
+        font-size: 18px;
+        cursor: pointer;
+        display: flex; align-items: center; justify-content: center;
+        transition: background 200ms;
+        z-index: 2;
+    }
+    .fe_modal_close:hover { background: #fff; }
+    .fe_modal_body { padding: 32px 36px 36px; }
+    .fe_modal_eyebrow { font-size: 11px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--gold); margin-bottom: 10px; }
+    .fe_modal_title { font-family: 'Playfair Display', serif; font-size: 32px; font-weight: 900; color: var(--ink); margin-bottom: 18px; line-height: 1.15; }
+    .fe_modal_desc { color: #555; font-size: 15px; line-height: 1.75; margin-bottom: 28px; }
+    .fe_modal_grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 28px; }
+    .fe_modal_stat { background: var(--mist); padding: 14px 18px; border-radius: 10px; }
+    .fe_modal_stat .label { font-size: 10px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: var(--grey); margin-bottom: 4px; }
+    .fe_modal_stat .value { font-size: 15px; font-weight: 600; color: var(--ink); }
+    .fe_modal_footer { display: flex; gap: 12px; flex-wrap: wrap; }
+    .fe_modal_price_big {
+        font-family: 'Playfair Display', serif;
+        font-size: 36px;
+        font-weight: 900;
+        color: var(--deep);
+        margin-bottom: 20px;
+    }
+    .fe_modal_price_big small { font-family: 'DM Sans', sans-serif; font-size: 14px; color: var(--grey); font-weight: 400; }
+
+    /* ── Register modal ── */
+    .reg_modal_overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(10,5,30,0.8);
+        backdrop-filter: blur(8px);
+        z-index: 10000;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 300ms;
+    }
+    .reg_modal_overlay.open { opacity: 1; pointer-events: all; }
+    .reg_modal {
+        background: var(--white);
+        border-radius: 20px;
+        max-width: 560px;
+        width: 100%;
+        max-height: 90vh;
+        overflow-y: auto;
+        transform: translateY(20px);
+        transition: transform 300ms;
+    }
+    .reg_modal_overlay.open .reg_modal { transform: translateY(0); }
+    .reg_modal_head {
+        background: linear-gradient(135deg, var(--deep), #5a1a8a);
+        padding: 28px 32px;
+        border-radius: 20px 20px 0 0;
+        position: relative;
+    }
+    .reg_modal_head h3 { font-family: 'Playfair Display', serif; font-size: 24px; color: #fff; font-weight: 700; margin: 0 0 4px; }
+    .reg_modal_head p { font-size: 13px; color: rgba(255,255,255,0.6); margin: 0; }
+    .reg_modal_close2 {
+        position: absolute; top: 20px; right: 20px;
+        background: rgba(255,255,255,0.15); border: none; border-radius: 50%;
+        width: 34px; height: 34px; cursor: pointer; color: #fff; font-size: 16px;
+        display: flex; align-items: center; justify-content: center;
+    }
+    .reg_modal_body { padding: 28px 32px 32px; }
+    .rm_group { margin-bottom: 18px; }
+    .rm_label { display: block; font-size: 11px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: var(--deep); margin-bottom: 7px; }
+    .rm_input {
+        width: 100%;
+        height: 46px;
+        border: 2px solid #eee;
+        border-radius: 10px;
+        padding: 0 14px;
+        font-family: 'DM Sans', sans-serif;
+        font-size: 14px;
+        color: var(--ink);
+        outline: none;
+        transition: border-color 200ms;
+        background: #fafafa;
+    }
+    .rm_input:focus { border-color: var(--gold); background: #fff; }
+    .rm_row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    .rm_select { appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23929191' d='M6 8L1 3h10z'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 14px center; cursor: pointer; }
+
+    /* ── Floating admin btn ── */
+    .admin_back_btn {
+        position: fixed;
+        bottom: 32px;
+        right: 32px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        background: var(--deep);
+        color: #fff !important;
+        text-decoration: none;
+        padding: 12px 20px;
+        border-radius: 50px;
+        font-family: 'DM Sans', sans-serif;
+        font-size: 12px;
+        font-weight: 700;
+        letter-spacing: 0.5px;
+        text-transform: uppercase;
+        box-shadow: 0 8px 30px rgba(49,18,75,0.4);
+        transition: all 250ms ease;
+        z-index: 500;
+    }
+    .admin_back_btn:hover {
+        background: var(--ink);
+        transform: translateY(-3px);
+        box-shadow: 0 14px 40px rgba(49,18,75,0.5);
+        color: #fff !important;
+    }
+    .admin_back_btn .dot {
+        width: 8px; height: 8px;
+        background: var(--gold);
+        border-radius: 50%;
+        animation: pulse_dot 1.8s ease-in-out infinite;
+    }
+    @keyframes pulse_dot {
+        0%, 100% { opacity: 1; transform: scale(1); }
+        50% { opacity: 0.5; transform: scale(0.7); }
+    }
+
+    /* ── Toast ── */
+    .toast_wrap {
+        position: fixed;
+        bottom: 32px;
+        left: 50%;
+        transform: translateX(-50%) translateY(20px);
+        z-index: 20000;
+        opacity: 0;
+        transition: all 400ms;
+        pointer-events: none;
+    }
+    .toast_wrap.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+    .toast {
+        background: var(--deep);
+        color: #fff;
+        padding: 14px 24px;
+        border-radius: 12px;
+        font-size: 14px;
+        font-weight: 500;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        box-shadow: 0 10px 40px rgba(0,0,0,0.25);
+    }
+    .toast .tick { color: var(--gold); font-size: 18px; }
+
+    /* Login required banner */
+    .login_banner {
+        background: linear-gradient(135deg, var(--deep), #5a1a8a);
+        border-radius: 16px;
+        padding: 40px;
+        text-align: center;
+        margin: 40px 0;
+    }
+    .login_banner h3 {
+        font-family: 'Playfair Display', serif;
+        font-size: 28px;
+        color: #fff;
+        margin-bottom: 12px;
+    }
+    .login_banner p {
+        color: rgba(255,255,255,0.7);
+        margin-bottom: 24px;
+        font-size: 16px;
+    }
+    .btn_login_banner {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        background: linear-gradient(135deg, var(--gold), var(--violet));
+        color: #fff;
+        padding: 14px 32px;
+        border-radius: 40px;
+        text-decoration: none;
+        font-weight: 600;
+        transition: transform 200ms;
+    }
+    .btn_login_banner:hover {
+        transform: translateY(-2px);
+        color: #fff;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+
+{# ══════════════════════ HERO ══════════════════════ #}
+<div class="front_hero">
+    <div class="front_hero_orb orb1"></div>
+    <div class="front_hero_orb orb2"></div>
+    <div class="container" style="padding-top: 140px;">
+        <span class="front_hero_eyebrow">✦ WinGo Events</span>
+        <h1 class="front_hero_title">Discover <em>Experiences</em><br>Worth Living</h1>
+        <p class="front_hero_sub">Curated events across every season — concerts, conferences, festivals & more. Book your spot today.</p>
+    </div>
+</div>
+
+{# ══════════════════════ FILTER BAR ══════════════════════ #}
+<div class="filter_bar">
+    <button class="filter_pill active" onclick="filterEvents('all', this)">All</button>
+    <button class="filter_pill" onclick="filterEvents('Conference', this)">Conference</button>
+    <button class="filter_pill" onclick="filterEvents('Concert', this)">Concert</button>
+    <button class="filter_pill" onclick="filterEvents('Festival', this)">Festival</button>
+    <button class="filter_pill" onclick="filterEvents('Sport', this)">Sport</button>
+    <input class="filter_search" type="text" placeholder="🔍  Search events..." oninput="searchEvents(this.value)">
+</div>
+
+{# ══════════════════════ EVENTS GRID ══════════════════════ #}
+<section class="events_front_section">
+    <div class="container">
+        <div class="section_heading">
+            <h2>Upcoming Events</h2>
+            <p>{{ events|length }} event{{ events|length != 1 ? 's' : '' }} available right now</p>
+            <div class="section_divider"></div>
+        </div>
+
+        <div class="events_grid" id="eventsGrid">
+            {% if events is empty %}
+                <div class="front_empty">
+                    <div class="front_empty_icon">🎪</div>
+                    <h3>No events yet</h3>
+                    <p>Check back soon — exciting events are on the way!</p>
+                </div>
+            {% else %}
+                {% for event in events %}
+                {% set filled = event.capacity - event.available_places %}
+                {% set pct = event.capacity > 0 ? ((filled / event.capacity) * 100)|round : 0 %}
+                {% set isFull = event.available_places <= 0 %}
+                {% set seasonEmoji = {'Summer': '☀️', 'Winter': '❄️', 'Spring': '🌸', 'Autumn': '🍂', 'Fall': '🍂'}[event.season] ?? '🌍' %}
+
+                <div class="fe_card"
+                     data-type="{{ event.event_type|lower }}"
+                     data-title="{{ event.title|lower }}"
+                     data-event-id="{{ event.id_event }}">
+                    <div class="fe_card_thumb">
+                        {% if event.image_event %}
+                            <img src="{{ asset('images/' ~ event.image_event) }}" alt="{{ event.title }}" onerror="this.style.display='none'">
+                        {% endif %}
+                        <div class="fe_card_type">{{ event.event_type }}</div>
+                        <div class="fe_card_season_dot">{{ seasonEmoji }}</div>
+                        <div class="fe_card_price_tag {{ event.price == 0 ? 'free' : '' }}">
+                            {{ event.price == 0 ? 'Free' : '$' ~ event.price }}
+                        </div>
+                        {% if isFull %}
+                            <div class="sold_out_overlay"><div class="sold_out_badge">Sold Out</div></div>
+                        {% endif %}
+                    </div>
+
+                    <div class="fe_card_body">
+                        <div class="fe_card_title">{{ event.title }}</div>
+
+                        <div class="fe_card_info">
+                            <div class="fe_info_row">
+                                <i class="fa fa-calendar icon"></i>
+                                {{ event.date_event|date('D, M d Y') }} · {{ event.start_time }}
+                            </div>
+                            <div class="fe_info_row">
+                                <i class="fa fa-map-marker icon"></i>
+                                {{ event.location }}
+                            </div>
+                            <div class="fe_info_row">
+                                <i class="fa fa-leaf icon"></i>
+                                {{ event.season }} season
+                            </div>
+                        </div>
+
+                        <span class="fe_status {{ isFull ? 'soldout' : event.status|lower }}">
+                            {{ isFull ? 'Sold Out' : event.status }}
+                        </span>
+
+                        <div class="fe_cap_wrap">
+                            <div class="fe_cap_header">
+                                <span>{{ event.available_places }} seats left</span>
+                                <span>{{ pct }}% filled</span>
+                            </div>
+                            <div class="fe_cap_bg">
+                                <div class="fe_cap_fill {{ isFull ? 'full' : '' }}" style="width:{{ pct }}%;"></div>
+                            </div>
+                        </div>
+
+                        <div class="fe_card_cta">
+                            {% if is_granted('ROLE_USER') %}
+                                <button class="btn_front btn_primary_front"
+                                    onclick="openRegister({{ event.id_event }}, '{{ event.title|e('js') }}', {{ event.available_places }}, {{ event.price }})"
+                                    {{ isFull ? 'disabled style=opacity:0.5;cursor:not-allowed;' : '' }}>
+                                    <i class="fa fa-ticket"></i>
+                                    {{ isFull ? 'Sold Out' : 'Register' }}
+                                </button>
+                            {% else %}
+                                <button class="btn_front btn_primary_front"
+                                    onclick="window.location.href='{{ path('app_login') }}?redirect={{ path('event_front') }}'">
+                                    <i class="fa fa-lock"></i>
+                                    Login to Register
+                                </button>
+                            {% endif %}
+                            <button class="btn_front btn_ghost_front" onclick="openDetail({{ event.id_event }})">
+                                <i class="fa fa-info"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            {% endif %}
+        </div>
+
+        {# Show login banner if user is not logged in #}
+        {% if not is_granted('ROLE_USER') and events is not empty %}
+        <div class="login_banner" style="margin-top: 60px;">
+            <h3>🔐 Want to join these events?</h3>
+            <p>Create an account or log in to register for events and secure your spot!</p>
+            <a href="{{ path('app_login') }}?redirect={{ path('event_front') }}" class="btn_login_banner">
+                <i class="fa fa-sign-in"></i> Login / Sign Up
+            </a>
+        </div>
+        {% endif %}
+    </div>
+</section>
+
+{# ══════════════════════ DETAIL MODAL ══════════════════════ #}
+<div class="fe_modal_overlay" id="detailOverlay" onclick="if(event.target===this)closeDetail()">
+    <div class="fe_modal" id="detailModal">
+        <div class="fe_modal_image" id="detailImage">
+            <img id="detailImg" src="" alt="">
+            <button class="fe_modal_close" onclick="closeDetail()">✕</button>
+        </div>
+        <div class="fe_modal_body">
+            <div class="fe_modal_eyebrow" id="detailType"></div>
+            <div class="fe_modal_title" id="detailTitle"></div>
+            <div class="fe_modal_price_big" id="detailPrice"></div>
+            <div class="fe_modal_desc" id="detailDesc"></div>
+            <div class="fe_modal_grid" id="detailGrid"></div>
+            <div class="fe_modal_footer" id="detailFooter"></div>
+        </div>
+    </div>
+</div>
+
+{# ══════════════════════ REGISTER MODAL ══════════════════════ #}
+<div class="reg_modal_overlay" id="regOverlay" onclick="if(event.target===this)closeRegister()">
+    <div class="reg_modal">
+        <div class="reg_modal_head">
+            <h3 id="regTitle">Register for Event</h3>
+            <p id="regSubtitle">Complete the form below to secure your spot.</p>
+            <button class="reg_modal_close2" onclick="closeRegister()">✕</button>
+        </div>
+        <div class="reg_modal_body">
+            <form id="regForm" method="post" action="">
+                <div class="rm_row">
+                    <div class="rm_group">
+                        <label class="rm_label">Last Name</label>
+                        <input type="text" name="nom_participant" class="rm_input" placeholder="Doe" required>
+                    </div>
+                    <div class="rm_group">
+                        <label class="rm_label">First Name</label>
+                        <input type="text" name="prenom_participant" class="rm_input" placeholder="John" required>
+                    </div>
+                </div>
+                <div class="rm_group">
+                    <label class="rm_label">Email</label>
+                    <input type="email" name="email_participant" class="rm_input" placeholder="john@email.com" required>
+                </div>
+                <div class="rm_group">
+                    <label class="rm_label">Phone</label>
+                    <input type="text" name="telephone" class="rm_input" placeholder="+216 XX XXX XXX" required>
+                </div>
+                <div class="rm_row">
+                    <div class="rm_group">
+                        <label class="rm_label">Number of Seats</label>
+                        <input type="number" name="nombre_places" id="regSeats" class="rm_input" value="1" min="1" required>
+                    </div>
+                    <div class="rm_group">
+                        <label class="rm_label">Status</label>
+                        <select name="statut" class="rm_input rm_select" required>
+                            <option value="pending">Pending</option>
+                            <option value="confirmed">Confirmed</option>
+                        </select>
+                    </div>
+                </div>
+                <input type="hidden" name="date_participation" value="{{ "now"|date('Y-m-d H:i:s') }}">
+                <input type="hidden" name="id_user" value="0">
+                <div style="display:flex; gap:12px; margin-top:22px;">
+                    <button type="submit" class="btn_front btn_primary_front" style="flex:1; height:50px; border-radius:25px; font-size:14px;">
+                        <i class="fa fa-check"></i> Confirm Registration
+                    </button>
+                    <button type="button" class="btn_front btn_ghost_front" onclick="closeRegister()" style="height:50px; border-radius:25px;">
+                        Cancel
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+{# ══════════════════════ TOAST ══════════════════════ #}
+<div class="toast_wrap" id="toastWrap">
+    <div class="toast"><span class="tick">✔</span> <span id="toastMsg">Registration submitted!</span></div>
+</div>
+
+{# ══════════════════════ ADMIN BACK BTN ══════════════════════ #}
+{% if is_granted('ROLE_ADMIN') %}
+<a href="{{ path('event_index') }}" class="admin_back_btn">
+    <div class="dot"></div>
+    <i class="fa fa-lock"></i>
+    Event Back
+</a>
+{% endif %}
+
+{# ══════════════════════ JS ══════════════════════ #}
+<script>
+    {# Build a JS object from Twig event data #}
+    const EVENTS_DATA = {
+        {% for event in events %}
+        {{ event.id_event }}: {
+            title: {{ event.title|json_encode|raw }},
+            description: {{ event.description|json_encode|raw }},
+            type: {{ event.event_type|json_encode|raw }},
+            date: {{ event.date_event|date('D, M d Y')|json_encode|raw }},
+            time: {{ event.start_time|json_encode|raw }},
+            location: {{ event.location|json_encode|raw }},
+            season: {{ event.season|json_encode|raw }},
+            capacity: {{ event.capacity }},
+            available: {{ event.available_places }},
+            status: {{ event.status|json_encode|raw }},
+            price: {{ event.price }},
+            image: {{ event.image_event ? (asset('images/' ~ event.image_event))|json_encode|raw : 'null' }},
+            registerUrl: {{ path('participation_front_new', {id_event: event.id_event})|json_encode|raw }}
+        }{% if not loop.last %},{% endif %}
+        {% endfor %}
+    };
+
+    /* ── Filter & search ── */
+    function filterEvents(type, btn) {
+        document.querySelectorAll('.filter_pill').forEach(p => p.classList.remove('active'));
+        btn.classList.add('active');
+        document.querySelectorAll('.fe_card').forEach(card => {
+            const match = type === 'all' || card.dataset.type.includes(type.toLowerCase());
+            card.style.display = match ? '' : 'none';
+        });
+    }
+
+    function searchEvents(q) {
+        q = q.toLowerCase();
+        document.querySelectorAll('.fe_card').forEach(card => {
+            card.style.display = card.dataset.title.includes(q) ? '' : 'none';
+        });
+    }
+
+    /* ── Detail modal ── */
+    function openDetail(id) {
+        const e = EVENTS_DATA[id];
+        if (!e) return;
+        document.getElementById('detailType').textContent = e.type + ' · ' + e.season;
+        document.getElementById('detailTitle').textContent = e.title;
+        document.getElementById('detailPrice').innerHTML = e.price === 0 ? '<span style="color:var(--success)">Free Entry</span>' : '$' + e.price + ' <small>per seat</small>';
+        document.getElementById('detailDesc').textContent = e.description;
+        document.getElementById('detailImg').src = e.image || '';
+        document.getElementById('detailImg').style.display = e.image ? 'block' : 'none';
+        document.getElementById('detailGrid').innerHTML = `
+            <div class="fe_modal_stat"><div class="label">Date & Time</div><div class="value">${e.date} · ${e.time}</div></div>
+            <div class="fe_modal_stat"><div class="label">Location</div><div class="value">${e.location}</div></div>
+            <div class="fe_modal_stat"><div class="label">Capacity</div><div class="value">${e.available} / ${e.capacity} available</div></div>
+            <div class="fe_modal_stat"><div class="label">Status</div><div class="value">${e.status}</div></div>
+        `;
+        {% if is_granted('ROLE_USER') %}
+        document.getElementById('detailFooter').innerHTML = `
+            <button class="btn_front btn_primary_front" onclick="closeDetail(); openRegister(${id},'${e.title.replace(/'/g,"\\'")}',${e.available},${e.price})" ${e.available<=0?'disabled style=opacity:0.5':''}><i class="fa fa-ticket"></i> ${e.available<=0?'Sold Out':'Register Now'}</button>
+            <button class="btn_front btn_ghost_front" onclick="closeDetail()">Close</button>
+        `;
+        {% else %}
+        document.getElementById('detailFooter').innerHTML = `
+            <button class="btn_front btn_primary_front" onclick="window.location.href='{{ path('app_login') }}?redirect={{ path('event_front') }}'"><i class="fa fa-lock"></i> Login to Register</button>
+            <button class="btn_front btn_ghost_front" onclick="closeDetail()">Close</button>
+        `;
+        {% endif %}
+        document.getElementById('detailOverlay').classList.add('open');
+        document.body.style.overflow = 'hidden';
+    }
+    function closeDetail() {
+        document.getElementById('detailOverlay').classList.remove('open');
+        document.body.style.overflow = '';
+    }
+
+    /* ── Register modal ── */
+    function openRegister(id, title, available, price) {
+        {% if not is_granted('ROLE_USER') %}
+            window.location.href = "{{ path('app_login') }}?redirect={{ path('event_front') }}";
+            return;
+        {% endif %}
+        
+        const e = EVENTS_DATA[id];
+        document.getElementById('regTitle').textContent = 'Register: ' + title;
+        document.getElementById('regSubtitle').textContent = available + ' seats left' + (price > 0 ? ' · $' + price + ' per seat' : ' · Free');
+        document.getElementById('regSeats').max = available;
+        document.getElementById('regSeats').value = 1;
+        document.getElementById('regForm').action = e.registerUrl;
+        document.getElementById('regOverlay').classList.add('open');
+        document.body.style.overflow = 'hidden';
+    }
+    function closeRegister() {
+        document.getElementById('regOverlay').classList.remove('open');
+        document.body.style.overflow = '';
+    }
+
+    /* ── Toast ── */
+    function showToast(msg) {
+        const w = document.getElementById('toastWrap');
+        document.getElementById('toastMsg').textContent = msg;
+        w.classList.add('show');
+        setTimeout(() => w.classList.remove('show'), 3500);
+    }
+
+    {% if app.request.query.get('registered') %}
+        window.addEventListener('DOMContentLoaded', () => showToast('Registration successful! See you there 🎉'));
+    {% endif %}
+</script>
+
+{% endblock %}

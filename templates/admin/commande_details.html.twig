@@ -1,0 +1,72 @@
+{% extends 'admin/base_admin.html.twig' %}
+{% block title %}Détails Commande - Admin WinGo{% endblock %}
+{% block page_title %}Détails Commande{% endblock %}
+
+{% block content %}
+<div class="data_card mb-4">
+    <div class="data_card_header">
+        <div class="data_card_title">
+            <i class="fa fa-file-text-o" style="color:#fa9e1b"></i>
+            Commande #{{ commande.id }}
+        </div>
+    </div>
+
+    <div style="padding:24px;">
+        <p><strong>Client :</strong>
+            {% if client %}
+                {{ client.fullName }} ({{ client.email }})
+            {% else %}
+                Utilisateur #{{ commande.idUser }}
+            {% endif %}
+        </p>
+
+        <p><strong>Statut :</strong> {{ commande.status }}</p>
+        <p><strong>Total :</strong> {{ commande.total }} TND</p>
+        <p><strong>Date :</strong> {{ commande.dateCommande ? commande.dateCommande|date('d/m/Y H:i') : '-' }}</p>
+    </div>
+</div>
+
+<div class="data_card">
+    <div class="data_card_header">
+        <div class="data_card_title">
+            <i class="fa fa-shopping-bag" style="color:#fa9e1b"></i>
+            Produits commandés
+        </div>
+    </div>
+
+    <table>
+        <thead>
+            <tr>
+                <th>ID Produit</th>
+                <th>Nom</th>
+                <th>Prix unitaire</th>
+                <th>Quantité</th>
+                <th>Sous-total</th>
+                <th>Région</th>
+                <th>Catégorie</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in items %}
+                <tr>
+                    <td>{{ item.id_produit }}</td>
+                    <td><strong>{{ item.nom }}</strong></td>
+                    <td>{{ item.prix_unitaire }} TND</td>
+                    <td>{{ item.quantite }}</td>
+                    <td>{{ item.sous_total }} TND</td>
+                    <td>{{ item.region ?? '-' }}</td>
+                    <td>{{ item.categorie ?? '-' }}</td>
+                </tr>
+            {% else %}
+                <tr>
+                    <td colspan="7" style="text-align:center;color:#aaa;padding:40px;">Aucun produit dans cette commande</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <div style="padding:24px;">
+        <a href="{{ path('admin_commandes') }}" class="topbar_btn">← Retour aux commandes</a>
+    </div>
+</div>
+{% endblock %}

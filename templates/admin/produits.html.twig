@@ -1,0 +1,30 @@
+{% extends 'admin/base_admin.html.twig' %}
+{% block title %}Produits - Admin WinGo{% endblock %}
+{% block page_title %}Gestion des Produits{% endblock %}
+
+{% block content %}
+<div class="data_card">
+    <div class="data_card_header">
+        <div class="data_card_title"><i class="fa fa-shopping-bag" style="color:#fa9e1b"></i> Produits ({{ produits|length }})</div>
+    </div>
+    <table>
+        <thead>
+            <tr><th>#</th><th>Nom</th><th>Prix</th><th>Région</th><th>Catégorie</th><th>Stock</th></tr>
+        </thead>
+        <tbody>
+            {% for p in produits %}
+            <tr>
+                <td>{{ p.id }}</td>
+                <td><strong>{{ p.nom }}</strong></td>
+                <td>{{ p.prix }} TND</td>
+                <td>{{ p.region ?? '-' }}</td>
+                <td>{{ p.categorie ?? '-' }}</td>
+                <td><span class="badge_status {% if p.stock > 0 %}badge_done{% else %}badge_pending{% endif %}">{{ p.stock }}</span></td>
+            </tr>
+            {% else %}
+            <tr><td colspan="6" style="text-align:center;color:#aaa;padding:40px;">Aucun produit</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

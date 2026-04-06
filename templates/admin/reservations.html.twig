@@ -1,0 +1,103 @@
+{% extends 'admin/base_admin.html.twig' %}
+
+{% block title %}Réservations - Admin WinGo{% endblock %}
+{% block page_title %}Overview Statistics{% endblock %}
+
+{% block content %}
+<div class="row">
+    {# Cartes statistiques du haut (Style Image 1) #}
+    <div class="col-md-3 mb-4">
+        <div class="stat_card">
+            <div class="stat_icon purple"><i class="fa fa-calendar"></i></div>
+            <div>
+                <div class="stat_num">{{ reservations|length }}</div>
+                <div class="stat_label">TOTAL RESERVATIONS</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 mb-4">
+    <div class="stat_card">
+        <div class="stat_icon red"><i class="fa fa-percent"></i></div>
+        <div>
+            {% set confirmed = 0 %}
+            {% for r in reservations %}
+                {% if r.statut|lower == 'confirmee' or r.statut|lower == 'confirmed' %}
+                    {% set confirmed = confirmed + 1 %}
+                {% endif %}
+            {% endfor %}
+            
+            {# Calculation: (Confirmed / Total) * 100 #}
+            {% set total = reservations|length %}
+            {% set percentage = total > 0 ? (confirmed / total * 100)|round(1) : 0 %}
+            
+            <div class="stat_num">{{ percentage }}%</div>
+            <div class="stat_label">CONFIRMATION RATE</div>
+        </div>
+    </div>
+</div>
+    
+    <div class="col-md-3 mb-4">
+        <div class="stat_card">
+            <div class="stat_icon blue"><i class="fa fa-clock-o"></i></div>
+            <div>
+                {% set pending = 0 %}{% for r in reservations %}{% if r.statut|lower == 'en attente' %}{% set pending = pending + 1 %}{% endif %}{% endfor %}
+                <div class="stat_num">{{ pending }}</div>
+                <div class="stat_label">PENDING</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 mb-4">
+        <div class="stat_card">
+            <div class="stat_icon green"><i class="fa fa-money"></i></div>
+            <div>
+                <div class="stat_num">--</div>
+                <div class="stat_label">REVENUE</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{# Tableau de données (Style Image 1) #}
+<div class="data_card_header" style="display: flex; justify-content: space-between; align-items: center;">
+    <div class="data_card_title">All Reservations</div>
+    
+    <div class="table_actions">
+        <form action="{{ path('admin_reservations') }}" method="get" style="display: flex; gap: 10px;">
+            <input type="text" name="search" value="{{ searchTerm|default('') }}" 
+                   placeholder="Search..." 
+                   style="padding: 6px 12px; border-radius: 8px; border: 1px solid #ddd; font-size: 13px;">
+            
+            <a href="{{ path('admin_reservations', {sort: 'user_asc', search: searchTerm|default('')}) }}" 
+               class="topbar_btn" style="padding: 6px 12px; background: #eee; color: #333; text-decoration: none; border-radius: 8px; font-size: 13px; display: flex; align-items: center;">
+                <i class="fa fa-sort-alpha-asc" style="margin-right: 5px;"></i> Tri Nom
+            </a>
+            
+            {# Hidden submit button so hitting "Enter" works #}
+            <button type="submit" style="display: none;"></button>
+        </form>
+    </div>
+</div>
+    <table id="adminTable">
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>UTILISATEUR</th>
+                <th>EXPÉRIENCE</th>
+                <th>STATUT</th>
+                <th>DATE</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for r in reservations %}
+            <tr>
+                <td>{{ r.id }}</td>
+                <td class="search-target"><strong>{{ r.user}}</strong></td>
+                <td>{{ r.exp }}</td>
+                <td class="search-target"><span class="badge_status">{{ r.statut }}</span></td>
+                <td>{{ r.date|date('d/m/Y H:i') }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

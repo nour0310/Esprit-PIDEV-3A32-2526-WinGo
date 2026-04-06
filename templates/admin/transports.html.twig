@@ -1,0 +1,90 @@
+{% extends 'admin/base_admin.html.twig' %}
+
+{% block title %}Transports - Admin WinGo{% endblock %}
+{% block page_title %}Overview Statistics{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-3 mb-4">
+        <div class="stat_card">
+            <div class="stat_icon orange"><i class="fa fa-check-circle"></i></div>
+            <div>
+                {% set active = 0 %}{% for t in transports %}{% if t.arrivee|lower == 'confirmee' %}{% set active = active + 1 %}{% endif %}{% endfor %}
+                <div class="stat_num">{{ active }}</div>
+                <div class="stat_label">ACTIVE</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 mb-4">
+    <div class="stat_card">
+        <div class="stat_icon blue"><i class="fa fa-map-marker"></i></div>
+        <div>
+            {# Let's count arrivals to a specific popular city, e.g., 'Tunis' #}
+            {% set targetCity = 'Tunis' %}
+            {% set countCity = 0 %}
+            {% for t in transports %}
+                {% if t.arrivee|lower == targetCity|lower %}
+                    {% set countCity = countCity + 1 %}
+                {% endif %}
+            {% endfor %}
+
+            {% set totalT = transports|length %}
+            {% set trajPercentage = totalT > 0 ? (countCity / totalT * 100)|round(1) : 0 %}
+
+            <div class="stat_num">{{ trajPercentage }}%</div>
+            <div class="stat_label">ARRIVALS TO {{ targetCity|upper }}</div>
+        </div>
+    </div>
+</div>
+    <div class="col-md-3 mb-4">
+        <div class="stat_card">
+            <div class="stat_icon purple"><i class="fa fa-bus"></i></div>
+            <div>
+                <div class="stat_num">{{ transports|length }}</div>
+                <div class="stat_label">TOTAL TRANSPORTS</div>
+            </div>
+        </div>
+    </div>
+    {# Ajoutez les autres cartes ici si nécessaire #}
+</div>
+
+<div class="data_card">
+    <div class="data_card_header">
+        <div class="data_card_title">Available Transports</div>
+        <div class="table_actions" style="display: flex; gap: 10px;">
+            <input type="text" id="searchInput" placeholder="Search destination..." 
+                   style="padding: 6px 12px; border-radius: 8px; border: 1px solid #ddd; font-size: 13px;">
+            
+            <button onclick="sortTable(4)" class="topbar_btn" style="padding: 6px 12px; background: #eee; color: #333;">
+                <i class="fa fa-sort"></i> Tri Départ
+            </button>
+        </div>
+    </div>
+    <table id="adminTable">
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>TYPE</th>
+                <th>CAPACITÉ</th>
+                <th>TARIF</th>
+                <th>DÉPART</th>
+                <th>ARRIVÉE</th>
+                <th>DATE</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for t in transports %}
+            <tr>
+                <td>{{ t.id }}</td>
+                <td>{{ t.type }}</td>
+                <td>{{ t.capacite }}</td>
+                <td>{{ t.tarif }}</td>
+                <td>{{ t.depart }}</td>
+                <td class="search-target">{{ t.arrivee }}</td>
+                <td>{{ t.datedepart|date('d/m/Y') }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

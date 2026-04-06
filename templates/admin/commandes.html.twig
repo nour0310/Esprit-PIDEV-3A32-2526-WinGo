@@ -1,0 +1,87 @@
+{% extends 'admin/base_admin.html.twig' %}
+{% block title %}Commandes - Admin WinGo{% endblock %}
+{% block page_title %}Gestion des Commandes{% endblock %}
+
+{% block content %}
+<div class="data_card">
+    <div class="data_card_header">
+        <div class="data_card_title">
+            <i class="fa fa-shopping-cart" style="color:#fa9e1b"></i>
+            Commandes
+        </div>
+    </div>
+
+    {% for message in app.flashes('success') %}
+        <div style="margin:20px 24px 0;background:#eefaf0;border:1px solid #cdebd3;color:#2e7d32;padding:14px 18px;border-radius:16px;font-weight:600;">
+            {{ message }}
+        </div>
+    {% endfor %}
+
+    <table>
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>Client</th>
+                <th>Total</th>
+                <th>Statut</th>
+                <th>Date</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for c in commandes %}
+                {% set client = userRepo.find(c.idUser) %}
+                <tr>
+                    <td>{{ c.id }}</td>
+                    <td>
+                        {% if client %}
+                            <strong>{{ client.fullName }}</strong><br>
+                            <small>{{ client.email }}</small>
+                        {% else %}
+                            Utilisateur #{{ c.idUser }}
+                        {% endif %}
+                    </td>
+                    <td>{{ c.total }} TND</td>
+                    <td>
+                        <span class="badge_status
+                            {% if c.status == 'livree' %}
+                                badge_done
+                            {% elseif c.status == 'annulee' %}
+                                badge_pending
+                            {% else %}
+                                badge_admin
+                            {% endif %}
+                        ">
+                            {{ c.status }}
+                        </span>
+                    </td>
+                    <td>{{ c.dateCommande ? c.dateCommande|date('d/m/Y H:i') : '-' }}</td>
+                    <td style="display:flex; gap:8px; flex-wrap:wrap;">
+                        <a href="{{ path('admin_commande_details', {'id': c.id}) }}" class="topbar_btn" style="padding:8px 14px;">
+                            Voir
+                        </a>
+
+                        {% if c.status == 'en_cours' %}
+                            <form method="post" action="{{ path('admin_commande_livrer', {'id': c.id}) }}">
+                                <button type="submit" class="topbar_btn" style="padding:8px 14px; border:none;">
+                                    Livrer
+                                </button>
+                            </form>
+
+                            <form method="post" action="{{ path('admin_commande_annuler', {'id': c.id}) }}">
+                                <button type="submit" class="topbar_btn" style="padding:8px 14px; border:none; background:linear-gradient(135deg,#dc3545,#ff6b6b);">
+                                    Annuler
+                                </button>
+                            </form>
+                        {% endif %}
+                    </td>
+                </tr>
+            {% else %}
+                <tr>
+                    <td colspan="6" style="text-align:center;color:#aaa;padding:40px;">Aucune commande</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

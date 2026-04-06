@@ -1,0 +1,167 @@
+/**
+ * WinGo — page Blog : correctifs layout + palette alignée sur la home
+ * (orange #fa9e1b, violet #8d4fff, header #361354)
+ */
+
+/* Logo : blog_styles.css n’inclut pas les contraintes de main_styles.css → image géante */
+.logo a img {
+	height: 72px;
+	width: auto;
+	max-width: 220px;
+	object-fit: contain;
+	vertical-align: middle;
+	margin-right: 10px;
+	-webkit-transform: translateY(4px);
+	-moz-transform: translateY(4px);
+	-ms-transform: translateY(4px);
+	-o-transform: translateY(4px);
+	transform: translateY(4px);
+}
+
+.logo_text {
+	position: relative;
+	top: -6px;
+}
+
+/* Hero : contexte de positionnement + overlay dégradé (comme le slider home) */
+.home.blog-hero {
+	position: relative;
+	overflow: hidden;
+}
+
+.home-gradient-overlay {
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	z-index: 1;
+	background: linear-gradient(
+		125deg,
+		rgba(54, 19, 84, 0.88) 0%,
+		rgba(141, 79, 255, 0.55) 48%,
+		rgba(250, 158, 27, 0.5) 100%
+	);
+	pointer-events: none;
+}
+
+.home.blog-hero .home_background {
+	z-index: 0;
+}
+
+.home.blog-hero .home_content {
+	z-index: 2;
+	text-align: center;
+	width: 100%;
+	max-width: 900px;
+	padding: 0 1.25rem;
+}
+
+.home.blog-hero .home_title {
+	text-shadow: 0 4px 28px rgba(0, 0, 0, 0.45);
+	letter-spacing: 0.06em;
+}
+
+.home-subtitle {
+	font-size: 1.1rem;
+	font-weight: 600;
+	color: rgba(255, 255, 255, 0.95);
+	margin-top: 0.65rem;
+	text-shadow: 0 2px 14px rgba(0, 0, 0, 0.35);
+	line-height: 1.5;
+}
+
+/* Zone articles : fond léger cohérent avec le thème */
+.blog.wingo-blog-section {
+	background: linear-gradient(180deg, #f7f4fc 0%, #ffffff 22%);
+	padding-top: 88px;
+	padding-bottom: 110px;
+}
+
+/* Cartes article */
+.blog_post.wingo-card {
+	background: #ffffff;
+	border-radius: 16px;
+	overflow: hidden;
+	box-shadow: 0 14px 42px rgba(54, 19, 84, 0.09);
+	border: 1px solid rgba(141, 79, 255, 0.1);
+}
+
+.blog_post.wingo-card .blog_post_meta,
+.blog_post.wingo-card .blog_post_title,
+.blog_post.wingo-card .blog_post_text,
+.blog_post.wingo-card .blog_post_link {
+	padding-left: 28px;
+	padding-right: 28px;
+}
+
+.blog_post.wingo-card .blog_post_meta {
+	margin-top: 24px;
+}
+
+.blog_post.wingo-card .blog_post_title {
+	margin-top: 8px;
+}
+
+.blog_post.wingo-card .blog_post_text {
+	margin-top: 12px;
+}
+
+.blog_post.wingo-card .blog_post_link {
+	margin-top: 8px;
+	padding-bottom: 8px;
+}
+
+/* Images d’article : hauteur max + cover (URLs externes incluses) */
+.blog_post_image {
+	position: relative;
+	overflow: hidden;
+}
+
+.blog_post_image img {
+	width: 100%;
+	max-height: 420px;
+	object-fit: cover;
+	display: block;
+}
+
+/* Titres & liens */
+.blog_post_title a {
+	color: #361354;
+	-webkit-transition: color 0.2s ease;
+	transition: color 0.2s ease;
+}
+
+.blog_post_title a:hover {
+	color: #fa9e1b;
+}
+
+.blog_post_link a {
+	color: #fa9e1b;
+	font-weight: 700;
+	text-transform: uppercase;
+	font-size: 13px;
+	letter-spacing: 0.06em;
+}
+
+.blog_post_link a:hover {
+	color: #8d4fff;
+}
+
+/* Sidebar — miniatures Latest posts */
+.latest_post_image {
+	overflow: hidden;
+	border-radius: 10px;
+}
+
+.latest_post_image img,
+.latest_post_image a img {
+	width: 88px !important;
+	height: 88px !important;
+	object-fit: cover;
+	display: block;
+}
+
+.sidebar_title {
+	color: #361354;
+}

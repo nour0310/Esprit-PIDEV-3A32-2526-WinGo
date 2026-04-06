@@ -1,0 +1,21 @@
+parameters:
+    images_directory: '%kernel.project_dir%/public/images'
+
+services:
+    _defaults:
+        autowire: true
+        autoconfigure: true
+
+    Symfony\Component\Finder\Finder:
+        class: Symfony\Component\Finder\Finder
+
+    App\Command\GenerateRepositoriesCommand:
+        arguments:
+            $finder: '@Symfony\Component\Finder\Finder'
+
+    App\:
+        resource: '../src/'
+        exclude:
+            - '../src/DependencyInjection/'
+            - '../src/Entity/'
+            - '../src/Kernel.php'
