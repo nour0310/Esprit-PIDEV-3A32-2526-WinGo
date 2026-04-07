@@ -9,41 +9,44 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
+use App\Form\DevenirCommercantType;
+
 
 final class CommercantController extends AbstractController
 {
-    #[IsGranted('ROLE_USER')]
-    #[Route('/devenir-commercant', name: 'devenir_commercant')]
-    public function devenirCommercant(
-        Request $request,
-        EntityManagerInterface $em
-    ): Response {
-        /** @var \App\Entity\Utilisateur $user */
-        $user = $this->getUser();
+   #[IsGranted('ROLE_USER')]
+#[Route('/devenir-commercant', name: 'devenir_commercant')]
+public function devenirCommercant(
+    Request $request,
+    EntityManagerInterface $em
+): Response {
+    /** @var \App\Entity\Utilisateur|null $user */
+    $user = $this->getUser();
 
-        if ($request->isMethod('POST')) {
-            $user->setNom(trim($request->request->get('nom', $user->getNom())));
-            $user->setPrenom(trim($request->request->get('prenom', $user->getPrenom())));
-            $user->setEmail(trim($request->request->get('email', $user->getEmail())));
+    if (!$user) {
+        throw $this->createAccessDeniedException('Vous devez être connecté.');
+    }
 
-            $telephone = $request->request->get('telephone');
-            $user->setTelephone($telephone !== null && $telephone !== '' ? (int)$telephone : null);
+    $form = $this->createForm(DevenirCommercantType::class, $user);
+    $form->handleRequest($request);
 
-            if (strtoupper($user->getType() ?? '') !== 'COMMERCANT') {
-                $user->setType('EN_ATTENTE_COMMERCANT');
-            }
-
-            $em->flush();
-
-            $this->addFlash('success', 'Votre demande a été envoyée à l’administrateur.');
-
-            return $this->redirectToRoute('devenir_commercant');
+    if ($form->isSubmitted() && $form->isValid()) {
+        if (strtoupper((string) ($user->getType() ?? '')) !== 'COMMERCANT') {
+            $user->setType('EN_ATTENTE_COMMERCANT');
         }
 
-        return $this->render('commercant/devenir.html.twig', [
-            'userData' => $user,
-        ]);
+        $em->flush();
+
+        $this->addFlash('success', 'Votre demande a été envoyée à l’administrateur.');
+
+        return $this->redirectToRoute('devenir_commercant');
     }
+
+    return $this->render('commercant/devenir.html.twig', [
+        'form' => $form->createView(),
+        'userData' => $user,
+    ]);
+}
 
    #[IsGranted('ROLE_ADMIN')]
 #[Route('/admin/demandes-commercant', name: 'admin_demandes_commercant')]

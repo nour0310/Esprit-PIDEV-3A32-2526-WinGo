@@ -506,8 +506,7 @@
                 </div>
 
                 <p class="products_hero_text">
-                    Bonjour, <strong>{{ app.user.fullName }}</strong>. Le bouton détail apparaît seulement au survol.
-                </p>
+                Bonjour, <strong>{{ app.user ? app.user.fullName : 'visiteur' }}</strong>. Le bouton détail apparaît seulement au survol.                </p>
 
                 <div class="products_top_stats">
                     <div class="wow_stat_card">
