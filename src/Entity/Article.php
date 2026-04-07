@@ -33,7 +33,7 @@ class Article
     private ?\DateTimeInterface $datePublication = null;
 
     #[ORM\ManyToOne(targetEntity: Utilisateur::class, inversedBy: 'articles')]
-    #[ORM\JoinColumn(name: 'auteur', referencedColumnName: 'id')]
+    #[ORM\JoinColumn(name: 'auteur', referencedColumnName: 'id', onDelete: 'SET NULL')]
     private ?Utilisateur $auteur = null;
 
     #[ORM\Column(type: 'string', length: 255, nullable: true)]

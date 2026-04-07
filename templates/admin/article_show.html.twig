@@ -31,7 +31,7 @@
             <div style="flex: 1;">
                 <div style="background: #f9f9fc; padding: 20px; border-radius: 10px; border: 1px solid #eee;">
                     <h3 style="margin-top: 0;">Image à la une</h3>
-                    <img src="{{ path('app_article_image', {id: article.id}) }}" alt="Image" style="width: 100%; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
+                    <img src="{{ article.image ? asset('uploads/articles/' ~ article.image) : asset('images/placeholder.svg') }}" onerror="this.src='{{ asset('images/placeholder.svg') }}'" alt="Image" style="width: 100%; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
                 </div>
                 
                 <div style="background: #f9f9fc; padding: 20px; border-radius: 10px; border: 1px solid #eee; margin-top: 20px;">
