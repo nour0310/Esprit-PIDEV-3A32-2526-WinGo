@@ -524,7 +524,7 @@
 
                     <div class="wow_stat_card">
                         <div class="products_stat_icon"><i class="fa fa-calendar"></i></div>
-                        <div class="products_stat_num">{{ selectedSort == 'recent' ? 'Récent' : 'Liste' }}</div>
+                        <div class="products_stat_num">{{ (selectedSort|default('')) == 'recent' ? 'Récent' : 'Liste' }}</div>
                         <div class="products_stat_label">Tri actif</div>
                     </div>
                 </div>
@@ -581,12 +581,12 @@
                         <label for="categorie">Catégorie</label>
                         <select id="categorie" name="categorie">
                             <option value="">Toutes les catégories</option>
-                            <option value="Artisanat" {{ selectedCategorie == 'Artisanat' ? 'selected' : '' }}>Artisanat</option>
-                            <option value="Gastronomie" {{ selectedCategorie == 'Gastronomie' ? 'selected' : '' }}>Gastronomie</option>
-                            <option value="Textile" {{ selectedCategorie == 'Textile' ? 'selected' : '' }}>Textile</option>
-                            <option value="Bijoux" {{ selectedCategorie == 'Bijoux' ? 'selected' : '' }}>Bijoux</option>
-                            <option value="Art" {{ selectedCategorie == 'Art' ? 'selected' : '' }}>Art</option>
-                            <option value="Souvenirs" {{ selectedCategorie == 'Souvenirs' ? 'selected' : '' }}>Souvenirs</option>
+                            <option value="Artisanat" {{ (selectedCategorie|default('')) == 'Artisanat' ? 'selected' : '' }}>Artisanat</option>
+                            <option value="Gastronomie" {{ (selectedCategorie|default('')) == 'Gastronomie' ? 'selected' : '' }}>Gastronomie</option>
+                            <option value="Textile" {{ (selectedCategorie|default('')) == 'Textile' ? 'selected' : '' }}>Textile</option>
+                            <option value="Bijoux" {{ (selectedCategorie|default('')) == 'Bijoux' ? 'selected' : '' }}>Bijoux</option>
+                            <option value="Art" {{ (selectedCategorie|default('')) == 'Art' ? 'selected' : '' }}>Art</option>
+                            <option value="Souvenirs" {{ (selectedCategorie|default('')) == 'Souvenirs' ? 'selected' : '' }}>Souvenirs</option>
                         </select>
                     </div>
 
@@ -594,30 +594,30 @@
                         <label for="region">Région</label>
                         <select id="region" name="region">
                             <option value="">Toutes les régions</option>
-                            <option value="Tunis" {{ selectedRegion == 'Tunis' ? 'selected' : '' }}>Tunis</option>
-                            <option value="Ariana" {{ selectedRegion == 'Ariana' ? 'selected' : '' }}>Ariana</option>
-                            <option value="Ben Arous" {{ selectedRegion == 'Ben Arous' ? 'selected' : '' }}>Ben Arous</option>
-                            <option value="Manouba" {{ selectedRegion == 'Manouba' ? 'selected' : '' }}>Manouba</option>
-                            <option value="Nabeul" {{ selectedRegion == 'Nabeul' ? 'selected' : '' }}>Nabeul</option>
-                            <option value="Zaghouan" {{ selectedRegion == 'Zaghouan' ? 'selected' : '' }}>Zaghouan</option>
-                            <option value="Bizerte" {{ selectedRegion == 'Bizerte' ? 'selected' : '' }}>Bizerte</option>
-                            <option value="Béja" {{ selectedRegion == 'Béja' ? 'selected' : '' }}>Béja</option>
-                            <option value="Jendouba" {{ selectedRegion == 'Jendouba' ? 'selected' : '' }}>Jendouba</option>
-                            <option value="Le Kef" {{ selectedRegion == 'Le Kef' ? 'selected' : '' }}>Le Kef</option>
-                            <option value="Siliana" {{ selectedRegion == 'Siliana' ? 'selected' : '' }}>Siliana</option>
-                            <option value="Sousse" {{ selectedRegion == 'Sousse' ? 'selected' : '' }}>Sousse</option>
-                            <option value="Monastir" {{ selectedRegion == 'Monastir' ? 'selected' : '' }}>Monastir</option>
-                            <option value="Mahdia" {{ selectedRegion == 'Mahdia' ? 'selected' : '' }}>Mahdia</option>
-                            <option value="Sfax" {{ selectedRegion == 'Sfax' ? 'selected' : '' }}>Sfax</option>
-                            <option value="Kairouan" {{ selectedRegion == 'Kairouan' ? 'selected' : '' }}>Kairouan</option>
-                            <option value="Kasserine" {{ selectedRegion == 'Kasserine' ? 'selected' : '' }}>Kasserine</option>
-                            <option value="Sidi Bouzid" {{ selectedRegion == 'Sidi Bouzid' ? 'selected' : '' }}>Sidi Bouzid</option>
-                            <option value="Gabès" {{ selectedRegion == 'Gabès' ? 'selected' : '' }}>Gabès</option>
-                            <option value="Médenine" {{ selectedRegion == 'Médenine' ? 'selected' : '' }}>Médenine</option>
-                            <option value="Tataouine" {{ selectedRegion == 'Tataouine' ? 'selected' : '' }}>Tataouine</option>
-                            <option value="Gafsa" {{ selectedRegion == 'Gafsa' ? 'selected' : '' }}>Gafsa</option>
-                            <option value="Tozeur" {{ selectedRegion == 'Tozeur' ? 'selected' : '' }}>Tozeur</option>
-                            <option value="Kébili" {{ selectedRegion == 'Kébili' ? 'selected' : '' }}>Kébili</option>
+                            <option value="Tunis" {{ (selectedRegion|default('')) == 'Tunis' ? 'selected' : '' }}>Tunis</option>
+                            <option value="Ariana" {{ (selectedRegion|default('')) == 'Ariana' ? 'selected' : '' }}>Ariana</option>
+                            <option value="Ben Arous" {{ (selectedRegion|default('')) == 'Ben Arous' ? 'selected' : '' }}>Ben Arous</option>
+                            <option value="Manouba" {{ (selectedRegion|default('')) == 'Manouba' ? 'selected' : '' }}>Manouba</option>
+                            <option value="Nabeul" {{ (selectedRegion|default('')) == 'Nabeul' ? 'selected' : '' }}>Nabeul</option>
+                            <option value="Zaghouan" {{ (selectedRegion|default('')) == 'Zaghouan' ? 'selected' : '' }}>Zaghouan</option>
+                            <option value="Bizerte" {{ (selectedRegion|default('')) == 'Bizerte' ? 'selected' : '' }}>Bizerte</option>
+                            <option value="Béja" {{ (selectedRegion|default('')) == 'Béja' ? 'selected' : '' }}>Béja</option>
+                            <option value="Jendouba" {{ (selectedRegion|default('')) == 'Jendouba' ? 'selected' : '' }}>Jendouba</option>
+                            <option value="Le Kef" {{ (selectedRegion|default('')) == 'Le Kef' ? 'selected' : '' }}>Le Kef</option>
+                            <option value="Siliana" {{ (selectedRegion|default('')) == 'Siliana' ? 'selected' : '' }}>Siliana</option>
+                            <option value="Sousse" {{ (selectedRegion|default('')) == 'Sousse' ? 'selected' : '' }}>Sousse</option>
+                            <option value="Monastir" {{ (selectedRegion|default('')) == 'Monastir' ? 'selected' : '' }}>Monastir</option>
+                            <option value="Mahdia" {{ (selectedRegion|default('')) == 'Mahdia' ? 'selected' : '' }}>Mahdia</option>
+                            <option value="Sfax" {{ (selectedRegion|default('')) == 'Sfax' ? 'selected' : '' }}>Sfax</option>
+                            <option value="Kairouan" {{ (selectedRegion|default('')) == 'Kairouan' ? 'selected' : '' }}>Kairouan</option>
+                            <option value="Kasserine" {{ (selectedRegion|default('')) == 'Kasserine' ? 'selected' : '' }}>Kasserine</option>
+                            <option value="Sidi Bouzid" {{ (selectedRegion|default('')) == 'Sidi Bouzid' ? 'selected' : '' }}>Sidi Bouzid</option>
+                            <option value="Gabès" {{ (selectedRegion|default('')) == 'Gabès' ? 'selected' : '' }}>Gabès</option>
+                            <option value="Médenine" {{ (selectedRegion|default('')) == 'Médenine' ? 'selected' : '' }}>Médenine</option>
+                            <option value="Tataouine" {{ (selectedRegion|default('')) == 'Tataouine' ? 'selected' : '' }}>Tataouine</option>
+                            <option value="Gafsa" {{ (selectedRegion|default('')) == 'Gafsa' ? 'selected' : '' }}>Gafsa</option>
+                            <option value="Tozeur" {{ (selectedRegion|default('')) == 'Tozeur' ? 'selected' : '' }}>Tozeur</option>
+                            <option value="Kébili" {{ (selectedRegion|default('')) == 'Kébili' ? 'selected' : '' }}>Kébili</option>
                         </select>
                     </div>
 
@@ -625,8 +625,8 @@
                         <label for="sort">Tri</label>
                         <select id="sort" name="sort">
                             <option value="">Par défaut</option>
-                            <option value="recent" {{ selectedSort == 'recent' ? 'selected' : '' }}>Date ajout récente</option>
-                            <option value="ancien" {{ selectedSort == 'ancien' ? 'selected' : '' }}>Date ajout ancienne</option>
+                            <option value="recent" {{ (selectedSort|default('')) == 'recent' ? 'selected' : '' }}>Date ajout récente</option>
+                            <option value="ancien" {{ (selectedSort|default('')) == 'ancien' ? 'selected' : '' }}>Date ajout ancienne</option>
                         </select>
                     </div>
 

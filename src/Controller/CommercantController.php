@@ -70,11 +70,7 @@ public function adminDemandes(UtilisateurRepository $repo): Response
 
     #[IsGranted('ROLE_ADMIN')]
     #[Route('/admin/demande-commercant/accepter/{id}', name: 'admin_demande_commercant_accepter', methods: ['POST'])]
-    public function accepter(
-        int $id,
-        UtilisateurRepository $repo,
-        EntityManagerInterface $em
-    ): Response {
+    public function accepter(int $id,UtilisateurRepository $repo,EntityManagerInterface $em): Response {
         $user = $repo->find($id);
 
         if (!$user) {
@@ -92,11 +88,7 @@ public function adminDemandes(UtilisateurRepository $repo): Response
                  
     #[IsGranted('ROLE_ADMIN')]
     #[Route('/admin/demande-commercant/refuser/{id}', name: 'admin_demande_commercant_refuser', methods: ['POST'])]
-    public function refuser(
-        int $id,
-        UtilisateurRepository $repo,
-        EntityManagerInterface $em
-    ): Response {
+    public function refuser(int $id,UtilisateurRepository $repo,EntityManagerInterface $em ): Response {
         $user = $repo->find($id);
 
         if (!$user) {
