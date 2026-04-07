@@ -1,0 +1,281 @@
+{% extends 'admin/base_admin.html.twig' %}
+
+{% block title %}
+    {% if mode == 'list' %}Participations — {{ event.title }} · WinGo Admin
+    {% elseif mode == 'new' %}Nouvelle participation — {{ event.title }}
+    {% elseif mode == 'edit' %}Modifier la participation
+    {% else %}Détails de la participation{% endif %}
+{% endblock %}
+
+{% block page_title %}
+    {% if mode == 'list' %}Participations : {{ event.title }}
+    {% elseif mode == 'new' %}Nouvelle participation — {{ event.title }}
+    {% elseif mode == 'edit' %}Modifier la participation
+    {% else %}Détails de la participation{% endif %}
+{% endblock %}
+
+{% block topbar_actions %}
+    {% if mode == 'list' %}
+        <a href="{{ path('participation_new', {id_event: event.id_event}) }}" class="topbar_btn"><i class="fa fa-plus"></i> Ajouter</a>
+        <a href="{{ path('event_index') }}" class="topbar_btn" style="background:#6c757d;"><i class="fa fa-arrow-left"></i> Événements</a>
+    {% else %}
+        <a href="{{ path('participation_index', {id_event: event.id_event}) }}" class="topbar_btn" style="background:#6c757d;"><i class="fa fa-arrow-left"></i> Retour à la liste</a>
+    {% endif %}
+{% endblock %}
+
+{% block stylesheets %}
+<style>
+    .pt_form_card { background:#fff; border-radius:14px; box-shadow:0 2px 12px rgba(0,0,0,0.06); overflow:hidden; max-width:800px; }
+    .pt_form_head { background:linear-gradient(135deg,#31124b,#5a1a8a); padding:26px 32px; }
+    .pt_form_head h2 { font-size:20px; color:#fff; font-weight:700; margin:0 0 3px; }
+    .pt_form_head p  { font-size:13px; color:rgba(255,255,255,0.55); margin:0; }
+    .pt_form_body { padding:28px 32px 34px; }
+    .fg  { margin-bottom:16px; }
+    .fg label { display:block; font-size:11px; font-weight:700; letter-spacing:0.8px; text-transform:uppercase; color:#31124b; margin-bottom:6px; }
+    .fg input, .fg select, .fg textarea {
+        width:100%; border:2px solid #eee; border-radius:10px; padding:10px 14px;
+        font-size:14px; color:#1a1a2e; outline:none; background:#fafafa; transition:border-color 200ms;
+        font-family:'Segoe UI',sans-serif;
+    }
+    .fg input:focus, .fg select:focus, .fg textarea:focus { border-color:#fa9e1b; background:#fff; }
+    .fg_row { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+    .btn_save   { display:inline-flex; align-items:center; gap:8px; height:44px; padding:0 26px; background:linear-gradient(135deg,#fa9e1b,#8d4fff); color:#fff; border:none; border-radius:10px; font-size:14px; font-weight:700; cursor:pointer; text-decoration:none; transition:opacity 200ms; }
+    .btn_save:hover { opacity:0.88; color:#fff; }
+    .btn_cancel { display:inline-flex; align-items:center; gap:8px; height:44px; padding:0 22px; background:#f0f2f5; color:#444; border:none; border-radius:10px; font-size:14px; font-weight:600; cursor:pointer; text-decoration:none; }
+    .btn_cancel:hover { background:#e0e3e8; color:#1a1a2e; }
+
+    .ev_info_banner { background:linear-gradient(135deg,#31124b,#5a1a8a); border-radius:12px; padding:20px 24px; margin-bottom:24px; display:flex; align-items:center; gap:16px; }
+    .ev_info_banner .ev_icon { width:48px; height:48px; border-radius:10px; background:linear-gradient(135deg,#fa9e1b,#8d4fff); display:flex; align-items:center; justify-content:center; font-size:20px; color:#fff; flex-shrink:0; }
+    .ev_info_banner .ev_title { font-size:16px; font-weight:700; color:#fff; margin-bottom:2px; }
+    .ev_info_banner .ev_sub   { font-size:12px; color:rgba(255,255,255,0.55); }
+    .ev_info_banner .ev_badge { margin-left:auto; background:rgba(255,255,255,0.15); color:#fff; font-size:12px; padding:5px 14px; border-radius:20px; white-space:nowrap; }
+
+    .pt_error { background:#ffebee; border-left:4px solid #f44336; color:#c62828; padding:14px 18px; border-radius:8px; margin-bottom:20px; }
+
+    .pt_show_card { background:#fff; border-radius:14px; box-shadow:0 2px 12px rgba(0,0,0,0.06); overflow:hidden; max-width:700px; }
+    .pt_show_head { background:linear-gradient(135deg,#31124b,#5a1a8a); padding:24px 28px; }
+    .pt_show_head h2 { font-size:18px; color:#fff; font-weight:700; margin:0 0 3px; }
+    .pt_show_head p  { font-size:13px; color:rgba(255,255,255,0.5); margin:0; }
+    .pt_show_body { padding:24px 28px; }
+    .pt_detail_grid { display:grid; grid-template-columns:1fr 1fr; gap:16px 28px; margin-bottom:20px; }
+    .pt_detail_item label { font-size:10px; font-weight:700; letter-spacing:1px; text-transform:uppercase; color:#aaa; display:block; margin-bottom:3px; }
+    .pt_detail_item .val  { font-size:14px; color:#1a1a2e; font-weight:600; }
+    .badge_statut { padding:3px 12px; border-radius:20px; font-size:11px; font-weight:700; }
+    .badge_pending   { background:#fff8e1; color:#f57f17; }
+    .badge_confirmed { background:#e8f5e9; color:#2e7d32; }
+    .badge_cancelled { background:#ffebee; color:#c62828; }
+
+    .btn_tbl { display:inline-flex; align-items:center; gap:4px; height:30px; padding:0 12px; border-radius:7px; font-size:12px; font-weight:600; text-decoration:none; border:none; cursor:pointer; transition:opacity 150ms; }
+    .btn_tbl:hover { opacity:0.8; }
+    .btn_v { background:#e3f2fd; color:#1565c0; }
+    .btn_e { background:#fff8e1; color:#f57f17; }
+    .btn_d { background:#ffebee; color:#c62828; }
+    
+    .adm_table { width:100%; border-collapse: collapse; }
+    .adm_table th { background:#f8f9fa; padding:12px 16px; text-align:left; font-size:12px; text-transform:uppercase; letter-spacing:0.5px; color:#888; font-weight:600; }
+    .adm_table td { padding:12px 16px; border-bottom:1px solid #f0f0f0; font-size:13px; color:#444; }
+    .adm_table tr:last-child td { border-bottom:none; }
+    .adm_table tr:hover td { background:#fafbff; }
+</style>
+{% endblock %}
+
+{% block content %}
+
+{# ═══════════════════════════ LIST MODE ═══════════════════════════ #}
+{% if mode == 'list' %}
+
+    <div class="ev_info_banner">
+        <div class="ev_icon"><i class="fa fa-calendar"></i></div>
+        <div>
+            <div class="ev_title">{{ event.title }}</div>
+            <div class="ev_sub">{{ event.date_event|date('d M Y') }} · {{ event.location }}</div>
+        </div>
+        <span class="ev_badge"><i class="fa fa-users"></i> {{ participations|length }} participant(s)</span>
+    </div>
+
+    <div class="data_card">
+        <div class="data_card_header">
+            <div class="data_card_title"><i class="fa fa-users" style="color:#fa9e1b"></i> Participations</div>
+            <a href="{{ path('participation_new', {id_event: event.id_event}) }}" class="topbar_btn" style="height:34px; font-size:12px;"><i class="fa fa-plus"></i> Ajouter</a>
+        </div>
+        {% if participations is empty %}
+            <div style="text-align:center; padding:50px 30px; color:#aaa;">
+                <i class="fa fa-inbox" style="font-size:40px; margin-bottom:14px; display:block; opacity:0.3;"></i>
+                <p>Aucune participation pour cet événement.</p>
+                <a href="{{ path('participation_new', {id_event: event.id_event}) }}" class="btn_save" style="display:inline-flex; margin-top:10px;"><i class="fa fa-plus"></i> Ajouter la première</a>
+            </div>
+        {% else %}
+            <table class="adm_table">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Participant</th>
+                        <th>Email</th>
+                        <th>Téléphone</th>
+                        <th>Places</th>
+                        <th>Date</th>
+                        <th>Statut</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for p in participations %}
+                    <tr>
+                        <td style="color:#aaa;">{{ p.id_participation }}</td>
+                        <td><strong>{{ p.prenom_participant }} {{ p.nom_participant }}</strong></td>
+                        <td>{{ p.email_participant }}</td>
+                        <td>{{ p.telephone }}</td>
+                        <td><strong>{{ p.nombre_places }}</strong></td>
+                        <td>{{ p.date_participation|date('d/m/Y') }}</td>
+                        <td>
+                            <span class="badge_statut badge_{{ p.statut|lower == 'confirmed' ? 'confirmed' : (p.statut|lower == 'cancelled' ? 'cancelled' : 'pending') }}">
+                                {{ p.statut }}
+                            </span>
+                        </td>
+                        <td>
+                            <div style="display:flex; gap:6px;">
+                                <a href="{{ path('participation_show', {id_event: event.id_event, id_participation: p.id_participation}) }}" class="btn_tbl btn_v"><i class="fa fa-eye"></i></a>
+                                <a href="{{ path('participation_edit', {id_event: event.id_event, id_participation: p.id_participation}) }}" class="btn_tbl btn_e"><i class="fa fa-edit"></i></a>
+                                <a href="{{ path('participation_delete', {id_event: event.id_event, id_participation: p.id_participation}) }}" class="btn_tbl btn_d"
+                                   onclick="return confirm('Supprimer cette participation ?')"><i class="fa fa-trash"></i></a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% endif %}
+    </div>
+
+{# ═══════════════════════════ NEW / EDIT MODE ═══════════════════════════ #}
+{% elseif mode == 'new' or mode == 'edit' %}
+
+    {% if error is defined and error %}
+        <div class="pt_error"><i class="fa fa-exclamation-triangle"></i> {{ error }}</div>
+    {% endif %}
+
+    <div class="ev_info_banner">
+        <div class="ev_icon"><i class="fa fa-calendar"></i></div>
+        <div>
+            <div class="ev_title">{{ event.title }}</div>
+            <div class="ev_sub">{{ event.date_event|date('d M Y') }} · {{ event.available_places }} places restantes</div>
+        </div>
+    </div>
+
+    <div class="pt_form_card">
+        <div class="pt_form_head">
+            <h2>{{ mode == 'new' ? 'Nouvelle participation' : 'Modifier la participation' }}</h2>
+            <p>{{ mode == 'new' ? 'Enregistrez manuellement un participant.' : 'Mettez à jour les informations.' }}</p>
+        </div>
+        <div class="pt_form_body">
+            <form method="post">
+                <div class="fg_row">
+                    <div class="fg">
+                        <label>Prénom</label>
+                        <input type="text" name="prenom_participant" value="{{ mode == 'edit' ? participation.prenom_participant : '' }}" placeholder="Prénom" required>
+                    </div>
+                    <div class="fg">
+                        <label>Nom</label>
+                        <input type="text" name="nom_participant" value="{{ mode == 'edit' ? participation.nom_participant : '' }}" placeholder="Nom" required>
+                    </div>
+                </div>
+
+                <div class="fg_row">
+                    <div class="fg">
+                        <label>Email</label>
+                        <input type="email" name="email_participant" value="{{ mode == 'edit' ? participation.email_participant : '' }}" placeholder="email@exemple.com" required>
+                    </div>
+                    <div class="fg">
+                        <label>Téléphone</label>
+                        <input type="tel" name="telephone" value="{{ mode == 'edit' ? participation.telephone : '' }}" placeholder="+216 XX XXX XXX" required>
+                    </div>
+                </div>
+
+                <div class="fg_row">
+                    <div class="fg">
+                        <label>Nombre de places</label>
+                        <input type="number" name="nombre_places" min="1" max="{{ event.available_places + (mode == 'edit' ? participation.nombre_places : 0) }}" value="{{ mode == 'edit' ? participation.nombre_places : '1' }}" required>
+                        <small style="font-size:11px; color:#888;">Maximum disponible: {{ event.available_places + (mode == 'edit' ? participation.nombre_places : 0) }}</small>
+                    </div>
+                    <div class="fg">
+                        <label>Statut</label>
+                        <select name="statut" required>
+                            <option value="pending" {{ mode == 'edit' and participation.statut == 'pending' ? 'selected' : '' }}>En attente</option>
+                            <option value="confirmed" {{ mode == 'edit' and participation.statut == 'confirmed' ? 'selected' : '' }}>Confirmé</option>
+                            <option value="cancelled" {{ mode == 'edit' and participation.statut == 'cancelled' ? 'selected' : '' }}>Annulé</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="fg">
+                    <label>Commentaire (optionnel)</label>
+                    <textarea name="commentaire" placeholder="Informations supplémentaires..." rows="3">{{ mode == 'edit' ? participation.commentaire : '' }}</textarea>
+                </div>
+
+                <div style="display:flex; gap:12px; margin-top:8px;">
+                    <button type="submit" class="btn_save"><i class="fa fa-save"></i> {{ mode == 'new' ? 'Enregistrer la participation' : 'Enregistrer les modifications' }}</button>
+                    <a href="{{ path('participation_index', {id_event: event.id_event}) }}" class="btn_cancel"><i class="fa fa-times"></i> Annuler</a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+{# ═══════════════════════════ SHOW MODE ═══════════════════════════ #}
+{% elseif mode == 'show' %}
+
+    <div class="pt_show_card">
+        <div class="pt_show_head">
+            <h2>{{ participation.prenom_participant }} {{ participation.nom_participant }}</h2>
+            <p>Participation #{{ participation.id_participation }} · {{ event.title }}</p>
+        </div>
+        <div class="pt_show_body">
+            <div class="pt_detail_grid">
+                <div class="pt_detail_item">
+                    <label>Email</label>
+                    <div class="val">{{ participation.email_participant }}</div>
+                </div>
+                <div class="pt_detail_item">
+                    <label>Téléphone</label>
+                    <div class="val">{{ participation.telephone }}</div>
+                </div>
+                <div class="pt_detail_item">
+                    <label>Nombre de places</label>
+                    <div class="val">{{ participation.nombre_places }}</div>
+                </div>
+                <div class="pt_detail_item">
+                    <label>Date de participation</label>
+                    <div class="val">{{ participation.date_participation|date('d/m/Y à H:i') }}</div>
+                </div>
+                <div class="pt_detail_item">
+                    <label>Statut</label>
+                    <div class="val">
+                        <span class="badge_statut badge_{{ participation.statut|lower == 'confirmed' ? 'confirmed' : (participation.statut|lower == 'cancelled' ? 'cancelled' : 'pending') }}">
+                            {{ participation.statut }}
+                        </span>
+                    </div>
+                </div>
+                <div class="pt_detail_item">
+                    <label>Événement</label>
+                    <div class="val">{{ event.title }}<br>
+                        <small style="color:#888;">{{ event.date_event|date('d/m/Y') }} · {{ event.location }}</small>
+                    </div>
+                </div>
+            </div>
+
+            {% if participation.commentaire %}
+            <div class="ev_desc_box" style="margin-top:10px;">
+                <strong style="display:block; margin-bottom:8px; font-size:11px; text-transform:uppercase; color:#31124b;">Commentaire</strong>
+                {{ participation.commentaire }}
+            </div>
+            {% endif %}
+
+            <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:20px;">
+                <a href="{{ path('participation_edit', {id_event: event.id_event, id_participation: participation.id_participation}) }}" class="btn_save"><i class="fa fa-edit"></i> Modifier</a>
+                <a href="{{ path('participation_index', {id_event: event.id_event}) }}" class="btn_cancel"><i class="fa fa-arrow-left"></i> Retour à la liste</a>
+            </div>
+        </div>
+    </div>
+
+{% endif %}
+
+{% endblock %}

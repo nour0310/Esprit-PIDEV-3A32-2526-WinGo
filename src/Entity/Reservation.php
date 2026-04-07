@@ -2,39 +2,93 @@
 
 namespace App\Entity;
 
-use App\Repository\ReservationRepository;
 use Doctrine\ORM\Mapping as ORM;
 
-#[ORM\Entity(repositoryClass: ReservationRepository::class)]
-#[ORM\Table(name: 'reservation')]
+use App\Entity\Utilisateur;
+
+#[ORM\Entity]
 class Reservation
 {
+
     #[ORM\Id]
     #[ORM\GeneratedValue]
-    #[ORM\Column(type: 'integer')]
-    private ?int $id = null;
+    #[ORM\Column(type: "integer")]
+    private ?int $id=null;
 
-    #[ORM\Column(name: 'user', type: 'string', length: 250)]
-    private string $user = '';
+    #[ORM\Column(type: "string", length: 250)]
+    private string $user;
 
-    #[ORM\Column(type: 'string', length: 250)]
-    private string $exp = '';
+    #[ORM\Column(type: "string", length: 250)]
+    private string $exp;
 
-    #[ORM\Column(type: 'string', length: 250)]
-    private string $statut = '';
+    #[ORM\Column(type: "string", length: 250)]
+    private string $statut;
 
-    #[ORM\Column(type: 'datetime')]
+    #[ORM\Column(type: "datetime")]
     private \DateTimeInterface $date;
 
-    public function __construct() { $this->date = new \DateTime(); }
+    #[ORM\ManyToOne(targetEntity: Utilisateur::class)]
+    #[ORM\JoinColumn(name: "user_id", referencedColumnName: "id", nullable: true)]
+    private ?Utilisateur $user_id = null; 
+    public function getId()
+    {
+        return $this->id;
+    }
 
-    public function getId(): ?int { return $this->id; }
-    public function getUser(): string { return $this->user; }
-    public function setUser(string $user): static { $this->user = $user; return $this; }
-    public function getExp(): string { return $this->exp; }
-    public function setExp(string $exp): static { $this->exp = $exp; return $this; }
-    public function getStatut(): string { return $this->statut; }
-    public function setStatut(string $statut): static { $this->statut = $statut; return $this; }
-    public function getDate(): \DateTimeInterface { return $this->date; }
-    public function setDate(\DateTimeInterface $date): static { $this->date = $date; return $this; }
+    public function setId($value)
+    {
+        $this->id = $value;
+    }
+
+    public function getUser()
+    {
+        return $this->user;
+    }
+
+    public function setUser($value)
+    {
+        $this->user = $value;
+    }
+
+    public function getExp()
+    {
+        return $this->exp;
+    }
+
+    public function setExp($value)
+    {
+        $this->exp = $value;
+    }
+
+    public function getStatut()
+    {
+        return $this->statut;
+    }
+
+    public function setStatut($value)
+    {
+        $this->statut = $value;
+    }
+
+    public function getDate()
+    {
+        return $this->date;
+    }
+
+    public function setDate($value)
+    {
+        $this->date = $value;
+    }
+
+   public function getUser_id(): ?Utilisateur
+{
+    return $this->user_id;
+}
+
+// The setter now expects a User object
+public function setUser_id(?Utilisateur $user): self
+{
+    $this->user_id = $user;
+    return $this;
+}
 }

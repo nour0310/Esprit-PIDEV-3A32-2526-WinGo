@@ -75,27 +75,32 @@
                             </div>
                         </div>
                         <div class="main_nav_container ml-auto">
-    <ul class="main_nav_list">
-        <li class="main_nav_item {% if app.request.attributes.get('_route') in ['home', 'index_page'] %}active{% endif %}">
-            <a href="{{ path('home') }}">home</a>
-        </li>
-        
-        <li class="main_nav_item {% if app.request.attributes.get('_route') == 'events' %}active{% endif %}">
-            <a href="#">events</a>
-        </li>
-       <li class="main_nav_item"><a href="{{ path('client_produits') }}">Product</a></li>
-        <li class="main_nav_item {% if app.request.attributes.get('_route') == 'reservations' %}active{% endif %}">
-            <a href="#">reservations</a>
-        </li>
-       
-        <li class="main_nav_item {% if app.request.attributes.get('_route') == 'blog' %}active{% endif %}">
-            <a href="{{ path('blog') }}">blogs</a>
-        </li>
-        <li class="main_nav_item {% if app.request.attributes.get('_route') == 'reclamation' %}active{% endif %}">
-            <a href="#">reclamation</a>
-        </li>
-    </ul>
-</div>
+                            <ul class="main_nav_list">
+                                <li class="main_nav_item {% if app.request.attributes.get('_route') in ['home', 'index_page'] %}active{% endif %}">
+                                    <a href="{{ path('home') }}">home</a>
+                                </li>
+                                
+                                <li class="main_nav_item {% if app.request.attributes.get('_route') == 'event_front' %}active{% endif %}">
+                                    <a href="{{ path('event_front') }}">events</a>
+                                </li>
+                                
+                                <li class="main_nav_item {% if app.request.attributes.get('_route') starts with 'client_produits' %}active{% endif %}">
+                                    <a href="{{ path('client_produits') }}">product</a>
+                                </li>
+                                
+                                <li class="main_nav_item {% if app.request.attributes.get('_route') == 'app_front_reservations' %}active{% endif %}">
+                                    <a href="{{ path('app_front_reservations') }}">reservations</a>
+                                </li>
+                               
+                                <li class="main_nav_item {% if app.request.attributes.get('_route') == 'blog' %}active{% endif %}">
+                                    <a href="{{ path('blog') }}">blogs</a>
+                                </li>
+                                
+                                <li class="main_nav_item {% if app.request.attributes.get('_route') == 'reclamation' %}active{% endif %}">
+                                    <a href="#">reclamation</a>
+                                </li>
+                            </ul>
+                        </div>
                         <div class="content_search ml-lg-0 ml-auto">
     <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
     width="17px" height="17px" viewBox="0 0 512 512" enable-background="new 0 0 512 512" xml:space="preserve">
@@ -141,10 +146,11 @@
             <div class="logo menu_logo"><a href="{{ path('home') }}"><img src="{{ asset('images/test.png') }}" alt=""></a></div>
             <ul>
                 <li class="menu_item"><a href="{{ path('home') }}">home</a></li>
-                <li class="menu_item"><a href="{{ path('about') }}">about us</a></li>
-                <li class="menu_item"><a href="{{ path('offers') }}">offers</a></li>
+                <li class="menu_item"><a href="{{ path('event_front') }}">events</a></li>
+                <li class="menu_item"><a href="{{ path('client_produits') }}">product</a></li>
+                <li class="menu_item"><a href="#">reservations</a></li>
                 <li class="menu_item"><a href="{{ path('blog') }}">blogs</a></li>
-                <li class="menu_item"><a href="{{ path('contact') }}">contact</a></li>
+                <li class="menu_item"><a href="#">reclamation</a></li>
             </ul>
         </div>
     </div>

@@ -2,9 +2,18 @@
 
 namespace App\Controller;
 
+use App\Entity\Transport;
+use App\Form\TransportType;
+use App\Entity\Reservation;
+use App\Form\ReservationType;
+use App\Repository\TransportRepository;
+use App\Repository\ReservationRepository;
+use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\HttpFoundation\JsonResponse;
 
 class FrontController extends AbstractController
 {
@@ -14,30 +23,115 @@ class FrontController extends AbstractController
     {
         return $this->render('index.html.twig');
     }
-
-    #[Route('/about', name: 'about')]
-    public function about(): Response
-    {
-        return $this->render('about.html.twig');
-    }
-
-
-
-    #[Route('/contact', name: 'contact')]
+    #[Route('/about', name: 'about')] // <--- Ensure this name is exactly 'about'
+public function about(): Response
+{
+    return $this->render('about.html.twig');
+}
+#[Route('/contact', name: 'contact')]
     public function contact(): Response
     {
         return $this->render('contact.html.twig');
     }
 
+    // --- TRANSPORT SECTION (OFFERST) ---
+
     #[Route('/offers', name: 'offers')]
     public function offers(): Response
     {
-        return $this->render('offers.html.twig');
+        // Redirects to the main list logic below
+        return $this->redirectToRoute('app_front_offers');
     }
 
-    #[Route('/single-listing', name: 'single_listing')]
-    public function singleListing(): Response
+    #[Route('/Reservation/offerst/{id?}', name: 'app_front_offers')]
+    public function offer(TransportRepository $repo, Request $request, EntityManagerInterface $em, $id = null): Response
     {
-        return $this->render('single_listing.html.twig');
+        $searchTerm = $request->query->get('search'); 
+        $sortBy = $request->query->get('sort');      
+        $list = $repo->searchAndSort($searchTerm, $sortBy);
+
+        if ($request->query->get('ajax')) {
+            return $this->render('list.html.twig', ['list' => $list]);
+        }
+
+        if ($id) {
+            $transport = $repo->find($id);
+            if (!$transport) return $this->redirectToRoute('app_front_offers');
+        } else {
+            $transport = new Transport();
+        }
+
+        $form = $this->createForm(TransportType::class, $transport);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $em->persist($transport);
+            $em->flush();
+            $this->addFlash('success', 'Operation réussie !');
+            return $this->redirectToRoute('app_front_offers');
+        }
+
+        return $this->render('Reservation/offerst.html.twig', [
+            'list' => $list,
+            'f' => $form->createView(),
+            'editMode' => (bool)$id,
+            'searchTerm' => $searchTerm,
+            'currentSort' => $sortBy 
+        ]);
+    }
+
+    #[Route('/Reservation/offerst/delete/{id}', name: 'app_front_offers_delete')]
+    public function deleteTransport(Transport $transport, EntityManagerInterface $em): Response
+    {
+        $em->remove($transport);
+        $em->flush();
+        return $this->redirectToRoute('app_front_offers');
+    }
+
+    // --- RESERVATION SECTION (OFFERSR) ---
+
+    #[Route('/Reservation/offersr/{id?}', name: 'app_front_reservations')]
+    public function reservations(ReservationRepository $repo, Request $request, EntityManagerInterface $em, $id = null): Response
+    {
+        $searchTerm = $request->query->get('search'); 
+        $sortBy = $request->query->get('sort');      
+        
+        // Ensure this method exists in ReservationRepository
+        $list = $repo->searchAndSortReservations($searchTerm, $sortBy);
+
+        if ($id) {
+            $reservation = $repo->find($id);
+        } else {
+            $reservation = new Reservation();
+        }
+
+        $form = $this->createForm(ReservationType::class, $reservation);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $em->persist($reservation);
+            $em->flush();
+            return $this->redirectToRoute('app_front_reservations');
+        }
+
+        return $this->render('Reservation/offersr.html.twig', [
+            'list' => $list,
+            'f' => $form->createView(),
+            'editMode' => $reservation->getId() !== null,
+            'searchTerm' => $searchTerm,
+            'currentSort' => $sortBy 
+        ]);
+    }
+
+    #[Route('/autocomplete', name: 'app_front_transport_autocomplete')]
+    public function autocomplete(Request $request, TransportRepository $repo): JsonResponse
+    {
+        $searchTerm = $request->query->get('q');
+        $transports = $repo->searchAndSort($searchTerm, null);
+        $results = [];
+        foreach ($transports as $t) {
+            $results[] = $t->getType() . " to " . $t->getArrivee();
+        }
+        return new JsonResponse(array_unique($results));
     }
 }
