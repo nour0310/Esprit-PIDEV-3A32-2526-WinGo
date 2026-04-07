@@ -19,7 +19,7 @@
             overflow: hidden;
             border-radius: 34px;
             padding: 60px 40px;
-            margin-bottom: 60px;
+            margin-bottom: 35px;
             background: linear-gradient(135deg, rgba(255,255,255,0.88), rgba(255,255,255,0.68));
             backdrop-filter: blur(18px);
             -webkit-backdrop-filter: blur(18px);
@@ -200,6 +200,86 @@
             border: 1px solid rgba(255,255,255,0.55);
         }
 
+        .filters_box {
+            background: #fff;
+            border-radius: 26px;
+            padding: 24px;
+            box-shadow: 0 16px 38px rgba(25, 30, 70, 0.08);
+            margin-bottom: 35px;
+        }
+
+        .filters_title {
+            font-size: 22px;
+            font-weight: 800;
+            color: #1f2235;
+            margin-bottom: 18px;
+        }
+
+        .filters_form {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr) auto;
+            gap: 16px;
+            align-items: end;
+        }
+
+        .filter_group label {
+            display: block;
+            font-size: 13px;
+            font-weight: 700;
+            color: #707791;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.4px;
+        }
+
+        .filter_group input,
+        .filter_group select {
+            width: 100%;
+            height: 50px;
+            border: 1px solid #e3e7f0;
+            border-radius: 14px;
+            padding: 0 16px;
+            background: #f9fbff;
+            font-size: 14px;
+            color: #1f2235;
+            outline: none;
+        }
+
+        .filter_group input:focus,
+        .filter_group select:focus {
+            border-color: #8d4fff;
+        }
+
+        .filter_actions {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .filter_btn,
+        .reset_btn {
+            height: 50px;
+            padding: 0 20px;
+            border: none;
+            border-radius: 14px;
+            font-size: 14px;
+            font-weight: 800;
+            text-decoration: none !important;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .filter_btn {
+            color: #fff;
+            background: linear-gradient(135deg, #fa9e1b, #8d4fff);
+        }
+
+        .reset_btn {
+            color: #5f6785 !important;
+            background: #eef2f8;
+        }
+
         .products_grid {
             margin-top: 10px;
         }
@@ -311,6 +391,13 @@
             font-weight: 600;
         }
 
+        .product-card-date {
+            color: #9398ac;
+            font-size: 13px;
+            font-weight: 600;
+            margin-top: 4px;
+        }
+
         .product-card-overlay {
             position: absolute;
             inset: 0;
@@ -385,6 +472,10 @@
                 min-width: 140px;
             }
 
+            .filters_form {
+                grid-template-columns: 1fr;
+            }
+
             .product-card {
                 height: 420px;
             }
@@ -415,8 +506,7 @@
                 </div>
 
                 <p class="products_hero_text">
-                    Bonjour, <strong>{{ app.user.fullName }}</strong>. Le bouton détail apparaît seulement au survol.
-                </p>
+                Bonjour, <strong>{{ app.user ? app.user.fullName : 'visiteur' }}</strong>. Le bouton détail apparaît seulement au survol.                </p>
 
                 <div class="products_top_stats">
                     <div class="wow_stat_card">
@@ -432,49 +522,126 @@
                     </div>
 
                     <div class="wow_stat_card">
-                        <div class="products_stat_icon"><i class="fa fa-star"></i></div>
-                        <div class="products_stat_num">Hover</div>
-                        <div class="products_stat_label">Détail</div>
+                        <div class="products_stat_icon"><i class="fa fa-calendar"></i></div>
+                        <div class="products_stat_num">{{ (selectedSort|default('')) == 'recent' ? 'Récent' : 'Liste' }}</div>
+                        <div class="products_stat_label">Tri actif</div>
                     </div>
                 </div>
 
-           <div class="products_hero_actions">
-    <a href="#products-grid" class="products_hero_btn_main">
-        Voir les produits <i class="fa fa-arrow-right"></i>
-    </a>
+                <div class="products_hero_actions">
+                    <a href="#products-grid" class="products_hero_btn_main">
+                        Voir les produits <i class="fa fa-arrow-right"></i>
+                    </a>
 
-    <a href="{{ path('app_panier') }}" class="products_hero_btn_main" style="background: linear-gradient(135deg, #5d7cf3, #8d4fff);">
-        Voir panier <i class="fa fa-shopping-cart"></i>
-    </a>
+                    <a href="{{ path('app_panier') }}" class="products_hero_btn_main" style="background: linear-gradient(135deg, #5d7cf3, #8d4fff);">
+                        Voir panier <i class="fa fa-shopping-cart"></i>
+                    </a>
 
-    {% if app.user.type == 'COMMERCANT' %}
-        <a href="{{ path('produit_add') }}" class="products_hero_btn_main" style="background: linear-gradient(135deg, #ff9800, #ff5e62);">
-            Ajouter produit <i class="fa fa-plus"></i>
-        </a>
+                    {% if app.user.type == 'COMMERCANT' %}
+                        <a href="{{ path('produit_add') }}" class="products_hero_btn_main" style="background: linear-gradient(135deg, #ff9800, #ff5e62);">
+                            Ajouter produit <i class="fa fa-plus"></i>
+                        </a>
 
-        <a href="{{ path('merchant_dashboard') }}" class="products_hero_btn_main" style="background: linear-gradient(135deg, #11998e, #38ef7d);">
-            Dashboard commerçant <i class="fa fa-dashboard"></i>
-        </a>
-    {% elseif app.user.type == 'EN_ATTENTE_COMMERCANT' %}
-        <div class="products_hero_note">
-            <i class="fa fa-clock-o"></i> Demande en attente
-        </div>
-    {% else %}
-        <a href="{{ path('devenir_commercant') }}" class="products_hero_btn_main" style="background: linear-gradient(135deg, #16a085, #2ecc71);">
-            Devenir commerçant <i class="fa fa-store"></i>
-        </a>
-    {% endif %}
+                        <a href="{{ path('merchant_dashboard') }}" class="products_hero_btn_main" style="background: linear-gradient(135deg, #11998e, #38ef7d);">
+                            Dashboard commerçant <i class="fa fa-dashboard"></i>
+                        </a>
+                    {% elseif app.user.type == 'EN_ATTENTE_COMMERCANT' %}
+                        <div class="products_hero_note">
+                            <i class="fa fa-clock-o"></i> Demande en attente
+                        </div>
+                    {% else %}
+                        <a href="{{ path('devenir_commercant') }}" class="products_hero_btn_main" style="background: linear-gradient(135deg, #16a085, #2ecc71);">
+                            Devenir commerçant <i class="fa fa-briefcase"></i>
+                        </a>
+                    {% endif %}
 
-    <div class="products_hero_note">
-        <i class="fa fa-diamond"></i> Espace client
-    </div>
-</div>
+                    <div class="products_hero_note">
+                        <i class="fa fa-diamond"></i> Espace client
+                    </div>
+                </div>
             </div>
+
+            <div class="filters_box">
+                <h2 class="filters_title">Recherche, filtres et tri des produits</h2>
+
+                <form method="get" action="{{ path('client_produits') }}" class="filters_form">
+                    <div class="filter_group">
+                        <label for="q">Recherche</label>
+                        <input
+                            type="text"
+                            id="q"
+                            name="q"
+                            placeholder="Nom du produit..."
+                            value="{{ searchTerm|default('') }}"
+                        >
+                    </div>
+
+                    <div class="filter_group">
+                        <label for="categorie">Catégorie</label>
+                        <select id="categorie" name="categorie">
+                            <option value="">Toutes les catégories</option>
+                            <option value="Artisanat" {{ (selectedCategorie|default('')) == 'Artisanat' ? 'selected' : '' }}>Artisanat</option>
+                            <option value="Gastronomie" {{ (selectedCategorie|default('')) == 'Gastronomie' ? 'selected' : '' }}>Gastronomie</option>
+                            <option value="Textile" {{ (selectedCategorie|default('')) == 'Textile' ? 'selected' : '' }}>Textile</option>
+                            <option value="Bijoux" {{ (selectedCategorie|default('')) == 'Bijoux' ? 'selected' : '' }}>Bijoux</option>
+                            <option value="Art" {{ (selectedCategorie|default('')) == 'Art' ? 'selected' : '' }}>Art</option>
+                            <option value="Souvenirs" {{ (selectedCategorie|default('')) == 'Souvenirs' ? 'selected' : '' }}>Souvenirs</option>
+                        </select>
+                    </div>
+
+                    <div class="filter_group">
+                        <label for="region">Région</label>
+                        <select id="region" name="region">
+                            <option value="">Toutes les régions</option>
+                            <option value="Tunis" {{ (selectedRegion|default('')) == 'Tunis' ? 'selected' : '' }}>Tunis</option>
+                            <option value="Ariana" {{ (selectedRegion|default('')) == 'Ariana' ? 'selected' : '' }}>Ariana</option>
+                            <option value="Ben Arous" {{ (selectedRegion|default('')) == 'Ben Arous' ? 'selected' : '' }}>Ben Arous</option>
+                            <option value="Manouba" {{ (selectedRegion|default('')) == 'Manouba' ? 'selected' : '' }}>Manouba</option>
+                            <option value="Nabeul" {{ (selectedRegion|default('')) == 'Nabeul' ? 'selected' : '' }}>Nabeul</option>
+                            <option value="Zaghouan" {{ (selectedRegion|default('')) == 'Zaghouan' ? 'selected' : '' }}>Zaghouan</option>
+                            <option value="Bizerte" {{ (selectedRegion|default('')) == 'Bizerte' ? 'selected' : '' }}>Bizerte</option>
+                            <option value="Béja" {{ (selectedRegion|default('')) == 'Béja' ? 'selected' : '' }}>Béja</option>
+                            <option value="Jendouba" {{ (selectedRegion|default('')) == 'Jendouba' ? 'selected' : '' }}>Jendouba</option>
+                            <option value="Le Kef" {{ (selectedRegion|default('')) == 'Le Kef' ? 'selected' : '' }}>Le Kef</option>
+                            <option value="Siliana" {{ (selectedRegion|default('')) == 'Siliana' ? 'selected' : '' }}>Siliana</option>
+                            <option value="Sousse" {{ (selectedRegion|default('')) == 'Sousse' ? 'selected' : '' }}>Sousse</option>
+                            <option value="Monastir" {{ (selectedRegion|default('')) == 'Monastir' ? 'selected' : '' }}>Monastir</option>
+                            <option value="Mahdia" {{ (selectedRegion|default('')) == 'Mahdia' ? 'selected' : '' }}>Mahdia</option>
+                            <option value="Sfax" {{ (selectedRegion|default('')) == 'Sfax' ? 'selected' : '' }}>Sfax</option>
+                            <option value="Kairouan" {{ (selectedRegion|default('')) == 'Kairouan' ? 'selected' : '' }}>Kairouan</option>
+                            <option value="Kasserine" {{ (selectedRegion|default('')) == 'Kasserine' ? 'selected' : '' }}>Kasserine</option>
+                            <option value="Sidi Bouzid" {{ (selectedRegion|default('')) == 'Sidi Bouzid' ? 'selected' : '' }}>Sidi Bouzid</option>
+                            <option value="Gabès" {{ (selectedRegion|default('')) == 'Gabès' ? 'selected' : '' }}>Gabès</option>
+                            <option value="Médenine" {{ (selectedRegion|default('')) == 'Médenine' ? 'selected' : '' }}>Médenine</option>
+                            <option value="Tataouine" {{ (selectedRegion|default('')) == 'Tataouine' ? 'selected' : '' }}>Tataouine</option>
+                            <option value="Gafsa" {{ (selectedRegion|default('')) == 'Gafsa' ? 'selected' : '' }}>Gafsa</option>
+                            <option value="Tozeur" {{ (selectedRegion|default('')) == 'Tozeur' ? 'selected' : '' }}>Tozeur</option>
+                            <option value="Kébili" {{ (selectedRegion|default('')) == 'Kébili' ? 'selected' : '' }}>Kébili</option>
+                        </select>
+                    </div>
+
+                    <div class="filter_group">
+                        <label for="sort">Tri</label>
+                        <select id="sort" name="sort">
+                            <option value="">Par défaut</option>
+                            <option value="recent" {{ (selectedSort|default('')) == 'recent' ? 'selected' : '' }}>Date ajout récente</option>
+                            <option value="ancien" {{ (selectedSort|default('')) == 'ancien' ? 'selected' : '' }}>Date ajout ancienne</option>
+                        </select>
+                    </div>
+
+                    <div class="filter_actions">
+                        <button type="submit" class="filter_btn">Appliquer</button>
+                        <a href="{{ path('client_produits') }}" class="reset_btn">Réinitialiser</a>
+                    </div>
+                </form>
+            </div>
+
             {% if searchTerm is defined and searchTerm %}
                 <div style="margin-bottom: 25px; text-align: center;">
                     <h3>Résultat de recherche : "{{ searchTerm }}"</h3>
                 </div>
             {% endif %}
+
             <div class="row products_grid" id="products-grid">
                 {% for p in produits %}
                     <div class="col-lg-4 col-md-6 mb-4">
@@ -502,6 +669,11 @@
                                 {% if p.region %}
                                     <div class="product-card-region"><i class="fa fa-map-marker"></i> {{ p.region }}</div>
                                 {% endif %}
+                                {% if p.dateAjout %}
+                                    <div class="product-card-date">
+                                        <i class="fa fa-calendar"></i> {{ p.dateAjout|date('d/m/Y') }}
+                                    </div>
+                                {% endif %}
                             </div>
 
                             <div class="product-card-overlay">
@@ -513,17 +685,13 @@
                         </div>
                     </div>
                 {% else %}
-    <div class="col-12">
-        <div class="client_empty_state">
-            <i class="fa fa-shopping-bag"></i><br><br>
-            {% if searchTerm is defined and searchTerm %}
-                Aucun produit trouvé pour "{{ searchTerm }}".
-            {% else %}
-                Aucun produit disponible pour le moment.
-            {% endif %}
-        </div>
-    </div>
-    {% endfor %}
+                    <div class="col-12">
+                        <div class="client_empty_state">
+                            <i class="fa fa-shopping-bag"></i><br><br>
+                            Aucun produit trouvé avec les filtres choisis.
+                        </div>
+                    </div>
+                {% endfor %}
             </div>
 
         </div>

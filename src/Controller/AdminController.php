@@ -213,13 +213,25 @@ class AdminController extends AbstractController
         ]);
     }
 
-    #[Route('/reservations', name: 'admin_reservations')]
-    public function reservations(ReservationRepository $repo): Response
-    {
-        return $this->render('admin/reservations.html.twig', [
-            'reservations' => $repo->findAll(),
-        ]);
-    }
+    // src/Controller/AdminController.php
+
+#[Route('/reservations', name: 'admin_reservations')]
+public function reservations(ReservationRepository $repo, Request $request): Response
+{
+    // 1. Capture the data from the form
+    $searchTerm = $request->query->get('search');
+    $sortBy = $request->query->get('sort');
+
+    // 2. Call the search method
+    $list = $repo->searchAndSortReservations($searchTerm, $sortBy);
+
+    return $this->render('admin/reservations.html.twig', [
+        'list'          => $list,          // Used for your table loop
+        'reservations'  => $list,          // FIX: This solves the "Variable reservations does not exist" error
+        'searchTerm'    => $searchTerm, 
+        'currentSort'   => $sortBy
+    ]);
+}
 
     #[Route('/transports', name: 'admin_transports')]
     public function transports(TransportRepository $repo): Response

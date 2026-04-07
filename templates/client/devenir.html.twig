@@ -137,37 +137,40 @@
                 </div>
             {% endif %}
 
-            <form method="post">
-                <div class="form_grid">
-                    <div>
-                        <label class="form_label">Nom</label>
-                        <input type="text" name="nom" class="form_input" value="{{ userData.nom }}">
-                    </div>
-
-                    <div>
-                        <label class="form_label">Prénom</label>
-                        <input type="text" name="prenom" class="form_input" value="{{ userData.prenom }}">
-                    </div>
-
-                    <div>
-                        <label class="form_label">Email</label>
-                        <input type="email" name="email" class="form_input" value="{{ userData.email }}">
-                    </div>
-
-                    <div>
-                        <label class="form_label">Téléphone</label>
-                        <input type="text" name="telephone" class="form_input" value="{{ userData.telephone }}">
-                    </div>
-                </div>
-
-                {% if userData.type != 'COMMERCANT' %}
-                    <button type="submit" class="btn_gradient">
-                        <i class="fa fa-paper-plane"></i>
-                        Envoyer la demande
-                    </button>
-                {% endif %}
-            </form>
+{{ form_start(form) }}
+    <div class="form_grid">
+        <div>
+            {{ form_label(form.nom, null, {'label_attr': {'class': 'form_label'}}) }}
+            {{ form_widget(form.nom, {'attr': {'class': 'form_input'}}) }}
+            {{ form_errors(form.nom) }}
         </div>
+
+        <div>
+            {{ form_label(form.prenom, null, {'label_attr': {'class': 'form_label'}}) }}
+            {{ form_widget(form.prenom, {'attr': {'class': 'form_input'}}) }}
+            {{ form_errors(form.prenom) }}
+        </div>
+
+        <div>
+            {{ form_label(form.email, null, {'label_attr': {'class': 'form_label'}}) }}
+            {{ form_widget(form.email, {'attr': {'class': 'form_input'}}) }}
+            {{ form_errors(form.email) }}
+        </div>
+
+        <div>
+            {{ form_label(form.telephone, null, {'label_attr': {'class': 'form_label'}}) }}
+            {{ form_widget(form.telephone, {'attr': {'class': 'form_input'}}) }}
+            {{ form_errors(form.telephone) }}
+        </div>
+    </div>
+
+    {% if userData.type != 'COMMERCANT' %}
+        <button type="submit" class="btn_gradient">
+            <i class="fa fa-paper-plane"></i>
+            Envoyer la demande
+        </button>
+    {% endif %}
+{{ form_end(form) }}        </div>
     </div>
 </div>
 {% endblock %}

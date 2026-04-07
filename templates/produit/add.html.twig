@@ -226,36 +226,3 @@
         </div>
     </div>
 {% endblock %}
-{% block javascripts %}
-    {{ parent() }}
-
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            const nomInput = document.getElementById('produit_nom');
-            const nomError = document.getElementById('nom_live_error');
-
-            if (nomInput && nomError) {
-                function validateNom() {
-                    const value = nomInput.value.trim();
-
-                    if (value.length === 0) {
-                        nomError.textContent = 'Le nom du produit est obligatoire.';
-                        nomInput.style.borderColor = '#dc3545';
-                    } else if (value.length < 3) {
-                        nomError.textContent = 'Le nom doit contenir au moins 3 caractères.';
-                        nomInput.style.borderColor = '#dc3545';
-                    } else if (value.length > 100) {
-                        nomError.textContent = 'Le nom ne doit pas dépasser 100 caractères.';
-                        nomInput.style.borderColor = '#dc3545';
-                    } else {
-                        nomError.textContent = '';
-                        nomInput.style.borderColor = '#28a745';
-                    }
-                }
-
-                nomInput.addEventListener('input', validateNom);
-                nomInput.addEventListener('blur', validateNom);
-            }
-        });
-    </script>
-{% endblock %}

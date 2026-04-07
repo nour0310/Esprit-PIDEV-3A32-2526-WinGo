@@ -110,11 +110,17 @@
         <a href="{{ path('admin_produits') }}" class="sidebar_link {% if app.request.attributes.get('_route') == 'admin_produits' %}active{% endif %}">
             <i class="fa fa-shopping-bag"></i> Produits
         </a>
+        <a href="{{ path('admin_demandes_commercant') }}" class="sidebar_link {% if app.request.attributes.get('_route') starts with 'admin_demandes_commercant' %}active{% endif %}">
+    <i class="fa fa-store"></i> Commerçants
+</a>
         <a href="{{ path('admin_reservations') }}" class="sidebar_link {% if app.request.attributes.get('_route') == 'admin_reservations' %}active{% endif %}">
             <i class="fa fa-calendar"></i> Réservations
         </a>
         <a href="{{ path('admin_transports') }}" class="sidebar_link {% if app.request.attributes.get('_route') == 'admin_transports' %}active{% endif %}">
             <i class="fa fa-bus"></i> Transports
+        </a>
+        <a href="{{ path('event_index') }}" class="sidebar_link {% if app.request.attributes.get('_route') starts with 'event_' or app.request.attributes.get('_route') starts with 'participation_' %}active{% endif %}">
+            <i class="fa fa-ticket"></i> Événements
         </a>
 
         <div class="nav_section_title">Réclamations</div>

@@ -2,10 +2,10 @@
 
 namespace App\Entity;
 
-use Symfony\Component\Validator\Constraints as Assert;
 use Doctrine\ORM\Mapping as ORM;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
+
 use App\Repository\ArticleRepository;
 
 #[ORM\Entity(repositoryClass: ArticleRepository::class)]
@@ -17,98 +17,119 @@ class Article
     #[ORM\Column(type: 'integer')]
     private ?int $id = null;
 
-    #[ORM\Column(type: 'string', length: 255, nullable: false)]
-    #[Assert\NotBlank(message: "Le titre est obligatoire")]
-    #[Assert\Length(min: 3, minMessage: "Le titre doit contenir au moins {{ limit }} caractères")]
-    #[Assert\Regex(pattern: '/^[a-zA-ZÀ-ÿ\s\.,!?\'-]+$/u', message: "Le titre ne doit pas contenir de chiffres")]
-    private string $titre = '';
+    public function getId(): ?int
+    {
+        return $this->id;
+    }
 
-    #[ORM\Column(type: 'text', nullable: true)]
-    #[Assert\NotBlank(message: "Le contenu est obligatoire")]
-    #[Assert\Length(min: 3, minMessage: "Le contenu doit contenir au moins {{ limit }} caractères")]
-    #[Assert\Regex(pattern: '/^[a-zA-ZÀ-ÿ\s\.,!?\'-]+$/u', message: "Le contenu ne doit pas contenir de chiffres")]
-    private string $contenu = '';
+    public function setId(int $id): self
+    {
+        $this->id = $id;
+        return $this;
+    }
 
-    #[ORM\Column(type: 'datetime', nullable: true)]
-    private ?\DateTimeInterface $datePublication = null;
+    #[ORM\Column(type: 'string', nullable: false)]
+    private ?string $titre = null;
 
+<<<<<<< HEAD
     #[ORM\ManyToOne(targetEntity: Utilisateur::class, inversedBy: 'articles')]
     #[ORM\JoinColumn(name: 'auteur', referencedColumnName: 'id', onDelete: 'SET NULL')]
     private ?Utilisateur $auteur = null;
+=======
+    public function getTitre(): ?string
+    {
+        return $this->titre;
+    }
+>>>>>>> origin/integrationCRUD
 
-    #[ORM\Column(type: 'string', length: 255, nullable: true)]
+    public function setTitre(string $titre): self
+    {
+        $this->titre = $titre;
+        return $this;
+    }
+
+    #[ORM\Column(type: 'text', nullable: false)]
+    private ?string $contenu = null;
+
+    public function getContenu(): ?string
+    {
+        return $this->contenu;
+    }
+
+    public function setContenu(string $contenu): self
+    {
+        $this->contenu = $contenu;
+        return $this;
+    }
+
+    #[ORM\Column(type: 'datetime', nullable: false)]
+    private ?\DateTimeInterface $date_publication = null;
+
+    public function getDate_publication(): ?\DateTimeInterface
+    {
+        return $this->date_publication;
+    }
+
+    public function setDate_publication(\DateTimeInterface $date_publication): self
+    {
+        $this->date_publication = $date_publication;
+        return $this;
+    }
+
+    #[ORM\Column(type: 'integer', nullable: false)]
+    private ?int $auteur = null;
+
+    public function getAuteur(): ?int
+    {
+        return $this->auteur;
+    }
+
+    public function setAuteur(int $auteur): self
+    {
+        $this->auteur = $auteur;
+        return $this;
+    }
+
+    #[ORM\Column(type: 'string', nullable: false)]
     private ?string $image = null;
 
-    #[ORM\Column(type: 'string', length: 100, nullable: true)]
-    #[Assert\NotBlank(message: "Veuillez choisir une région")]
-    private string $region = '';
-
-    #[ORM\Column(type: 'string', length: 100, nullable: true)]
-    #[Assert\NotBlank(message: "Veuillez choisir une catégorie")]
-    private string $categorie = '';
-
-    #[ORM\OneToMany(targetEntity: Commentaire::class, mappedBy: 'article', cascade: ['remove'])]
-    private Collection $commentaires;
-
-    public function __construct()
+    public function getImage(): ?string
     {
-        $this->commentaires = new ArrayCollection();
+        return $this->image;
     }
 
-    // Getters et setters (avec gestion du null)
-    public function getId(): ?int { return $this->id; }
-    public function setId(int $id): self { $this->id = $id; return $this; }
-
-    public function getTitre(): string { return $this->titre; }
-    public function setTitre(?string $titre): self { 
-        $this->titre = $titre ?? '';
-        return $this; 
-    }
-
-    public function getContenu(): string { return $this->contenu; }
-    public function setContenu(?string $contenu): self { 
-        $this->contenu = $contenu ?? '';
-        return $this; 
-    }
-
-    public function getDatePublication(): ?\DateTimeInterface { return $this->datePublication; }
-    public function setDatePublication(?\DateTimeInterface $datePublication): self { $this->datePublication = $datePublication; return $this; }
-
-    public function getAuteur(): ?Utilisateur { return $this->auteur; }
-    public function setAuteur(?Utilisateur $auteur): self { $this->auteur = $auteur; return $this; }
-
-    public function getImage(): ?string { return $this->image; }
-    public function setImage(?string $image): self { $this->image = $image; return $this; }
-
-    public function getRegion(): string { return $this->region; }
-    public function setRegion(?string $region): self { 
-        $this->region = $region ?? '';
-        return $this; 
-    }
-
-    public function getCategorie(): string { return $this->categorie; }
-    public function setCategorie(?string $categorie): self { 
-        $this->categorie = $categorie ?? '';
-        return $this; 
-    }
-
-    /**
-     * @return Collection<int, Commentaire>
-     */
-    public function getCommentaires(): Collection { return $this->commentaires; }
-    public function addCommentaire(Commentaire $commentaire): self {
-        if (!$this->commentaires->contains($commentaire)) {
-            $this->commentaires->add($commentaire);
-            $commentaire->setArticle($this);
-        }
+    public function setImage(string $image): self
+    {
+        $this->image = $image;
         return $this;
     }
-    public function removeCommentaire(Commentaire $commentaire): self {
-        if ($this->commentaires->removeElement($commentaire)) {
-            if ($commentaire->getArticle() === $this) {
-                $commentaire->setArticle(null);
-            }
-        }
+
+    #[ORM\Column(type: 'string', nullable: false)]
+    private ?string $region = null;
+
+    public function getRegion(): ?string
+    {
+        return $this->region;
+    }
+
+    public function setRegion(string $region): self
+    {
+        $this->region = $region;
         return $this;
     }
+
+    #[ORM\Column(type: 'string', nullable: false)]
+    private ?string $categorie = null;
+
+    public function getCategorie(): ?string
+    {
+        return $this->categorie;
+    }
+
+    public function setCategorie(string $categorie): self
+    {
+        $this->categorie = $categorie;
+        return $this;
+    }
+
 }
