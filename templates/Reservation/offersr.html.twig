@@ -38,27 +38,40 @@
                             <div id="mon_formulaire" class="search_panel active" style="position: relative; z-index: 9999;">
                                 <div style="padding: 30px; margin-top: 20px; background: rgba(0,0,0,0.1); border-radius: 10px;">
                                     
-                                    {{ form_start(f, {'attr': {'class': 'row align-items-end'}}) }}
-                                        
+                                    {# 1. Ajout de 'novalidate' pour permettre l'affichage des erreurs Symfony  #}
+                                    {{ form_start(f, {'attr': {'class': 'row align-items-end', 'novalidate': 'novalidate'}}) }}
+                                                                            
                                         <div class="col-md-3 mb-4">
                                             <label style="color: white; font-weight: 700; text-transform: uppercase; font-size: 13px; margin-bottom: 10px; display: block;">Client Name</label>
                                             {{ form_widget(f.user, {'attr': {'class': 'form-control', 'style': 'height: 46px; border: none; padding-left: 15px; border-radius: 0;'}}) }}
+                                            {# 2. Ajout de l'affichage des erreurs pour chaque champ [cite: 74, 141] #}
+                                            <div class="text-danger" style="font-size: 12px; margin-top: 5px;">
+                                                {{ form_errors(f.user) }}
+                                            </div>
                                         </div>
                                         
                                         <div class="col-md-3 mb-4">
                                             <label style="color: white; font-weight: 700; text-transform: uppercase; font-size: 13px; margin-bottom: 10px; display: block;">Statut</label>
                                             {{ form_widget(f.statut, {'attr': {'class': 'form-control', 'style': 'height: 46px; border: none; border-radius: 0;'}}) }}
+                                            <div class="text-danger" style="font-size: 12px; margin-top: 5px;">
+                                                {{ form_errors(f.statut) }}
+                                            </div>
                                         </div>
                                         
                                         <div class="col-md-3 mb-4">
                                             <label style="color: white; font-weight: 700; text-transform: uppercase; font-size: 13px; margin-bottom: 10px; display: block;">Experience</label>
                                             {{ form_widget(f.exp, {'attr': {'class': 'form-control', 'style': 'height: 46px; border: none; border-radius: 0;'}}) }}
+                                            <div class="text-danger" style="font-size: 12px; margin-top: 5px;">
+                                                {{ form_errors(f.exp) }}
+                                            </div>
                                         </div>
 
                                         <div class="col-md-3 mb-4">
-                                            <label style="color: white; font-weight: 700; text-transform: uppercase; font-size: 13px; margin-bottom: 10px; display: block;">Date</label>
-                                            <div style="background: white; padding: 5px 10px; min-height: 46px; display: flex; align-items: center;">
-                                                {{ form_widget(f.date) }}
+                                            <label>Date</label>
+                                            {{ form_widget(f.date) }}
+                                            {# This line will now show "La date est obligatoire" instead of crashing #}
+                                            <div class="text-danger">
+                                                {{ form_errors(f.date) }} {# [cite: 74, 141] #}
                                             </div>
                                         </div>
 
@@ -68,11 +81,10 @@
                                             </button>
                                         </div>
 
-                                        {# Hidden fields / CSRF Token #}
                                         <div style="display:none;">
                                             {{ form_rest(f) }}
                                         </div>
-                                        
+                                                                            
                                     {{ form_end(f) }}
                                 </div>
                             </div>

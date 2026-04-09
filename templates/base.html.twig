@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <title>{% block title %}Travelix{% endblock %}</title>
+    <title>{% block title %}WinGo{% endblock %}</title>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="description" content="Travelix Project">
@@ -41,9 +41,6 @@
                         </div>
                        <div class="user_box ml-auto">
     {% if app.user %}
-        <div class="user_box_login user_box_link">
-            <a href="{{ path('app_dashboard_redirect') }}">dashboard</a>
-        </div>
         <div class="user_box_register user_box_link">
             <a href="{{ path('app_logout') }}">logout</a>
         </div>

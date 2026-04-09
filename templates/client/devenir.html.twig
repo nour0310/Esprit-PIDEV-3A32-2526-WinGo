@@ -138,6 +138,8 @@
             {% endif %}
 
 {{ form_start(form) }}
+    {{ form_errors(form) }}
+
     <div class="form_grid">
         <div>
             {{ form_label(form.nom, null, {'label_attr': {'class': 'form_label'}}) }}
@@ -170,7 +172,8 @@
             Envoyer la demande
         </button>
     {% endif %}
-{{ form_end(form) }}        </div>
+{{ form_end(form) }}
+      </div>
     </div>
 </div>
 {% endblock %}

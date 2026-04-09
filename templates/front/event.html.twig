@@ -20,10 +20,8 @@
     }
 
     * { box-sizing: border-box; }
-
     body { font-family: 'DM Sans', sans-serif; }
 
-    /* ── Hero ── */
     .front_hero {
         min-height: 420px;
         background: linear-gradient(135deg, var(--ink) 0%, var(--deep) 55%, #5a1a8a 100%);
@@ -84,7 +82,6 @@
         line-height: 1.7;
     }
 
-    /* ── Filter bar ── */
     .filter_bar {
         background: var(--white);
         box-shadow: 0 4px 30px rgba(0,0,0,0.08);
@@ -131,7 +128,6 @@
     }
     .filter_search:focus { border-color: var(--gold); }
 
-    /* ── Events grid ── */
     .events_front_section {
         background: var(--mist);
         padding: 60px 0 100px;
@@ -143,7 +139,6 @@
         margin-top: 40px;
     }
 
-    /* ── Event card (front) ── */
     .fe_card {
         background: var(--white);
         border-radius: 16px;
@@ -195,7 +190,6 @@
         border-radius: 12px;
     }
     .fe_card_price_tag.free { background: var(--success); font-family: 'DM Sans', sans-serif; font-size: 13px; }
-
     .fe_card_season_dot {
         position: absolute;
         top: 16px; right: 16px;
@@ -206,7 +200,6 @@
         display: flex; align-items: center; justify-content: center;
         font-size: 16px;
     }
-
     .fe_card_body {
         padding: 24px 26px 28px;
         flex: 1;
@@ -236,15 +229,11 @@
         font-weight: 400;
     }
     .fe_info_row .icon { color: var(--gold); font-size: 12px; width: 16px; }
-
-    /* capacity bar */
     .fe_cap_wrap { margin-bottom: 20px; }
     .fe_cap_header { display: flex; justify-content: space-between; font-size: 11px; color: var(--grey); margin-bottom: 5px; font-weight: 500; }
     .fe_cap_bg { height: 5px; background: #eee; border-radius: 3px; overflow: hidden; }
     .fe_cap_fill { height: 100%; border-radius: 3px; background: linear-gradient(90deg, var(--gold), var(--violet)); }
     .fe_cap_fill.full { background: var(--danger); }
-
-    /* status */
     .fe_status {
         display: inline-block;
         padding: 3px 12px;
@@ -294,7 +283,6 @@
         color: var(--ink) !important;
     }
     .btn_ghost_front:hover { border-color: var(--deep); background: var(--deep); color: #fff !important; }
-
     .sold_out_overlay {
         position: absolute;
         inset: 0;
@@ -312,8 +300,6 @@
         border-radius: 4px;
         transform: rotate(-8deg);
     }
-
-    /* ── Section heading ── */
     .section_heading { text-align: center; margin-bottom: 10px; }
     .section_heading h2 {
         font-family: 'Playfair Display', serif;
@@ -330,8 +316,6 @@
         border-radius: 2px;
         margin: 12px auto 0;
     }
-
-    /* ── Empty state ── */
     .front_empty {
         text-align: center;
         padding: 100px 30px;
@@ -350,7 +334,6 @@
     }
     .front_empty p { color: var(--grey); font-size: 15px; }
 
-    /* ── Modal (detail view) ── */
     .fe_modal_overlay {
         position: fixed;
         inset: 0;
@@ -411,68 +394,15 @@
     }
     .fe_modal_price_big small { font-family: 'DM Sans', sans-serif; font-size: 14px; color: var(--grey); font-weight: 400; }
 
-    /* ── Register modal ── */
-    .reg_modal_overlay {
-        position: fixed;
-        inset: 0;
-        background: rgba(10,5,30,0.8);
-        backdrop-filter: blur(8px);
-        z-index: 10000;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        padding: 20px;
-        opacity: 0;
-        pointer-events: none;
-        transition: opacity 300ms;
-    }
-    .reg_modal_overlay.open { opacity: 1; pointer-events: all; }
-    .reg_modal {
-        background: var(--white);
-        border-radius: 20px;
-        max-width: 560px;
-        width: 100%;
-        max-height: 90vh;
-        overflow-y: auto;
-        transform: translateY(20px);
-        transition: transform 300ms;
-    }
-    .reg_modal_overlay.open .reg_modal { transform: translateY(0); }
-    .reg_modal_head {
-        background: linear-gradient(135deg, var(--deep), #5a1a8a);
-        padding: 28px 32px;
-        border-radius: 20px 20px 0 0;
-        position: relative;
-    }
-    .reg_modal_head h3 { font-family: 'Playfair Display', serif; font-size: 24px; color: #fff; font-weight: 700; margin: 0 0 4px; }
-    .reg_modal_head p { font-size: 13px; color: rgba(255,255,255,0.6); margin: 0; }
-    .reg_modal_close2 {
-        position: absolute; top: 20px; right: 20px;
-        background: rgba(255,255,255,0.15); border: none; border-radius: 50%;
-        width: 34px; height: 34px; cursor: pointer; color: #fff; font-size: 16px;
-        display: flex; align-items: center; justify-content: center;
-    }
-    .reg_modal_body { padding: 28px 32px 32px; }
-    .rm_group { margin-bottom: 18px; }
-    .rm_label { display: block; font-size: 11px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: var(--deep); margin-bottom: 7px; }
-    .rm_input {
-        width: 100%;
-        height: 46px;
-        border: 2px solid #eee;
-        border-radius: 10px;
-        padding: 0 14px;
-        font-family: 'DM Sans', sans-serif;
+    .alert-danger {
+        background: #f8d7da;
+        color: #721c24;
+        padding: 12px 18px;
+        border-radius: 12px;
+        margin-bottom: 20px;
+        border-left: 4px solid #dc3545;
         font-size: 14px;
-        color: var(--ink);
-        outline: none;
-        transition: border-color 200ms;
-        background: #fafafa;
     }
-    .rm_input:focus { border-color: var(--gold); background: #fff; }
-    .rm_row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
-    .rm_select { appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23929191' d='M6 8L1 3h10z'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 14px center; cursor: pointer; }
-
-    /* ── Floating admin btn ── */
     .admin_back_btn {
         position: fixed;
         bottom: 32px;
@@ -510,34 +440,6 @@
         0%, 100% { opacity: 1; transform: scale(1); }
         50% { opacity: 0.5; transform: scale(0.7); }
     }
-
-    /* ── Toast ── */
-    .toast_wrap {
-        position: fixed;
-        bottom: 32px;
-        left: 50%;
-        transform: translateX(-50%) translateY(20px);
-        z-index: 20000;
-        opacity: 0;
-        transition: all 400ms;
-        pointer-events: none;
-    }
-    .toast_wrap.show { opacity: 1; transform: translateX(-50%) translateY(0); }
-    .toast {
-        background: var(--deep);
-        color: #fff;
-        padding: 14px 24px;
-        border-radius: 12px;
-        font-size: 14px;
-        font-weight: 500;
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        box-shadow: 0 10px 40px rgba(0,0,0,0.25);
-    }
-    .toast .tick { color: var(--gold); font-size: 18px; }
-
-    /* Login required banner */
     .login_banner {
         background: linear-gradient(135deg, var(--deep), #5a1a8a);
         border-radius: 16px;
@@ -576,8 +478,6 @@
 {% endblock %}
 
 {% block content %}
-
-{# ══════════════════════ HERO ══════════════════════ #}
 <div class="front_hero">
     <div class="front_hero_orb orb1"></div>
     <div class="front_hero_orb orb2"></div>
@@ -588,17 +488,15 @@
     </div>
 </div>
 
-{# ══════════════════════ FILTER BAR ══════════════════════ #}
 <div class="filter_bar">
     <button class="filter_pill active" onclick="filterEvents('all', this)">All</button>
     <button class="filter_pill" onclick="filterEvents('Conference', this)">Conference</button>
     <button class="filter_pill" onclick="filterEvents('Concert', this)">Concert</button>
     <button class="filter_pill" onclick="filterEvents('Festival', this)">Festival</button>
     <button class="filter_pill" onclick="filterEvents('Sport', this)">Sport</button>
-    <input class="filter_search" type="text" placeholder="🔍  Search events..." oninput="searchEvents(this.value)">
+    <input class="filter_search" type="text" placeholder="🔍 Search events..." oninput="searchEvents(this.value)">
 </div>
 
-{# ══════════════════════ EVENTS GRID ══════════════════════ #}
 <section class="events_front_section">
     <div class="container">
         <div class="section_heading">
@@ -638,29 +536,16 @@
                             <div class="sold_out_overlay"><div class="sold_out_badge">Sold Out</div></div>
                         {% endif %}
                     </div>
-
                     <div class="fe_card_body">
                         <div class="fe_card_title">{{ event.title }}</div>
-
                         <div class="fe_card_info">
-                            <div class="fe_info_row">
-                                <i class="fa fa-calendar icon"></i>
-                                {{ event.date_event|date('D, M d Y') }} · {{ event.start_time }}
-                            </div>
-                            <div class="fe_info_row">
-                                <i class="fa fa-map-marker icon"></i>
-                                {{ event.location }}
-                            </div>
-                            <div class="fe_info_row">
-                                <i class="fa fa-leaf icon"></i>
-                                {{ event.season }} season
-                            </div>
+                            <div class="fe_info_row"><i class="fa fa-calendar icon"></i> {{ event.date_event|date('D, M d Y') }} · {{ event.start_time }}</div>
+                            <div class="fe_info_row"><i class="fa fa-map-marker icon"></i> {{ event.location }}</div>
+                            <div class="fe_info_row"><i class="fa fa-leaf icon"></i> {{ event.season }} season</div>
                         </div>
-
                         <span class="fe_status {{ isFull ? 'soldout' : event.status|lower }}">
                             {{ isFull ? 'Sold Out' : event.status }}
                         </span>
-
                         <div class="fe_cap_wrap">
                             <div class="fe_cap_header">
                                 <span>{{ event.available_places }} seats left</span>
@@ -670,21 +555,17 @@
                                 <div class="fe_cap_fill {{ isFull ? 'full' : '' }}" style="width:{{ pct }}%;"></div>
                             </div>
                         </div>
-
                         <div class="fe_card_cta">
                             {% if is_granted('ROLE_USER') %}
-                                <button class="btn_front btn_primary_front"
-                                    onclick="openRegister({{ event.id_event }}, '{{ event.title|e('js') }}', {{ event.available_places }}, {{ event.price }})"
-                                    {{ isFull ? 'disabled style=opacity:0.5;cursor:not-allowed;' : '' }}>
-                                    <i class="fa fa-ticket"></i>
-                                    {{ isFull ? 'Sold Out' : 'Register' }}
-                                </button>
+                                <a href="{{ path('participation_front_new', {'id_event': event.id_event}) }}"
+                                   class="btn_front btn_primary_front"
+                                   {{ isFull ? 'disabled style=opacity:0.5;cursor:not-allowed;pointer-events:none;' : '' }}>
+                                    <i class="fa fa-ticket"></i> {{ isFull ? 'Sold Out' : 'Register' }}
+                                </a>
                             {% else %}
-                                <button class="btn_front btn_primary_front"
-                                    onclick="window.location.href='{{ path('app_login') }}?redirect={{ path('event_front') }}'">
-                                    <i class="fa fa-lock"></i>
-                                    Login to Register
-                                </button>
+                                <a href="{{ path('app_login') }}?redirect={{ path('event_front') }}" class="btn_front btn_primary_front">
+                                    <i class="fa fa-lock"></i> Login to Register
+                                </a>
                             {% endif %}
                             <button class="btn_front btn_ghost_front" onclick="openDetail({{ event.id_event }})">
                                 <i class="fa fa-info"></i>
@@ -696,7 +577,6 @@
             {% endif %}
         </div>
 
-        {# Show login banner if user is not logged in #}
         {% if not is_granted('ROLE_USER') and events is not empty %}
         <div class="login_banner" style="margin-top: 60px;">
             <h3>🔐 Want to join these events?</h3>
@@ -709,7 +589,6 @@
     </div>
 </section>
 
-{# ══════════════════════ DETAIL MODAL ══════════════════════ #}
 <div class="fe_modal_overlay" id="detailOverlay" onclick="if(event.target===this)closeDetail()">
     <div class="fe_modal" id="detailModal">
         <div class="fe_modal_image" id="detailImage">
@@ -727,79 +606,14 @@
     </div>
 </div>
 
-{# ══════════════════════ REGISTER MODAL ══════════════════════ #}
-<div class="reg_modal_overlay" id="regOverlay" onclick="if(event.target===this)closeRegister()">
-    <div class="reg_modal">
-        <div class="reg_modal_head">
-            <h3 id="regTitle">Register for Event</h3>
-            <p id="regSubtitle">Complete the form below to secure your spot.</p>
-            <button class="reg_modal_close2" onclick="closeRegister()">✕</button>
-        </div>
-        <div class="reg_modal_body">
-            <form id="regForm" method="post" action="">
-                <div class="rm_row">
-                    <div class="rm_group">
-                        <label class="rm_label">Last Name</label>
-                        <input type="text" name="nom_participant" class="rm_input" placeholder="Doe" required>
-                    </div>
-                    <div class="rm_group">
-                        <label class="rm_label">First Name</label>
-                        <input type="text" name="prenom_participant" class="rm_input" placeholder="John" required>
-                    </div>
-                </div>
-                <div class="rm_group">
-                    <label class="rm_label">Email</label>
-                    <input type="email" name="email_participant" class="rm_input" placeholder="john@email.com" required>
-                </div>
-                <div class="rm_group">
-                    <label class="rm_label">Phone</label>
-                    <input type="text" name="telephone" class="rm_input" placeholder="+216 XX XXX XXX" required>
-                </div>
-                <div class="rm_row">
-                    <div class="rm_group">
-                        <label class="rm_label">Number of Seats</label>
-                        <input type="number" name="nombre_places" id="regSeats" class="rm_input" value="1" min="1" required>
-                    </div>
-                    <div class="rm_group">
-                        <label class="rm_label">Status</label>
-                        <select name="statut" class="rm_input rm_select" required>
-                            <option value="pending">Pending</option>
-                            <option value="confirmed">Confirmed</option>
-                        </select>
-                    </div>
-                </div>
-                <input type="hidden" name="date_participation" value="{{ "now"|date('Y-m-d H:i:s') }}">
-                <input type="hidden" name="id_user" value="0">
-                <div style="display:flex; gap:12px; margin-top:22px;">
-                    <button type="submit" class="btn_front btn_primary_front" style="flex:1; height:50px; border-radius:25px; font-size:14px;">
-                        <i class="fa fa-check"></i> Confirm Registration
-                    </button>
-                    <button type="button" class="btn_front btn_ghost_front" onclick="closeRegister()" style="height:50px; border-radius:25px;">
-                        Cancel
-                    </button>
-                </div>
-            </form>
-        </div>
-    </div>
-</div>
-
-{# ══════════════════════ TOAST ══════════════════════ #}
-<div class="toast_wrap" id="toastWrap">
-    <div class="toast"><span class="tick">✔</span> <span id="toastMsg">Registration submitted!</span></div>
-</div>
-
-{# ══════════════════════ ADMIN BACK BTN ══════════════════════ #}
 {% if is_granted('ROLE_ADMIN') %}
 <a href="{{ path('event_index') }}" class="admin_back_btn">
     <div class="dot"></div>
-    <i class="fa fa-lock"></i>
-    Event Back
+    <i class="fa fa-lock"></i> Event Back
 </a>
 {% endif %}
 
-{# ══════════════════════ JS ══════════════════════ #}
 <script>
-    {# Build a JS object from Twig event data #}
     const EVENTS_DATA = {
         {% for event in events %}
         {{ event.id_event }}: {
@@ -820,7 +634,6 @@
         {% endfor %}
     };
 
-    /* ── Filter & search ── */
     function filterEvents(type, btn) {
         document.querySelectorAll('.filter_pill').forEach(p => p.classList.remove('active'));
         btn.classList.add('active');
@@ -829,15 +642,12 @@
             card.style.display = match ? '' : 'none';
         });
     }
-
     function searchEvents(q) {
         q = q.toLowerCase();
         document.querySelectorAll('.fe_card').forEach(card => {
             card.style.display = card.dataset.title.includes(q) ? '' : 'none';
         });
     }
-
-    /* ── Detail modal ── */
     function openDetail(id) {
         const e = EVENTS_DATA[id];
         if (!e) return;
@@ -855,12 +665,12 @@
         `;
         {% if is_granted('ROLE_USER') %}
         document.getElementById('detailFooter').innerHTML = `
-            <button class="btn_front btn_primary_front" onclick="closeDetail(); openRegister(${id},'${e.title.replace(/'/g,"\\'")}',${e.available},${e.price})" ${e.available<=0?'disabled style=opacity:0.5':''}><i class="fa fa-ticket"></i> ${e.available<=0?'Sold Out':'Register Now'}</button>
+            <a href="${e.registerUrl}" class="btn_front btn_primary_front" ${e.available<=0?'disabled style=opacity:0.5;pointer-events:none;':''}><i class="fa fa-ticket"></i> ${e.available<=0?'Sold Out':'Register Now'}</a>
             <button class="btn_front btn_ghost_front" onclick="closeDetail()">Close</button>
         `;
         {% else %}
         document.getElementById('detailFooter').innerHTML = `
-            <button class="btn_front btn_primary_front" onclick="window.location.href='{{ path('app_login') }}?redirect={{ path('event_front') }}'"><i class="fa fa-lock"></i> Login to Register</button>
+            <a href="{{ path('app_login') }}?redirect={{ path('event_front') }}" class="btn_front btn_primary_front"><i class="fa fa-lock"></i> Login to Register</a>
             <button class="btn_front btn_ghost_front" onclick="closeDetail()">Close</button>
         `;
         {% endif %}
@@ -871,39 +681,5 @@
         document.getElementById('detailOverlay').classList.remove('open');
         document.body.style.overflow = '';
     }
-
-    /* ── Register modal ── */
-    function openRegister(id, title, available, price) {
-        {% if not is_granted('ROLE_USER') %}
-            window.location.href = "{{ path('app_login') }}?redirect={{ path('event_front') }}";
-            return;
-        {% endif %}
-        
-        const e = EVENTS_DATA[id];
-        document.getElementById('regTitle').textContent = 'Register: ' + title;
-        document.getElementById('regSubtitle').textContent = available + ' seats left' + (price > 0 ? ' · $' + price + ' per seat' : ' · Free');
-        document.getElementById('regSeats').max = available;
-        document.getElementById('regSeats').value = 1;
-        document.getElementById('regForm').action = e.registerUrl;
-        document.getElementById('regOverlay').classList.add('open');
-        document.body.style.overflow = 'hidden';
-    }
-    function closeRegister() {
-        document.getElementById('regOverlay').classList.remove('open');
-        document.body.style.overflow = '';
-    }
-
-    /* ── Toast ── */
-    function showToast(msg) {
-        const w = document.getElementById('toastWrap');
-        document.getElementById('toastMsg').textContent = msg;
-        w.classList.add('show');
-        setTimeout(() => w.classList.remove('show'), 3500);
-    }
-
-    {% if app.request.query.get('registered') %}
-        window.addEventListener('DOMContentLoaded', () => showToast('Registration successful! See you there 🎉'));
-    {% endif %}
 </script>
-
 {% endblock %}

@@ -7,6 +7,7 @@ use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Form\Extension\Core\Type\NumberType;
+use Symfony\Component\Form\Extension\Core\Type\DateType;
 
 class TransportType extends AbstractType
 {
@@ -18,7 +19,10 @@ class TransportType extends AbstractType
             ->add('tarif')
             ->add('depart')
             ->add('arrivee')
-            ->add('datedepart')
+            ->add('datedepart', DateType::class, [
+    'widget' => 'single_text',
+    'required' => true, // Adds client-side validation
+]);
         ;
     }
 

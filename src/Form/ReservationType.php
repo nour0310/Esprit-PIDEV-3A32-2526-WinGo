@@ -22,8 +22,9 @@ class ReservationType extends AbstractType
         ->add('exp')  
         ->add('statut') 
         ->add('date', DateType::class, [
-            'widget' => 'single_text', // This is ONLY allowed on Date/Time types
-        ]);
+    'widget' => 'single_text',
+    'required' => true, // Adds client-side validation
+]);
     }
 
     public function configureOptions(OptionsResolver $resolver): void

@@ -18,7 +18,6 @@
     --danger: #ef4444;
     --warning: #f59e0b;
 }
-
 .kpi_grid {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
@@ -52,7 +51,6 @@
     transform: translateY(-50%);
     font-size: 38px; opacity: 0.06;
 }
-
 .tbl_card {
     background: var(--white);
     border-radius: 12px;
@@ -71,7 +69,6 @@
 .tbl_head h3 {
     font-size: 15px; font-weight: 700; color: var(--ink);
 }
-
 .search_wrap { position: relative; }
 .search_input {
     height: 36px; border: 1.5px solid #e8e4f5; border-radius: 9px;
@@ -84,7 +81,6 @@
     position: absolute; left: 11px; top: 50%;
     transform: translateY(-50%); color: var(--grey); font-size: 12px;
 }
-
 .filter_pills { display: flex; gap: 6px; }
 .filter_pill {
     height: 33px; padding: 0 14px;
@@ -96,7 +92,6 @@
     border-color: var(--violet); color: var(--violet);
     background: rgba(124,58,237,0.07);
 }
-
 .adm_table {
     width: 100%; border-collapse: collapse; font-size: 13px;
 }
@@ -109,7 +104,6 @@
 .adm_table tbody tr { border-bottom: 1px solid #f8f6fc; }
 .adm_table tbody tr:hover { background: #faf8ff; }
 .adm_table td { padding: 13px 16px; color: #333; vertical-align: middle; }
-
 .ev_thumb {
     width: 42px; height: 42px; border-radius: 9px;
     background: linear-gradient(135deg, var(--gold), var(--violet));
@@ -118,7 +112,6 @@
 .ev_thumb img { width: 100%; height: 100%; object-fit: cover; }
 .ev_name_cell { display: flex; align-items: center; gap: 11px; }
 .ev_name_cell .nm { font-weight: 600; color: var(--ink); font-size: 13px; }
-
 .badge {
     display: inline-block; padding: 3px 10px; border-radius: 6px;
     font-size: 10px; font-weight: 700; text-transform: uppercase;
@@ -126,10 +119,8 @@
 .badge-active { background: rgba(16,185,129,0.1); color: var(--success); }
 .badge-cancelled { background: rgba(239,68,68,0.1); color: var(--danger); }
 .badge-pending { background: rgba(245,158,11,0.1); color: var(--warning); }
-
 .td_acts { display: flex; gap: 5px; }
 .btn-sm { height: 30px; padding: 0 12px; font-size: 11px; border-radius: 6px; }
-
 .form_card {
     background: var(--white);
     border-radius: 16px;
@@ -165,7 +156,6 @@ select.fi {
 }
 .fg_row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
 .fg_row3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
-
 .img_upload_zone {
     border: 2px dashed #d0cae8;
     border-radius: 12px;
@@ -200,7 +190,6 @@ select.fi {
     cursor: pointer; font-size: 12px;
 }
 .img_preview_wrap .remove_img:hover { background: var(--danger); }
-
 .detail_grid {
     display: grid;
     grid-template-columns: 1fr 320px;
@@ -217,7 +206,6 @@ select.fi {
     text-transform: uppercase; color: var(--grey); background: #faf9fd;
 }
 .detail_tbl td { padding: 13px 18px; color: var(--ink); }
-
 .side_card {
     background: var(--white); border-radius: 12px;
     overflow: hidden; margin-bottom: 16px;
@@ -248,7 +236,6 @@ select.fi {
     font-size: 16px; font-weight: 700;
     padding: 6px 14px; border-radius: 8px;
 }
-
 .del_overlay {
     position: fixed; inset: 0;
     background: rgba(10,5,30,0.65);
@@ -266,7 +253,6 @@ select.fi {
 .del_icon { font-size: 50px; margin-bottom: 14px; }
 .del_box h3 { font-size: 19px; color: var(--ink); margin-bottom: 10px; }
 .del_acts { display: flex; gap: 12px; justify-content: center; margin-top: 24px; }
-
 .btn {
     display: inline-flex; align-items: center; gap: 7px;
     height: 40px; padding: 0 18px; border-radius: 9px;
@@ -279,14 +265,12 @@ select.fi {
 .btn-outline:hover { border-color: var(--deep); background: var(--deep); color: #fff; }
 .btn-danger { background: var(--danger); color: #fff; }
 .btn-danger:hover { opacity: 0.85; color: #fff; }
-.btn-success { background: var(--success); color: #fff; }
 .btn-dark { background: var(--deep); color: #fff; }
 </style>
 {% endblock %}
 
 {% block content %}
 
-{# ══════════════════════ LIST MODE ══════════════════════ #}
 {% if mode == 'list' %}
 
     {% set total_events = events|length %}
@@ -401,6 +385,9 @@ select.fi {
                             <td><span class="badge badge-{{ e.status|lower }}">{{ e.status }}</span></td>
                             <td>
                                 <div class="td_acts">
+                                    <a href="{{ path('participation_index', {id_event: e.id_event}) }}" class="btn btn-dark btn-sm" title="Participations">
+                                        <i class="fa fa-users"></i>
+                                    </a>
                                     <a href="{{ path('event_show', {id_event: e.id_event}) }}" class="btn btn-dark btn-sm" title="View">
                                         <i class="fa fa-eye"></i>
                                     </a>
@@ -423,7 +410,6 @@ select.fi {
         {% endif %}
     </div>
 
-{# ══════════════════════ NEW & EDIT MODE ══════════════════════ #}
 {% elseif mode == 'new' or mode == 'edit' %}
 
     <div style="margin-bottom: 24px;">
@@ -561,7 +547,6 @@ select.fi {
         </form>
     </div>
 
-{# ══════════════════════ SHOW MODE ══════════════════════ #}
 {% elseif mode == 'show' %}
 
     {% set filled = event.capacity - event.available_places %}
@@ -570,6 +555,9 @@ select.fi {
     <div style="margin-bottom: 24px;">
         <a href="{{ path('event_index') }}" class="btn btn-outline">
             <i class="fa fa-arrow-left"></i> Back to Events
+        </a>
+        <a href="{{ path('participation_index', {id_event: event.id_event}) }}" class="btn btn-primary" style="margin-left: 10px;">
+            <i class="fa fa-users"></i> View Participations
         </a>
         <a href="{{ path('event_edit', {id_event: event.id_event}) }}" class="btn btn-primary" style="margin-left: 10px;">
             <i class="fa fa-pencil"></i> Edit Event
@@ -605,7 +593,6 @@ select.fi {
                 {% endif %}
                 <div class="price_tag">{{ event.price == 0 ? 'Free' : '$' ~ event.price }}</div>
             </div>
-
             <div class="side_card">
                 <div class="side_head"><i class="fa fa-bar-chart"></i> Capacity Stats</div>
                 <div class="side_body">
@@ -620,7 +607,6 @@ select.fi {
 
 {% endif %}
 
-{# ── Delete Confirm Modal ── #}
 <div class="del_overlay" id="delOverlay">
     <div class="del_box">
         <div class="del_icon">🗑️</div>
@@ -637,7 +623,6 @@ select.fi {
 
 <script>
 let currentFilter = 'all';
-
 function applyFilters() {
     const q = (document.getElementById('searchInput') ? document.getElementById('searchInput').value : '').toLowerCase().trim();
     const rows = document.querySelectorAll('#eventsBody tr[data-name]');
@@ -652,32 +637,27 @@ function applyFilters() {
     const nr = document.getElementById('noResults');
     if (nr) nr.style.display = visible === 0 ? 'table-row' : 'none';
 }
-
 function doFilter(status, btn) {
     currentFilter = status;
     document.querySelectorAll('.filter_pill').forEach(p => p.classList.remove('active'));
     btn.classList.add('active');
     applyFilters();
 }
-
-const searchInput = document.getElementById('searchInput');
-if (searchInput) searchInput.addEventListener('input', applyFilters);
-
+if (document.getElementById('searchInput')) {
+    document.getElementById('searchInput').addEventListener('input', applyFilters);
+}
 function confirmDelete(url, name) {
     document.getElementById('delMsg').textContent = 'Delete "' + name + '"? All participations will also be removed. This cannot be undone.';
     document.getElementById('delConfirmBtn').href = url;
     document.getElementById('delOverlay').classList.add('open');
 }
 function closeDelete() { document.getElementById('delOverlay').classList.remove('open'); }
-document.getElementById('delOverlay').addEventListener('click', function(e) { if (e.target === this) closeDelete(); });
-
+if (document.getElementById('delOverlay')) {
+    document.getElementById('delOverlay').addEventListener('click', function(e) { if (e.target === this) closeDelete(); });
+}
 function handleFileSelect(input) {
     const file = input.files[0];
     if (!file) return;
-    showPreview(file);
-}
-
-function showPreview(file) {
     const reader = new FileReader();
     reader.onload = function(e) {
         document.getElementById('imgPreviewEl').src = e.target.result;
@@ -686,7 +666,6 @@ function showPreview(file) {
     };
     reader.readAsDataURL(file);
 }
-
 function clearImage() {
     document.getElementById('imgPreview').style.display = 'none';
     document.getElementById('uploadZone').style.display = 'block';
@@ -694,5 +673,4 @@ function clearImage() {
     document.getElementById('imgPreviewEl').src = '';
 }
 </script>
-
 {% endblock %}

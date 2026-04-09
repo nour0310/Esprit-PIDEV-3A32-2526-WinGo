@@ -4,155 +4,113 @@ namespace App\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
-use App\Entity\Event;
 
 #[ORM\Entity]
 class Participation
 {
-
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(type: "integer")]
-    private int $id_participation;
+    private ?int $id_participation = null;
 
     #[ORM\ManyToOne(targetEntity: Event::class, inversedBy: "participations")]
     #[ORM\JoinColumn(name: 'id_event', referencedColumnName: 'id_event', onDelete: 'CASCADE')]
-    #[Assert\NotNull(message: "L'événement est obligatoire")]
-    private Event $id_event;
+    #[Assert\NotNull(message: "Event is required")]
+    private ?Event $id_event = null;
 
     #[ORM\Column(type: "integer")]
-    #[Assert\NotBlank(message: "L'ID de l'utilisateur est obligatoire")]
-    private int $id_user;
+    #[Assert\NotBlank(message: "User ID is required")]
+    private int $id_user = 0;
 
     #[ORM\Column(type: "datetime")]
-    #[Assert\NotBlank(message: "La date de participation est obligatoire")]
-    #[Assert\Type("\DateTimeInterface")]
-    private \DateTimeInterface $date_participation;
+    #[Assert\NotBlank(message: "Date is required")]
+    private ?\DateTimeInterface $date_participation = null;
 
     #[ORM\Column(type: "string", length: 50)]
-    #[Assert\NotBlank(message: "Le statut est obligatoire")]
-    private string $statut;
+    #[Assert\NotBlank(message: "Status is required")]
+    private string $statut = 'pending';
 
     #[ORM\Column(type: "string", length: 100)]
-    #[Assert\NotBlank(message: "Le nom est obligatoire")]
-    private string $nom_participant;
+    #[Assert\NotBlank(message: "Last name is ")]
+    #[Assert\Length(min: 2, minMessage: "Last name must have at least {{ limit }} characters")]
+    private string $nom_participant = '';
 
     #[ORM\Column(type: "string", length: 100)]
-    #[Assert\NotBlank(message: "Le prénom est obligatoire")]
-    private string $prenom_participant;
+    #[Assert\NotBlank(message: "First name is required")]
+    #[Assert\Length(min: 2, minMessage: "First name must have at least {{ limit }} characters")]
+    private string $prenom_participant = '';
 
     #[ORM\Column(type: "string", length: 150)]
-    #[Assert\NotBlank(message: "L'email est obligatoire")]
-    #[Assert\Email(message: "L'email '{{ value }}' n'est pas un email valide.")]
-    private string $email_participant;
+    #[Assert\NotBlank(message: "Email is required")]
+    #[Assert\Email(message: "The email '{{ value }}' is not valid")]
+    private string $email_participant = '';
 
     #[ORM\Column(type: "string", length: 30)]
-    #[Assert\NotBlank(message: "Le téléphone est obligatoire")]
-    #[Assert\Length(min: 8, minMessage: "Le téléphone doit avoir au moins {{ limit }} chiffres")]
-    private string $telephone;
+    #[Assert\NotBlank(message: "Phone number is required")]
+    private string $telephone = '';
 
     #[ORM\Column(type: "integer")]
-    #[Assert\NotBlank(message: "Le nombre de places est obligatoire")]
-    #[Assert\Positive(message: "Le nombre de places doit être positif")]
-    private int $nombre_places;
+    #[Assert\NotBlank(message: "Number of seats is required")]
+    #[Assert\Positive(message: "Number of seats must be positive")]
+    private int $nombre_places = 0;
 
-    public function getId_participation()
-    {
-        return $this->id_participation;
-    }
+    // ──────────────────────────────────────────────
+    // Getters / Setters (camelCase – utilisés par Symfony)
+    // ──────────────────────────────────────────────
+    public function getIdParticipation(): ?int { return $this->id_participation; }
+    public function setIdParticipation(?int $id): self { $this->id_participation = $id; return $this; }
 
-    public function setId_participation($value)
-    {
-        $this->id_participation = $value;
-    }
+    public function getIdEvent(): ?Event { return $this->id_event; }
+    public function setIdEvent(?Event $event): self { $this->id_event = $event; return $this; }
 
-    public function getId_event()
-    {
-        return $this->id_event;
-    }
+    public function getIdUser(): int { return $this->id_user; }
+    public function setIdUser(int $id): self { $this->id_user = $id; return $this; }
 
-    public function setId_event($value)
-    {
-        $this->id_event = $value;
-    }
+    public function getDateParticipation(): ?\DateTimeInterface { return $this->date_participation; }
+    public function setDateParticipation(?\DateTimeInterface $date): self { $this->date_participation = $date; return $this; }
 
-    public function getId_user()
-    {
-        return $this->id_user;
-    }
+    public function getStatut(): string { return $this->statut; }
+    public function setStatut(string $statut): self { $this->statut = $statut; return $this; }
 
-    public function setId_user($value)
-    {
-        $this->id_user = $value;
-    }
+    public function getNomParticipant(): string { return $this->nom_participant; }
+    public function setNomParticipant(?string $nom): self { $this->nom_participant = $nom ?? ''; return $this; }
 
-    public function getDate_participation()
-    {
-        return $this->date_participation;
-    }
+    public function getPrenomParticipant(): string { return $this->prenom_participant; }
+    public function setPrenomParticipant(?string $prenom): self { $this->prenom_participant = $prenom ?? ''; return $this; }
 
-    public function setDate_participation($value)
-    {
-        $this->date_participation = $value;
-    }
+    public function getEmailParticipant(): string { return $this->email_participant; }
+    public function setEmailParticipant(?string $email): self { $this->email_participant = $email ?? ''; return $this; }
 
-    public function getStatut()
-    {
-        return $this->statut;
-    }
+    public function getTelephone(): string { return $this->telephone; }
+    public function setTelephone(?string $tel): self { $this->telephone = $tel ?? ''; return $this; }
 
-    public function setStatut($value)
-    {
-        $this->statut = $value;
-    }
+    public function getNombrePlaces(): int { return $this->nombre_places; }
+    public function setNombrePlaces(int $nb): self { $this->nombre_places = $nb; return $this; }
 
-    public function getNom_participant()
-    {
-        return $this->nom_participant;
-    }
+    // ──────────────────────────────────────────────
+    // Aliases underscore (pour compatibilité avec l'existant)
+    // ──────────────────────────────────────────────
+    public function getId_participation(): ?int { return $this->id_participation; }
+    public function setId_participation($value): self { $this->id_participation = $value; return $this; }
 
-    public function setNom_participant($value)
-    {
-        $this->nom_participant = $value;
-    }
+    public function getId_event(): ?Event { return $this->id_event; }
+    public function setId_event($value): self { $this->id_event = $value; return $this; }
 
-    public function getPrenom_participant()
-    {
-        return $this->prenom_participant;
-    }
+    public function getId_user(): int { return $this->id_user; }
+    public function setId_user($value): self { $this->id_user = $value; return $this; }
 
-    public function setPrenom_participant($value)
-    {
-        $this->prenom_participant = $value;
-    }
+    public function getDate_participation(): ?\DateTimeInterface { return $this->date_participation; }
+    public function setDate_participation($value): self { $this->date_participation = $value; return $this; }
 
-    public function getEmail_participant()
-    {
-        return $this->email_participant;
-    }
+    public function getNom_participant(): string { return $this->nom_participant; }
+    public function setNom_participant($value): self { $this->nom_participant = $value ?? ''; return $this; }
 
-    public function setEmail_participant($value)
-    {
-        $this->email_participant = $value;
-    }
+    public function getPrenom_participant(): string { return $this->prenom_participant; }
+    public function setPrenom_participant($value): self { $this->prenom_participant = $value ?? ''; return $this; }
 
-    public function getTelephone()
-    {
-        return $this->telephone;
-    }
+    public function getEmail_participant(): string { return $this->email_participant; }
+    public function setEmail_participant($value): self { $this->email_participant = $value ?? ''; return $this; }
 
-    public function setTelephone($value)
-    {
-        $this->telephone = $value;
-    }
-
-    public function getNombre_places()
-    {
-        return $this->nombre_places;
-    }
-
-    public function setNombre_places($value)
-    {
-        $this->nombre_places = $value;
-    }
+    public function getNombre_places(): int { return $this->nombre_places; }
+    public function setNombre_places($value): self { $this->nombre_places = $value; return $this; }
 }

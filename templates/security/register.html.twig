@@ -17,7 +17,8 @@
     .auth_btn:hover { opacity: 0.9; transform: translateY(-1px); }
     .auth_link { text-align: center; margin-top: 20px; font-size: 14px; color: #666; }
     .auth_link a { color: #fa9e1b; font-weight: 600; text-decoration: none; }
-    .alert_error { background: #fff3f3; border: 1px solid #ffcdd2; color: #c62828; padding: 12px 16px; border-radius: 8px; margin-bottom: 20px; font-size: 14px; }
+    .alert_error { background: #fff5f5; border: 1px solid #feb2b2; color: #9b2c2c; padding: 14px 18px; border-radius: 12px; margin-bottom: 25px; font-size: 14.5px; display: flex; align-items: center; gap: 10px; box-shadow: 0 4px 12px rgba(155,44,44,0.08); animation: shake 0.5s ease-in-out; }
+    @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-5px); } 75% { transform: translateX(5px); } }
     .wingo_logo_auth { text-align: center; margin-bottom: 24px; }
     .wingo_logo_auth span { font-size: 36px; font-weight: 800; background: linear-gradient(135deg, #fa9e1b, #8d4fff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
     .row_fields { display: flex; gap: 12px; }
@@ -39,23 +40,23 @@
                         <div class="alert_error"><i class="fa fa-exclamation-circle"></i> {{ error }}</div>
                     {% endif %}
 
-                    <form method="post" action="{{ path('app_register') }}">
+                    <form method="post" action="{{ path('app_register') }}" novalidate>
                         <div class="row_fields">
                             <div>
                                 <label class="auth_label" for="prenom">Prénom *</label>
-                                <input class="auth_input" type="text" id="prenom" name="prenom" placeholder="Votre prénom" required>
+                                <input class="auth_input" type="text" id="prenom" name="prenom" placeholder="Votre prénom">
                             </div>
                             <div>
                                 <label class="auth_label" for="nom">Nom *</label>
-                                <input class="auth_input" type="text" id="nom" name="nom" placeholder="Votre nom" required>
+                                <input class="auth_input" type="text" id="nom" name="nom" placeholder="Votre nom">
                             </div>
                         </div>
 
                         <label class="auth_label" for="email">Adresse email *</label>
-                        <input class="auth_input" type="email" id="email" name="email" placeholder="votre@email.com" required>
+                        <input class="auth_input" type="text" id="email" name="email" placeholder="votre@email.com">
 
                         <label class="auth_label" for="password">Mot de passe *</label>
-                        <input class="auth_input" type="password" id="password" name="password" placeholder="••••••••" required>
+                        <input class="auth_input" type="password" id="password" name="password" placeholder="••••••••">
 
                         <div class="row_fields">
                             <div>

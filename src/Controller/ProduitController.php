@@ -17,14 +17,13 @@ use Symfony\Component\String\Slugger\SluggerInterface;
 #[Route('/produit')]
 final class ProduitController extends AbstractController
 {
-   #[Route('/produits', name: 'client_produits')]
-    public function list(ProduitRepository $repo): Response
-    {
-        return $this->render('client/produits.html.twig', [
-            'produits' => $repo->findAll()
-        ]);
-    }
-
+  #[Route('/produits/all', name: 'produit_list_all')]
+public function list(ProduitRepository $repo): Response
+{
+    return $this->render('client/produits.html.twig', [
+        'produits' => $repo->findAll()
+    ]);
+}
     #[Route('/details/{id}', name: 'produit_details')]
     public function details($id, ProduitRepository $repo): Response
     {

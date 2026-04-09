@@ -5,6 +5,7 @@ namespace App\Entity;
 use Doctrine\ORM\Mapping as ORM;
 
 use App\Entity\Utilisateur;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity]
 class Reservation
@@ -16,16 +17,19 @@ class Reservation
     private ?int $id=null;
 
     #[ORM\Column(type: "string", length: 250)]
-    private string $user;
+    #[Assert\NotBlank(message: "votre nom est obligatoire")] // [cite: 45]
+    private ?string $user = null;
+    #[ORM\Column(type: "string", length: 250)]
+    #[Assert\NotBlank(message: "Le lieu d'expédition est obligatoire")] // [cite: 45]
+    private ?string $exp = null;
 
     #[ORM\Column(type: "string", length: 250)]
-    private string $exp;
-
-    #[ORM\Column(type: "string", length: 250)]
-    private string $statut;
+    #[Assert\NotBlank(message: "Le statut est obligatoire")] // [cite: 45, 129]
+    private ?string $statut = null;
 
     #[ORM\Column(type: "datetime")]
-    private \DateTimeInterface $date;
+    #[Assert\NotBlank(message: "La date est obligatoire")] 
+    private ?\DateTimeInterface $date = null;
 
     #[ORM\ManyToOne(targetEntity: Utilisateur::class)]
     #[ORM\JoinColumn(name: "user_id", referencedColumnName: "id", nullable: true)]
@@ -75,9 +79,10 @@ class Reservation
         return $this->date;
     }
 
-    public function setDate($value)
+    public function setDate(?\DateTimeInterface $date): self
     {
-        $this->date = $value;
+        $this->date = $date;
+        return $this;
     }
 
    public function getUser_id(): ?Utilisateur

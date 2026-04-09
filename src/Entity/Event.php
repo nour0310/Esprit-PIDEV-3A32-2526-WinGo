@@ -3,230 +3,249 @@
 namespace App\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
-use Symfony\Component\Validator\Constraints as Assert;
-
-use Doctrine\Common\Collections\Collection;
-use App\Entity\Participation;
 
 #[ORM\Entity]
 class Event
 {
-
     #[ORM\Id]
     #[ORM\GeneratedValue]
-    #[ORM\Column(type: "integer")]
-    private int $id_event;
+    #[ORM\Column]
+    private ?int $id_event = null;
 
-    #[ORM\Column(type: "string", length: 255)]
-    #[Assert\NotBlank(message: "Le titre est obligatoire")]
-    #[Assert\Length(min: 3, max: 255, minMessage: "Le titre doit comporter au moins {{ limit }} caractères")]
-    private string $title;
+    #[ORM\Column(length: 255)]
+    private ?string $title = null;
 
-    #[ORM\Column(type: "text")]
-    #[Assert\NotBlank(message: "La description est obligatoire")]
-    private string $description;
+    #[ORM\Column(type: 'text')]
+    private ?string $description = null;
 
-    #[ORM\Column(type: "date")]
-    #[Assert\NotBlank(message: "La date est obligatoire")]
-    #[Assert\Type("\DateTimeInterface")]
-    private \DateTimeInterface $date_event;
+    #[ORM\Column(type: 'datetime')]
+    private ?\DateTimeInterface $date_event = null;
 
-    #[ORM\Column(type: "string")]
-    #[Assert\NotBlank(message: "L'heure de début est obligatoire")]
-    private string $start_time;
+    #[ORM\Column(length: 10)]
+    private ?string $start_time = null;
 
-    #[ORM\Column(type: "string", length: 255)]
-    #[Assert\NotBlank(message: "L'emplacement est obligatoire")]
-    private string $location;
+    #[ORM\Column(length: 255)]
+    private ?string $location = null;
 
-    #[ORM\Column(type: "string", length: 100)]
-    #[Assert\NotBlank(message: "Le type d'événement est obligatoire")]
-    private string $event_type;
+    #[ORM\Column(length: 50)]
+    private ?string $event_type = null;
 
-    #[ORM\Column(type: "string", length: 50)]
-    #[Assert\NotBlank(message: "La saison est obligatoire")]
-    private string $season;
+    #[ORM\Column(length: 20)]
+    private ?string $season = null;
 
-    #[ORM\Column(type: "integer")]
-    #[Assert\NotBlank(message: "La capacité est obligatoire")]
-    #[Assert\Positive(message: "La capacité doit être positive")]
-    private int $capacity;
+    #[ORM\Column]
+    private ?int $capacity = null;
 
-    #[ORM\Column(type: "integer")]
-    #[Assert\NotBlank(message: "Le nombre de places disponibles est obligatoire")]
-    #[Assert\PositiveOrZero(message: "Le nombre de places doit être positif ou nul")]
-    private int $available_places;
+    #[ORM\Column]
+    private ?int $available_places = null;
 
-    #[ORM\Column(type: "string", length: 50)]
-    #[Assert\NotBlank(message: "Le statut est obligatoire")]
-    private string $status;
+    #[ORM\Column(length: 20)]
+    private ?string $status = null;
 
-    #[ORM\Column(type: "string", length: 255)]
-    #[Assert\NotBlank(message: "L'image est obligatoire")]
-    private string $image_event;
+    #[ORM\Column(type: 'float')]
+    private ?float $price = null;
 
-    #[ORM\Column(type: "float")]
-    #[Assert\NotBlank(message: "Le prix est obligatoire")]
-    #[Assert\PositiveOrZero(message: "Le prix doit être positif ou nul")]
-    private float $price;
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $image_event = null;
 
-    public function getId_event()
+    public function __construct()
+    {
+        $this->image_event = null;
+    }
+
+    // --- Getters / Setters (camelCase) ---
+
+    public function getIdEvent(): ?int
     {
         return $this->id_event;
     }
 
-    public function setId_event($value)
-    {
-        $this->id_event = $value;
-    }
-
-    public function getTitle()
+    public function getTitle(): ?string
     {
         return $this->title;
     }
 
-    public function setTitle($value)
+    public function setTitle(?string $title): self
     {
-        $this->title = $value;
+        $this->title = $title;
+        return $this;
     }
 
-    public function getDescription()
+    public function getDescription(): ?string
     {
         return $this->description;
     }
 
-    public function setDescription($value)
+    public function setDescription(?string $description): self
     {
-        $this->description = $value;
+        $this->description = $description;
+        return $this;
     }
 
-    public function getDate_event()
+    public function getDateEvent(): ?\DateTimeInterface
     {
         return $this->date_event;
     }
 
-    public function setDate_event($value)
+    public function setDateEvent(?\DateTimeInterface $date_event): self
     {
-        $this->date_event = $value;
+        $this->date_event = $date_event;
+        return $this;
     }
 
-    public function getStart_time()
+    public function getStartTime(): ?string
     {
         return $this->start_time;
     }
 
-    public function setStart_time($value)
+    public function setStartTime(?string $start_time): self
     {
-        $this->start_time = $value;
+        $this->start_time = $start_time;
+        return $this;
     }
 
-    public function getLocation()
+    public function getLocation(): ?string
     {
         return $this->location;
     }
 
-    public function setLocation($value)
+    public function setLocation(?string $location): self
     {
-        $this->location = $value;
+        $this->location = $location;
+        return $this;
     }
 
-    public function getEvent_type()
+    public function getEventType(): ?string
     {
         return $this->event_type;
     }
 
-    public function setEvent_type($value)
+    public function setEventType(?string $event_type): self
     {
-        $this->event_type = $value;
+        $this->event_type = $event_type;
+        return $this;
     }
 
-    public function getSeason()
+    public function getSeason(): ?string
     {
         return $this->season;
     }
 
-    public function setSeason($value)
+    public function setSeason(?string $season): self
     {
-        $this->season = $value;
+        $this->season = $season;
+        return $this;
     }
 
-    public function getCapacity()
+    public function getCapacity(): ?int
     {
         return $this->capacity;
     }
 
-    public function setCapacity($value)
+    public function setCapacity(?int $capacity): self
     {
-        $this->capacity = $value;
+        $this->capacity = $capacity;
+        return $this;
     }
 
-    public function getAvailable_places()
+    public function getAvailablePlaces(): ?int
     {
         return $this->available_places;
     }
 
-    public function setAvailable_places($value)
+    public function setAvailablePlaces(?int $available_places): self
     {
-        $this->available_places = $value;
+        $this->available_places = $available_places;
+        return $this;
     }
 
-    public function getStatus()
+    public function getStatus(): ?string
     {
         return $this->status;
     }
 
-    public function setStatus($value)
+    public function setStatus(?string $status): self
     {
-        $this->status = $value;
+        $this->status = $status;
+        return $this;
     }
 
-    public function getImage_event()
-    {
-        return $this->image_event;
-    }
-
-    public function setImage_event($value)
-    {
-        $this->image_event = $value;
-    }
-
-    public function getPrice()
+    public function getPrice(): ?float
     {
         return $this->price;
     }
 
-    public function setPrice($value)
+    public function setPrice(?float $price): self
     {
-        $this->price = $value;
+        $this->price = $price;
+        return $this;
     }
 
-    #[ORM\OneToMany(mappedBy: "id_event", targetEntity: Participation::class)]
-    private Collection $participations;
+    public function getImageEvent(): ?string
+    {
+        return $this->image_event;
+    }
 
-        public function getParticipations(): Collection
-        {
-            return $this->participations;
-        }
-    
-        public function addParticipation(Participation $participation): self
-        {
-            if (!$this->participations->contains($participation)) {
-                $this->participations[] = $participation;
-                $participation->setId_event($this);
-            }
-    
-            return $this;
-        }
-    
-        public function removeParticipation(Participation $participation): self
-        {
-            if ($this->participations->removeElement($participation)) {
-                // set the owning side to null (unless already changed)
-                if ($participation->getId_event() === $this) {
-                    $participation->setId_event(null);
-                }
-            }
-    
-            return $this;
-        }
+    public function setImageEvent(?string $image_event): self
+    {
+        $this->image_event = $image_event;
+        return $this;
+    }
+
+    // --- Aliases snake_case pour compatibilité avec les templates ---
+
+    public function getId_event(): ?int
+    {
+        return $this->getIdEvent();
+    }
+
+    public function getImage_event(): ?string
+    {
+        return $this->getImageEvent();
+    }
+
+    public function setImage_event(?string $image_event): self
+    {
+        return $this->setImageEvent($image_event);
+    }
+
+    public function getAvailable_places(): ?int
+    {
+        return $this->getAvailablePlaces();
+    }
+
+    public function setAvailable_places(?int $available_places): self
+    {
+        return $this->setAvailablePlaces($available_places);
+    }
+
+    public function getDate_event(): ?\DateTimeInterface
+    {
+        return $this->getDateEvent();
+    }
+
+    public function setDate_event(?\DateTimeInterface $date_event): self
+    {
+        return $this->setDateEvent($date_event);
+    }
+
+    public function getStart_time(): ?string
+    {
+        return $this->getStartTime();
+    }
+
+    public function setStart_time(?string $start_time): self
+    {
+        return $this->setStartTime($start_time);
+    }
+
+    public function getEvent_type(): ?string
+    {
+        return $this->getEventType();
+    }
+
+    public function setEvent_type(?string $event_type): self
+    {
+        return $this->setEventType($event_type);
+    }
 }

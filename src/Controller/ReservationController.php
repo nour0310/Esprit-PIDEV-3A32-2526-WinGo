@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\Reservation;
+use App\Entity\Utilisateur;
 use App\Form\ReservationType;
 use App\Repository\ReservationRepository;
 use Doctrine\Persistence\ManagerRegistry;
@@ -40,40 +41,40 @@ public function listReservationsFromDB(ReservationRepository $repo): Response
 
     #[Route('/add', name: "addReservation")]
     public function addReservation(ManagerRegistry $manager, Request $request): Response
-    {
-        $em = $manager->getManager();
-        $newReservation = new Reservation();
-        $reservation->setUser_id($this->getUser());
-        $form = $this->createForm(ReservationType::class, $newReservation);
+{
+    $em = $manager->getManager();
+    $newReservation = new Reservation();
+    
+    $form = $this->createForm(ReservationType::class, $newReservation);
+    $form->handleRequest($request);
+
+    // isValid() now checks the #[Assert] tags in your Entity automatically 
+    if ($form->isSubmitted() && $form->isValid()) {
         
-        $form->handleRequest($request);
-        if ($form->isSubmitted()) {
-            // 1. Check if Type is empty
-        if (empty($reservation->getUser())) {
-            $errors[] = "veuillez saisir votre nom ou une abréviation.";
-        }
-        if (empty($reservation->getStatut())) {
-            $errors[] = "veuillez remplir ce champ.";
-        }
-        if (empty($reservation->getExp())) {
-            $errors[] = "Le lieu où vous voulez reserver.";
-        }
-        }
-        
-        if ($form->isSubmitted()) {
-            $em->persist($newReservation);
-            $em->flush();
-            return $this->redirectToRoute('displayReservation');
+        $user = $this->getUser(); 
+        if ($user) {
+            $newReservation->setUser_id($user); 
+        } else {
+            throw $this->createAccessDeniedException('Vous devez être connecté.');
         }
 
-        return $this->render('reservation/add.html.twig', ['f' => $form]);
+        $em->persist($newReservation);
+        $em->flush(); // [cite: 59]
+        return $this->redirectToRoute('displayReservation'); // [cite: 60]
     }
+
+    // Use render() to pass the form to Twig [cite: 62]
+    return $this->render('reservation/add.html.twig', [
+        'f' => $form->createView()
+    ]);
+}
 
     #[Route('/delete/{id}', name: "deleteReservation")]
     public function delete($id, ManagerRegistry $manager, ReservationRepository $repo): Response
     {
         $em = $manager->getManager();
         $reservation = $repo->find($id);
+        /** @var \App\Entity\Utilisateur $currentUser */
         $currentUser = $this->getUser();
 
     // Compare the integer user_id from the entity to the ID of the logged-in user
@@ -92,10 +93,13 @@ public function listReservationsFromDB(ReservationRepository $repo): Response
     {
         $em = $manager->getManager();
         $reservation = $repo->find($id);
+        /** @var \App\Entity\Utilisateur $currentUser */
         $currentUser = $this->getUser();
 
     // Compare the integer user_id from the entity to the ID of the logged-in user
-    if ($reservation->getUser_id()->getId() !== $currentUser->getId() && !$this->isGranted('ROLE_ADMIN')) {
+ $ownerId = $reservation->getUser_id() ? $reservation->getUser_id()->getId() : null;
+
+if ($ownerId !== $currentUser->getId() && !$this->isGranted('ROLE_ADMIN')) {
     throw $this->createAccessDeniedException('Access Denied: You do not own this record.');
 }
         
@@ -111,7 +115,7 @@ public function listReservationsFromDB(ReservationRepository $repo): Response
         return $this->render('Reservation/offersr.html.twig', ['f' => $form, 'editMode' => true,'list' => $repo->findAll()]);
     }
 
-    #[Route('/search', name: "searchReservationStatut")]
+    /*#[Route('/search', name: "searchReservationStatut")]
     public function searchAndSortReservations(?string $search, ?string $sort)
     {
         $qb = $this->createQueryBuilder('r');
@@ -132,5 +136,5 @@ public function listReservationsFromDB(ReservationRepository $repo): Response
         }
 
         return $qb->getQuery()->getResult();
-    }
+    }*/
 }

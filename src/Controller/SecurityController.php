@@ -52,9 +52,19 @@ class SecurityController extends AbstractController
             $age = $request->request->get('age');
 
             if (empty($email) || empty($password) || empty($nom) || empty($prenom)) {
-                $error = 'Tous les champs obligatoires doivent être remplis.';
+                $error = 'Veuillez remplir tous les champs obligatoires (*).';
+            } elseif (!preg_match('/^[a-zA-Zàáâãäåçèéêëìíîïðòóôõöùúûüýÿ\s-]+$/u', $nom)) {
+                $error = 'Le nom ne doit contenir que des lettres.';
+            } elseif (!preg_match('/^[a-zA-Zàáâãäåçèéêëìíîïðòóôõöùúûüýÿ\s-]+$/u', $prenom)) {
+                $error = 'Le prénom ne doit contenir que des lettres.';
+            } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+                $error = 'L\'adresse email saisie n\'est pas valide.';
+            } elseif (!preg_match('/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/', $password)) {
+                $error = 'Le mot de passe doit contenir au moins 8 caractères, incluant une majuscule, une minuscule et un chiffre.';
+            } elseif ($age !== null && $age !== '' && $age < 18) {
+                $error = 'Vous devez avoir au moins 18 ans pour vous inscrire.';
             } elseif ($repo->findOneBy(['email' => $email])) {
-                $error = 'Un compte avec cet email existe déjà.';
+                $error = 'Un compte avec cette adresse email existe déjà.';
             } else {
                 $user = new Utilisateur();
                 $user->setNom($nom);
@@ -70,7 +80,7 @@ class SecurityController extends AbstractController
                 $em->persist($user);
                 $em->flush();
 
-                $this->addFlash('success', 'Compte créé avec succès ! Vous pouvez maintenant vous connecter.');
+                $this->addFlash('success', 'Votre compte a été créé avec succès ! Connectez-vous maintenant.');
                 return $this->redirectToRoute('app_login');
             }
         }

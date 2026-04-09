@@ -3,294 +3,209 @@
 {% block title %}Offers - Travelix{% endblock %}
 
 {% block stylesheets %}
-<link rel="stylesheet" type="text/css" href="{{ asset('styles/offers_styles.css') }}">
-<link rel="stylesheet" type="text/css" href="{{ asset('styles/offers_responsive.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ asset('styles/offers_styles.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ asset('styles/offers_responsive.css') }}">
 {% endblock %}
 
 {% block content %}
 
-	<!-- Home Banner -->
-	<div class="home" style="width: 100%; height: 60vh; position: relative;">
+    <div class="home" style="width: 100%; height: 60vh; position: relative;">
         <div class="home_background" style="background-image: url('{{ asset('images/about_background.jpg') }}'); background-size: cover; background-position: center; width: 100%; height: 100%; position: absolute; top: 0; left: 0; z-index: 1;"></div>
-        
         <div class="home_content" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 2; width: 100%; text-align: center;">
             <div class="home_title" style="color: #FFFFFF; font-size: 72px; font-weight: 800; text-transform: uppercase;">our offers</div>
         </div>
     </div>
 
-	<!-- Offers -->
-	<div class="offers">
+    <div class="offers">
+        <div class="search">
+            <div class="search_inner">
+                <div class="container fill_height no-padding">
+                    <div class="row fill_height no-margin">
+                        <div class="col fill_height no-padding">
 
-		<!-- Search -->
-		<div class="search">
-			<div class="search_inner">
-				<div class="container fill_height no-padding">
-					<div class="row fill_height no-margin">
-						<div class="col fill_height no-padding">
+                            <div class="search_tabs_container">
+                                <div class="search_tabs d-flex flex-lg-row flex-column align-items-lg-center align-items-start justify-content-lg-between justify-content-start">
+                                    <div class="search_tab active d-flex flex-row align-items-center justify-content-lg-center justify-content-start"><img src="{{ asset('images/suitcase.png') }}" alt=""><span>hotels</span></div>
+                                    <div class="search_tab d-flex flex-row align-items-center justify-content-lg-center justify-content-start"><img src="{{ asset('images/bus.png') }}" alt=""><a href="{{ path('app_front_offers') }}">car rentals</a></div>
+                                    <div class="search_tab d-flex flex-row align-items-center justify-content-lg-center justify-content-start"><img src="{{ asset('images/departure.png') }}" alt=""><a href="{{ path('app_front_offers') }}">flights</a></div>
+                                    <div class="search_tab d-flex flex-row align-items-center justify-content-lg-center justify-content-start"><img src="{{ asset('images/island.png') }}" alt=""><a href="{{ path('app_front_offers') }}">trips</a></div>
+                                    <div class="search_tab d-flex flex-row align-items-center justify-content-lg-center justify-content-start"><img src="{{ asset('images/cruise.png') }}" alt=""><a href="{{ path('app_front_reservations') }}">cruises</a></div>
+                                    <div class="search_tab d-flex flex-row align-items-center justify-content-lg-center justify-content-start"><img src="{{ asset('images/diving.png') }}" alt=""><a href="{{ path('app_front_reservations') }}">activities</a></div>
+                                </div>
+                            </div>
 
-							<!-- Search Tabs -->
-							<div class="search_tabs_container">
-								<div class="search_tabs d-flex flex-lg-row flex-column align-items-lg-center align-items-start justify-content-lg-between justify-content-start">
-									<div class="search_tab active d-flex flex-row align-items-center justify-content-lg-center justify-content-start"><img src="{{ asset('images/suitcase.png') }}" alt=""><span>hotels</span></div>
-									<div class="search_tab d-flex flex-row align-items-center justify-content-lg-center justify-content-start"><img src="{{ asset('images/bus.png') }}" alt=""><a href="{{ path('app_front_offers') }}">car rentals</a></div>
-									<div class="search_tab d-flex flex-row align-items-center justify-content-lg-center justify-content-start"><img src="{{ asset('images/departure.png') }}" alt=""><a href="{{ path('app_front_offers') }}">flights</a></div>
-									<div class="search_tab d-flex flex-row align-items-center justify-content-lg-center justify-content-start"><img src="{{ asset('images/island.png') }}" alt=""><a href="{{ path('app_front_offers') }}">trips</a></div>
-									<div class="search_tab d-flex flex-row align-items-center justify-content-lg-center justify-content-start"><img src="{{ asset('images/cruise.png') }}" alt=""><a href="{{ path('app_front_reservations') }}">cruises</a></div>
-									<div class="search_tab d-flex flex-row align-items-center justify-content-lg-center justify-content-start"><img src="{{ asset('images/diving.png') }}" alt=""><a href="{{ path('app_front_reservations') }}">activities</a></div>
-								</div>
-							</div>
-
-							<div id="mon_formulaire" class="search_panel active" style="position: relative; z-index: 9999;" onclick="event.stopPropagation();">
-    <div style="padding: 30px; margin-top: 20px; background: rgba(0,0,0,0.1); border-radius: 10px;">
-        
-        {# We add onclick stopPropagation here too, just to be completely safe from the template scripts #}
-        {{ form_start(f, {'attr': {'class': 'row align-items-end', 'onclick': 'event.stopPropagation();'}}) }}
-            
-            <div class="col-md-4 mb-4" style="position: relative; z-index: 10000;">
-                <label style="color: white; font-weight: 700; text-transform: uppercase; font-size: 13px; margin-bottom: 10px; display: block;">Type (ex: Bus)</label>
-                {{ form_widget(f.type, {'attr': {'class': 'form-control', 'style': 'height: 46px; border: none; padding-left: 15px; border-radius: 0; box-shadow: none;'}}) }}
-            </div>
-            
-            <div class="col-md-4 mb-4" style="position: relative; z-index: 10000;">
-                <label style="color: white; font-weight: 700; text-transform: uppercase; font-size: 13px; margin-bottom: 10px; display: block;">Tarif (TND)</label>
-                {{ form_widget(f.tarif, {'attr': {'class': 'form-control', 'style': 'height: 46px; border: none; padding-left: 15px; border-radius: 0; box-shadow: none;'}}) }}
-            </div>
-            
-            <div class="col-md-4 mb-4" style="position: relative; z-index: 10000;">
-                <label style="color: white; font-weight: 700; text-transform: uppercase; font-size: 13px; margin-bottom: 10px; display: block;">Capacité</label>
-                {{ form_widget(f.capacite, {'attr': {'class': 'form-control', 'style': 'height: 46px; border: none; padding-left: 15px; border-radius: 0; box-shadow: none;'}}) }}
-            </div>
-
-            <div class="col-md-4 mb-4" style="position: relative; z-index: 10000;">
-                <label style="color: white; font-weight: 700; text-transform: uppercase; font-size: 13px; margin-bottom: 10px; display: block;">Depart</label>
-                {{ form_widget(f.depart, {'attr': {'class': 'form-control', 'style': 'height: 46px; border: none; padding-left: 15px; border-radius: 0; box-shadow: none;'}}) }}
-            </div>
-
-            <div class="col-md-4 mb-4" style="position: relative; z-index: 10000;">
-                <label style="color: white; font-weight: 700; text-transform: uppercase; font-size: 13px; margin-bottom: 10px; display: block;">Arrivee</label>
-                {{ form_widget(f.arrivee, {'attr': {'class': 'form-control', 'style': 'height: 46px; border: none; padding-left: 15px; border-radius: 0; box-shadow: none;'}}) }}
-            </div>
-
-            <div class="col-md-4 mb-4" style="position: relative; z-index: 10000;">
-                <label style="color: white; font-weight: 700; text-transform: uppercase; font-size: 13px; margin-bottom: 10px; display: block;">Date depart</label>
-                <div style="background: white; padding: 5px 10px; min-height: 46px; display: flex; align-items: center; justify-content: space-between;">
-                    {{ form_widget(f.datedepart) }}
-                </div>
-            </div>
-
-            {# Hidden tokens #}
-            <div style="display: none;">
-                {{ form_rest(f) }}
-            </div>
-
-            <div class="col-12 mt-2 text-center" style="position: relative; z-index: 10000;">
-                <button type="submit" class="button search_button" style="border: none; margin: 0 auto; cursor: pointer; position: relative; z-index: 10000;">ajouter<span></span><span></span><span></span></button>
-				{{ editMode ? 'MODIFIER' : 'AJOUTER' }}
-            </div>
-            
-        {{ form_end(f) }}
+                            <div id="mon_formulaire" class="search_panel active" style="position: relative; z-index: 9999;">
+                                <div style="padding: 30px; margin-top: 20px; background: rgba(0,0,0,0.1); border-radius: 10px;">
+                                    
+                                    {{ form_start(f, {'attr': {'class': 'row align-items-end','novalidate': 'novalidate', 'onclick': 'event.stopPropagation();'}}) }}
+                                        <div class="col-md-4 mb-4">
+    <label style="color: white; ...">Type (ex: Bus)</label>
+    {{ form_widget(f.type, {'attr': {'class': 'form-control ' ~ (f.type.vars.errors|length > 0 ? 'is-invalid' : '')}}) }}
+    
+    {# THIS IS THE IMPORTANT PART FOR VALIDATION #}
+    <div style="color: #ff6b6b; font-size: 12px; margin-top: 5px; font-weight: bold;">
+        {{ form_errors(f.type) }}
     </div>
 </div>
-										{{ form_rest(f) }}
-									</div>
-
-									<button type="submit" class="button search_button" style="margin: 10px; margin-top: 30px;">ajouter<span></span><span></span><span></span></button>
-									
-								{{ form_end(f) }}
-							</div>
-						</div>
-					</div>
-				</div>
-			</div>
-		</div>
-
-		<!-- Offers List -->
-		<div class="container">
-			<div class="row">
-				<div class="col-lg-1 temp_col"></div>
-				<div class="col-lg-11">
-					<!-- Offers Sorting -->
-					<div class="offers_sorting_container d-flex flex-row align-items-end justify-content-start">
-    <div class="sorting_item" style="margin-right: 30px; margin-bottom: 5px;">
-    <form id="searchForm" action="{{ path('app_front_offers') }}" method="get">
-        <input type="text" 
-           id="searchInput" 
-           name="search" 
-           value="{{ searchTerm }}" 
-           placeholder="Rechercher..." 
-           autocomplete="off"
-           style="height: 40px; border: 1px solid #ededed; padding-left: 15px; border-radius: 5px; width: 250px;">
-        <datalist id="searchOptions">
-            </datalist>
-    </form>
-</div>
-
-    <ul class="offers_sorting">
-        <li>
-            <span class="sorting_text">price</span>
-            <i class="fa fa-chevron-down"></i>
-            <ul>
-                {# Link to reset sorting #}
-                <li><a href="{{ path('app_front_offers', {search: searchTerm}) }}">show all</a></li>
-                {# Link to sort by price ascending #}
-                <li><a href="{{ path('app_front_offers', {sort: 'price_asc', search: searchTerm}) }}">ascending</a></li>
-                {# Link to sort by price descending #}
-                <li><a href="{{ path('app_front_offers', {sort: 'price_desc', search: searchTerm}) }}">descending</a></li>
-            </ul>
-        </li>
-
-        <li>
-            <span class="sorting_text">Capacité</span>
-            <i class="fa fa-chevron-down"></i>
-            <ul>
-                {# We use capacity since your Transport might not have 'stars' #}
-                <li><a href="{{ path('app_front_offers', {sort: 'cap_high', search: searchTerm}) }}">high to low</a></li>
-                <li><a href="{{ path('app_front_offers', {sort: 'cap_low', search: searchTerm}) }}">low to high</a></li>
-            </ul>
-        </li>
-    </ul>
-</div>
-				</div>
-
-				<div class="col-lg-12">
-					<div class="offers_grid">
-
-						{% for offer in list %}
-						
-						{# Trick to loop through your 4 static images (1, 2, 3, 4, 1, 2...) #}
-						{% set img_index = (loop.index0 % 4) + 1 %}
-						
-						<div class="offers_item rating_4">
-							<div class="row">
-								<div class="col-lg-1 temp_col"></div>
-								<div class="col-lg-3">
-									<div class="offers_image_container" style="position: relative; width: 100%; height: 260px; overflow: hidden; border-radius: 5px;">
-										
-										<img src="{{ asset('images/offer_' ~ img_index ~ '.jpg') }}" 
-											alt="{{ offer.type }}" 
-											style="width: 100%; height: 100%; object-fit: cover; position: absolute; top: 0; left: 0; z-index: 1;">
-										
-										<div class="offer_name" style="position: absolute; bottom: 20px; left: 0; z-index: 2;">
-											<a href="#" style="background: #fa9e1b; color: #FFFFFF; padding: 10px 20px; font-weight: 700; text-transform: uppercase;">
-												{{ offer.type }}
-											</a>
-										</div>
-
-									</div>
-								</div>
-								<div class="col-lg-5">
-									<div class="offers_content">
-										<div class="offers_price">${{ offer.tarif }}<span>per trip</span></div>
-										<div class="rating_r rating_4 offers_rating"><i></i><i></i><i></i><i></i><i></i></div>
-										<p class="offers_text">Capacité: {{ offer.capacite }} personnes. Suspendisse potenti. In faucibus massa arcu, vitae cursus mi hendrerit nec.</p>
-										<div class="offers_icons">
-											<ul class="offers_icons_list">
-												<li class="offers_icons_item"><img src="{{ asset('images/post.png') }}" alt=""></li>
-												<li class="offers_icons_item"><img src="{{ asset('images/compass.png') }}" alt=""></li>
-												<li class="offers_icons_item"><img src="{{ asset('images/bicycle.png') }}" alt=""></li>
-												<li class="offers_icons_item"><img src="{{ asset('images/sailboat.png') }}" alt=""></li>
-											</ul>
-										</div>
-									</div>
-								</div>
-								<div class="col-lg-3">
-    <div class="offers_details">
-        
-        {# --- DÉBUT VÉRIFICATION SÉCURITÉ --- #}
-        {% if (offer.user_id and offer.user_id.id == app.user.id) or is_granted('ROLE_ADMIN') %}
-            
-            <div class="offers_details_link">
-                {# Lien de modification #}
-                <a href="{{ path('app_front_offers', {'id': offer.id}) }}#mon_formulaire">
-                    modifier<span></span><span></span><span></span>
-                </a>
-            </div>
-
-            <div class="offers_details_info">
-                <ul>
-                    <li><span>type:</span>{{ offer.type }}</li>
-                    <li><span>capacity:</span>{{ offer.capacite }} persons</li>
-                    <li>
-                        <span>action:</span>
-                        {# Lien de suppression #}
-                        <a href="{{ path('app_front_offers_delete', {'id': offer.id}) }}" 
-                           onclick="return confirm('Êtes-vous sûr de vouloir supprimer ce transport ?');" 
-                           style="color: #fa9e1b; font-weight: bold;">
-                            Supprimer
-                        </a>
-                    </li>
-                </ul>
-            </div>
-
-        {% else %}
-            {# --- AFFICHAGE POUR LES NON-PROPRIÉTAIRES --- #}
-            <div class="offers_details_info">
-                <ul style="margin-top: 10px;">
-                    <li><span>type:</span>{{ offer.type }}</li>
-                    <li><span>capacity:</span>{{ offer.capacite }} persons</li>
-                </ul>
-                <div style="margin-top: 15px; padding: 5px; border: 1px solid #eee; text-align: center;">
-                    <span style="font-size: 12px; color: #999;">Consultation uniquement</span>
-                </div>
-            </div>
-        {% endif %}
-        {# --- FIN VÉRIFICATION SÉCURITÉ --- #}
-
+                                        
+                                        <div class="col-md-4 mb-4">
+    <label style="color: white; ...">Tarif (TND)</label>
+    {{ form_widget(f.tarif, {'attr': {'class': 'form-control ' ~ (f.tarif.vars.errors|length > 0 ? 'is-invalid' : '')}}) }}
+    
+    {# THIS IS THE IMPORTANT PART FOR VALIDATION #}
+    <div style="color: #ff6b6b; font-size: 12px; margin-top: 5px; font-weight: bold;">
+        {{ form_errors(f.tarif) }}
     </div>
 </div>
-							</div>
-						</div>
-						{% else %}
-							<div class="col-12 text-center" style="padding: 50px;">
-								<p>Aucun transport trouvé dans la base de données.</p>
-							</div>
-						{% endfor %}
+                                        
+                                        <div class="col-md-4 mb-4">
+    <label style="color: white; ...">Capacité (ex: 50)</label>
+    {{ form_widget(f.capacite, {'attr': {'class': 'form-control ' ~ (f.capacite.vars.errors|length > 0 ? 'is-invalid' : '')}}) }}
+    
+    {# THIS IS THE IMPORTANT PART FOR VALIDATION #}
+    <div style="color: #ff6b6b; font-size: 12px; margin-top: 5px; font-weight: bold;">
+        {{ form_errors(f.capacite) }}
+    </div>
+</div>
 
-					</div>
-				</div>
-			</div>
-		</div>
+                                        <div class="col-md-4 mb-4">
+    <label style="color: white; ...">Type (ex: Bus)</label>
+    {{ form_widget(f.depart, {'attr': {'class': 'form-control ' ~ (f.depart.vars.errors|length > 0 ? 'is-invalid' : '')}}) }}
+    
+    {# THIS IS THE IMPORTANT PART FOR VALIDATION #}
+    <div style="color: #ff6b6b; font-size: 12px; margin-top: 5px; font-weight: bold;">
+        {{ form_errors(f.depart) }}
+    </div>
+</div>
 
-	</div>
+                                        <div class="col-md-4 mb-4">
+    <label style="color: white; ...">Type (ex: Bus)</label>
+    {{ form_widget(f.arrivee, {'attr': {'class': 'form-control ' ~ (f.arrivee.vars.errors|length > 0 ? 'is-invalid' : '')}}) }}
+    
+    {# THIS IS THE IMPORTANT PART FOR VALIDATION #}
+    <div style="color: #ff6b6b; font-size: 12px; margin-top: 5px; font-weight: bold;">
+        {{ form_errors(f.arrivee) }}
+    </div>
+</div>
 
+                                        <div class="col-md-4 mb-4">
+    <label style="color: white; ...">Type (ex: Bus)</label>
+    {{ form_widget(f.datedepart, {'attr': {'class': 'form-control ' ~ (f.datedepart.vars.errors|length > 0 ? 'is-invalid' : '')}}) }}
+    
+    {# THIS IS THE IMPORTANT PART FOR VALIDATION #}
+    <div style="color: #ff6b6b; font-size: 12px; margin-top: 5px; font-weight: bold;">
+        {{ form_errors(f.datedepart) }}
+    </div>
+</div>
+
+                                        {{ form_rest(f) }}
+
+                                        <div class="col-12 mt-2 text-center">
+                                            <button type="submit" class="button search_button" style="border: none; margin: 0 auto; cursor: pointer;">
+                                                {{ editMode is defined and editMode ? 'MODIFIER' : 'AJOUTER' }}
+                                                <span></span><span></span><span></span>
+                                            </button>
+                                        </div>
+                                    {{ form_end(f) }}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="container mt-5">
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="offers_sorting_container d-flex flex-row align-items-end justify-content-start">
+                        <div class="sorting_item" style="margin-right: 30px; margin-bottom: 5px;">
+                            <form id="searchForm" action="{{ path('app_front_offers') }}" method="get">
+                                <input type="text" id="searchInput" name="search" value="{{ searchTerm|default('') }}" placeholder="Rechercher..." autocomplete="off" style="height: 40px; border: 1px solid #ededed; padding-left: 15px; border-radius: 5px; width: 250px;">
+                            </form>
+                        </div>
+
+                        <ul class="offers_sorting">
+                            <li>
+                                <span class="sorting_text">price</span>
+                                <i class="fa fa-chevron-down"></i>
+                                <ul>
+                                    <li><a href="{{ path('app_front_offers', {search: searchTerm|default('')}) }}">show all</a></li>
+                                    <li><a href="{{ path('app_front_offers', {sort: 'price_asc', search: searchTerm|default('')}) }}">ascending</a></li>
+                                    <li><a href="{{ path('app_front_offers', {sort: 'price_desc', search: searchTerm|default('')}) }}">descending</a></li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="col-lg-12">
+                    <div class="offers_grid" id="results-container">
+                        {% for offer in list %}
+                            {% set img_index = (loop.index0 % 4) + 1 %}
+                            <div class="offers_item rating_4">
+                                <div class="row">
+                                    <div class="col-lg-1 temp_col"></div>
+                                    <div class="col-lg-3">
+                                        <div class="offers_image_container" style="position: relative; width: 100%; height: 260px; overflow: hidden; border-radius: 5px;">
+                                            <img src="{{ asset('images/offer_' ~ img_index ~ '.jpg') }}" alt="{{ offer.type }}" style="width: 100%; height: 100%; object-fit: cover;">
+                                            <div class="offer_name" style="position: absolute; bottom: 20px; left: 0;">
+                                                <a href="#" style="background: #fa9e1b; color: #FFFFFF; padding: 10px 20px; font-weight: 700; text-transform: uppercase;">{{ offer.type }}</a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-5">
+                                        <div class="offers_content">
+                                            <div class="offers_price">{{ offer.tarif }} TND<span>per trip</span></div>
+                                            <p class="offers_text">Capacité: {{ offer.capacite }} personnes. Itinéraire de {{ offer.depart }} à {{ offer.arrivee }}.</p>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-3">
+                                        <div class="offers_details">
+                                            {% if (offer.user_id and app.user and offer.user_id.id == app.user.id) or is_granted('ROLE_ADMIN') %}
+                                                <div class="offers_details_link">
+                                                    <a href="{{ path('app_front_offers', {'id': offer.id}) }}#mon_formulaire">modifier<span></span><span></span><span></span></a>
+                                                </div>
+                                                <div class="offers_details_info">
+                                                    <a href="{{ path('app_front_offers_delete', {'id': offer.id}) }}" onclick="return confirm('Supprimer ?');" style="color: #fa9e1b;">Supprimer</a>
+                                                </div>
+                                            {% else %}
+                                                <span style="font-size: 12px; color: #999;">Consultation uniquement</span>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        {% else %}
+                            <div class="col-12 text-center py-5">
+                                <p>Aucun transport trouvé.</p>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 {% endblock %}
 
 {% block javascripts %}
-<script src="{{ asset('plugins/parallax/parallax.min.js') }}"></script>
-<script src="{{ asset('plugins/isotope/isotope.pkgd.min.js') }}"></script>
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    const searchInput = document.getElementById('searchInput');
-    const resultsContainer = document.getElementById('results-container');
+    <script src="{{ asset('plugins/parallax/parallax.min.js') }}"></script>
+    <script src="{{ asset('plugins/isotope/isotope.pkgd.min.js') }}"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const searchInput = document.getElementById('searchInput');
+            const resultsContainer = document.getElementById('results-container');
 
-    if (searchInput) {
-        searchInput.addEventListener('keyup', function(e) {
-            const query = this.value;
-
-            // 1. Log to console to check if typing is detected (Press F12 to see)
-            console.log("Searching for: " + query);
-
-            // 2. Fetch the partial HTML
-            fetch("{{ path('app_front_offers') }}?search=" + query + "&ajax=1", {
-                method: 'GET',
-                headers: {
-                    'X-Requested-With': 'XMLHttpRequest'
-                }
-            })
-            .then(response => {
-                if (!response.ok) throw new Error('Network response was not ok');
-                return response.text();
-            })
-            .then(html => {
-                // 3. Inject the HTML into the container
-                resultsContainer.innerHTML = html;
-                
-                // 4. Re-initialize any template animations if they break
-                // if (typeof ScrollReveal !== 'undefined') ScrollReveal().sync();
-            })
-            .catch(error => console.error('Error:', error));
+            if (searchInput) {
+                searchInput.addEventListener('keyup', function() {
+                    const query = this.value;
+                    fetch("{{ path('app_front_offers') }}?search=" + query + "&ajax=1")
+                        .then(response => response.text())
+                        .then(html => {
+                            resultsContainer.innerHTML = html;
+                        });
+                });
+            }
         });
-    }
-});
-</script>
+    </script>
 {% endblock %}

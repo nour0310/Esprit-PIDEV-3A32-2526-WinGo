@@ -63,21 +63,19 @@ class DevenirCommercantType extends AbstractType
                     'placeholder' => 'Votre email',
                 ],
             ])
-            ->add('telephone', IntegerType::class, [
-                'label' => 'Téléphone',
-                'required' => false,
-                'invalid_message' => 'Le téléphone doit être un nombre.',
-                'constraints' => [
-                    new Assert\Range(
-                        min: 10000000,
-                        max: 99999999,
-                        notInRangeMessage: 'Le téléphone doit contenir 8 chiffres.'
-                    ),
-                ],
-                'attr' => [
-                    'placeholder' => 'Votre téléphone',
-                ],
-            ]);
+        ->add('telephone', TextType::class, [
+    'label' => 'Téléphone',
+    'required' => false,
+    'constraints' => [
+        new Assert\Regex([
+            'pattern' => '/^\d{8}$/',
+            'message' => 'Le téléphone doit contenir exactement 8 chiffres.',
+        ]),
+    ],
+    'attr' => [
+        'placeholder' => 'Votre téléphone',
+    ],
+]);
     }
 
     public function configureOptions(OptionsResolver $resolver): void

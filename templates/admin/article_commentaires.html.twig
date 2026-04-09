@@ -1,22 +1,36 @@
 {% extends 'admin/base_admin.html.twig' %}
-{% block title %}Commentaires de l'article - Admin WinGo{% endblock %}
-{% block page_title %}Commentaires de l'article{% endblock %}
+{% block title %}Commentaires - {{ article.titre }}{% endblock %}
+{% block page_title %}Commentaires de l'article : {{ article.titre }}{% endblock %}
 
 {% block content %}
+<style>
+    .action-btn { display: inline-flex; align-items: center; justify-content: center; width: 32px; height: 32px; border-radius: 6px; color: #fff; text-decoration: none; border: none; cursor: pointer; transition: background 0.3s; }
+    .btn-delete { background: #dc3545; }
+    .btn-delete:hover { background: #c82333; }
+    .data_card { background: #fff; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); overflow: hidden; }
+    .data_card_header { padding: 15px 20px; border-bottom: 1px solid #eee; }
+    .data_card_title { font-size: 1.1rem; font-weight: bold; color: #333; }
+    table { width: 100%; border-collapse: collapse; }
+    th { background: #f8f9fa; padding: 12px 20px; text-align: left; font-size: 0.9rem; color: #555; text-transform: uppercase; border-bottom: 2px solid #dee2e6; }
+    td { padding: 15px 20px; border-bottom: 1px solid #eee; vertical-align: middle; color: #444; }
+    tr:hover { background-color: #fcfcfc; }
+</style>
+
+<div style="margin-bottom: 20px;">
+    <a href="{{ path('admin_articles') }}" class="btn btn-secondary" style="background:#6c757d;color:#fff;padding:8px 15px;text-decoration:none;border-radius:4px;"><i class="fa fa-arrow-left"></i> Retour aux articles</a>
+</div>
+
 <div class="data_card">
     <div class="data_card_header">
-        <div class="data_card_title">
-            <i class="fa fa-comments" style="color:#6f42c1"></i> Commentaires pour : {{ article.titre }}
-            <a href="{{ path('admin_articles') }}" style="float: right; font-size: 14px; text-decoration: none; color: #fa9e1b;">&laquo; Retour aux articles</a>
-        </div>
+        <div class="data_card_title"><i class="fa fa-comments" style="color:#6f42c1; margin-right:8px;"></i> Liste des commentaires ({{ commentaires|length }})</div>
     </div>
     <table>
         <thead>
             <tr>
-                <th>#</th>
+                <th>ID</th>
                 <th>Auteur</th>
-                <th>Commentaire</th>
                 <th>Date</th>
+                <th>Contenu</th>
                 <th>Actions</th>
             </tr>
         </thead>
@@ -24,14 +38,14 @@
             {% for commentaire in commentaires %}
             <tr>
                 <td>{{ commentaire.id }}</td>
-                <td><strong>{{ commentaire.utilisateur ? commentaire.utilisateur.nom : 'Anonyme' }}</strong></td>
-                <td style="max-width: 400px; word-wrap: break-word;">{{ commentaire.contenu }}</td>
+                <td><strong>{{ commentaire.utilisateur ? commentaire.utilisateur.prenom ~ ' ' ~ commentaire.utilisateur.nom : 'Anonyme' }}</strong></td>
                 <td>{{ commentaire.dateCommentaire ? commentaire.dateCommentaire|date('d/m/Y H:i') : '-' }}</td>
+                <td style="max-width: 400px; white-space: pre-wrap; word-wrap: break-word;">{{ commentaire.contenu }}</td>
                 <td>
                     <form method="post" action="{{ path('admin_commentaire_delete', {id: commentaire.id}) }}" style="margin: 0;" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer ce commentaire ?');">
                         <input type="hidden" name="_token" value="{{ csrf_token('delete_comment_admin' ~ commentaire.id) }}">
-                        <button type="submit" style="background: #dc3545; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer;">
-                            <i class="fa fa-trash"></i> Supprimer
+                        <button type="submit" class="action-btn btn-delete" title="Supprimer le commentaire">
+                            <i class="fa fa-trash"></i>
                         </button>
                     </form>
                 </td>

@@ -18,6 +18,9 @@ class Utilisateur implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(type: 'integer')]
     private ?int $id = null;
 
+    #[ORM\OneToMany(mappedBy: 'user_id', targetEntity: Reservation::class)]
+    private Collection $reservations;
+
     #[ORM\Column(type: 'string', length: 50)]
     private string $nom = '';
 
@@ -58,6 +61,7 @@ class Utilisateur implements UserInterface, PasswordAuthenticatedUserInterface
     {
         $this->articles = new ArrayCollection();
         $this->commentaires = new ArrayCollection();
+        $this->reservations = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -91,6 +95,30 @@ class Utilisateur implements UserInterface, PasswordAuthenticatedUserInterface
         }
         return $this;
     }
+
+    public function getReservations(): Collection
+{
+    return $this->reservations;
+}
+
+public function addReservation(Reservation $reservation): static
+{
+    if (!$this->reservations->contains($reservation)) {
+        $this->reservations->add($reservation);
+        $reservation->setUser_id($this);
+    }
+    return $this;
+}
+
+public function removeReservation(Reservation $reservation): static
+{
+    if ($this->reservations->removeElement($reservation)) {
+        if ($reservation->getUser_id() === $this) {
+            $reservation->setUser_id(null);
+        }
+    }
+    return $this;
+}
 
     /**
      * @return Collection<int, Commentaire>

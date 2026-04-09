@@ -33,21 +33,24 @@ final class TransportController extends AbstractController
 
             $em->persist($newTransport);
             $em->flush();
+            $this->addFlash('success', 'Transport ajouté avec succès !');
             return $this->redirectToRoute('displayTransport');
         }
 
         return $this->render('transport/add.html.twig', [
-            'f' => $form->createView()
-        ]);
+        'f' => $form->createView()
+    ]);
     }
 
     #[Route('/delete/{id}', name: "deleteTransport")]
     public function delete(Transport $transport, EntityManagerInterface $em): Response
     {
+         /** @var \App\Entity\Utilisateur $user */
         $user = $this->getUser();
 
         // Fix naming: $user instead of $currentUser
         // Check if user_id object exists before calling getId()
+        /** @var \App\Entity\Utilisateur $ownerId */
         $ownerId = $transport->getUser_id() ? $transport->getUser_id()->getId() : null;
 
         if ($ownerId !== $user->getId() && !$this->isGranted('ROLE_ADMIN')) {
@@ -63,6 +66,7 @@ final class TransportController extends AbstractController
     #[Route('/update/{id}', name: "updateTransport")]
     public function updateTransport(Transport $transport, EntityManagerInterface $em, Request $request): Response
     {
+         /** @var \App\Entity\Utilisateur $user */
         $user = $this->getUser();
 
         // Security Check

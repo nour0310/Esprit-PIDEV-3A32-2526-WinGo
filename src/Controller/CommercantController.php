@@ -14,7 +14,7 @@ use App\Form\DevenirCommercantType;
 
 final class CommercantController extends AbstractController
 {
-   #[IsGranted('ROLE_USER')]
+#[IsGranted('ROLE_USER')]
 #[Route('/devenir-commercant', name: 'devenir_commercant')]
 public function devenirCommercant(
     Request $request,
@@ -28,18 +28,22 @@ public function devenirCommercant(
     }
 
     $form = $this->createForm(DevenirCommercantType::class, $user);
-    $form->handleRequest($request);
+$form->handleRequest($request);
 
-    if ($form->isSubmitted() && $form->isValid()) {
-        if (strtoupper((string) ($user->getType() ?? '')) !== 'COMMERCANT') {
-            $user->setType('EN_ATTENTE_COMMERCANT');
-        }
+if ($form->isSubmitted()) {
+    dd($form->isValid(), (string) $form->getErrors(true, false));
+}
 
-        $em->flush();
+if ($form->isSubmitted() && $form->isValid()) {
+    if (strtoupper((string) ($user->getType() ?? '')) !== 'COMMERCANT') {
+        $user->setType('EN_ATTENTE_COMMERCANT');
+    }
 
-        $this->addFlash('success', 'Votre demande a été envoyée à l’administrateur.');
+    $em->flush();
 
-        return $this->redirectToRoute('devenir_commercant');
+    $this->addFlash('success', 'Votre demande a été envoyée à l’administrateur.');
+
+    return $this->redirectToRoute('devenir_commercant');
     }
 
     return $this->render('commercant/devenir.html.twig', [
@@ -47,7 +51,6 @@ public function devenirCommercant(
         'userData' => $user,
     ]);
 }
-
    #[IsGranted('ROLE_ADMIN')]
 #[Route('/admin/demandes-commercant', name: 'admin_demandes_commercant')]
 public function adminDemandes(UtilisateurRepository $repo): Response
