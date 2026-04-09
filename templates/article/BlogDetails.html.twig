@@ -52,7 +52,7 @@
             {# 🆕 Bouton Répondre #}
             {% if app.user %}
                 <div class="comment-reply">
-                    <a href="javascript:void(0);" onclick="showReplyForm({{ comment.id }})">
+                    <a href="javascript:void(0);" onclick="showReplyForm({{ comment.id }}, '{{ author|escape('js') }}')">
                         <i class="fas fa-reply"></i> Répondre
                     </a>
                 </div>
@@ -74,17 +74,8 @@
             {{ comment.contenu|nl2br }}
         </div>
 
-        {# 🆕 Formulaire de réponse caché #}
-        <div class="reply-form-container" id="reply-form-{{ comment.id }}">
-            <form method="post" action="{{ path('app_article_show', {id: article.id}) }}">
-                {{ form_widget(commentForm.contenu, {'attr': {'class': 'wingo-input', 'rows': 3, 'placeholder': 'Votre réponse...'}}) }}
-                <input type="hidden" name="commentaire[parent_id]" value="{{ comment.id }}">
-                <input type="hidden" name="_token" value="{{ csrf_token('comment') }}">
-                <button type="submit" class="btn-submit-comment" style="margin-top: 10px;">
-                    <i class="fas fa-paper-plane"></i> Répondre
-                </button>
-            </form>
-        </div>
+        {# 🆕 Conteneur vide pour déplacer dynamiquement le formulaire de réponse #}
+        <div class="reply-form-placeholder" id="reply-container-{{ comment.id }}"></div>
 
         {# Formulaire d'édition (existant) #}
         <div class="edit-comment-form" id="edit-form-{{ comment.id }}">
@@ -189,16 +180,23 @@
     		    </div>
 
     		    {# Formulaire principal pour un nouveau commentaire (racine) #}
-    		    <div class="comment-form-container">
-    		        <h4 class="comment-form-title">Laisser un commentaire</h4>
-    		        {{ form_start(commentForm, {'attr': {'novalidate': 'novalidate', 'class': 'clearfix'}}) }}
-    		            {{ form_widget(commentForm.contenu, {'attr': {'class': 'wingo-input', 'rows': 4, 'id': 'new-comment-content'}}) }}
-    		            {{ form_errors(commentForm.contenu, {'attr': {'class': 'error-text'}}) }}
-    		            {{ form_widget(commentForm.parent_id, {'value': ''}) }} {# vide = commentaire racine #}
-    		            <button type="submit" class="btn-submit-comment">
-    		                <i class="fas fa-paper-plane" style="margin-right: 8px;"></i> Publier
-    		            </button>
-    		        {{ form_end(commentForm) }}
+    		    <div id="main-comment-form-wrapper">
+        		    <div class="comment-form-container" id="the-comment-form-card">
+        		        <h4 class="comment-form-title" id="form-title-text">Laisser un commentaire</h4>
+        		        {{ form_start(commentForm, {'attr': {'novalidate': 'novalidate', 'class': 'clearfix'}}) }}
+        		            {{ form_widget(commentForm.contenu, {'attr': {'class': 'wingo-input', 'rows': 4, 'id': 'new-comment-content'}}) }}
+        		            {{ form_errors(commentForm.contenu, {'attr': {'class': 'error-text'}}) }}
+        		            <div style="display:none;">
+        		                {{ form_row(commentForm.parent_id, {'id': 'comment_parent_id'}) }}
+        		            </div>
+        		            <button type="submit" class="btn-submit-comment">
+        		                <i class="fas fa-paper-plane" style="margin-right: 8px;"></i> Publier
+        		            </button>
+                            <button type="button" class="btn-submit-comment" id="btn-cancel-reply" style="display: none; background: #6c757d; margin-right: 10px;" onclick="cancelReply()">
+                                Annuler
+                            </button>
+        		        {{ form_end(commentForm) }}
+        		    </div>
     		    </div>
     		</div>
 
@@ -207,18 +205,39 @@
 </div>
 
 <script>
-// 🆕 REPONSES : Fonction pour afficher le formulaire de réponse
-function showReplyForm(commentId) {
-    // Masquer tous les formulaires de réponse ouverts
-    document.querySelectorAll('.reply-form-container').forEach(form => {
-        form.style.display = 'none';
-    });
-    // Afficher le formulaire correspondant
-    const form = document.getElementById('reply-form-' + commentId);
-    if (form) {
-        form.style.display = 'block';
-        form.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    }
+// 🆕 REPONSES : Fonction pour déplacer et afficher le formulaire de réponse
+function showReplyForm(commentId, authorName) {
+    const formCard = document.getElementById('the-comment-form-card');
+    const targetContainer = document.getElementById('reply-container-' + commentId);
+    
+    // Déplacer le formulaire sous le commentaire
+    targetContainer.appendChild(formCard);
+    
+    // Mettre à jour les champs
+    document.getElementById('comment_parent_id').value = commentId;
+    document.getElementById('form-title-text').innerText = 'Répondre à ' + authorName;
+    document.getElementById('btn-cancel-reply').style.display = 'inline-block';
+    
+    // Vider le champ de texte
+    document.getElementById('new-comment-content').value = '';
+    
+    // Focus et scroll
+    formCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    document.getElementById('new-comment-content').focus();
+}
+
+function cancelReply() {
+    const formCard = document.getElementById('the-comment-form-card');
+    const mainWrapper = document.getElementById('main-comment-form-wrapper');
+    
+    // Remettre à sa place initiale
+    mainWrapper.appendChild(formCard);
+    
+    // Réinitialiser
+    document.getElementById('comment_parent_id').value = '';
+    document.getElementById('form-title-text').innerText = 'Laisser un commentaire';
+    document.getElementById('btn-cancel-reply').style.display = 'none';
+    document.getElementById('new-comment-content').value = '';
 }
 
 // Fonctions existantes pour l'édition des commentaires
