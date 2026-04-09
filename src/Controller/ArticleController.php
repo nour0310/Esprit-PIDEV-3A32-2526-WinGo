@@ -4,23 +4,24 @@ namespace App\Controller;
 
 use App\Entity\Article;
 use App\Entity\Commentaire;
-use App\Entity\Likes;                     // 🆕 SYSTEME DE LIKES
+use App\Entity\Likes;
 use App\Form\ArticleType;
 use App\Form\CommentaireType;
 use App\Repository\ArticleRepository;
 use App\Repository\CommentaireRepository;
-use App\Repository\LikesRepository;       // 🆕 SYSTEME DE LIKES
+use App\Repository\LikesRepository;
 use App\Repository\UtilisateurRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Symfony\Component\HttpFoundation\File\Exception\FileException;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
-use Symfony\Component\HttpFoundation\JsonResponse;  // 🆕 SYSTEME DE LIKES
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
+
 class ArticleController extends AbstractController
 {
     // ===================== ROUTE POUR LES IMAGES =====================
@@ -91,7 +92,7 @@ class ArticleController extends AbstractController
         Request $request,
         ArticleRepository $articleRepository,
         CommentaireRepository $commentaireRepository,
-        LikesRepository $likesRepo                  // 🆕 SYSTEME DE LIKES
+        LikesRepository $likesRepo
     ): Response {
         $searchQuery = $request->query->get('q');
         $categoryFilter = $request->query->get('category');
@@ -108,12 +109,25 @@ class ArticleController extends AbstractController
         $qb->orderBy('a.datePublication', 'DESC');
         $articles = $qb->getQuery()->getResult();
 
-        // 🆕 SYSTEME DE LIKES : enrichir chaque article avec les infos de likes
+        // 🔁 SYSTEME DE LIKES : enrichir chaque article avec les infos de likes
         $user = $this->getUser();
         $articlesData = [];
         foreach ($articles as $article) {
-            $likeCount = $likesRepo->countLikesForArticle($article->getId());
-            $userLiked = $user ? $likesRepo->hasUserLiked($user->getId(), $article->getId()) : false;
+            $articleId = $article->getId();
+            if ($articleId === null) {
+                continue; // sécurité : ignorer un article sans ID
+            }
+
+            $likeCount = $likesRepo->countLikesForArticle($articleId);
+            $userLiked = false;
+
+            if ($user instanceof \App\Entity\Utilisateur) {
+                $userId = $user->getId();
+                if ($userId !== null) {
+                    $userLiked = $likesRepo->hasUserLiked($userId, $articleId);
+                }
+            }
+
             $articlesData[] = [
                 'entity'      => $article,
                 'likesCount'  => $likeCount,
@@ -133,20 +147,20 @@ class ArticleController extends AbstractController
             ->getResult();
 
         $categories = [
-            'Aventure' => 'Aventure',
-            'Culture' => 'Culture',
+            'Aventure'    => 'Aventure',
+            'Culture'     => 'Culture',
             'Gastronomie' => 'Gastronomie',
-            'Détente' => 'Détente',
+            'Détente'     => 'Détente',
         ];
 
         return $this->render('article/BlogList.html.twig', [
-            'articlesData'       => $articlesData,   // 🆕 on passe le tableau enrichi
-            'searchQuery'        => $searchQuery,
-            'categoryFilter'     => $categoryFilter,
-            'categories'         => $categories,
-            'totalArticles'      => $totalArticles,
-            'totalCommentaires'  => $totalCommentaires,
-            'popularArticles'    => $popularArticles,
+            'articlesData'      => $articlesData,   // tableau enrichi
+            'searchQuery'       => $searchQuery,
+            'categoryFilter'    => $categoryFilter,
+            'categories'        => $categories,
+            'totalArticles'     => $totalArticles,
+            'totalCommentaires' => $totalCommentaires,
+            'popularArticles'   => $popularArticles,
         ]);
     }
 
@@ -207,7 +221,7 @@ class ArticleController extends AbstractController
         Request $request,
         Article $article,
         EntityManagerInterface $em,
-        LikesRepository $likesRepo                  // 🆕 SYSTEME DE LIKES
+        LikesRepository $likesRepo
     ): Response {
         $commentaire = new Commentaire();
         $commentaire->setArticle($article);
@@ -228,15 +242,23 @@ class ArticleController extends AbstractController
             return $this->redirectToRoute('app_article_show', ['id' => $article->getId()]);
         }
 
-        // 🆕 SYSTEME DE LIKES : récupération des données pour la vue
-        $likesCount = $likesRepo->countLikesForArticle($article->getId());
-        $userLiked = $user ? $likesRepo->hasUserLiked($user->getId(), $article->getId()) : false;
+        // 🔁 SYSTEME DE LIKES : récupération des données pour la vue
+        $articleId = $article->getId();
+        $likesCount = $articleId ? $likesRepo->countLikesForArticle($articleId) : 0;
+        $userLiked = false;
+
+        if ($user instanceof \App\Entity\Utilisateur && $articleId) {
+            $userId = $user->getId();
+            if ($userId !== null) {
+                $userLiked = $likesRepo->hasUserLiked($userId, $articleId);
+            }
+        }
 
         return $this->render('article/BlogDetails.html.twig', [
             'article'      => $article,
             'commentForm'  => $form->createView(),
-            'likesCount'   => $likesCount,   // 🆕
-            'userLiked'    => $userLiked,    // 🆕
+            'likesCount'   => $likesCount,
+            'userLiked'    => $userLiked,
         ]);
     }
 
@@ -279,7 +301,7 @@ class ArticleController extends AbstractController
             return $this->redirectToRoute('blog');
         }
         return $this->render('article/EditBlog.html.twig', [
-            'form' => $form->createView(),
+            'form'    => $form->createView(),
             'article' => $article,
         ]);
     }
@@ -300,29 +322,36 @@ class ArticleController extends AbstractController
         return $this->redirectToRoute('blog');
     }
 
-    // ===================== 🆕 SYSTEME DE LIKES : ROUTES LIKE / UNLIKE =====================
+    // ===================== SYSTEME DE LIKES : ROUTES LIKE / UNLIKE =====================
     #[Route('/article/{id}/like', name: 'app_article_like', methods: ['POST'])]
     public function like(Article $article, EntityManagerInterface $em, LikesRepository $likesRepo): JsonResponse
     {
         $user = $this->getUser();
-        if (!$user) {
+        if (!$user instanceof \App\Entity\Utilisateur) {
             return $this->json(['success' => false, 'message' => 'Vous devez être connecté.'], 401);
         }
 
+        $articleId = $article->getId();
+        $userId = $user->getId();
+
+        if ($articleId === null || $userId === null) {
+            return $this->json(['success' => false, 'message' => 'Données invalides.'], 400);
+        }
+
         // Vérifier si l'utilisateur a déjà liké
-       if ($likesRepo->hasUserLiked($user->getId(), $article->getId())) {
+        if ($likesRepo->hasUserLiked($userId, $articleId)) {
             return $this->json(['success' => false, 'message' => 'Vous avez déjà liké cet article.']);
         }
 
         $like = new Likes();
-        $like->setUtilisateurId($user->getId());
-        $like->setArticleId($article->getId());
+        $like->setUtilisateurId($userId);
+        $like->setArticleId($articleId);
         $like->setDateLike(new \DateTime());
 
         $em->persist($like);
         $em->flush();
 
-        $newCount = $likesRepo->countLikesForArticle($article->getId());
+        $newCount = $likesRepo->countLikesForArticle($articleId);
 
         return $this->json([
             'success' => true,
@@ -331,30 +360,37 @@ class ArticleController extends AbstractController
         ]);
     }
 
-   #[Route('/article/{id}/unlike', name: 'app_article_unlike', methods: ['POST'])]
-     public function unlike(Article $article, EntityManagerInterface $em, LikesRepository $likesRepo): JsonResponse
-{
-    $user = $this->getUser();
-    if (!$user) {
-        return $this->json(['success' => false, 'message' => 'Vous devez être connecté.'], 401);
+    #[Route('/article/{id}/unlike', name: 'app_article_unlike', methods: ['POST'])]
+    public function unlike(Article $article, EntityManagerInterface $em, LikesRepository $likesRepo): JsonResponse
+    {
+        $user = $this->getUser();
+        if (!$user instanceof \App\Entity\Utilisateur) {
+            return $this->json(['success' => false, 'message' => 'Vous devez être connecté.'], 401);
+        }
+
+        $articleId = $article->getId();
+        $userId = $user->getId();
+
+        if ($articleId === null || $userId === null) {
+            return $this->json(['success' => false, 'message' => 'Données invalides.'], 400);
+        }
+
+        $like = $likesRepo->findOneByUserAndArticle($userId, $articleId);
+        if (!$like) {
+            return $this->json(['success' => false, 'message' => 'Vous n\'avez pas liké cet article.']);
+        }
+
+        $em->remove($like);
+        $em->flush();
+
+        $newCount = $likesRepo->countLikesForArticle($articleId);
+
+        return $this->json([
+            'success' => true,
+            'liked'   => false,
+            'count'   => $newCount,
+        ]);
     }
-
-    $like = $likesRepo->findOneByUserAndArticle($user->getId(), $article->getId());
-    if (!$like) {
-        return $this->json(['success' => false, 'message' => 'Vous n\'avez pas liké cet article.']);
-    }
-
-    $em->remove($like);
-    $em->flush();
-
-    $newCount = $likesRepo->countLikesForArticle($article->getId());
-
-    return $this->json([
-        'success' => true,
-        'liked'   => false,
-        'count'   => $newCount,
-    ]);
-}
 
     // ===================== FONCTIONS PRIVÉES =====================
     private function storeUploadedImage(UploadedFile $imageFile, string $uploadDir, string $newFilename): void
