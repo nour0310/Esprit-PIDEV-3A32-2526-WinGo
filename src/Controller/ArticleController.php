@@ -21,7 +21,6 @@ use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
-
 class ArticleController extends AbstractController
 {
     // ===================== ROUTE POUR LES IMAGES =====================
@@ -311,7 +310,7 @@ class ArticleController extends AbstractController
         }
 
         // Vérifier si l'utilisateur a déjà liké
-       if ($likesRepo->hasUserLiked($user->getId(), $article->getId())) { {
+       if ($likesRepo->hasUserLiked($user->getId(), $article->getId())) {
             return $this->json(['success' => false, 'message' => 'Vous avez déjà liké cet article.']);
         }
 
