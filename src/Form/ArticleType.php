@@ -22,7 +22,6 @@ class ArticleType extends AbstractType
             ])
             ->add('contenu', \Ehyiah\QuillJsBundle\Form\QuillType::class, [
                 'label' => 'Votre histoire',
-                'sanitize_html' => true, // 🛡️ Protection essentielle !
                 'attr' => ['placeholder' => 'Racontez votre expérience...', 'class' => 'form-control wingo-input']
             ])
             ->add('region', ChoiceType::class, [
