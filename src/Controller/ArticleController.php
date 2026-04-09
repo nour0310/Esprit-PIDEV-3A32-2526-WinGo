@@ -332,30 +332,30 @@ class ArticleController extends AbstractController
         ]);
     }
 
-    #[Route('/article/{id}/unlike', name: 'app_article_unlike', methods: ['POST'])]
-    public function unlike(Article $article, EntityManagerInterface $em, LikesRepository $likesRepo): JsonResponse
-    {
-        $user = $this->getUser();
-        if (!$user) {
-            return $this->json(['success' => false, 'message' => 'Vous devez être connecté.'], 401);
-        }
-
-        $like = $likesRepo->findOneByUserAndArticle($user->getId(), $article->getId());
-        if (!$like) {
-            return $this->json(['success' => false, 'message' => 'Vous n\'avez pas liké cet article.']);
-        }
-
-        $em->remove($like);
-        $em->flush();
-
-        $newCount = $likesRepo->countLikesForArticle($article->getId());
-
-        return $this->json([
-            'success' => true,
-            'liked'   => false,
-            'count'   => $newCount,
-        ]);
+   #[Route('/article/{id}/unlike', name: 'app_article_unlike', methods: ['POST'])]
+     public function unlike(Article $article, EntityManagerInterface $em, LikesRepository $likesRepo): JsonResponse
+{
+    $user = $this->getUser();
+    if (!$user) {
+        return $this->json(['success' => false, 'message' => 'Vous devez être connecté.'], 401);
     }
+
+    $like = $likesRepo->findOneByUserAndArticle($user->getId(), $article->getId());
+    if (!$like) {
+        return $this->json(['success' => false, 'message' => 'Vous n\'avez pas liké cet article.']);
+    }
+
+    $em->remove($like);
+    $em->flush();
+
+    $newCount = $likesRepo->countLikesForArticle($article->getId());
+
+    return $this->json([
+        'success' => true,
+        'liked'   => false,
+        'count'   => $newCount,
+    ]);
+}
 
     // ===================== FONCTIONS PRIVÉES =====================
     private function storeUploadedImage(UploadedFile $imageFile, string $uploadDir, string $newFilename): void
