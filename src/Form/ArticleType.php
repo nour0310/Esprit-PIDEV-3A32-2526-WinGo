@@ -22,7 +22,7 @@ class ArticleType extends AbstractType
             ])
             ->add('contenu', \Ehyiah\QuillJsBundle\Form\QuillType::class, [
                 'label' => 'Votre histoire',
-                'attr' => ['placeholder' => 'Racontez votre expérience...', 'class' => 'form-control wingo-input']
+                'attr' => ['placeholder' => 'Racontez votre expérience...']
             ])
             ->add('region', ChoiceType::class, [
                 'label' => 'Région',
