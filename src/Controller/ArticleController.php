@@ -92,7 +92,8 @@ class ArticleController extends AbstractController
         Request $request,
         ArticleRepository $articleRepository,
         CommentaireRepository $commentaireRepository,
-        LikesRepository $likesRepo
+        LikesRepository $likesRepo,
+        EntityManagerInterface $em
     ): Response {
         $searchQuery = $request->query->get('q');
         $categoryFilter = $request->query->get('category');
@@ -118,8 +119,19 @@ class ArticleController extends AbstractController
                 continue; // sécurité : ignorer un article sans ID
             }
 
-            $likeCount = $likesRepo->countLikesForArticle($articleId);
+            $likeEntities = $likesRepo->findBy(['articleId' => $articleId]);
+            $likeCount = count($likeEntities);
             $userLiked = false;
+
+            $likerIds = array_unique(array_map(fn($l) => $l->getUtilisateurId(), $likeEntities));
+            $likerNames = [];
+            if (!empty($likerIds)) {
+                $likers = $em->getRepository(\App\Entity\Utilisateur::class)->findBy(['id' => $likerIds]);
+                foreach ($likers as $lk) {
+                    $likerNames[] = trim($lk->getPrenom() . ' ' . $lk->getNom());
+                }
+            }
+            $likersText = empty($likerNames) ? "Soyez le premier à aimer !" : "Aimé par : " . implode(', ', $likerNames);
 
             if ($user instanceof \App\Entity\Utilisateur) {
                 $userId = $user->getId();
@@ -132,6 +144,7 @@ class ArticleController extends AbstractController
                 'entity'      => $article,
                 'likesCount'  => $likeCount,
                 'userLiked'   => $userLiked,
+                'likersText'  => $likersText,
             ];
         }
 
@@ -244,8 +257,20 @@ class ArticleController extends AbstractController
 
         // 🔁 SYSTEME DE LIKES : récupération des données pour la vue
         $articleId = $article->getId();
-        $likesCount = $articleId ? $likesRepo->countLikesForArticle($articleId) : 0;
+        
+        $likeEntities = $articleId ? $likesRepo->findBy(['articleId' => $articleId]) : [];
+        $likesCount = count($likeEntities);
         $userLiked = false;
+        
+        $likerIds = array_unique(array_map(fn($l) => $l->getUtilisateurId(), $likeEntities));
+        $likerNames = [];
+        if (!empty($likerIds)) {
+            $likers = $em->getRepository(\App\Entity\Utilisateur::class)->findBy(['id' => $likerIds]);
+            foreach ($likers as $lk) {
+                $likerNames[] = trim($lk->getPrenom() . ' ' . $lk->getNom());
+            }
+        }
+        $likersText = empty($likerNames) ? "Soyez le premier à aimer !" : "Aimé par : " . implode(', ', $likerNames);
 
         if ($user instanceof \App\Entity\Utilisateur && $articleId) {
             $userId = $user->getId();
@@ -259,6 +284,7 @@ class ArticleController extends AbstractController
             'commentForm'  => $form->createView(),
             'likesCount'   => $likesCount,
             'userLiked'    => $userLiked,
+            'likersText'   => $likersText,
         ]);
     }
 

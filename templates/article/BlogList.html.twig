@@ -193,6 +193,7 @@
 									   data-like-url="{{ path('app_article_like', {id: article.id}) }}"
 									   data-unlike-url="{{ path('app_article_unlike', {id: article.id}) }}"
 									   data-liked="{{ item.userLiked ? 'true' : 'false' }}"
+									   title="{{ item.likersText|e('html_attr') }}"
 									   style="color: #8d4fff; text-decoration: none; font-size: 14px; display: inline-flex; align-items: center;">
 										<i class="{% if item.userLiked %}fas{% else %}far{% endif %} fa-heart like-icon"></i>
 										<span class="like-count">{{ item.likesCount }}</span>
