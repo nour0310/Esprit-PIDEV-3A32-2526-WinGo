@@ -311,7 +311,7 @@ class ArticleController extends AbstractController
         }
 
         // Vérifier si l'utilisateur a déjà liké
-        if ($likesRepo->hasUserLiked($user->getId(), $article->getId())) {
+       if ($likesRepo->hasUserLiked($user->getId(), $article->getId())) { {
             return $this->json(['success' => false, 'message' => 'Vous avez déjà liké cet article.']);
         }
 
