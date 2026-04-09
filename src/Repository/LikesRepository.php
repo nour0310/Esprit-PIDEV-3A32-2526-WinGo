@@ -50,7 +50,7 @@ class LikesRepository extends ServiceEntityRepository
     {
         return $this->findOneBy([
             'utilisateurId' => $userId,
-            'articleId'    => $articleId,
+            'articleId'     => $articleId,
         ]);
     }
 }
