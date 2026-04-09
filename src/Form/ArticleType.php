@@ -20,9 +20,10 @@ class ArticleType extends AbstractType
                 'label' => 'Titre de votre blog',
                 'attr' => ['class' => 'form-control wingo-input', 'placeholder' => 'Donnez un titre captivant...']
             ])
-            ->add('contenu', TextareaType::class, [
+            ->add('contenu', \Ehyiah\QuillJsBundle\Form\QuillType::class, [
                 'label' => 'Votre histoire',
-                'attr' => ['class' => 'form-control wingo-input', 'rows' => 8, 'placeholder' => 'Racontez votre expérience...']
+                'sanitize_html' => true, // 🛡️ Protection essentielle !
+                'attr' => ['placeholder' => 'Racontez votre expérience...', 'class' => 'form-control wingo-input']
             ])
             ->add('region', ChoiceType::class, [
                 'label' => 'Région',

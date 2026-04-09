@@ -406,7 +406,11 @@
 
     		<img src="{{ cover_src }}" alt="{{ article.titre|e('html_attr') }}" class="article-creative-image" loading="lazy" decoding="async" onerror="this.onerror=null;this.src='{{ blog_img_fallback|e('html_attr') }}';">
 
-    		<div class="article-content">{{ article.contenu|default('<p>Le contenu de cet article est vide pour le moment.</p>')|raw }}</div>
+    		<div class="article-content ql-snow">
+                <div class="ql-editor" style="padding: 0;">
+                    {{ article.contenu|default('<p>Le contenu de cet article est vide pour le moment.</p>')|raw }}
+                </div>
+            </div>
 
     		<div class="article-tags">
     			<span class="article-tag"><i class="fas fa-tag"></i> {{ article.categorie|default('Général') }}</span>
