@@ -95,6 +95,27 @@
     color: #fa9e1c !important;
     padding-left: 5px;
 }
+
+/* 🆕 Style pour le bouton like */
+.blog_post_likes a {
+    color: #8d4fff;
+    text-decoration: none;
+    font-size: 14px;
+    display: inline-flex;
+    align-items: center;
+    transition: all 0.3s ease;
+}
+.blog_post_likes a:hover {
+    color: #fa9e1c !important;
+    transform: translateY(-2px);
+}
+.blog_post_likes a i {
+    margin-right: 5px;
+    transition: all 0.3s ease;
+}
+.blog_post_likes a:hover i {
+    transform: scale(1.1);
+}
 </style>
 {% endblock %}
 
@@ -125,18 +146,20 @@
 				<div class="col-lg-8">
 					<div class="blog_post_container">
 
-						{% for article in articles %}
-						{% set im = article.image|default('')|trim %}
-						{% if im is empty %}
-							{% set cover_src = asset('images/placeholder.svg') %}
-						{% elseif im starts with 'http://' or im starts with 'https://' %}
-							{% set cover_src = im %}
-						{% elseif im starts with '//' %}
-							{% set cover_src = 'https:' ~ im %}
-						{% else %}
-							{% set fn = im|replace({'\\':'/'})|split('/')|last %}
-							{% set cover_src = asset('uploads/articles/' ~ fn) %}
-						{% endif %}
+						{# 🆕 Boucle modifiée pour utiliser articlesData #}
+						{% for item in articlesData %}
+							{% set article = item.entity %}
+							{% set im = article.image|default('')|trim %}
+							{% if im is empty %}
+								{% set cover_src = asset('images/placeholder.svg') %}
+							{% elseif im starts with 'http://' or im starts with 'https://' %}
+								{% set cover_src = im %}
+							{% elseif im starts with '//' %}
+								{% set cover_src = 'https:' ~ im %}
+							{% else %}
+								{% set fn = im|replace({'\\':'/'})|split('/')|last %}
+								{% set cover_src = asset('uploads/articles/' ~ fn) %}
+							{% endif %}
 						<div class="blog_post wingo-card">
 							<div class="blog_post_image">
 								<img src="{{ cover_src }}" alt="{{ article.titre|e('html_attr') }}" style="width: 100%; height: 350px; object-fit: cover; border-radius: 20px 20px 0 0;" loading="lazy" decoding="async" onerror="this.onerror=null;this.src='{{ blog_img_fallback|e('html_attr') }}';">
@@ -160,6 +183,17 @@
 									<a href="{{ path('app_article_show', {id: article.id}) }}#comments" style="color: #8d4fff; text-decoration: none; font-size: 14px; display: inline-flex; align-items: center;">
 										<i class="fas fa-comment" style="margin-right: 5px;"></i>
 										<span>{{ article.commentaires|length }}</span>
+									</a>
+								</div>
+								{# 🆕 Bloc Like #}
+								<div class="blog_post_likes" style="display: inline-block; margin-left: 15px;">
+									<a href="javascript:void(0);"
+									   class="like-button"
+									   data-article-id="{{ article.id }}"
+									   data-liked="{{ item.userLiked ? 'true' : 'false' }}"
+									   style="color: #8d4fff; text-decoration: none; font-size: 14px; display: inline-flex; align-items: center;">
+										<i class="{% if item.userLiked %}fas{% else %}far{% endif %} fa-heart like-icon"></i>
+										<span class="like-count">{{ item.likesCount }}</span>
 									</a>
 								</div>
 							</div>
