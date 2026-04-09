@@ -167,7 +167,7 @@ class ArticleController extends AbstractController
         ];
 
         return $this->render('article/BlogList.html.twig', [
-            'articlesData'      => $articlesData,   // tableau enrichi
+            'articlesData'      => $articlesData,
             'searchQuery'       => $searchQuery,
             'categoryFilter'    => $categoryFilter,
             'categories'        => $categories,
@@ -250,6 +250,16 @@ class ArticleController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+            // 🆕 REPONSES : gestion du commentaire parent
+            $parentId = $form->get('parent_id')->getData();
+            if ($parentId) {
+                $parent = $em->getRepository(Commentaire::class)->find($parentId);
+                // Vérifier que le parent appartient bien au même article
+                if ($parent && $parent->getArticle()->getId() === $article->getId()) {
+                    $commentaire->setParent($parent);
+                }
+            }
+
             $em->persist($commentaire);
             $em->flush();
             return $this->redirectToRoute('app_article_show', ['id' => $article->getId()]);
