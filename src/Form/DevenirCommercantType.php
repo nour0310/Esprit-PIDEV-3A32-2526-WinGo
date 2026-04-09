@@ -28,9 +28,6 @@ class DevenirCommercantType extends AbstractType
                         maxMessage: 'Le nom ne doit pas dépasser {{ limit }} caractères.'
                     ),
                 ],
-                'attr' => [
-                    'placeholder' => 'Votre nom',
-                ],
             ])
             ->add('prenom', TextType::class, [
                 'label' => 'Prénom',
@@ -44,9 +41,6 @@ class DevenirCommercantType extends AbstractType
                         maxMessage: 'Le prénom ne doit pas dépasser {{ limit }} caractères.'
                     ),
                 ],
-                'attr' => [
-                    'placeholder' => 'Votre prénom',
-                ],
             ])
             ->add('email', EmailType::class, [
                 'label' => 'Email',
@@ -58,9 +52,6 @@ class DevenirCommercantType extends AbstractType
                         max: 180,
                         maxMessage: 'L’email ne doit pas dépasser {{ limit }} caractères.'
                     ),
-                ],
-                'attr' => [
-                    'placeholder' => 'Votre email',
                 ],
             ])
             ->add('telephone', IntegerType::class, [
@@ -74,9 +65,6 @@ class DevenirCommercantType extends AbstractType
                         notInRangeMessage: 'Le téléphone doit contenir 8 chiffres.'
                     ),
                 ],
-                'attr' => [
-                    'placeholder' => 'Votre téléphone',
-                ],
             ]);
     }
 
@@ -84,6 +72,12 @@ class DevenirCommercantType extends AbstractType
     {
         $resolver->setDefaults([
             'data_class' => Utilisateur::class,
+            'csrf_token_id' => 'devenir_commercant',
         ]);
+    }
+
+    public function getBlockPrefix(): string
+    {
+        return '';
     }
 }

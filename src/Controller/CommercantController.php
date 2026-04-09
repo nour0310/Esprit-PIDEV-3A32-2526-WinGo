@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\Form\DevenirCommercantType;
 use App\Repository\UtilisateurRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -12,7 +13,7 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 final class CommercantController extends AbstractController
 {
-    #[IsGranted('ROLE_USER')]
+ #[IsGranted('ROLE_USER')]
     #[Route('/devenir-commercant', name: 'devenir_commercant', methods: ['GET', 'POST'])]
     public function devenirCommercant(
         Request $request,
@@ -32,21 +33,16 @@ final class CommercantController extends AbstractController
             throw $this->createNotFoundException('Utilisateur introuvable.');
         }
 
-        if ($request->isMethod('POST')) {
-            $submittedToken = $request->request->get('_token');
+        $typeActuel = strtoupper((string) ($user->getType() ?? ''));
 
-            if (!$this->isCsrfTokenValid('devenir_commercant', $submittedToken)) {
-                $this->addFlash('error', 'Jeton CSRF invalide.');
-                return $this->redirectToRoute('devenir_commercant');
-            }
+        if ($typeActuel === 'COMMERCANT') {
+            $this->addFlash('info', 'Votre compte est déjà commerçant.');
+            return $this->redirectToRoute('merchant_dashboard');
+        }
 
-            $typeActuel = strtoupper((string) ($user->getType() ?? ''));
-
-            if ($typeActuel === 'COMMERCANT') {
-                $this->addFlash('info', 'Votre compte est déjà commerçant.');
-                return $this->redirectToRoute('merchant_dashboard');
-            }
-
+        $form = $this->createForm(DevenirCommercantType::class, $user);
+        $form->handleRequest($request);
+        if ($form->isSubmitted() && $form->isValid()) {
             if ($typeActuel === 'EN_ATTENTE_COMMERCANT') {
                 $this->addFlash('warning', 'Votre demande est déjà en attente de validation.');
                 return $this->redirectToRoute('devenir_commercant');
@@ -56,12 +52,12 @@ final class CommercantController extends AbstractController
             $em->flush();
 
             $this->addFlash('success', 'Votre demande a bien été envoyée à l’administrateur.');
-
             return $this->redirectToRoute('devenir_commercant');
         }
 
         return $this->render('commercant/devenir.html.twig', [
             'userData' => $user,
+            'form' => $form->createView(),
         ]);
     }
 
