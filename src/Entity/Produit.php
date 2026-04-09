@@ -62,9 +62,9 @@ class Produit
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $image = null;
 
-    #[ORM\Column(name: 'date_ajout', type: Types::DATETIME_MUTABLE, nullable: true)]
-    #[Assert\NotNull(message: 'La date d’ajout est obligatoire.')]
-    private ?\DateTimeInterface $dateAjout = null;
+  
+#[ORM\Column(name: 'date_ajout', type: Types::DATETIME_MUTABLE, nullable: true)]
+private ?\DateTimeInterface $dateAjout = null;
 
     public function getId(): ?int
     {

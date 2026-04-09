@@ -5,7 +5,6 @@ namespace App\Form;
 use App\Entity\Produit;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
-use Symfony\Component\Form\Extension\Core\Type\DateTimeType;
 use Symfony\Component\Form\Extension\Core\Type\FileType;
 use Symfony\Component\Form\Extension\Core\Type\IntegerType;
 use Symfony\Component\Form\Extension\Core\Type\MoneyType;
@@ -20,15 +19,15 @@ class ProduitType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
-           ->add('nom', TextType::class, [
-    'label' => 'Nom',
-    'attr' => [
-        'minlength' => 3,
-        'maxlength' => 100,
-        'required' => true,
-        'id' => 'produit_nom'
-    ]
-    ])
+            ->add('nom', TextType::class, [
+                'label' => 'Nom',
+                'attr' => [
+                    'minlength' => 3,
+                    'maxlength' => 100,
+                    'required' => true,
+                    'id' => 'produit_nom'
+                ]
+            ])
             ->add('description', TextareaType::class, [
                 'required' => false,
                 'label' => 'Description'
@@ -98,11 +97,6 @@ class ProduitType extends AbstractType
                         'mimeTypesMessage' => 'Veuillez choisir une image valide',
                     ])
                 ]
-            ])
-            ->add('dateAjout', DateTimeType::class, [
-                'required' => false,
-                'widget' => 'single_text',
-                'label' => 'Date ajout'
             ]);
     }
 

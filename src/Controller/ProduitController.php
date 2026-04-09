@@ -17,13 +17,13 @@ use Symfony\Component\String\Slugger\SluggerInterface;
 #[Route('/produit')]
 final class ProduitController extends AbstractController
 {
-   #[Route('/produits', name: 'client_produits')]
-    public function list(ProduitRepository $repo): Response
-    {
-        return $this->render('client/produits.html.twig', [
-            'produits' => $repo->findAll()
-        ]);
-    }
+   #[Route('/produits/all', name: 'produit_list_all')]
+public function list(ProduitRepository $repo): Response
+{
+    return $this->render('client/produits.html.twig', [
+        'produits' => $repo->findAll()
+    ]);
+}
 
     #[Route('/details/{id}', name: 'produit_details')]
     public function details($id, ProduitRepository $repo): Response
@@ -46,9 +46,10 @@ final class ProduitController extends AbstractController
         $form = $this->createForm(ProduitType::class, $produit);
         $form->handleRequest($request);
 
-        if ($form->isSubmitted() && $form->isValid()) {
-
-            /** @var \App\Entity\Utilisateur $user */
+        if ($form->isSubmitted()){
+   $produit->setDateAjout(new \DateTime('now', new \DateTimeZone('Africa/Tunis'))); 
+if($form->isValid()){
+  /** @var \App\Entity\Utilisateur $user */
             $user = $this->getUser();
             $produit->setIdUser($user->getId());
 
@@ -70,10 +71,7 @@ final class ProduitController extends AbstractController
 
                 $produit->setImage($newFilename);
             }
-
-            if ($produit->getDateAjout() === null) {
-                $produit->setDateAjout(new \DateTime());
-            }
+            
 
             $em->persist($produit);
             $em->flush();
@@ -83,6 +81,8 @@ final class ProduitController extends AbstractController
             }
 
             return $this->redirectToRoute('produit_list');
+}
+          
         }
 
         return $this->render('produit/add.html.twig', [
