@@ -305,6 +305,67 @@
 </style>
 {% endblock %}
 
+{% macro comment_tree(comment, article, commentForm, app) %}
+    {% set commAuthorName = comment.utilisateur ? comment.utilisateur.prenom ~ ' ' ~ comment.utilisateur.nom : 'Visiteur' %}
+    <div class="comment-card" id="comment-card-{{ comment.id }}" style="margin-left: {{ comment.parent ? '40px' : '0' }}; border-left: {{ comment.parent ? '3px solid #fa9e1c' : '4px solid var(--primary-color)' }};">
+        <div class="comment-header">
+            <div class="comment-avatar" style="{{ comment.parent ? 'width: 30px; height: 30px; font-size: 0.8rem;' : '' }}">{{ commAuthorName|slice(0, 1)|upper }}</div>
+            <div class="comment-author">{{ commAuthorName }}</div>
+            <div class="comment-date">{{ comment.dateCommentaire ? comment.dateCommentaire|date('d/m/Y H:i') : '' }}</div>
+            
+            {% if app.user %}
+            <div style="margin-left: auto;">
+                <a href="javascript:void(0);" onclick="showReplyForm({{ comment.id }})" style="color: #8d4fff; font-size: 0.9rem; text-decoration: none; margin-right: 15px;">
+                    <i class="fas fa-reply"></i> Répondre
+                </a>
+            </div>
+            {% endif %}
+
+            {% if app.user and (app.user == comment.utilisateur or is_granted('ROLE_ADMIN')) %}
+            <div class="comment-actions" style="{{ not app.user ? 'margin-left: auto;' : '' }}">
+                <a href="javascript:void(0);" onclick="showEditForm({{ comment.id }})" class="btn-edit" style="color: #8d4fff; margin-right: 8px;">
+                    <i class="fas fa-edit"></i>
+                </a>
+                <form method="post" action="{{ path('app_commentaire_delete', {id: comment.id}) }}" style="display:inline-block; margin:0;" onsubmit="return confirm('Supprimer ce commentaire ?');">
+                    <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ comment.id) }}">
+                    <button type="submit" style="color: #dc3545; background: transparent; border: none; cursor: pointer; padding: 0;"><i class="fas fa-trash-alt"></i></button>
+                </form>
+            </div>
+            {% endif %}
+        </div>
+        <div class="comment-body" id="comment-body-{{ comment.id }}">
+            {{ comment.contenu|nl2br }}
+        </div>
+        <div class="edit-comment-form" id="edit-form-{{ comment.id }}">
+            <textarea id="edit-text-{{ comment.id }}" rows="3">{{ comment.contenu }}</textarea>
+            <div class="edit-actions">
+                <button class="btn-save" onclick="saveComment({{ comment.id }})">Enregistrer</button>
+                <button class="btn-cancel" onclick="hideEditForm({{ comment.id }})">Annuler</button>
+            </div>
+        </div>
+
+        {# Formulaire de réponse caché #}
+        <div class="reply-form-container" id="reply-form-{{ comment.id }}" style="display: none; margin-top: 15px; padding-left: 20px;">
+            <form method="post" action="{{ path('app_article_show', {id: article.id}) }}">
+                <textarea name="commentaire[contenu]" class="wingo-input" rows="3" placeholder="Tapez votre réponse ici..." required></textarea>
+                <input type="hidden" name="commentaire[parent_id]" value="{{ comment.id }}">
+                {% if commentForm._token is defined %}
+                <input type="hidden" name="commentaire[_token]" value="{{ commentForm._token.vars.value }}">
+                {% endif %}
+                <div style="text-align: right; margin-top: 10px;">
+                    <button type="button" class="btn-cancel" onclick="hideReplyForm({{ comment.id }})" style="margin-right: 10px;">Annuler</button>
+                    <button type="submit" class="btn-save"><i class="fas fa-paper-plane"></i> Répondre</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    {# Boucle récursive pour afficher les réponses #}
+    {% for reponse in comment.reponses %}
+        {{ _self.comment_tree(reponse, article, commentForm, app) }}
+    {% endfor %}
+{% endmacro %}
+
 {% block content %}
 {% set blog_img_fallback = asset('images/placeholder.svg') %}
 {% set im = article.image|default('')|trim %}
@@ -363,35 +424,9 @@
     		    <h3 class="comments-title">Commentaires ({{ article.commentaires|length }})</h3>
     		    <div class="comments-list">
     		        {% for comm in article.commentaires %}
-    		            {% set commAuthorName = comm.utilisateur ? comm.utilisateur.prenom ~ ' ' ~ comm.utilisateur.nom : 'Visiteur' %}
-    		            <div class="comment-card" id="comment-card-{{ comm.id }}">
-    		                <div class="comment-header">
-    		                    <div class="comment-avatar">{{ commAuthorName|slice(0, 1)|upper }}</div>
-    		                    <div class="comment-author">{{ commAuthorName }}</div>
-    		                    <div class="comment-date">{{ comm.dateCommentaire ? comm.dateCommentaire|date('d/m/Y H:i') : '' }}</div>
-    		                    {% if app.user and (app.user == comm.utilisateur or is_granted('ROLE_ADMIN')) %}
-    		                    <div class="comment-actions" style="margin-left: 15px;">
-    		                        <a href="javascript:void(0);" onclick="showEditForm({{ comm.id }})" class="btn-edit" style="color: #8d4fff; margin-right: 8px;">
-    		                            <i class="fas fa-edit"></i>
-    		                        </a>
-    		                        <form method="post" action="{{ path('app_commentaire_delete', {id: comm.id}) }}" style="display:inline-block; margin:0;" onsubmit="return confirm('Supprimer ce commentaire ?');">
-    		                            <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ comm.id) }}">
-    		                            <button type="submit" style="color: #dc3545; background: transparent; border: none; cursor: pointer; padding: 0;"><i class="fas fa-trash-alt"></i></button>
-    		                        </form>
-    		                    </div>
-    		                    {% endif %}
-    		                </div>
-    		                <div class="comment-body" id="comment-body-{{ comm.id }}">
-    		                    {{ comm.contenu|nl2br }}
-    		                </div>
-    		                <div class="edit-comment-form" id="edit-form-{{ comm.id }}">
-    		                    <textarea id="edit-text-{{ comm.id }}" rows="3">{{ comm.contenu }}</textarea>
-    		                    <div class="edit-actions">
-    		                        <button class="btn-save" onclick="saveComment({{ comm.id }})">Enregistrer</button>
-    		                        <button class="btn-cancel" onclick="hideEditForm({{ comm.id }})">Annuler</button>
-    		                    </div>
-    		                </div>
-    		            </div>
+                        {% if comm.parent is null %}
+    		                {{ _self.comment_tree(comm, article, commentForm, app) }}
+                        {% endif %}
     		        {% else %}
     		            <p style="color: #888; font-style: italic;">Aucun commentaire pour le moment. Soyez le premier !</p>
     		        {% endfor %}
@@ -414,6 +449,31 @@
 </div>
 
 <script>
+function showReplyForm(commentId) {
+    // Masquer les autres formulaires
+    document.querySelectorAll('.reply-form-container').forEach(form => form.style.display = 'none');
+    
+    // Afficher celui-ci
+    const formContainer = document.getElementById('reply-form-' + commentId);
+    if (formContainer) {
+        formContainer.style.display = 'block';
+        const textarea = formContainer.querySelector('textarea');
+        if(textarea) {
+            textarea.focus();
+            textarea.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+    }
+}
+
+function hideReplyForm(commentId) {
+    const formContainer = document.getElementById('reply-form-' + commentId);
+    if (formContainer) {
+        formContainer.style.display = 'none';
+        const textarea = formContainer.querySelector('textarea');
+        if(textarea) textarea.value = '';
+    }
+}
+
 function showEditForm(commentId) {
     // Masquer tous les formulaires d'édition ouverts
     document.querySelectorAll('.edit-comment-form').forEach(form => {
