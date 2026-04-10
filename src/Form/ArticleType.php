@@ -27,8 +27,6 @@ class ArticleType extends AbstractType
                     ['bold', 'italic', 'underline'],
                     [['list' => 'ordered'], ['list' => 'bullet']],
                     [['align' => []]],
-                    ['link'],
-                    ['clean'],
                 ],
                 'quill_extra_options' => [
                     'height' => '260px',
