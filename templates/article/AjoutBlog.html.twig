@@ -195,24 +195,44 @@
 <script src="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.js"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function () {
-	const container = document.querySelector('.form-group-custom .quill-container');
+	if (typeof Quill === 'undefined') {
+		return;
+	}
+
+	const textarea = document.getElementById('article_contenu');
+	if (!textarea) {
+		return;
+	}
+
+	let container = textarea.closest('.form-group-custom')?.querySelector('.quill-container');
+	let editor = container ? container.querySelector('.quill-editor') : null;
+
+	// Case A: Quill bundle already initialized correctly.
+	if (container && container.querySelector('.ql-toolbar') && editor) {
+		return;
+	}
+
+	// Case B: fallback - no quill container in DOM (textarea rendering).
 	if (!container) {
-		return;
+		container = document.createElement('div');
+		container.className = 'quill-container';
+		editor = document.createElement('div');
+		editor.className = 'quill-editor';
+		textarea.insertAdjacentElement('afterend', container);
+		container.appendChild(editor);
+		textarea.style.display = 'none';
 	}
 
-	if (container.querySelector('.ql-toolbar')) {
-		return;
-	}
-
-	const input = document.getElementById('article_contenu');
-	const editor = container.querySelector('.quill-editor');
-	if (!input || !editor || typeof Quill === 'undefined') {
-		return;
+	// Case C: container exists but editor missing.
+	if (!editor) {
+		editor = document.createElement('div');
+		editor.className = 'quill-editor';
+		container.appendChild(editor);
 	}
 
 	const quill = new Quill(editor, {
 		theme: 'snow',
-		placeholder: 'Racontez votre expérience...',
+		placeholder: textarea.getAttribute('placeholder') || 'Racontez votre expérience...',
 		modules: {
 			toolbar: [
 				['bold', 'italic', 'underline'],
@@ -222,11 +242,11 @@ document.addEventListener('DOMContentLoaded', function () {
 		}
 	});
 
-	quill.root.innerHTML = input.value || '';
-	const form = input.closest('form');
+	quill.root.innerHTML = textarea.value || '';
+	const form = textarea.closest('form');
 	if (form) {
 		form.addEventListener('submit', function () {
-			input.value = quill.root.innerHTML;
+			textarea.value = quill.root.innerHTML;
 		});
 	}
 });
