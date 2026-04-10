@@ -5,6 +5,8 @@ services:
     _defaults:
         autowire: true
         autoconfigure: true
+        bind:
+            $weatherApiKey: '%env(OPENWEATHER_API_KEY)%'
 
     Symfony\Component\Finder\Finder:
         class: Symfony\Component\Finder\Finder
@@ -12,11 +14,6 @@ services:
     App\Command\GenerateRepositoriesCommand:
         arguments:
             $finder: '@Symfony\Component\Finder\Finder'
-
-    App\Service\WeatherService:
-        arguments:
-            $weatherApiKey: '%env(OPENWEATHER_API_KEY)%'
-            $cache: '@cache.app'
 
     App\:
         resource: '../src/'
