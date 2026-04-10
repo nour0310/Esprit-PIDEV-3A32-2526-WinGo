@@ -101,6 +101,10 @@
 		outline: none !important;
 		box-shadow: none !important;
 	}
+	.form-group-custom .quill-container .ql-toolbar.ql-snow,
+	.form-group-custom .quill-container .ql-container.ql-snow {
+		border-color: #e9ecef !important;
+	}
 	.form-group-custom .quill-container .ql-editor {
 		min-height: 220px;
 		color: #333;
@@ -113,11 +117,20 @@
 	.form-group-custom .quill-container .ql-toolbar .ql-picker-label:focus-visible,
 	.form-group-custom .quill-container .ql-editor:focus,
 	.form-group-custom .quill-container .ql-editor:focus-visible,
+	.form-group-custom .quill-container .ql-snow .ql-picker-label.ql-active,
+	.form-group-custom .quill-container .ql-snow .ql-picker-item.ql-selected,
+	.form-group-custom .quill-container .ql-snow .ql-picker.ql-expanded .ql-picker-label,
 	.form-group-custom .quill-container:focus,
 	.form-group-custom .quill-container:focus-visible {
 		outline: none !important;
 		box-shadow: none !important;
 		border-color: transparent !important;
+	}
+	.form-group-custom .quill-container .ql-snow .ql-stroke,
+	.form-group-custom .quill-container .ql-snow .ql-fill,
+	.form-group-custom .quill-container .ql-snow .ql-picker-label {
+		stroke: #333 !important;
+		color: #333 !important;
 	}
 	.form-group-custom .quill-container:focus-within .ql-toolbar,
 	.form-group-custom .quill-container:focus-within .ql-container {
