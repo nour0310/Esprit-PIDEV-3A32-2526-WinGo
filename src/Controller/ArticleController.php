@@ -4,16 +4,19 @@ namespace App\Controller;
 
 use App\Entity\Article;
 use App\Entity\Commentaire;
+use App\Entity\Likes;
 use App\Form\ArticleType;
 use App\Form\CommentaireType;
 use App\Repository\ArticleRepository;
 use App\Repository\CommentaireRepository;
+use App\Repository\LikesRepository;
 use App\Repository\UtilisateurRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Symfony\Component\HttpFoundation\File\Exception\FileException;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -85,7 +88,13 @@ class ArticleController extends AbstractController
 
     // ===================== LISTE DES ARTICLES =====================
     #[Route('/blog', name: 'blog')]
-    public function blog(Request $request, ArticleRepository $articleRepository, CommentaireRepository $commentaireRepository): Response
+    public function blog(
+        Request $request,
+        ArticleRepository $articleRepository,
+        CommentaireRepository $commentaireRepository,
+        LikesRepository $likesRepository,
+        UtilisateurRepository $utilisateurRepository
+    ): Response
     {
         $searchQuery = $request->query->get('q');
         $categoryFilter = $request->query->get('category');
@@ -101,6 +110,38 @@ class ArticleController extends AbstractController
         }
         $qb->orderBy('a.datePublication', 'DESC');
         $articles = $qb->getQuery()->getResult();
+        $articlesData = [];
+
+        /** @var \App\Entity\Utilisateur|null $currentUser */
+        $currentUser = $this->getUser();
+        $currentUserId = $currentUser ? $currentUser->getId() : null;
+        foreach ($articles as $article) {
+            $articleId = $article->getId();
+            if ($articleId === null) {
+                continue;
+            }
+
+            $likesCount = $likesRepository->countLikesForArticle($articleId);
+            $userLiked = $currentUserId ? $likesRepository->hasUserLiked($currentUserId, $articleId) : false;
+
+            $likers = $likesRepository->findBy(['articleId' => $articleId], ['dateLike' => 'DESC']);
+            $likerNames = [];
+            foreach ($likers as $like) {
+                $liker = $utilisateurRepository->find($like->getUtilisateurId());
+                if ($liker) {
+                    $likerNames[] = trim($liker->getPrenom() . ' ' . $liker->getNom());
+                }
+            }
+            $likerNames = array_values(array_unique(array_filter($likerNames)));
+            $likersText = empty($likerNames) ? 'Aucun like pour le moment' : implode(', ', $likerNames);
+
+            $articlesData[] = [
+                'entity' => $article,
+                'likesCount' => $likesCount,
+                'userLiked' => $userLiked,
+                'likersText' => $likersText,
+            ];
+        }
 
         $totalArticles = $articleRepository->count([]);
         $totalCommentaires = $commentaireRepository->count([]);
@@ -122,12 +163,70 @@ class ArticleController extends AbstractController
 
         return $this->render('article/BlogList.html.twig', [
             'articles' => $articles,
+            'articlesData' => $articlesData,
             'searchQuery' => $searchQuery,
             'categoryFilter' => $categoryFilter,
             'categories' => $categories,
             'totalArticles' => $totalArticles,
             'totalCommentaires' => $totalCommentaires,
             'popularArticles' => $popularArticles,
+        ]);
+    }
+
+    #[Route('/article/{id}/like', name: 'app_article_like', methods: ['POST'])]
+    public function like(Article $article, EntityManagerInterface $em, LikesRepository $likesRepository): JsonResponse
+    {
+        /** @var \App\Entity\Utilisateur|null $user */
+        $user = $this->getUser();
+        if (!$user || $user->getId() === null) {
+            return new JsonResponse(['success' => false, 'message' => 'Non authentifié'], Response::HTTP_UNAUTHORIZED);
+        }
+
+        $articleId = $article->getId();
+        if ($articleId === null) {
+            return new JsonResponse(['success' => false, 'message' => 'Article invalide'], Response::HTTP_BAD_REQUEST);
+        }
+
+        $alreadyLiked = $likesRepository->findOneByUserAndArticle($user->getId(), $articleId);
+        if (!$alreadyLiked) {
+            $like = new Likes();
+            $like->setUtilisateurId($user->getId());
+            $like->setArticleId($articleId);
+            $em->persist($like);
+            $em->flush();
+        }
+
+        return new JsonResponse([
+            'success' => true,
+            'liked' => true,
+            'count' => $likesRepository->countLikesForArticle($articleId),
+        ]);
+    }
+
+    #[Route('/article/{id}/unlike', name: 'app_article_unlike', methods: ['POST'])]
+    public function unlike(Article $article, EntityManagerInterface $em, LikesRepository $likesRepository): JsonResponse
+    {
+        /** @var \App\Entity\Utilisateur|null $user */
+        $user = $this->getUser();
+        if (!$user || $user->getId() === null) {
+            return new JsonResponse(['success' => false, 'message' => 'Non authentifié'], Response::HTTP_UNAUTHORIZED);
+        }
+
+        $articleId = $article->getId();
+        if ($articleId === null) {
+            return new JsonResponse(['success' => false, 'message' => 'Article invalide'], Response::HTTP_BAD_REQUEST);
+        }
+
+        $like = $likesRepository->findOneByUserAndArticle($user->getId(), $articleId);
+        if ($like) {
+            $em->remove($like);
+            $em->flush();
+        }
+
+        return new JsonResponse([
+            'success' => true,
+            'liked' => false,
+            'count' => $likesRepository->countLikesForArticle($articleId),
         ]);
     }
 
