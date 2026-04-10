@@ -511,6 +511,9 @@
     			<a href="{{ path('blog') }}" class="btn-custom btn-secondary-outline">
     				<i class="fas fa-arrow-left" style="margin-right: 8px;"></i> Retour aux blogs
     			</a>
+				<button id="listenButton" type="button" class="btn-custom btn-secondary-outline">
+					<i class="fas fa-volume-up" style="margin-right: 8px;"></i> Écouter
+				</button>
                 {% if app.user and (app.user == article.auteur or is_granted('ROLE_ADMIN')) %}
     			<a href="{{ path('app_article_edit', {id: article.id}) }}" class="btn-custom btn-primary-gradient">
     				<i class="fas fa-edit" style="margin-right: 8px;"></i> Modifier l'article
@@ -629,6 +632,66 @@ async function saveComment(commentId) {
         console.error(error);
         alert('Impossible de communiquer avec le serveur.');
     }
+}
+
+const listenButton = document.getElementById('listenButton');
+if (listenButton) {
+    listenButton.addEventListener('click', async function () {
+        const button = this;
+        const originalText = button.innerHTML;
+        button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Génération...';
+        button.disabled = true;
+
+        const contentContainer = document.querySelector('.article-content');
+        const content = contentContainer ? contentContainer.innerText.trim() : '';
+
+        if (!content) {
+            alert('Aucun contenu à lire.');
+            button.innerHTML = originalText;
+            button.disabled = false;
+            return;
+        }
+
+        try {
+            const response = await fetch('/api/tts', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                body: JSON.stringify({
+                    text: content,
+                    lang: 'fr'
+                })
+            });
+
+            const data = await response.json();
+            if (data.audioContent) {
+                const audioBlob = base64ToBlob(data.audioContent, 'audio/mp3');
+                const audioUrl = URL.createObjectURL(audioBlob);
+                const audio = new Audio(audioUrl);
+                audio.play();
+            } else {
+                alert('Erreur lors de la génération audio.');
+            }
+        } catch (error) {
+            console.error(error);
+            alert('Erreur de communication avec le serveur.');
+        } finally {
+            button.innerHTML = originalText;
+            button.disabled = false;
+        }
+    });
+}
+
+function base64ToBlob(base64, mimeType) {
+    const byteCharacters = atob(base64);
+    const byteNumbers = new Array(byteCharacters.length);
+    for (let i = 0; i < byteCharacters.length; i++) {
+        byteNumbers[i] = byteCharacters.charCodeAt(i);
+    }
+    const byteArray = new Uint8Array(byteNumbers);
+    return new Blob([byteArray], { type: mimeType });
 }
 </script>
 {% endblock %}
