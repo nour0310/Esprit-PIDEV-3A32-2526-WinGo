@@ -2,6 +2,8 @@
 
 namespace App\Entity;
 
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity]
@@ -48,9 +50,13 @@ class Event
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $image_event = null;
 
+    #[ORM\OneToMany(mappedBy: 'id_event', targetEntity: Participation::class, orphanRemoval: true)]
+    private Collection $participations;
+
     public function __construct()
     {
         $this->image_event = null;
+        $this->participations = new ArrayCollection();
     }
 
     // --- Getters / Setters (camelCase) ---
@@ -247,5 +253,34 @@ class Event
     public function setEvent_type(?string $event_type): self
     {
         return $this->setEventType($event_type);
+    }
+
+    /**
+     * @return Collection<int, Participation>
+     */
+    public function getParticipations(): Collection
+    {
+        return $this->participations;
+    }
+
+    public function addParticipation(Participation $participation): self
+    {
+        if (!$this->participations->contains($participation)) {
+            $this->participations->add($participation);
+            $participation->setIdEvent($this);
+        }
+
+        return $this;
+    }
+
+    public function removeParticipation(Participation $participation): self
+    {
+        if ($this->participations->removeElement($participation)) {
+            if ($participation->getIdEvent() === $this) {
+                $participation->setIdEvent(null);
+            }
+        }
+
+        return $this;
     }
 }

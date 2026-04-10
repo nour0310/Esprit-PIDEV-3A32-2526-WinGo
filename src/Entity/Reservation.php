@@ -31,7 +31,7 @@ class Reservation
     #[Assert\NotBlank(message: "La date est obligatoire")] 
     private ?\DateTimeInterface $date = null;
 
-    #[ORM\ManyToOne(targetEntity: Utilisateur::class)]
+    #[ORM\ManyToOne(targetEntity: Utilisateur::class, inversedBy: 'reservations')]
     #[ORM\JoinColumn(name: "user_id", referencedColumnName: "id", nullable: true)]
     private ?Utilisateur $user_id = null; 
     public function getId()

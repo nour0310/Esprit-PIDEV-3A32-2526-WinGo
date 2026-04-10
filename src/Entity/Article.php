@@ -49,9 +49,14 @@ class Article
     #[ORM\OneToMany(targetEntity: Commentaire::class, mappedBy: 'article', cascade: ['remove'])]
     private Collection $commentaires;
 
+    #[ORM\ManyToMany(targetEntity: Tag::class, inversedBy: 'articles')]
+    #[ORM\JoinTable(name: 'article_tag')]
+    private Collection $tags;
+
     public function __construct()
     {
         $this->commentaires = new ArrayCollection();
+        $this->tags = new ArrayCollection();
     }
 
     // Getters et setters (avec gestion du null)
@@ -108,6 +113,30 @@ class Article
                 $commentaire->setArticle(null);
             }
         }
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Tag>
+     */
+    public function getTags(): Collection
+    {
+        return $this->tags;
+    }
+
+    public function addTag(Tag $tag): self
+    {
+        if (!$this->tags->contains($tag)) {
+            $this->tags->add($tag);
+        }
+
+        return $this;
+    }
+
+    public function removeTag(Tag $tag): self
+    {
+        $this->tags->removeElement($tag);
+
         return $this;
     }
 }
