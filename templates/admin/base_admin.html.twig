@@ -631,21 +631,88 @@
 
 <script>
     document.addEventListener('DOMContentLoaded', function () {
-        const bell = document.getElementById('notificationBell');
-        const dropdown = document.getElementById('notificationDropdown');
+        function bindBellEvents() {
+            const bell = document.getElementById('notificationBell');
+            const dropdown = document.getElementById('notificationDropdown');
 
-        if (bell && dropdown) {
+            if (!bell || !dropdown) {
+                return;
+            }
+
             bell.addEventListener('click', function (e) {
                 e.stopPropagation();
                 dropdown.classList.toggle('show');
             });
 
             document.addEventListener('click', function (e) {
-                if (!dropdown.contains(e.target) && !bell.contains(e.target)) {
-                    dropdown.classList.remove('show');
+                const currentBell = document.getElementById('notificationBell');
+                const currentDropdown = document.getElementById('notificationDropdown');
+
+                if (currentBell && currentDropdown) {
+                    if (!currentDropdown.contains(e.target) && !currentBell.contains(e.target)) {
+                        currentDropdown.classList.remove('show');
+                    }
                 }
             });
         }
+
+        async function refreshNotificationBell() {
+            const wrapper = document.getElementById('adminNotificationWrapper');
+            if (!wrapper) {
+                return;
+            }
+
+            const bellUrl = wrapper.dataset.bellUrl;
+            if (!bellUrl) {
+                return;
+            }
+
+            try {
+                const response = await fetch(bellUrl, {
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                });
+
+                if (!response.ok) {
+                    console.error('Erreur HTTP refresh:', response.status);
+                    return;
+                }
+
+                const html = await response.text();
+                wrapper.outerHTML = html;
+                bindBellEvents();
+            } catch (error) {
+                console.error('Erreur refresh notifications:', error);
+            }
+        }
+
+        bindBellEvents();
+
+        const wrapper = document.getElementById('adminNotificationWrapper');
+        if (!wrapper) {
+            return;
+        }
+
+        const mercureUrl = wrapper.dataset.mercureUrl;
+        if (!mercureUrl) {
+            console.error('URL Mercure absente.');
+            return;
+        }
+
+        const eventSource = new EventSource(mercureUrl);
+
+        eventSource.onmessage = function () {
+            refreshNotificationBell();
+        };
+
+        eventSource.onerror = function (error) {
+            console.error('Erreur Mercure:', error);
+        };
+
+        window.addEventListener('beforeunload', function () {
+            eventSource.close();
+        });
     });
 </script>
 

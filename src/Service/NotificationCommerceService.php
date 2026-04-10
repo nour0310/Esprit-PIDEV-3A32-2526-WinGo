@@ -4,11 +4,18 @@ namespace App\Service;
 
 use App\Entity\NotificationCommerce;
 use Doctrine\ORM\EntityManagerInterface;
+use Psr\Log\LoggerInterface;
+use Symfony\Component\Mercure\HubInterface;
+use Symfony\Component\Mercure\Update;
 
 class NotificationCommerceService
 {
+    private const ADMIN_TOPIC = 'https://wingo.local/notifications/admin';
+
     public function __construct(
-        private EntityManagerInterface $em
+        private EntityManagerInterface $em,
+        private HubInterface $hub,
+        private LoggerInterface $logger
     ) {
     }
 
@@ -30,6 +37,33 @@ class NotificationCommerceService
 
         $this->em->persist($notification);
         $this->em->flush();
+
+        if ($role === 'ROLE_ADMIN') {
+            $payload = [
+                'id' => $notification->getId(),
+                'title' => $notification->getTitle(),
+                'message' => $notification->getMessage(),
+                'type' => $notification->getType(),
+                'link' => $notification->getLink(),
+                'createdAt' => $notification->getCreatedAt()?->format('Y-m-d H:i:s'),
+                'targetRole' => $notification->getTargetRole(),
+                'isRead' => $notification->isRead(),
+            ];
+
+            try {
+                $update = new Update(
+                    self::ADMIN_TOPIC,
+                    json_encode($payload, JSON_UNESCAPED_UNICODE),
+                    true
+                );
+
+                $this->hub->publish($update);
+            } catch (\Throwable $e) {
+                $this->logger->error('Publication Mercure échouée', [
+                    'message' => $e->getMessage(),
+                ]);
+            }
+        }
     }
 
     public function notifyUser(
