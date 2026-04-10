@@ -309,56 +309,76 @@
 
 {% block javascripts %}
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        document.querySelectorAll('.like-button').forEach(function(button) {
-            button.addEventListener('click', function(e) {
-                e.preventDefault();
+    function initBlogLikes() {
+        if (window.__blogLikesBound) {
+            return;
+        }
+        window.__blogLikesBound = true;
 
-                const isLiked = this.dataset.liked === 'true';
-                const icon = this.querySelector('.like-icon');
-                const countSpan = this.querySelector('.like-count');
+        document.addEventListener('click', function (e) {
+            const button = e.target.closest('.like-button');
+            if (!button) {
+                return;
+            }
 
-                const url = isLiked ? this.dataset.unlikeUrl : this.dataset.likeUrl;
+            e.preventDefault();
+            if (button.dataset.loading === '1') {
+                return;
+            }
+            button.dataset.loading = '1';
 
-                fetch(url, {
-                    method: 'POST',
-                    headers: {
-                        'X-Requested-With': 'XMLHttpRequest'
+            const isLiked = button.dataset.liked === 'true';
+            const icon = button.querySelector('.like-icon');
+            const countSpan = button.querySelector('.like-count');
+            const url = isLiked ? button.dataset.unlikeUrl : button.dataset.likeUrl;
+
+            fetch(url, {
+                method: 'POST',
+                headers: { 'X-Requested-With': 'XMLHttpRequest' }
+            })
+            .then(response => {
+                if (!response.ok) {
+                    if (response.status === 401) {
+                        alert("Vous devez être connecté pour liker un article.");
+                    } else {
+                        alert("Une erreur s'est produite (Erreur " + response.status + ")");
                     }
-                })
-                .then(response => {
-                    if (!response.ok) {
-                        if(response.status === 401) {
-                            alert("Vous devez être connecté pour liker un article.");
-                        } else {
-                            alert("Une erreur s'est produite (Erreur " + response.status + ")");
-                        }
-                        return Promise.reject('Not OK');
-                    }
-                    return response.json();
-                })
-                .then(data => {
-                    if (data.success) {
-                        if (data.liked) {
-                            icon.classList.remove('far');
-                            icon.classList.add('fas');
-                            this.dataset.liked = 'true';
-                        } else {
-                            icon.classList.remove('fas');
-                            icon.classList.add('far');
-                            this.dataset.liked = 'false';
-                        }
-                        countSpan.textContent = data.count;
-                    } else if (data.message) {
+                    return Promise.reject('Not OK');
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (!data || !data.success) {
+                    if (data && data.message) {
                         alert(data.message);
                     }
-                })
-                .catch(error => {
-                    console.error('Erreur lors du traitement du like:', error);
-                    alert("Une erreur inattendue s'est produite. Vérifiez votre connexion ou essayez de vous reconnecter.");
-                });
+                    return;
+                }
+
+                if (data.liked) {
+                    icon.classList.remove('far');
+                    icon.classList.add('fas');
+                    button.dataset.liked = 'true';
+                } else {
+                    icon.classList.remove('fas');
+                    icon.classList.add('far');
+                    button.dataset.liked = 'false';
+                }
+                if (countSpan) {
+                    countSpan.textContent = data.count;
+                }
+            })
+            .catch(error => {
+                console.error('Erreur lors du traitement du like:', error);
+                alert("Une erreur inattendue s'est produite. Vérifiez votre connexion ou essayez de vous reconnecter.");
+            })
+            .finally(() => {
+                button.dataset.loading = '0';
             });
         });
-    });
+    }
+
+    document.addEventListener('DOMContentLoaded', initBlogLikes);
+    document.addEventListener('turbo:load', initBlogLikes);
 </script>
 {% endblock %}
