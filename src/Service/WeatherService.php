@@ -23,7 +23,7 @@ class WeatherService
         }
 
         $city = $this->normalizeRegionToCity($region);
-        $cacheKey = 'weather_' . md5(strtolower($city));
+        $cacheKey = 'weather_v2_' . md5(strtolower($city) . '|' . sha1((string) $this->weatherApiKey));
 
         return $this->cache->get($cacheKey, function (ItemInterface $item) use ($city) {
             $item->expiresAfter(1800); // 30 minutes
