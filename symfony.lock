@@ -38,6 +38,9 @@
     "ehyiah/ux-quill": {
         "version": "3.6.0"
     },
+    "knplabs/knp-paginator-bundle": {
+        "version": "v6.10.0"
+    },
     "phpunit/phpunit": {
         "version": "13.0",
         "recipe": {
