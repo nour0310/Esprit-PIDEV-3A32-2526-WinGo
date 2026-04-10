@@ -115,7 +115,7 @@ class ArticleController extends AbstractController
         $pagination = $paginator->paginate(
             $qb,
             $request->query->getInt('page', 1),
-            6
+            3
         );
 
         $articlesData = [];
