@@ -90,21 +90,34 @@
 		border-bottom: 1px solid #e9ecef;
 		border-radius: 16px 16px 0 0;
 		background-color: var(--form-gray);
+		outline: none !important;
+		box-shadow: none !important;
 	}
 	.form-group-custom .quill-container .ql-container {
 		border: 2px solid transparent;
 		border-top: none;
 		border-radius: 0 0 16px 16px;
 		background-color: var(--form-gray);
+		outline: none !important;
+		box-shadow: none !important;
 	}
 	.form-group-custom .quill-container .ql-editor {
 		min-height: 220px;
 		color: #333;
-	}
-	.form-group-custom .quill-container .ql-toolbar button:focus,
-	.form-group-custom .quill-container .ql-toolbar .ql-picker-label:focus {
 		outline: none !important;
 		box-shadow: none !important;
+	}
+	.form-group-custom .quill-container .ql-toolbar button:focus,
+	.form-group-custom .quill-container .ql-toolbar .ql-picker-label:focus,
+	.form-group-custom .quill-container .ql-toolbar button:focus-visible,
+	.form-group-custom .quill-container .ql-toolbar .ql-picker-label:focus-visible,
+	.form-group-custom .quill-container .ql-editor:focus,
+	.form-group-custom .quill-container .ql-editor:focus-visible,
+	.form-group-custom .quill-container:focus,
+	.form-group-custom .quill-container:focus-visible {
+		outline: none !important;
+		box-shadow: none !important;
+		border-color: transparent !important;
 	}
 	.form-group-custom .quill-container:focus-within .ql-toolbar,
 	.form-group-custom .quill-container:focus-within .ql-container {
