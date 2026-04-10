@@ -1,4 +1,5 @@
 {% extends 'base.html.twig' %}
+{% form_theme form '@QuillJs/form.html.twig' %}
 
 {% block title %}Modifier un Blog — WinGo{% endblock %}
 
@@ -82,6 +83,61 @@
 		border-color: var(--form-primary) !important;
 		box-shadow: 0 8px 25px var(--form-primary-light) !important;
 	}
+	/* Quill editor integration */
+	.form-group-custom .quill-container .ql-toolbar {
+		display: block !important;
+		border: 2px solid transparent;
+		border-bottom: 1px solid #e9ecef;
+		border-radius: 16px 16px 0 0;
+		background-color: var(--form-gray);
+		outline: none !important;
+		box-shadow: none !important;
+	}
+	.form-group-custom .quill-container .ql-container {
+		border: 2px solid transparent;
+		border-top: none;
+		border-radius: 0 0 16px 16px;
+		background-color: var(--form-gray);
+		outline: none !important;
+		box-shadow: none !important;
+	}
+	.form-group-custom .quill-container .ql-toolbar.ql-snow,
+	.form-group-custom .quill-container .ql-container.ql-snow {
+		border-color: #e9ecef !important;
+	}
+	.form-group-custom .quill-container .ql-editor {
+		min-height: 220px;
+		color: #333;
+		outline: none !important;
+		box-shadow: none !important;
+	}
+	.form-group-custom .quill-container .ql-toolbar button:focus,
+	.form-group-custom .quill-container .ql-toolbar .ql-picker-label:focus,
+	.form-group-custom .quill-container .ql-toolbar button:focus-visible,
+	.form-group-custom .quill-container .ql-toolbar .ql-picker-label:focus-visible,
+	.form-group-custom .quill-container .ql-editor:focus,
+	.form-group-custom .quill-container .ql-editor:focus-visible,
+	.form-group-custom .quill-container .ql-snow .ql-picker-label.ql-active,
+	.form-group-custom .quill-container .ql-snow .ql-picker-item.ql-selected,
+	.form-group-custom .quill-container .ql-snow .ql-picker.ql-expanded .ql-picker-label,
+	.form-group-custom .quill-container:focus,
+	.form-group-custom .quill-container:focus-visible {
+		outline: none !important;
+		box-shadow: none !important;
+		border-color: transparent !important;
+	}
+	.form-group-custom .quill-container .ql-snow .ql-stroke,
+	.form-group-custom .quill-container .ql-snow .ql-fill,
+	.form-group-custom .quill-container .ql-snow .ql-picker-label {
+		stroke: #333 !important;
+		color: #333 !important;
+	}
+	.form-group-custom .quill-container:focus-within .ql-toolbar,
+	.form-group-custom .quill-container:focus-within .ql-container {
+		background-color: #fff;
+		border-color: var(--form-primary);
+		box-shadow: 0 8px 25px var(--form-primary-light);
+	}
 	.submit-btn {
 		background: linear-gradient(135deg, var(--form-primary) 0%, var(--form-accent) 100%);
 		color: #fff;
@@ -112,7 +168,7 @@
 		margin-top: 25px;
 	}
 	.back-link:hover { color: var(--form-accent); }
-
+	
 	/* Styles pour les erreurs de validation Symfony */
 	.help-block,
 	.form-error-message,
@@ -133,6 +189,91 @@
 		.form-header { padding: 40px 20px; }
 	}
 </style>
+{% endblock %}
+
+{% block javascripts %}
+<script src="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.js"></script>
+<script>
+function initEditBlogQuill() {
+	const textarea = document.getElementById('article_contenu');
+	if (!textarea) {
+		return;
+	}
+	if (textarea.dataset.quillReady === '1') {
+		return;
+	}
+
+	let container = textarea.closest('.form-group-custom')?.querySelector('.quill-container');
+	let editor = container ? container.querySelector('.quill-editor') : null;
+
+	if (container && container.querySelector('.ql-toolbar') && editor) {
+		textarea.dataset.quillReady = '1';
+		return;
+	}
+
+	if (!container) {
+		container = document.createElement('div');
+		container.className = 'quill-container';
+		editor = document.createElement('div');
+		editor.className = 'quill-editor';
+		textarea.insertAdjacentElement('afterend', container);
+		container.appendChild(editor);
+		textarea.style.display = 'none';
+	}
+
+	if (!editor) {
+		editor = document.createElement('div');
+		editor.className = 'quill-editor';
+		container.appendChild(editor);
+	}
+
+	if (typeof Quill === 'undefined') {
+		return;
+	}
+
+	const quill = new Quill(editor, {
+		theme: 'snow',
+		placeholder: textarea.getAttribute('placeholder') || 'Racontez votre expérience...',
+		modules: {
+			toolbar: [
+				['bold', 'italic', 'underline'],
+				[{ list: 'ordered' }, { list: 'bullet' }],
+				[{ align: [] }]
+			]
+		}
+	});
+
+	quill.root.innerHTML = textarea.value || '';
+	const form = textarea.closest('form');
+	if (form) {
+		form.addEventListener('submit', function () {
+			textarea.value = quill.root.innerHTML;
+		});
+	}
+	textarea.dataset.quillReady = '1';
+}
+
+function bootEditBlogQuill(retriesLeft = 20) {
+	initEditBlogQuill();
+	const textarea = document.getElementById('article_contenu');
+	if (textarea && textarea.dataset.quillReady === '1') {
+		return;
+	}
+	if (retriesLeft <= 0) {
+		return;
+	}
+	setTimeout(function () {
+		bootEditBlogQuill(retriesLeft - 1);
+	}, 120);
+}
+
+document.addEventListener('DOMContentLoaded', function () {
+	bootEditBlogQuill();
+});
+document.addEventListener('turbo:load', function () {
+	bootEditBlogQuill();
+});
+</script>
 {% endblock %}
 
 {% block content %}
@@ -159,9 +300,10 @@
 								{{ form_errors(form.titre) }}
 							</div>
 							<div class="form-group-custom">
-								{{ form_label(form.contenu, 'Votre histoire', {'label_attr': {'class': 'form-label'}}) }}
-								{{ form_widget(form.contenu, {'attr': {'class': 'form-control wingo-input', 'rows': 8, 'placeholder': 'Racontez votre expérience...'}}) }}
-								{{ form_errors(form.contenu) }}
+								{{ form_row(form.contenu, {
+									'label': 'Votre histoire',
+									'label_attr': {'class': 'form-label'}
+								}) }}
 							</div>
 							<div class="row">
 								<div class="col-md-6">
