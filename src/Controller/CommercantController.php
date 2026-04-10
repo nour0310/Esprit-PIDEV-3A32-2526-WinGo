@@ -104,7 +104,8 @@ final class CommercantController extends AbstractController
     public function accepter(
         int $id,
         UtilisateurRepository $repo,
-        EntityManagerInterface $em
+        EntityManagerInterface $em,
+        \App\Repository\NotificationCommerceRepository $notificationRepo
     ): Response {
         $user = $repo->find($id);
 
@@ -115,17 +116,20 @@ final class CommercantController extends AbstractController
         $user->setType('COMMERCANT');
         $em->flush();
 
+        $notificationRepo->markMerchantRequestNotificationsAsReadForAdmin();
+
         $this->addFlash('success', 'La demande a été acceptée. L’utilisateur est maintenant commerçant.');
 
         return $this->redirectToRoute('admin_demandes_commercant');
     }
 
-    #[IsGranted('ROLE_ADMIN')]
+   #[IsGranted('ROLE_ADMIN')]
     #[Route('/admin/demande-commercant/refuser/{id}', name: 'admin_demande_commercant_refuser', methods: ['POST'])]
     public function refuser(
         int $id,
         UtilisateurRepository $repo,
-        EntityManagerInterface $em
+        EntityManagerInterface $em,
+        \App\Repository\NotificationCommerceRepository $notificationRepo
     ): Response {
         $user = $repo->find($id);
 
@@ -135,6 +139,8 @@ final class CommercantController extends AbstractController
 
         $user->setType('CLIENT');
         $em->flush();
+
+        $notificationRepo->markMerchantRequestNotificationsAsReadForAdmin();
 
         $this->addFlash('success', 'La demande a été refusée.');
 

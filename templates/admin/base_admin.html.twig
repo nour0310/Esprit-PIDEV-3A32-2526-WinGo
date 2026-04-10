@@ -609,45 +609,7 @@
         <div class="page_title">{% block page_title %}Tableau de bord{% endblock %}</div>
 
         <div class="topbar_actions">
-            <div class="nav_notification_wrapper">
-                <button type="button" class="notification_bell" id="notificationBell">
-                    <i class="fa fa-bell"></i>
-                    {% if adminUnreadCount|default(0) > 0 %}
-                        <span class="notification_badge" id="notificationBadge">{{ adminUnreadCount }}</span>
-                    {% endif %}
-                </button>
-
-                <div class="notification_dropdown" id="notificationDropdown">
-                    <div class="notification_header">
-                        <span>Notifications</span>
-                        <small>{{ adminUnreadCount|default(0) }} nouvelles</small>
-                    </div>
-
-                    <div class="notification_list" id="notificationList">
-                        {% for notification in adminNotifications|default([]) %}
-                            <a href="{{ notification.link ?: '#' }}" class="notification_item {% if not notification.isRead %}unread{% endif %}">
-                                <div class="notification_icon">
-                                    <i class="fa fa-bell"></i>
-                                </div>
-                                <div class="notification_content">
-                                    <div class="notification_title">{{ notification.title }}</div>
-                                    <div class="notification_text">{{ notification.message }}</div>
-                                    <div class="notification_time">{{ notification.createdAt|date('d/m/Y H:i') }}</div>
-                                </div>
-                            </a>
-                        {% else %}
-                            <div class="notification_empty">
-                                Aucune notification.
-                            </div>
-                        {% endfor %}
-                    </div>
-
-                    <div class="notification_footer">
-                        <a href="{{ path('admin_demandes_commercant') }}">Voir les demandes</a>
-                    </div>
-                </div>
-            </div>
-
+{{ render(controller('App\\Controller\\AdminNotificationController::bell')) }}
             {% block topbar_actions %}{% endblock %}
         </div>
     </div>
