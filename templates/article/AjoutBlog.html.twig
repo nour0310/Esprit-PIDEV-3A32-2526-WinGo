@@ -85,6 +85,7 @@
 	}
 	/* Quill editor integration */
 	.form-group-custom .quill-container .ql-toolbar {
+		display: block !important;
 		border: 2px solid transparent;
 		border-bottom: 1px solid #e9ecef;
 		border-radius: 16px 16px 0 0;
@@ -162,6 +163,48 @@
 		.form-header { padding: 40px 20px; }
 	}
 </style>
+{% endblock %}
+
+{% block javascripts %}
+<script src="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+	const container = document.querySelector('.form-group-custom .quill-container');
+	if (!container) {
+		return;
+	}
+
+	if (container.querySelector('.ql-toolbar')) {
+		return;
+	}
+
+	const input = document.getElementById('article_contenu');
+	const editor = container.querySelector('.quill-editor');
+	if (!input || !editor || typeof Quill === 'undefined') {
+		return;
+	}
+
+	const quill = new Quill(editor, {
+		theme: 'snow',
+		placeholder: 'Racontez votre expérience...',
+		modules: {
+			toolbar: [
+				['bold', 'italic', 'underline'],
+				[{ list: 'ordered' }, { list: 'bullet' }],
+				[{ align: [] }]
+			]
+		}
+	});
+
+	quill.root.innerHTML = input.value || '';
+	const form = input.closest('form');
+	if (form) {
+		form.addEventListener('submit', function () {
+			input.value = quill.root.innerHTML;
+		});
+	}
+});
+</script>
 {% endblock %}
 
 {% block content %}
