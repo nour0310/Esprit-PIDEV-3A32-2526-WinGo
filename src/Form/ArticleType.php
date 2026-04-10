@@ -23,7 +23,6 @@ class ArticleType extends AbstractType
             ->add('contenu', QuillType::class, [
                 'label' => 'Votre histoire',
                 'attr' => ['placeholder' => 'Racontez votre expérience...'],
-                'sanitize_html' => true,
                 'quill_options' => [
                     ['bold', 'italic', 'underline'],
                     [['list' => 'ordered'], ['list' => 'bullet']],
