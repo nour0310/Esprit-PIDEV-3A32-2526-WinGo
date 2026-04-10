@@ -34,6 +34,13 @@ final class CommercantController extends AbstractController
             }
 
             $em->flush();
+            $this->notificationCommerceService->notifyRole(
+            'ROLE_ADMIN',
+            'Nouvelle demande commerçant',
+            'L’utilisateur ' . $user->getNom() . ' ' . $user->getPrenom() . ' a envoyé une demande.',
+            'merchant_request',
+            '/admin/demandes-commercant'
+            );
 
             $this->addFlash('success', 'Votre demande a été envoyée à l’administrateur.');
 
