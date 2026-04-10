@@ -20,7 +20,7 @@ class ArticleType extends AbstractType
                 'label' => 'Titre de votre blog',
                 'attr' => ['class' => 'form-control wingo-input', 'placeholder' => 'Donnez un titre captivant...']
             ])
-            ->add('contenu', \Ehyiah\QuillJsBundle\Form\QuillType::class, [
+            ->add('contenu', TextareaType::class, [
                 'label' => 'Votre histoire',
                 'attr' => ['placeholder' => 'Racontez votre expérience...']
             ])
