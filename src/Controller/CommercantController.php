@@ -3,44 +3,60 @@
 namespace App\Controller;
 
 use App\Repository\UtilisateurRepository;
+use App\Service\NotificationCommerceService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
-use App\Service\NotificationCommerceService;
 
 final class CommercantController extends AbstractController
 {
     #[IsGranted('ROLE_USER')]
-    #[Route('/devenir-commercant', name: 'devenir_commercant')]
+    #[Route('/devenir-commercant', name: 'devenir_commercant', methods: ['GET', 'POST'])]
     public function devenirCommercant(
         Request $request,
-        EntityManagerInterface $em
+        EntityManagerInterface $em,
+        NotificationCommerceService $notificationCommerceService
     ): Response {
-        /** @var \App\Entity\Utilisateur $user */
+        /** @var \App\Entity\Utilisateur|null $user */
         $user = $this->getUser();
 
+        if (!$user) {
+            throw $this->createAccessDeniedException('Vous devez être connecté.');
+        }
+
         if ($request->isMethod('POST')) {
-            $user->setNom(trim($request->request->get('nom', $user->getNom())));
-            $user->setPrenom(trim($request->request->get('prenom', $user->getPrenom())));
-            $user->setEmail(trim($request->request->get('email', $user->getEmail())));
+            $typeActuel = strtoupper((string) ($user->getType() ?? ''));
 
-            $telephone = $request->request->get('telephone');
-            $user->setTelephone($telephone !== null && $telephone !== '' ? (int)$telephone : null);
-
-            if (strtoupper($user->getType() ?? '') !== 'COMMERCANT') {
-                $user->setType('EN_ATTENTE_COMMERCANT');
+            if ($typeActuel === 'COMMERCANT') {
+                $this->addFlash('info', 'Votre compte est déjà commerçant.');
+                return $this->redirectToRoute('devenir_commercant');
             }
 
+            if ($typeActuel === 'EN_ATTENTE_COMMERCANT') {
+                $this->addFlash('warning', 'Votre demande est déjà en attente de validation.');
+                return $this->redirectToRoute('devenir_commercant');
+            }
+
+            $user->setNom(trim((string) $request->request->get('nom', $user->getNom())));
+            $user->setPrenom(trim((string) $request->request->get('prenom', $user->getPrenom())));
+            $user->setEmail(trim((string) $request->request->get('email', $user->getEmail())));
+
+            $telephone = $request->request->get('telephone');
+            $user->setTelephone($telephone !== null && $telephone !== '' ? (int) $telephone : null);
+
+            $user->setType('EN_ATTENTE_COMMERCANT');
+
             $em->flush();
-            $this->notificationCommerceService->notifyRole(
-            'ROLE_ADMIN',
-            'Nouvelle demande commerçant',
-            'L’utilisateur ' . $user->getNom() . ' ' . $user->getPrenom() . ' a envoyé une demande.',
-            'merchant_request',
-            '/admin/demandes-commercant'
+
+            $notificationCommerceService->notifyRole(
+                'ROLE_ADMIN',
+                'Nouvelle demande commerçant',
+                'L’utilisateur ' . $user->getNom() . ' ' . $user->getPrenom() . ' a envoyé une demande.',
+                'merchant_request',
+                '/admin/demandes-commercant'
             );
 
             $this->addFlash('success', 'Votre demande a été envoyée à l’administrateur.');
@@ -53,32 +69,36 @@ final class CommercantController extends AbstractController
         ]);
     }
 
-   #[IsGranted('ROLE_ADMIN')]
-#[Route('/admin/demandes-commercant', name: 'admin_demandes_commercant')]
-public function adminDemandes(UtilisateurRepository $repo): Response
-{
-    $demandes = $repo->findBy(['type' => 'EN_ATTENTE_COMMERCANT'], ['id' => 'DESC']);
-    $commercants = $repo->findBy(['type' => 'COMMERCANT'], ['id' => 'DESC']);
-    $clients = $repo->findBy(['type' => 'CLIENT'], ['id' => 'DESC']);
+    #[IsGranted('ROLE_ADMIN')]
+    #[Route('/admin/demandes-commercant', name: 'admin_demandes_commercant', methods: ['GET'])]
+    public function adminDemandes(UtilisateurRepository $repo): Response
+    {
+        $demandes = $repo->findBy(['type' => 'EN_ATTENTE_COMMERCANT'], ['id' => 'DESC']);
+        $commercants = $repo->findBy(['type' => 'COMMERCANT'], ['id' => 'DESC']);
+        $clients = $repo->findBy(['type' => 'CLIENT'], ['id' => 'DESC']);
 
-    $totalDemandes = count($demandes);
-    $totalCommercants = count($commercants);
-    $totalClients = count($clients);
-    $totalUtilisateurs = $totalDemandes + $totalCommercants + $totalClients;
+        $totalDemandes = count($demandes);
+        $totalCommercants = count($commercants);
+        $totalClients = count($clients);
+        $totalUtilisateurs = $totalDemandes + $totalCommercants + $totalClients;
 
-    return $this->render('commercant/admin_demandes.html.twig', [
-        'demandes' => $demandes,
-        'commercants' => $commercants,
-        'totalDemandes' => $totalDemandes,
-        'totalCommercants' => $totalCommercants,
-        'totalClients' => $totalClients,
-        'totalUtilisateurs' => $totalUtilisateurs,
-    ]);
-}
+        return $this->render('commercant/admin_demandes.html.twig', [
+            'demandes' => $demandes,
+            'commercants' => $commercants,
+            'totalDemandes' => $totalDemandes,
+            'totalCommercants' => $totalCommercants,
+            'totalClients' => $totalClients,
+            'totalUtilisateurs' => $totalUtilisateurs,
+        ]);
+    }
 
     #[IsGranted('ROLE_ADMIN')]
     #[Route('/admin/demande-commercant/accepter/{id}', name: 'admin_demande_commercant_accepter', methods: ['POST'])]
-    public function accepter(int $id,UtilisateurRepository $repo,EntityManagerInterface $em): Response {
+    public function accepter(
+        int $id,
+        UtilisateurRepository $repo,
+        EntityManagerInterface $em
+    ): Response {
         $user = $repo->find($id);
 
         if (!$user) {
@@ -93,10 +113,13 @@ public function adminDemandes(UtilisateurRepository $repo): Response
         return $this->redirectToRoute('admin_demandes_commercant');
     }
 
-                 
     #[IsGranted('ROLE_ADMIN')]
     #[Route('/admin/demande-commercant/refuser/{id}', name: 'admin_demande_commercant_refuser', methods: ['POST'])]
-    public function refuser(int $id,UtilisateurRepository $repo,EntityManagerInterface $em ): Response {
+    public function refuser(
+        int $id,
+        UtilisateurRepository $repo,
+        EntityManagerInterface $em
+    ): Response {
         $user = $repo->find($id);
 
         if (!$user) {
@@ -110,6 +133,4 @@ public function adminDemandes(UtilisateurRepository $repo): Response
 
         return $this->redirectToRoute('admin_demandes_commercant');
     }
-
-    
 }
