@@ -13,6 +13,11 @@ services:
         arguments:
             $finder: '@Symfony\Component\Finder\Finder'
 
+    App\Service\WeatherService:
+        arguments:
+            $weatherApiKey: '%env(OPENWEATHER_API_KEY)%'
+            $cache: '@cache.app'
+
     App\:
         resource: '../src/'
         exclude:

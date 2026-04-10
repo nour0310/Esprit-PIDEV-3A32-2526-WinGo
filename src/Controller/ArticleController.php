@@ -11,6 +11,7 @@ use App\Repository\ArticleRepository;
 use App\Repository\CommentaireRepository;
 use App\Repository\LikesRepository;
 use App\Repository\UtilisateurRepository;
+use App\Service\WeatherService;
 use Doctrine\ORM\EntityManagerInterface;
 use Knp\Component\Pager\PaginatorInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -298,7 +299,8 @@ class ArticleController extends AbstractController
         CommentaireRepository $commentaireRepository,
         LikesRepository $likesRepository,
         UtilisateurRepository $utilisateurRepository,
-        PaginatorInterface $paginator
+        PaginatorInterface $paginator,
+        WeatherService $weatherService
     ): Response
     {
         $commentaire = new Commentaire();
@@ -346,6 +348,7 @@ class ArticleController extends AbstractController
             }
             $likersNames = array_values(array_unique(array_filter($likersNames)));
         }
+        $weather = $weatherService->getWeather($article->getRegion());
 
         return $this->render('article/BlogDetails.html.twig', [
             'article' => $article,
@@ -353,6 +356,7 @@ class ArticleController extends AbstractController
             'likesCount' => $likesCount,
             'likersNames' => $likersNames,
             'commentsPagination' => $commentsPagination,
+            'weather' => $weather,
         ]);
     }
 
