@@ -116,6 +116,39 @@
 .blog_post_likes a:hover i {
     transform: scale(1.1);
 }
+.pagination-container nav {
+    display: flex;
+    justify-content: center;
+    margin-top: 40px;
+}
+.pagination {
+    display: flex;
+    gap: 8px;
+    list-style: none;
+    padding: 0;
+}
+.pagination .page-item .page-link {
+    background: #fff;
+    color: #8d4fff;
+    border: 1px solid rgba(141, 79, 255, 0.2);
+    border-radius: 8px;
+    padding: 10px 16px;
+    text-decoration: none;
+    transition: all 0.3s ease;
+}
+.pagination .page-item.active .page-link {
+    background: linear-gradient(135deg, #8d4fff, #fa9e1c);
+    color: #fff;
+    border-color: transparent;
+}
+.pagination .page-item .page-link:hover {
+    background: #8d4fff;
+    color: #fff;
+}
+.pagination .page-item.disabled .page-link {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
 </style>
 {% endblock %}
 
@@ -215,6 +248,9 @@
 						{% else %}
 						<p class="text-muted">Aucun article pour le moment.</p>
 						{% endfor %}
+						<div class="pagination-container">
+							{{ knp_pagination_render(pagination) }}
+						</div>
 
 					</div>
 				</div>

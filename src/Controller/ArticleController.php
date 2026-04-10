@@ -12,6 +12,7 @@ use App\Repository\CommentaireRepository;
 use App\Repository\LikesRepository;
 use App\Repository\UtilisateurRepository;
 use Doctrine\ORM\EntityManagerInterface;
+use Knp\Component\Pager\PaginatorInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Symfony\Component\HttpFoundation\File\Exception\FileException;
@@ -93,7 +94,8 @@ class ArticleController extends AbstractController
         ArticleRepository $articleRepository,
         CommentaireRepository $commentaireRepository,
         LikesRepository $likesRepository,
-        UtilisateurRepository $utilisateurRepository
+        UtilisateurRepository $utilisateurRepository,
+        PaginatorInterface $paginator
     ): Response
     {
         $searchQuery = $request->query->get('q');
@@ -109,13 +111,19 @@ class ArticleController extends AbstractController
                ->setParameter('category', $categoryFilter);
         }
         $qb->orderBy('a.datePublication', 'DESC');
-        $articles = $qb->getQuery()->getResult();
+
+        $pagination = $paginator->paginate(
+            $qb,
+            $request->query->getInt('page', 1),
+            6
+        );
+
         $articlesData = [];
 
         /** @var \App\Entity\Utilisateur|null $currentUser */
         $currentUser = $this->getUser();
         $currentUserId = $currentUser ? $currentUser->getId() : null;
-        foreach ($articles as $article) {
+        foreach ($pagination as $article) {
             $articleId = $article->getId();
             if ($articleId === null) {
                 continue;
@@ -162,8 +170,8 @@ class ArticleController extends AbstractController
         ];
 
         return $this->render('article/BlogList.html.twig', [
-            'articles' => $articles,
             'articlesData' => $articlesData,
+            'pagination' => $pagination,
             'searchQuery' => $searchQuery,
             'categoryFilter' => $categoryFilter,
             'categories' => $categories,
@@ -287,8 +295,10 @@ class ArticleController extends AbstractController
         Request $request,
         Article $article,
         EntityManagerInterface $em,
+        CommentaireRepository $commentaireRepository,
         LikesRepository $likesRepository,
-        UtilisateurRepository $utilisateurRepository
+        UtilisateurRepository $utilisateurRepository,
+        PaginatorInterface $paginator
     ): Response
     {
         $commentaire = new Commentaire();
@@ -310,6 +320,19 @@ class ArticleController extends AbstractController
             return $this->redirectToRoute('app_article_show', ['id' => $article->getId()]);
         }
 
+        $commentsQb = $commentaireRepository->createQueryBuilder('c')
+            ->andWhere('c.article = :article')
+            ->andWhere('c.parent IS NULL')
+            ->setParameter('article', $article)
+            ->orderBy('c.dateCommentaire', 'DESC');
+
+        $commentsPagination = $paginator->paginate(
+            $commentsQb,
+            $request->query->getInt('commentsPage', 1),
+            8,
+            ['pageParameterName' => 'commentsPage']
+        );
+
         $articleId = $article->getId() ?? 0;
         $likesCount = $articleId > 0 ? $likesRepository->countLikesForArticle($articleId) : 0;
         $likersNames = [];
@@ -329,6 +352,7 @@ class ArticleController extends AbstractController
             'commentForm' => $form->createView(),
             'likesCount' => $likesCount,
             'likersNames' => $likersNames,
+            'commentsPagination' => $commentsPagination,
         ]);
     }
 

@@ -318,6 +318,29 @@
 		background: #e9ecef;
 		color: #333;
 	}
+	.pagination-container nav {
+		display: flex;
+		justify-content: center;
+	}
+	.pagination {
+		display: flex;
+		gap: 8px;
+		list-style: none;
+		padding: 0;
+	}
+	.pagination .page-item .page-link {
+		background: #fff;
+		color: #8d4fff;
+		border: 1px solid rgba(141, 79, 255, 0.2);
+		border-radius: 8px;
+		padding: 8px 14px;
+		text-decoration: none;
+	}
+	.pagination .page-item.active .page-link {
+		background: linear-gradient(135deg, #8d4fff, #fa9e1c);
+		color: #fff;
+		border-color: transparent;
+	}
 </style>
 {% endblock %}
 
@@ -457,16 +480,17 @@
     		</div>
 
     		<div class="comments-section">
-    		    <h3 class="comments-title">Commentaires ({{ article.commentaires|length }})</h3>
+    		    <h3 class="comments-title">Commentaires ({{ commentsPagination.getTotalItemCount|default(0) }})</h3>
     		    <div class="comments-list">
-    		        {% for comm in article.commentaires %}
-                        {% if comm.parent is null %}
-    		                {{ _self.comment_tree(comm, article, commentForm, app) }}
-                        {% endif %}
+    		        {% for comm in commentsPagination %}
+    		            {{ _self.comment_tree(comm, article, commentForm, app) }}
     		        {% else %}
     		            <p style="color: #888; font-style: italic;">Aucun commentaire pour le moment. Soyez le premier !</p>
     		        {% endfor %}
     		    </div>
+				<div class="pagination-container" style="margin-top: 20px;">
+					{{ knp_pagination_render(commentsPagination) }}
+				</div>
 
     		    <div class="comment-form-container">
     		        <h4 class="comment-form-title">Laisser un commentaire</h4>
