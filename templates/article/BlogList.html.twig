@@ -146,9 +146,7 @@
 				<div class="col-lg-8">
 					<div class="blog_post_container">
 
-						{# 🆕 Boucle modifiée pour utiliser articlesData #}
-						{% for item in articlesData %}
-							{% set article = item.entity %}
+						{% for article in articles %}
 							{% set im = article.image|default('')|trim %}
 							{% if im is empty %}
 								{% set cover_src = asset('images/placeholder.svg') %}
@@ -183,20 +181,6 @@
 									<a href="{{ path('app_article_show', {id: article.id}) }}#comments" style="color: #8d4fff; text-decoration: none; font-size: 14px; display: inline-flex; align-items: center;">
 										<i class="fas fa-comment" style="margin-right: 5px;"></i>
 										<span>{{ article.commentaires|length }}</span>
-									</a>
-								</div>
-								{# 🆕 Bloc Like #}
-								<div class="blog_post_likes" style="display: inline-block; margin-left: 15px;">
-									<a href="javascript:void(0);"
-									   class="like-button"
-									   data-article-id="{{ article.id }}"
-									   data-like-url="{{ path('app_article_like', {id: article.id}) }}"
-									   data-unlike-url="{{ path('app_article_unlike', {id: article.id}) }}"
-									   data-liked="{{ item.userLiked ? 'true' : 'false' }}"
-									   title="{{ item.likersText|e('html_attr') }}"
-									   style="color: #8d4fff; text-decoration: none; font-size: 14px; display: inline-flex; align-items: center;">
-										<i class="{% if item.userLiked %}fas{% else %}far{% endif %} fa-heart like-icon"></i>
-										<span class="like-count">{{ item.likesCount }}</span>
 									</a>
 								</div>
 							</div>
@@ -307,64 +291,4 @@
 		</div>
 	</div>
 
-{% endblock %}
-
-{% block javascripts %}
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        document.querySelectorAll('.like-button').forEach(function(button) {
-            button.addEventListener('click', function(e) {
-                e.preventDefault();
-                
-                const isLiked = this.dataset.liked === 'true';
-                const icon = this.querySelector('.like-icon');
-                const countSpan = this.querySelector('.like-count');
-                
-                const url = isLiked ? this.dataset.unlikeUrl : this.dataset.likeUrl;
-                
-                fetch(url, {
-                    method: 'POST',
-                    headers: {
-                        'X-Requested-With': 'XMLHttpRequest'
-                    }
-                })
-                .then(response => {
-                    if (!response.ok) {
-                        if(response.status === 401) {
-                            alert("Vous devez être connecté pour liker un article.");
-                        } else {
-                            alert("Une erreur s'est produite (Erreur " + response.status + ")");
-                        }
-                        return Promise.reject('Not OK');
-                    }
-                    return response.json();
-                })
-                .then(data => {
-                    if (data.success) {
-                        // Mettre à jour l'interface utilisateur
-                        if (data.liked) {
-                            icon.classList.remove('far'); // coeur vide
-                            icon.classList.add('fas');    // coeur plein
-                            this.dataset.liked = 'true';
-                        } else {
-                            icon.classList.remove('fas');
-                            icon.classList.add('far');
-                            this.dataset.liked = 'false';
-                        }
-                        // Mettre à jour le compteur
-                        countSpan.textContent = data.count;
-                    } else {
-                        if(data.message) {
-                            alert(data.message);
-                        }
-                    }
-                })
-                .catch(error => {
-                    console.error('Erreur lors du traitement du like:', error);
-                    alert("Une erreur inattendue s'est produite. Vérifiez votre connexion ou essayez de vous reconnecter.");
-                });
-            });
-        });
-    });
-</script>
 {% endblock %}
