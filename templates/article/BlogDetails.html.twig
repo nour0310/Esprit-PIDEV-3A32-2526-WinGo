@@ -117,25 +117,33 @@
 		color: #666;
 		line-height: 1.7;
 	}
-	.weather-panel {
-		margin-top: 18px;
-		padding: 14px 18px;
-		background: #fff;
-		border: 1px solid #ececec;
-		border-radius: 14px;
-		display: flex;
+	.weather-chip {
+		margin: 16px auto 0;
+		padding: 8px 14px;
+		display: inline-flex;
 		align-items: center;
-		gap: 12px;
+		gap: 10px;
+		border-radius: 999px;
+		background: #fff;
+		border: 1px solid rgba(141, 79, 255, 0.2);
+		box-shadow: 0 6px 20px rgba(141, 79, 255, 0.08);
 	}
-	.weather-temp {
-		font-size: 1.3rem;
+	.weather-chip img {
+		width: 34px;
+		height: 34px;
+		object-fit: contain;
+	}
+	.weather-chip-temp {
+		font-size: 1rem;
 		font-weight: 700;
 		color: #2d3436;
+		line-height: 1.1;
 	}
-	.weather-desc {
+	.weather-chip-desc {
+		font-size: 0.85rem;
 		color: #666;
-		font-size: 0.95rem;
 		text-transform: capitalize;
+		line-height: 1.1;
 	}
 	.btn-custom {
 		padding: 12px 35px;
@@ -461,6 +469,17 @@
     				<span><i class="fas fa-user-circle"></i>{{ article.auteur ? article.auteur.prenom ~ ' ' ~ article.auteur.nom : 'Anonyme' }}</span>
     				<span><i class="fas fa-map-marker-alt"></i>{{ article.region|default('Non spécifiée') }}</span>
     			</div>
+				{% if weather is not null %}
+				<div class="weather-chip">
+					{% if weather.icon %}
+						<img src="{{ weather.icon }}" alt="Météo {{ weather.city|default(article.region) }}" loading="lazy">
+					{% endif %}
+					<div>
+						<div class="weather-chip-temp">{{ weather.temp|round }}°C - {{ weather.city|default(article.region) }}</div>
+						<div class="weather-chip-desc">{{ weather.description }}</div>
+					</div>
+				</div>
+				{% endif %}
     		</div>
 
     		<img src="{{ cover_src }}" alt="{{ article.titre|e('html_attr') }}" class="article-creative-image" loading="lazy" decoding="async" onerror="this.onerror=null;this.src='{{ blog_img_fallback|e('html_attr') }}';">
@@ -487,25 +506,6 @@
 					{% endif %}
 				</div>
 			</div>
-			{% if weather is not null %}
-			<div class="weather-panel">
-				{% if weather.icon %}
-					<img src="{{ weather.icon }}" alt="Météo {{ weather.city|default(article.region) }}" width="54" height="54" loading="lazy">
-				{% endif %}
-				<div>
-					<div class="weather-temp">{{ weather.temp|round }}°C — {{ weather.city|default(article.region) }}</div>
-					<div class="weather-desc">{{ weather.description }}</div>
-				</div>
-			</div>
-			{% elseif article.region is not empty %}
-			<div class="weather-panel">
-				<div>
-					<div class="weather-temp">Météo indisponible</div>
-					<div class="weather-desc">Vérifiez la clé API OpenWeatherMap ou la région "{{ article.region }}".</div>
-				</div>
-			</div>
-			{% endif %}
-
     		<div class="article-actions" style="margin-bottom: 40px;">
     			<a href="{{ path('blog') }}" class="btn-custom btn-secondary-outline">
     				<i class="fas fa-arrow-left" style="margin-right: 8px;"></i> Retour aux blogs
