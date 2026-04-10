@@ -8,7 +8,6 @@
 <link rel="stylesheet" type="text/css" href="{{ asset('styles/responsive.css') }}">
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-<link href="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.snow.css" rel="stylesheet">
 <style>
 	:root {
 		--form-primary: #8d4fff;
@@ -101,6 +100,11 @@
 		min-height: 220px;
 		color: #333;
 	}
+	.form-group-custom .quill-container .ql-toolbar button:focus,
+	.form-group-custom .quill-container .ql-toolbar .ql-picker-label:focus {
+		outline: none !important;
+		box-shadow: none !important;
+	}
 	.form-group-custom .quill-container:focus-within .ql-toolbar,
 	.form-group-custom .quill-container:focus-within .ql-container {
 		background-color: #fff;
@@ -158,56 +162,6 @@
 		.form-header { padding: 40px 20px; }
 	}
 </style>
-{% endblock %}
-
-{% block javascripts %}
-<script src="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.js"></script>
-<script>
-document.addEventListener('DOMContentLoaded', function () {
-	const existingToolbar = document.querySelector('.quill-container .ql-toolbar');
-	if (existingToolbar) {
-		return;
-	}
-
-	const textarea = document.getElementById('article_contenu');
-	if (!textarea || typeof Quill === 'undefined') {
-		return;
-	}
-
-	textarea.style.display = 'none';
-
-	const wrapper = document.createElement('div');
-	wrapper.className = 'quill-container';
-	textarea.parentNode.insertBefore(wrapper, textarea.nextSibling);
-
-	const editor = document.createElement('div');
-	editor.className = 'quill-editor';
-	wrapper.appendChild(editor);
-
-	const quill = new Quill(editor, {
-		theme: 'snow',
-		placeholder: textarea.getAttribute('placeholder') || 'Racontez votre expérience...',
-		modules: {
-			toolbar: [
-				['bold', 'italic', 'underline'],
-				[{ list: 'ordered' }, { list: 'bullet' }],
-				[{ align: [] }],
-				['link'],
-				['clean']
-			]
-		}
-	});
-
-	quill.root.innerHTML = textarea.value || '';
-
-	const form = textarea.closest('form');
-	if (form) {
-		form.addEventListener('submit', function () {
-			textarea.value = quill.root.innerHTML;
-		});
-	}
-});
-</script>
 {% endblock %}
 
 {% block content %}
