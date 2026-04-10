@@ -308,7 +308,8 @@
 		box-shadow: 0 6px 20px rgba(250, 158, 28, 0.4);
 	}
 	.clearfix::after { content: ""; clear: both; display: table; }
-	.error-text { color: #dc3545; font-size: 0.85rem; margin-top: 5px; display: block; }
+	.error-text { color: #dc3545; font-size: 0.85rem; margin-top: 8px; display: block; font-weight: 500; }
+	.error-text ul { margin: 0; padding: 0; list-style: none; }
 
 	/* Styles pour l'édition inline */
 	.edit-comment-form {
@@ -534,7 +535,9 @@
     		        <h4 class="comment-form-title">Laisser un commentaire</h4>
     		        {{ form_start(commentForm, {'attr': {'novalidate': 'novalidate', 'class': 'clearfix'}}) }}
     		            {{ form_widget(commentForm.contenu, {'attr': {'class': 'wingo-input', 'rows': 4, 'id': 'new-comment-content'}}) }}
-    		            {{ form_errors(commentForm.contenu, {'attr': {'class': 'error-text'}}) }}
+						<div class="error-text">
+							{{ form_errors(commentForm.contenu) }}
+						</div>
     		            <button type="submit" class="btn-submit-comment">
     		                <i class="fas fa-paper-plane" style="margin-right: 8px;"></i> Publier
     		            </button>

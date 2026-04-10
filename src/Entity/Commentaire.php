@@ -18,7 +18,7 @@ class Commentaire
     private ?int $id = null;
 
     #[ORM\Column(type: 'text', nullable: false)]
-    #[Assert\NotBlank(message: "Le commentaire ne peut pas être vide")]
+    #[Assert\NotBlank(message: "Veuillez remplir ce champ.")]
     private ?string $contenu = null;
 
     #[ORM\Column(type: 'datetime', nullable: true)]
