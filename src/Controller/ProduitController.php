@@ -6,6 +6,7 @@ use App\Entity\Produit;
 use App\Form\ProduitType;
 use App\Repository\ProduitRepository;
 use Doctrine\Persistence\ManagerRegistry;
+use Knp\Component\Pager\PaginatorInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\File\Exception\FileException;
 use Symfony\Component\HttpFoundation\Request;
@@ -14,27 +15,58 @@ use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Component\String\Slugger\SluggerInterface;
 
-#[Route('/produit')]
+#[Route('/client')]
 final class ProduitController extends AbstractController
 {
-   #[Route('/produits', name: 'client_produits')]
-    public function list(ProduitRepository $repo): Response
-    {
+    #[Route('/produits', name: 'client_produits', methods: ['GET'])]
+    public function list(
+        Request $request,
+        ProduitRepository $repo,
+        PaginatorInterface $paginator
+    ): Response {
+        $q = $request->query->get('q');
+        $categorie = $request->query->get('categorie');
+        $region = $request->query->get('region');
+        $sort = $request->query->get('sort');
+
+        $queryBuilder = $repo->createFilteredQueryBuilder(
+            $q,
+            $categorie,
+            $region,
+            $sort
+        );
+
+        $produits = $paginator->paginate(
+            $queryBuilder,
+            $request->query->getInt('page', 1),
+            6
+        );
+
         return $this->render('client/produits.html.twig', [
-            'produits' => $repo->findAll()
+            'produits' => $produits,
+            'searchTerm' => $q,
+            'selectedCategorie' => $categorie,
+            'selectedRegion' => $region,
+            'selectedSort' => $sort,
         ]);
     }
 
-    #[Route('/details/{id}', name: 'produit_details')]
-    public function details($id, ProduitRepository $repo): Response
+    #[Route('/details/{id}', name: 'produit_details', methods: ['GET'])]
+    public function details(int $id, ProduitRepository $repo): Response
     {
+        $produit = $repo->find($id);
+
+        if (!$produit) {
+            throw $this->createNotFoundException('Produit introuvable');
+        }
+
         return $this->render('produit/details.html.twig', [
-            'produit' => $repo->find($id)
+            'produit' => $produit
         ]);
     }
 
     #[IsGranted('ROLE_USER')]
-    #[Route('/add', name: 'produit_add')]
+    #[Route('/add', name: 'produit_add', methods: ['GET', 'POST'])]
     public function add(
         ManagerRegistry $manager,
         Request $request,
@@ -47,7 +79,6 @@ final class ProduitController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-
             /** @var \App\Entity\Utilisateur $user */
             $user = $this->getUser();
             $produit->setIdUser($user->getId());
@@ -82,7 +113,7 @@ final class ProduitController extends AbstractController
                 return $this->redirectToRoute('merchant_dashboard');
             }
 
-            return $this->redirectToRoute('produit_list');
+            return $this->redirectToRoute('client_produits');
         }
 
         return $this->render('produit/add.html.twig', [
@@ -91,9 +122,9 @@ final class ProduitController extends AbstractController
     }
 
     #[IsGranted('ROLE_USER')]
-    #[Route('/update/{id}', name: 'produit_update')]
+    #[Route('/update/{id}', name: 'produit_update', methods: ['GET', 'POST'])]
     public function update(
-        $id,
+        int $id,
         ProduitRepository $repo,
         ManagerRegistry $manager,
         Request $request,
@@ -117,7 +148,6 @@ final class ProduitController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-
             $imageFile = $form->get('imageFile')->getData();
 
             if ($imageFile) {
@@ -143,7 +173,7 @@ final class ProduitController extends AbstractController
                 return $this->redirectToRoute('merchant_dashboard');
             }
 
-            return $this->redirectToRoute('produit_list');
+            return $this->redirectToRoute('client_produits');
         }
 
         return $this->render('produit/add.html.twig', [
@@ -152,14 +182,14 @@ final class ProduitController extends AbstractController
     }
 
     #[IsGranted('ROLE_USER')]
-    #[Route('/delete/{id}', name: 'produit_delete')]
-    public function delete($id, ProduitRepository $repo, ManagerRegistry $manager): Response
+    #[Route('/delete/{id}', name: 'produit_delete', methods: ['POST', 'GET'])]
+    public function delete(int $id, ProduitRepository $repo, ManagerRegistry $manager): Response
     {
         $em = $manager->getManager();
         $produit = $repo->find($id);
 
         if (!$produit) {
-            return $this->redirectToRoute('produit_list');
+            return $this->redirectToRoute('client_produits');
         }
 
         /** @var \App\Entity\Utilisateur $user */
@@ -176,7 +206,6 @@ final class ProduitController extends AbstractController
             return $this->redirectToRoute('merchant_dashboard');
         }
 
-        return $this->redirectToRoute('produit_list');
+        return $this->redirectToRoute('client_produits');
     }
-
 }

@@ -451,6 +451,30 @@
             font-size: 18px;
         }
 
+        .pagination_wrap {
+            margin-top: 35px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .pagination {
+            gap: 8px;
+        }
+
+        .pagination .page-link {
+            border: none;
+            border-radius: 12px;
+            color: #5f6785;
+            padding: 10px 16px;
+            font-weight: 700;
+            box-shadow: 0 6px 16px rgba(25, 30, 70, 0.08);
+        }
+
+        .pagination .active .page-link {
+            background: linear-gradient(135deg, #fa9e1b, #8d4fff);
+            color: #fff;
+        }
+
         @media (max-width: 991px) {
             .client_products_section {
                 padding-top: 160px;
@@ -512,20 +536,20 @@
                 <div class="products_top_stats">
                     <div class="wow_stat_card">
                         <div class="products_stat_icon"><i class="fa fa-shopping-bag"></i></div>
-                        <div class="products_stat_num">{{ produits|length }}</div>
+                        <div class="products_stat_num">{{ produits.getTotalItemCount }}</div>
                         <div class="products_stat_label">Produits</div>
-                    </div>
-
-                    <div class="wow_stat_card">
-                        <div class="products_stat_icon"><i class="fa fa-check-circle"></i></div>
-                        <div class="products_stat_num">{{ produits|filter(p => p.stock > 0)|length }}</div>
-                        <div class="products_stat_label">Disponibles</div>
                     </div>
 
                     <div class="wow_stat_card">
                         <div class="products_stat_icon"><i class="fa fa-calendar"></i></div>
                         <div class="products_stat_num">{{ (selectedSort|default('')) == 'recent' ? 'Récent' : 'Liste' }}</div>
                         <div class="products_stat_label">Tri actif</div>
+                    </div>
+
+                    <div class="wow_stat_card">
+                        <div class="products_stat_icon"><i class="fa fa-layer-group"></i></div>
+                        <div class="products_stat_num">{{ produits|length }}</div>
+                        <div class="products_stat_label">Cette page</div>
                     </div>
                 </div>
 
@@ -693,6 +717,10 @@
                         </div>
                     </div>
                 {% endfor %}
+            </div>
+
+            <div class="pagination_wrap">
+                {{ knp_pagination_render(produits) }}
             </div>
 
         </div>

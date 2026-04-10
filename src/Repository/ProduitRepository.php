@@ -5,6 +5,7 @@ namespace App\Repository;
 use App\Entity\Produit;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
+use Doctrine\ORM\QueryBuilder;
 
 /**
  * @extends ServiceEntityRepository<Produit>
@@ -16,12 +17,12 @@ class ProduitRepository extends ServiceEntityRepository
         parent::__construct($registry, Produit::class);
     }
 
-    public function findByFilters(
+    public function createFilteredQueryBuilder(
         ?string $q = null,
         ?string $categorie = null,
         ?string $region = null,
         ?string $sort = null
-    ): array {
+    ): QueryBuilder {
         $qb = $this->createQueryBuilder('p');
 
         if ($q !== null && trim($q) !== '') {
@@ -43,14 +44,16 @@ class ProduitRepository extends ServiceEntityRepository
             case 'recent':
                 $qb->orderBy('p.dateAjout', 'DESC');
                 break;
+
             case 'ancien':
                 $qb->orderBy('p.dateAjout', 'ASC');
                 break;
+
             default:
                 $qb->orderBy('p.id', 'DESC');
                 break;
         }
 
-        return $qb->getQuery()->getResult();
+        return $qb;
     }
 }
