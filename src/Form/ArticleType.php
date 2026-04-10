@@ -3,10 +3,10 @@
 namespace App\Form;
 
 use App\Entity\Article;
+use Ehyiah\QuillJsBundle\Form\QuillType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\FileType;
-use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
@@ -20,9 +20,23 @@ class ArticleType extends AbstractType
                 'label' => 'Titre de votre blog',
                 'attr' => ['class' => 'form-control wingo-input', 'placeholder' => 'Donnez un titre captivant...']
             ])
-            ->add('contenu', TextareaType::class, [
+            ->add('contenu', QuillType::class, [
                 'label' => 'Votre histoire',
-                'attr' => ['placeholder' => 'Racontez votre expérience...']
+                'attr' => ['placeholder' => 'Racontez votre expérience...'],
+                'sanitize_html' => true,
+                'quill_options' => [
+                    ['bold', 'italic', 'underline'],
+                    [['list' => 'ordered'], ['list' => 'bullet']],
+                    ['blockquote', 'code-block'],
+                    [['header' => [1, 2, 3, false]]],
+                    [['align' => []]],
+                    ['clean'],
+                ],
+                'quill_extra_options' => [
+                    'height' => '260px',
+                    'placeholder' => 'Racontez votre expérience...',
+                    'theme' => 'snow',
+                ],
             ])
             ->add('region', ChoiceType::class, [
                 'label' => 'Région',
