@@ -11,33 +11,32 @@ use Doctrine\Persistence\ManagerRegistry;
  */
 class NotificationCommerceRepository extends ServiceEntityRepository
 {
+    
     public function __construct(ManagerRegistry $registry)
     {
         parent::__construct($registry, NotificationCommerce::class);
     }
 
-    //    /**
-    //     * @return NotificationCommerce[] Returns an array of NotificationCommerce objects
-    //     */
-    //    public function findByExampleField($value): array
-    //    {
-    //        return $this->createQueryBuilder('n')
-    //            ->andWhere('n.exampleField = :val')
-    //            ->setParameter('val', $value)
-    //            ->orderBy('n.id', 'ASC')
-    //            ->setMaxResults(10)
-    //            ->getQuery()
-    //            ->getResult()
-    //        ;
-    //    }
+    public function findLatestForRole(string $role, int $limit = 5): array
+    {
+        return $this->createQueryBuilder('n')
+            ->andWhere('n.targetRole = :role')
+            ->setParameter('role', $role)
+            ->orderBy('n.createdAt', 'DESC')
+            ->setMaxResults($limit)
+            ->getQuery()
+            ->getResult();
+    }
 
-    //    public function findOneBySomeField($value): ?NotificationCommerce
-    //    {
-    //        return $this->createQueryBuilder('n')
-    //            ->andWhere('n.exampleField = :val')
-    //            ->setParameter('val', $value)
-    //            ->getQuery()
-    //            ->getOneOrNullResult()
-    //        ;
-    //    }
+    public function countUnreadForRole(string $role): int
+    {
+        return (int) $this->createQueryBuilder('n')
+            ->select('COUNT(n.id)')
+            ->andWhere('n.targetRole = :role')
+            ->andWhere('n.isRead = :isRead')
+            ->setParameter('role', $role)
+            ->setParameter('isRead', false)
+            ->getQuery()
+            ->getSingleScalarResult();
+    }
 }

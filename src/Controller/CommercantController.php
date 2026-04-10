@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\Form\DevenirCommercantType;
 use App\Repository\UtilisateurRepository;
 use App\Service\NotificationCommerceService;
 use Doctrine\ORM\EntityManagerInterface;
@@ -18,20 +19,33 @@ final class CommercantController extends AbstractController
     public function devenirCommercant(
         Request $request,
         EntityManagerInterface $em,
+        UtilisateurRepository $utilisateurRepository,
         NotificationCommerceService $notificationCommerceService
     ): Response {
-        /** @var \App\Entity\Utilisateur|null $user */
-        $user = $this->getUser();
+        /** @var \App\Entity\Utilisateur|null $sessionUser */
+        $sessionUser = $this->getUser();
 
-        if (!$user) {
+        if (!$sessionUser) {
             throw $this->createAccessDeniedException('Vous devez être connecté.');
         }
 
-        if ($request->isMethod('POST')) {
-            $typeActuel = strtoupper((string) ($user->getType() ?? ''));
+        $user = $utilisateurRepository->find($sessionUser->getId());
 
+        if (!$user) {
+            throw $this->createNotFoundException('Utilisateur introuvable.');
+        }
+
+        $typeActuel = strtoupper((string) ($user->getType() ?? ''));
+
+        if ($typeActuel === 'COMMERCANT') {
+            $this->addFlash('info', 'Votre compte est déjà commerçant.');
+        }
+
+        $form = $this->createForm(DevenirCommercantType::class, $user);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
             if ($typeActuel === 'COMMERCANT') {
-                $this->addFlash('info', 'Votre compte est déjà commerçant.');
                 return $this->redirectToRoute('devenir_commercant');
             }
 
@@ -40,15 +54,7 @@ final class CommercantController extends AbstractController
                 return $this->redirectToRoute('devenir_commercant');
             }
 
-            $user->setNom(trim((string) $request->request->get('nom', $user->getNom())));
-            $user->setPrenom(trim((string) $request->request->get('prenom', $user->getPrenom())));
-            $user->setEmail(trim((string) $request->request->get('email', $user->getEmail())));
-
-            $telephone = $request->request->get('telephone');
-            $user->setTelephone($telephone !== null && $telephone !== '' ? (int) $telephone : null);
-
             $user->setType('EN_ATTENTE_COMMERCANT');
-
             $em->flush();
 
             $notificationCommerceService->notifyRole(
@@ -66,6 +72,7 @@ final class CommercantController extends AbstractController
 
         return $this->render('commercant/devenir.html.twig', [
             'userData' => $user,
+            'form' => $form->createView(),
         ]);
     }
 
