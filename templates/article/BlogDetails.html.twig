@@ -497,6 +497,13 @@
 					<div class="weather-desc">{{ weather.description }}</div>
 				</div>
 			</div>
+			{% elseif article.region is not empty %}
+			<div class="weather-panel">
+				<div>
+					<div class="weather-temp">Météo indisponible</div>
+					<div class="weather-desc">Vérifiez la clé API OpenWeatherMap ou la région "{{ article.region }}".</div>
+				</div>
+			</div>
 			{% endif %}
 
     		<div class="article-actions" style="margin-bottom: 40px;">

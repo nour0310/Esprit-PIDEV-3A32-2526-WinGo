@@ -29,35 +29,45 @@ class WeatherService
             $item->expiresAfter(1800); // 30 minutes
 
             try {
-                $response = $this->client->request('GET', 'https://api.openweathermap.org/data/2.5/weather', [
-                    'query' => [
-                        'q' => $city . ',tn',
-                        'appid' => $this->weatherApiKey,
-                        'units' => 'metric',
-                        'lang' => 'fr',
-                    ],
-                ]);
-
-                if (200 !== $response->getStatusCode()) {
-                    return null;
-                }
-
-                $data = $response->toArray(false);
-                if (!isset($data['main']['temp'], $data['weather'][0]['description'])) {
-                    return null;
-                }
-
-                return [
-                    'city' => $data['name'] ?? $city,
-                    'temp' => (float) $data['main']['temp'],
-                    'description' => (string) $data['weather'][0]['description'],
-                    'icon' => isset($data['weather'][0]['icon'])
-                        ? sprintf('https://openweathermap.org/img/wn/%s@2x.png', $data['weather'][0]['icon'])
-                        : null,
+                $queries = [
+                    $city . ',tn',
+                    $city,
+                    $this->toAscii($city) . ',tn',
+                    $this->toAscii($city),
                 ];
+
+                foreach (array_values(array_unique($queries)) as $q) {
+                    $response = $this->client->request('GET', 'https://api.openweathermap.org/data/2.5/weather', [
+                        'query' => [
+                            'q' => $q,
+                            'appid' => $this->weatherApiKey,
+                            'units' => 'metric',
+                            'lang' => 'fr',
+                        ],
+                    ]);
+
+                    if (200 !== $response->getStatusCode()) {
+                        continue;
+                    }
+
+                    $data = $response->toArray(false);
+                    if (!isset($data['main']['temp'], $data['weather'][0]['description'])) {
+                        continue;
+                    }
+
+                    return [
+                        'city' => $data['name'] ?? $city,
+                        'temp' => (float) $data['main']['temp'],
+                        'description' => (string) $data['weather'][0]['description'],
+                        'icon' => isset($data['weather'][0]['icon'])
+                            ? sprintf('https://openweathermap.org/img/wn/%s@2x.png', $data['weather'][0]['icon'])
+                            : null,
+                    ];
+                }
             } catch (\Throwable) {
-                return null;
             }
+
+            return null;
         });
     }
 
@@ -91,5 +101,15 @@ class WeatherService
         ];
 
         return $map[$region] ?? $region;
+    }
+
+    private function toAscii(string $value): string
+    {
+        $converted = @iconv('UTF-8', 'ASCII//TRANSLIT//IGNORE', $value);
+        if ($converted === false) {
+            return $value;
+        }
+
+        return preg_replace('/[^a-zA-Z0-9\s\-]/', '', $converted) ?: $value;
     }
 }
