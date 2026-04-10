@@ -283,7 +283,13 @@ class ArticleController extends AbstractController
 
     // ===================== AFFICHER UN ARTICLE =====================
     #[Route('/article/{id}', name: 'app_article_show')]
-    public function show(Request $request, Article $article, EntityManagerInterface $em): Response
+    public function show(
+        Request $request,
+        Article $article,
+        EntityManagerInterface $em,
+        LikesRepository $likesRepository,
+        UtilisateurRepository $utilisateurRepository
+    ): Response
     {
         $commentaire = new Commentaire();
         $commentaire->setArticle($article);
@@ -304,9 +310,25 @@ class ArticleController extends AbstractController
             return $this->redirectToRoute('app_article_show', ['id' => $article->getId()]);
         }
 
+        $articleId = $article->getId() ?? 0;
+        $likesCount = $articleId > 0 ? $likesRepository->countLikesForArticle($articleId) : 0;
+        $likersNames = [];
+        if ($articleId > 0) {
+            $likers = $likesRepository->findBy(['articleId' => $articleId], ['dateLike' => 'DESC']);
+            foreach ($likers as $like) {
+                $liker = $utilisateurRepository->find($like->getUtilisateurId());
+                if ($liker) {
+                    $likersNames[] = trim($liker->getPrenom() . ' ' . $liker->getNom());
+                }
+            }
+            $likersNames = array_values(array_unique(array_filter($likersNames)));
+        }
+
         return $this->render('article/BlogDetails.html.twig', [
             'article' => $article,
             'commentForm' => $form->createView(),
+            'likesCount' => $likesCount,
+            'likersNames' => $likersNames,
         ]);
     }
 

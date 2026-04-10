@@ -101,6 +101,22 @@
 		justify-content: center;
 		margin-top: 50px;
 	}
+	.likes-panel {
+		margin-top: 28px;
+		padding: 16px 20px;
+		background: #fff;
+		border-radius: 14px;
+		border: 1px solid #ececec;
+	}
+	.likes-panel-title {
+		font-weight: 700;
+		color: #333;
+		margin-bottom: 8px;
+	}
+	.likes-users {
+		color: #666;
+		line-height: 1.7;
+	}
 	.btn-custom {
 		padding: 12px 35px;
 		border-radius: 30px;
@@ -416,6 +432,18 @@
     			<span class="article-tag"><i class="fas fa-tag"></i> {{ article.categorie|default('Général') }}</span>
     			<span class="article-tag"><i class="fas fa-map-pin"></i> {{ article.region|default('Non spécifiée') }}</span>
     		</div>
+			<div class="likes-panel">
+				<div class="likes-panel-title">
+					<i class="fas fa-heart" style="color:#8d4fff;"></i> {{ likesCount|default(0) }} like(s)
+				</div>
+				<div class="likes-users">
+					{% if likersNames is defined and likersNames|length > 0 %}
+						{{ likersNames|join(', ') }}
+					{% else %}
+						Aucun utilisateur n'a liké cet article pour le moment.
+					{% endif %}
+				</div>
+			</div>
 
     		<div class="article-actions" style="margin-bottom: 40px;">
     			<a href="{{ path('blog') }}" class="btn-custom btn-secondary-outline">
