@@ -186,6 +186,13 @@
             right: -40px;
         }
     }
+    .nav_notification_wrapper {
+    position: relative;
+    margin-left: 25px;
+    margin-right: 18px;
+    display: flex;
+    align-items: center;
+}
 </style>
     {% block stylesheets %}{% endblock %}
 </head>
@@ -216,7 +223,62 @@
                        <div class="user_box ml-auto d-flex align-items-center">
 
     {% if app.user %}
-        <div class="notification_wrapper">
+
+        <div class="user_box_login user_box_link">
+            <a href="{{ path('app_dashboard_redirect') }}">dashboard</a>
+        </div>
+        <div class="user_box_register user_box_link">
+            <a href="{{ path('app_logout') }}">logout</a>
+        </div>
+    {% else %}
+        <div class="user_box_login user_box_link">
+            <a href="{{ path('app_login') }}">login</a>
+        </div>
+        <div class="user_box_register user_box_link">
+            <a href="{{ path('app_register') }}">register</a>
+        </div>
+    {% endif %}
+</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Navigation -->
+        <nav class="main_nav">
+            <div class="container">
+                <div class="row">
+                    <div class="col main_nav_col d-flex flex-row align-items-center justify-content-start">
+                        <div class="logo_container">
+                            <div class="logo">
+                                <a href="{{ path('home') }}">
+                                    <img src="{{ asset('images/test.png') }}" alt="">
+                                    <span class="logo_text">WinGo</span>
+                                </a>
+                            </div>
+                        </div>
+                        <div class="main_nav_container ml-auto">
+
+    <ul class="main_nav_list">
+        <li class="main_nav_item {% if app.request.attributes.get('_route') in ['home', 'index_page'] %}active{% endif %}">
+            <a href="{{ path('home') }}">home</a>
+        </li>
+        
+        <li class="main_nav_item {% if app.request.attributes.get('_route') == 'events' %}active{% endif %}">
+            <a href="#">events</a>
+        </li>
+       <li class="main_nav_item"><a href="{{ path('client_produits') }}">Product</a></li>
+        <li class="main_nav_item {% if app.request.attributes.get('_route') == 'reservations' %}active{% endif %}">
+            <a href="#">reservations</a>
+        </li>
+       
+        <li class="main_nav_item {% if app.request.attributes.get('_route') == 'blog' %}active{% endif %}">
+            <a href="{{ path('blog') }}">blogs</a>
+        </li>
+        
+    </ul>
+</div>
+                                <div class="notification_wrapper">
             <button type="button" class="notification_bell" id="notificationBell">
                 <i class="fa fa-bell"></i>
                 <span class="notification_badge" id="notificationBadge">3</span>
@@ -269,61 +331,6 @@
             </div>
         </div>
 
-        <div class="user_box_login user_box_link">
-            <a href="{{ path('app_dashboard_redirect') }}">dashboard</a>
-        </div>
-        <div class="user_box_register user_box_link">
-            <a href="{{ path('app_logout') }}">logout</a>
-        </div>
-    {% else %}
-        <div class="user_box_login user_box_link">
-            <a href="{{ path('app_login') }}">login</a>
-        </div>
-        <div class="user_box_register user_box_link">
-            <a href="{{ path('app_register') }}">register</a>
-        </div>
-    {% endif %}
-</div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Main Navigation -->
-        <nav class="main_nav">
-            <div class="container">
-                <div class="row">
-                    <div class="col main_nav_col d-flex flex-row align-items-center justify-content-start">
-                        <div class="logo_container">
-                            <div class="logo">
-                                <a href="{{ path('home') }}">
-                                    <img src="{{ asset('images/test.png') }}" alt="">
-                                    <span class="logo_text">WinGo</span>
-                                </a>
-                            </div>
-                        </div>
-                        <div class="main_nav_container ml-auto">
-    <ul class="main_nav_list">
-        <li class="main_nav_item {% if app.request.attributes.get('_route') in ['home', 'index_page'] %}active{% endif %}">
-            <a href="{{ path('home') }}">home</a>
-        </li>
-        
-        <li class="main_nav_item {% if app.request.attributes.get('_route') == 'events' %}active{% endif %}">
-            <a href="#">events</a>
-        </li>
-       <li class="main_nav_item"><a href="{{ path('client_produits') }}">Product</a></li>
-        <li class="main_nav_item {% if app.request.attributes.get('_route') == 'reservations' %}active{% endif %}">
-            <a href="#">reservations</a>
-        </li>
-       
-        <li class="main_nav_item {% if app.request.attributes.get('_route') == 'blog' %}active{% endif %}">
-            <a href="{{ path('blog') }}">blogs</a>
-        </li>
-        <li class="main_nav_item {% if app.request.attributes.get('_route') == 'reclamation' %}active{% endif %}">
-            <a href="#">reclamation</a>
-        </li>
-    </ul>
-</div>
                         <div class="content_search ml-lg-0 ml-auto">
     <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
     width="17px" height="17px" viewBox="0 0 512 512" enable-background="new 0 0 512 512" xml:space="preserve">
