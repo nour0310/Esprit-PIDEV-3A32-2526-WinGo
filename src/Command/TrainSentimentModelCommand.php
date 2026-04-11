@@ -91,9 +91,9 @@ class TrainSentimentModelCommand extends Command
         $estimator = new PersistentModel(
             new Pipeline([
                 new TextNormalizer(),
-                new TokenHashingVectorizer(100),
+                new \Rubix\ML\Transformers\WordCountVectorizer(10000),
                 new TfIdfTransformer(),
-            ], new KNearestNeighbors(3)),
+            ], new \Rubix\ML\Classifiers\GaussianNB()),
             new Filesystem($this->projectDir . '/var/ml/sentiment.model')
         );
 
