@@ -732,8 +732,12 @@ if (summaryButton && summaryPanel && summaryTextEl) {
             if (data === null) {
                 alert('Réponse du serveur invalide (voir la console ou les logs PHP).');
             } else if (response.status === 503 && data.error) {
-                alert(data.error);
-            } else if (data.summary) {
+                let msg = data.error;
+                if (data.detail) {
+                    msg += '\n\n' + data.detail;
+                }
+                alert(msg);
+            } else if (data.summary != null && String(data.summary).trim() !== '') {
                 summaryTextEl.textContent = data.summary;
                 summaryPanel.classList.add('is-visible');
                 summaryPanel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
