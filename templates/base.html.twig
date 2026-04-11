@@ -14,6 +14,43 @@
     <link rel="stylesheet" type="text/css" href="{{ asset('plugins/OwlCarousel2-2.2.1/owl.theme.default.css') }}">
     <link rel="stylesheet" type="text/css" href="{{ asset('plugins/OwlCarousel2-2.2.1/animate.css') }}">
     {% block stylesheets %}{% endblock %}
+    {% if app.user %}
+    <style>
+        .wingo-notif-wrap { position: relative; margin-right: 18px; display: inline-flex; align-items: center; }
+        .wingo-notif-btn {
+            background: transparent; border: none; color: #fff; cursor: pointer; padding: 4px 8px;
+            position: relative; font-size: 18px; line-height: 1;
+        }
+        .wingo-notif-badge {
+            position: absolute; top: -2px; right: 0; min-width: 18px; height: 18px; padding: 0 5px;
+            background: #fa9e1c; color: #fff; font-size: 11px; font-weight: 700; border-radius: 9px;
+            display: none; align-items: center; justify-content: center;
+        }
+        .wingo-notif-badge.wingo-notif-badge--visible { display: inline-flex; }
+        .wingo-notif-panel {
+            display: none; position: absolute; top: 100%; right: 0; margin-top: 8px; width: 320px; max-height: 380px;
+            background: #fff; border-radius: 12px; box-shadow: 0 12px 40px rgba(0,0,0,0.18); z-index: 10050;
+            overflow: hidden; flex-direction: column; text-align: left;
+        }
+        .wingo-notif-panel.wingo-notif-panel--open { display: flex; }
+        .wingo-notif-panel-header {
+            padding: 12px 14px; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; align-items: center;
+            background: linear-gradient(135deg, #8d4fff, #fa9e1c); color: #fff; font-weight: 600; font-size: 14px;
+        }
+        .wingo-notif-mark-all {
+            background: rgba(255,255,255,0.25); border: none; color: #fff; font-size: 11px; padding: 4px 10px; border-radius: 20px; cursor: pointer;
+        }
+        .wingo-notif-list { overflow-y: auto; max-height: 300px; }
+        .wingo-notif-item {
+            display: block; padding: 12px 14px; border-bottom: 1px solid #f0f0f0; text-decoration: none; color: #333; font-size: 13px; line-height: 1.4;
+            cursor: pointer; transition: background 0.15s;
+        }
+        .wingo-notif-item:hover { background: #f9f7ff; }
+        .wingo-notif-item--unread { background: #f3efff; font-weight: 500; }
+        .wingo-notif-item-meta { font-size: 11px; color: #888; margin-top: 4px; }
+        .wingo-notif-empty { padding: 24px; text-align: center; color: #888; font-size: 13px; }
+    </style>
+    {% endif %}
 </head>
 
 <body>
@@ -39,8 +76,24 @@
                                 <li class="social_list_item"><a href="#"><i class="fa fa-linkedin" aria-hidden="true"></i></a></li>
                             </ul>
                         </div>
-                       <div class="user_box ml-auto">
+                       <div class="user_box ml-auto d-flex flex-row align-items-center">
     {% if app.user %}
+        <div class="wingo-notif-wrap" id="wingo-notif-root"
+             data-list-url="{{ path('api_notifications') }}"
+             data-mark-read-url="{{ path('api_notifications_mark_read', {id: 0}) }}"
+             data-mark-all-url="{{ path('api_notifications_mark_all_read') }}">
+            <button type="button" class="wingo-notif-btn" id="wingo-notif-toggle" aria-expanded="false" aria-label="Notifications">
+                <i class="fa fa-bell-o" aria-hidden="true"></i>
+                <span class="wingo-notif-badge" id="wingo-notif-badge">0</span>
+            </button>
+            <div class="wingo-notif-panel" id="wingo-notif-panel" role="menu">
+                <div class="wingo-notif-panel-header">
+                    <span>Notifications</span>
+                    <button type="button" class="wingo-notif-mark-all" id="wingo-notif-mark-all">Tout lu</button>
+                </div>
+                <div class="wingo-notif-list" id="wingo-notif-list"></div>
+            </div>
+        </div>
         <div class="user_box_register user_box_link">
             <a href="{{ path('app_logout') }}">logout</a>
         </div>
@@ -286,6 +339,106 @@
 <script src="{{ asset('plugins/easing/easing.js') }}"></script>
 {{ importmap('app') }}
 {% block javascripts %}{% endblock %}
+{% if app.user %}
+<script>
+(function () {
+    var root = document.getElementById('wingo-notif-root');
+    if (!root) return;
+    var listUrl = root.dataset.listUrl;
+    var markReadTpl = root.dataset.markReadUrl;
+    var markAllUrl = root.dataset.markAllUrl;
+    var toggle = document.getElementById('wingo-notif-toggle');
+    var panel = document.getElementById('wingo-notif-panel');
+    var listEl = document.getElementById('wingo-notif-list');
+    var badge = document.getElementById('wingo-notif-badge');
+    var markAllBtn = document.getElementById('wingo-notif-mark-all');
+
+    function markReadUrl(id) {
+        return markReadTpl.replace(/\/0$/, '/' + id);
+    }
+
+    function setBadge(count) {
+        if (count > 0) {
+            badge.textContent = count > 99 ? '99+' : String(count);
+            badge.classList.add('wingo-notif-badge--visible');
+        } else {
+            badge.classList.remove('wingo-notif-badge--visible');
+            badge.textContent = '0';
+        }
+    }
+
+    function renderList(items) {
+        listEl.innerHTML = '';
+        if (!items.length) {
+            listEl.innerHTML = '<div class="wingo-notif-empty">Aucune notification</div>';
+            return;
+        }
+        items.forEach(function (n) {
+            var a = document.createElement('a');
+            a.href = n.lien || '#';
+            a.className = 'wingo-notif-item' + (n.lu ? '' : ' wingo-notif-item--unread');
+            a.dataset.id = n.id;
+            a.textContent = n.contenu;
+            var meta = document.createElement('div');
+            meta.className = 'wingo-notif-item-meta';
+            meta.textContent = n.type ? n.type : '';
+            if (n.dateCreation) {
+                try {
+                    var d = new Date(n.dateCreation);
+                    meta.textContent += (meta.textContent ? ' · ' : '') + d.toLocaleString();
+                } catch (e) {}
+            }
+            a.appendChild(meta);
+            a.addEventListener('click', function (ev) {
+                if (!n.lu && n.id) {
+                    ev.preventDefault();
+                    fetch(markReadUrl(n.id), { method: 'POST', headers: { 'X-Requested-With': 'XMLHttpRequest' }, credentials: 'same-origin' })
+                        .finally(function () {
+                            if (n.lien) window.location.href = n.lien;
+                            else loadNotifications();
+                        });
+                }
+            });
+            listEl.appendChild(a);
+        });
+    }
+
+    function loadNotifications() {
+        fetch(listUrl, { credentials: 'same-origin', headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+            .then(function (r) { return r.json(); })
+            .then(function (data) {
+                if (data.unreadCount !== undefined) setBadge(data.unreadCount);
+                renderList(data.notifications || []);
+            })
+            .catch(function () {});
+    }
+
+    toggle.addEventListener('click', function (e) {
+        e.stopPropagation();
+        var open = panel.classList.toggle('wingo-notif-panel--open');
+        toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+        if (open) loadNotifications();
+    });
+
+    markAllBtn.addEventListener('click', function (e) {
+        e.preventDefault();
+        e.stopPropagation();
+        fetch(markAllUrl, { method: 'POST', headers: { 'X-Requested-With': 'XMLHttpRequest' }, credentials: 'same-origin' })
+            .then(function () { loadNotifications(); })
+            .catch(function () {});
+    });
+
+    document.addEventListener('click', function () {
+        panel.classList.remove('wingo-notif-panel--open');
+        toggle.setAttribute('aria-expanded', 'false');
+    });
+    panel.addEventListener('click', function (e) { e.stopPropagation(); });
+
+    loadNotifications();
+    setInterval(loadNotifications, 60000);
+})();
+</script>
+{% endif %}
 <script src="{{ asset('js/custom.js') }}"></script>
 
 </body>
