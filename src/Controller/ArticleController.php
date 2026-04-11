@@ -212,7 +212,7 @@ class ArticleController extends AbstractController
                     $user->getId(),
                     'like',
                     trim($user->getPrenom() . ' ' . $user->getNom()) . ' a aimé votre article.',
-                    $this->generateUrl('app_article_show', ['slug' => $article->getSlug()])
+                    $this->generateUrl('app_article_show', ['id' => $articleId])
                 );
             }
         }
@@ -303,10 +303,11 @@ class ArticleController extends AbstractController
     }
 
     // ===================== AFFICHER UN ARTICLE =====================
-    #[Route('/article/{id}', name: 'app_article_show')]
+    #[Route('/article/{id}/{slug}', name: 'app_article_show', requirements: ['id' => '\d+'])]
     public function show(
-        Request $request,
         Article $article,
+        string $slug = null,
+        Request $request,
         EntityManagerInterface $em,
         CommentaireRepository $commentaireRepository,
         LikesRepository $likesRepository,
@@ -316,6 +317,15 @@ class ArticleController extends AbstractController
         NotificationService $notificationService
     ): Response
     {
+        // Si le slug dans l'URL ne correspond pas au titre slugifié,
+        // on redirige vers la bonne URL (SEO canonique)
+        $expectedSlug = $this->slugify($article->getTitre());
+        if ($slug !== $expectedSlug) {
+            return $this->redirectToRoute('app_article_show', [
+                'id'   => $article->getId(),
+                'slug' => $expectedSlug,
+            ], 301);
+        }
         $commentaire = new Commentaire();
         $commentaire->setArticle($article);
         $commentaire->setDateCommentaire(new \DateTime());
@@ -346,7 +356,7 @@ class ArticleController extends AbstractController
             $em->flush();
 
             if ($user && $user->getId() !== null) {
-                $articleUrl = $this->generateUrl('app_article_show', ['slug' => $article->getSlug()]);
+                $articleUrl = $this->generateUrl('app_article_show', ['id' => $article->getId()]);
 
                 $auteur = $article->getAuteur();
                 if ($auteur && $auteur->getId() !== null && $auteur->getId() !== $user->getId()) {
@@ -517,5 +527,17 @@ class ArticleController extends AbstractController
         if (is_file($path) && is_readable($path)) {
             @unlink($path);
         }
+    }
+
+    private function slugify(string $text): string
+    {
+        // Remplacer les caractères accentués
+        $text = iconv('UTF-8', 'ASCII//TRANSLIT', $text);
+        // Mettre en minuscules
+        $text = strtolower($text);
+        // Remplacer tout ce qui n'est pas alphanumérique par un tiret
+        $text = preg_replace('/[^a-z0-9]+/', '-', $text);
+        // Supprimer les tirets en début et fin
+        return trim($text, '-');
     }
 }
