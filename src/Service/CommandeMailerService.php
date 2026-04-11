@@ -17,7 +17,7 @@ class CommandeMailerService
     public function sendCommandeLivreeEmail(Utilisateur $client, Commande $commande): void
     {
         $email = (new TemplatedEmail())
-            ->from(new Address('noreply@wingo.tn', 'WinGo'))
+            ->from(new Address('yomnahelali60@gmail.com', 'WinGo'))
             ->to(new Address($client->getEmail(), $client->getFullName()))
             ->subject('Votre commande a été livrée')
             ->htmlTemplate('emails/commande_livree.html.twig')
@@ -32,7 +32,7 @@ class CommandeMailerService
     public function sendCommandeAnnuleeEmail(Utilisateur $client, Commande $commande): void
     {
         $email = (new TemplatedEmail())
-            ->from(new Address('noreply@wingo.tn', 'WinGo'))
+            ->from(new Address('yomnahelali60@gmail.com', 'WinGo'))
             ->to(new Address($client->getEmail(), $client->getFullName()))
             ->subject('Votre commande a été annulée')
             ->htmlTemplate('emails/commande_annulee.html.twig')

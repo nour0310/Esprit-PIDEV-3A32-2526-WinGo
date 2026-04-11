@@ -276,13 +276,24 @@ class AdminController extends AbstractController
     }
 
     #[Route('/commandes', name: 'admin_commandes')]
-    public function commandes(CommandeRepository $repo, UtilisateurRepository $userRepo): Response
+    public function commandes(CommandeRepository $repo, UtilisateurRepository $userRepo, Request $request): Response
     {
         $commandes = $repo->findBy([], ['id' => 'DESC']);
+        $annulationForms = [];
+
+        foreach ($commandes as $commande) {
+            $form = $this->createForm(CommandeAnnulationType::class, null, [
+                'action' => $this->generateUrl('admin_commande_annuler', ['id' => $commande->getId()]),
+                'method' => 'POST',
+            ]);
+
+            $annulationForms[$commande->getId()] = $form->createView();
+        }
 
         return $this->render('admin/commandes.html.twig', [
             'commandes' => $commandes,
             'userRepo' => $userRepo,
+            'annulationForms' => $annulationForms,
         ]);
     }
 
@@ -332,37 +343,32 @@ class AdminController extends AbstractController
     public function annuler(
         Request $request,
         Commande $commande,
-        EntityManagerInterface $em,
-        UtilisateurRepository $userRepo,
-        \App\Service\CommandeMailerService $commandeMailer
+        EntityManagerInterface $em
     ): Response {
-        if ($commande->getStatus() !== 'en_cours') {
-            $this->addFlash('error', 'Cette commande ne peut plus être annulée.');
+        $form = $this->createForm(CommandeAnnulationType::class);
+        $form->handleRequest($request);
+
+        if (!$form->isSubmitted() || !$form->isValid()) {
+            $this->addFlash('error', 'Veuillez choisir une cause d’annulation.');
             return $this->redirectToRoute('admin_commandes');
         }
 
-        $cause = trim((string) $request->request->get('cause_annulation', ''));
+        $data = $form->getData();
+        $cause = $data['cause_annulation'] ?? null;
 
-        if ($cause === '') {
-            $this->addFlash('error', 'Veuillez choisir ou saisir une cause d’annulation.');
-            return $this->redirectToRoute('admin_commandes');
-        }
-
-        $client = $userRepo->find($commande->getIdUser());
-
-        if (!$client) {
-            $this->addFlash('error', 'Client introuvable.');
+        if (!$cause) {
+            $this->addFlash('error', 'Cause d’annulation obligatoire.');
             return $this->redirectToRoute('admin_commandes');
         }
 
         $commande->setStatus('annulee');
+
+        // après avoir ajouté ce champ dans l'entité
         $commande->setCauseAnnulation($cause);
 
         $em->flush();
 
-        $commandeMailer->sendCommandeAnnuleeEmail($client, $commande);
-
-        $this->addFlash('success', 'Commande annulée et email envoyé au client.');
+        $this->addFlash('success', 'Commande annulée.');
 
         return $this->redirectToRoute('admin_commandes');
     }
