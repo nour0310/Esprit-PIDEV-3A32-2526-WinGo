@@ -72,10 +72,7 @@ class ApiController extends AbstractController
         } catch (HttpExceptionInterface $e) {
             return $this->ollamaHttpErrorResponse($e);
         } catch (\Throwable $e) {
-            for ($c = $e; $c instanceof \Throwable; $c = $c->getPrevious() ?? new \stdClass()) {
-                if (!$c instanceof \Throwable) {
-                    break;
-                }
+            for ($c = $e; $c instanceof \Throwable; $c = $c->getPrevious()) {
                 if ($c instanceof TransportExceptionInterface) {
                     return $this->ollamaTransportErrorResponse($c);
                 }
@@ -114,7 +111,5 @@ class ApiController extends AbstractController
             'error' => 'Ollama a renvoyé une erreur HTTP (modèle manquant, requête invalide, etc.). Vérifiez « ollama list » et la variable OLLAMA_MODEL.',
             'detail' => $detail !== '' ? $detail : null,
         ], 502);
-    }
-}
     }
 }
