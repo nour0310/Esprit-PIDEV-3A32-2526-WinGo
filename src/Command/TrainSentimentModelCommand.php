@@ -121,12 +121,12 @@ class TrainSentimentModelCommand extends Command
 
         $dataset = new Labeled($samples, $labels);
 
-        // Pipeline avec NaiveBayes (compatible avec les probabilités)
+        // Pipeline avec GaussianNB (compatible avec les données continues)
         $estimator = new Pipeline([
             new TextNormalizer(),
             new WordCountVectorizer(2000, 1, 0.8, new Word()),
             new TfIdfTransformer(),
-        ], new NaiveBayes());
+        ], new GaussianNB());
 
         $io->section('Entraînement du pipeline');
         $estimator->train($dataset);
