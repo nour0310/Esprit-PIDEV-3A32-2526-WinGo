@@ -1,8 +1,5 @@
 parameters:
     images_directory: '%kernel.project_dir%/public/images'
-    # Modèle ONNX Hugging Face pour le résumé (définir SUMMARY_MODEL dans .env.local pour surcharger, ex. moussaKam/barthez)
-    app_summary_model_default: 'Xenova/distilbart-cnn-6-6'
-    app.summary_model: '%env(string:default:app_summary_model_default:SUMMARY_MODEL)%'
 
 services:
     _defaults:
@@ -24,9 +21,3 @@ services:
             - '../src/DependencyInjection/'
             - '../src/Entity/'
             - '../src/Kernel.php'
-
-    # Après le scan App\ : sinon l’auto-découverte écrase les arguments ($projectDir, $summaryModel).
-    App\Service\TransformersSummaryService:
-        arguments:
-            $projectDir: '%kernel.project_dir%'
-            $summaryModel: '%app.summary_model%'
