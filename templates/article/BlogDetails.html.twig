@@ -773,13 +773,10 @@ if (listenButton) {
         }
 
         try {
-            const response = await fetch('/api/tts', {
+            const response = await fetch(WINGO_API_TTS_URL, {
                 method: 'POST',
                 credentials: 'same-origin',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-Requested-With': 'XMLHttpRequest'
-                },
+                headers: WINGO_JSON_FETCH_HEADERS,
                 body: JSON.stringify({
                     text: content,
                     lang: 'fr'
