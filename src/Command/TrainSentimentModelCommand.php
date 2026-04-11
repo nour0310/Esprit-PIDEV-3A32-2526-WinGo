@@ -37,28 +37,52 @@ class TrainSentimentModelCommand extends Command
 
         // Exemples d'entraînement
         $samples = [
+            // POSITIFS
             ['Ce produit est fantastique et je l\'adore.'],
             ['C\'est le meilleur article que j\'ai jamais lu.'],
             ['Je suis très content de ce service.'],
             ['Excellent travail !'],
             ['Magnifique endroit, j\'ai adoré.'],
+            ['bravo super génial joli nice good excellent'],
+            ['J\'aime beaucoup, c\'est très beau.'],
+            ['parfait merci top incroyable cool bien'],
+            ['très bien c\'est bien je recommande belle expérience'],
+            ['c\'est joli vraiment super extra formidable'],
 
+            // NEUTRES
             ['C\'est correct, sans plus.'],
             ['Je n\'ai pas d\'avis particulier là-dessus.'],
             ['Un article informatif.'],
             ['Les informations sont factuelles.'],
             ['Comme ci comme ça.'],
+            ['moyen bof passable normal ok okay'],
+            ['Ça peut aller. Je ne sais pas. Peut-être.'],
+            ['Rien à signaler. C\'est juste là. classique'],
 
+            // NEGATIFS
             ['Je déteste vraiment ça.'],
             ['C\'est la pire expérience de ma vie.'],
             ['Nul, je ne recommande pas du tout.'],
             ['Très déçu par le service.'],
             ['C\'est une perte de temps complète.'],
+            ['bad mauvais horrible nul catastrophe terrible'],
+            ['jaime pas j\'aime pas je n\'aime pas décevant'],
+            ['c\'est moche zéro inutile arnaque honteux'],
+            ['pire pas terrible très mauvais je hais'],
+            ['vraiment nul n\'importe quoi fuyez'],
         ];
 
         $labels = [
+            // Positifs (10)
             'positif', 'positif', 'positif', 'positif', 'positif',
+            'positif', 'positif', 'positif', 'positif', 'positif',
+            
+            // Neutres (8)
             'neutre', 'neutre', 'neutre', 'neutre', 'neutre',
+            'neutre', 'neutre', 'neutre',
+            
+            // Négatifs (10)
+            'negatif', 'negatif', 'negatif', 'negatif', 'negatif',
             'negatif', 'negatif', 'negatif', 'negatif', 'negatif',
         ];
 
