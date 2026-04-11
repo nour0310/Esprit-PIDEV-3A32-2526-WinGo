@@ -65,7 +65,10 @@ class CommentaireController extends AbstractController
         }
 
         $model = PersistentModel::load(new Filesystem($modelPath));
-        $prediction = $model->predictSample([$commentaire->getContenu()]);
+        
+        $dataset = new \Rubix\ML\Datasets\Unlabeled([[$commentaire->getContenu()]]);
+        $predictions = $model->predict($dataset);
+        $prediction = $predictions[0];
 
         $labels = [
             'positif' => ['emoji' => '😊', 'text' => 'Positif', 'class' => 'success'],
