@@ -121,7 +121,7 @@ class TrainSentimentModelCommand extends Command
 
         $dataset = new Labeled($samples, $labels);
 
-        // Pipeline avec MultinomialNB (compatible avec les probabilités)
+        // Pipeline avec NaiveBayes (compatible avec les probabilités)
         $estimator = new Pipeline([
             new TextNormalizer(),
             new WordCountVectorizer(2000, 1, 0.8, new Word()),
