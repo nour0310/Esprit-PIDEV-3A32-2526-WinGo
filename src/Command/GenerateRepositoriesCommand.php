@@ -29,7 +29,7 @@ class GenerateRepositoriesCommand extends Command
             ->setHelp('This command will generate repository classes for all entities in src/Entity.');
     }
 
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $output->writeln('Generating repositories for all entities...');
 
