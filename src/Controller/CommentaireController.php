@@ -54,4 +54,32 @@ class CommentaireController extends AbstractController
         }
         return $this->redirectToRoute('app_article_show', ['id' => $articleId]);
     }
+
+    #[Route('/commentaire/{id}/sentiment', name: 'app_commentaire_sentiment', methods: ['GET'])]
+    public function analyzeSentiment(Commentaire $commentaire): JsonResponse
+    {
+        $modelPath = $this->getParameter('kernel.project_dir') . '/var/ml/sentiment.model';
+
+        if (!file_exists($modelPath)) {
+            return $this->json(['sentiment' => 'inconnu', 'label' => 'Modèle non disponible']);
+        }
+
+        $model = PersistentModel::load(new Filesystem($modelPath));
+        $prediction = $model->predictSample([$commentaire->getContenu()]);
+
+        $labels = [
+            'positif' => ['emoji' => '😊', 'text' => 'Positif', 'class' => 'success'],
+            'negatif' => ['emoji' => '😡', 'text' => 'Négatif', 'class' => 'danger'],
+            'neutre'  => ['emoji' => '😐', 'text' => 'Neutre', 'class' => 'secondary'],
+        ];
+
+        $result = $labels[$prediction] ?? $labels['neutre'];
+
+        return $this->json([
+            'sentiment' => $prediction,
+            'emoji'     => $result['emoji'],
+            'text'      => $result['text'],
+            'class'     => $result['class'],
+        ]);
+    }
 }
