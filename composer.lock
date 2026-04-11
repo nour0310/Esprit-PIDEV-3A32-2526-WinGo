@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "45b6de65dddeec2860bbf1506e7d25d9",
+    "content-hash": "6d63144d366bff91f9753f1b619e7d21",
     "packages": [
         {
             "name": "composer/semver",
@@ -1606,6 +1606,65 @@
                 }
             ],
             "time": "2026-01-02T08:56:05+00:00"
+        },
+        {
+            "name": "php-science/textrank",
+            "version": "1.2.3",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/DavidBelicza/PHP-Science-TextRank.git",
+                "reference": "d63788f7f7305b8dd726a367a5653cdd5dac7fba"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/DavidBelicza/PHP-Science-TextRank/zipball/d63788f7f7305b8dd726a367a5653cdd5dac7fba",
+                "reference": "d63788f7f7305b8dd726a367a5653cdd5dac7fba",
+                "shasum": ""
+            },
+            "require": {
+                "ext-ctype": "*",
+                "ext-mbstring": "*",
+                "php": ">=7.2"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "9.*"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "PhpScience\\TextRank\\": [
+                        "src/"
+                    ]
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "David Belicza",
+                    "email": "david@belicza.com"
+                }
+            ],
+            "description": "TextRank (automatic text summarization) for PHP.",
+            "keywords": [
+                "ai",
+                "artificial",
+                "automatic",
+                "intelligence",
+                "php",
+                "php8",
+                "science",
+                "strict",
+                "summarization",
+                "textrank"
+            ],
+            "support": {
+                "issues": "https://github.com/DavidBelicza/PHP-Science-TextRank/issues",
+                "source": "https://github.com/DavidBelicza/PHP-Science-TextRank/tree/1.2.3"
+            },
+            "time": "2023-12-29T15:21:30+00:00"
         },
         {
             "name": "phpdocumentor/reflection-common",
