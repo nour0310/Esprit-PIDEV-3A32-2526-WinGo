@@ -212,7 +212,7 @@ class ArticleController extends AbstractController
                     $user->getId(),
                     'like',
                     trim($user->getPrenom() . ' ' . $user->getNom()) . ' a aimé votre article.',
-                    $this->generateUrl('app_article_show', ['id' => $articleId])
+                    $this->generateUrl('app_article_show', ['slug' => $article->getSlug()])
                 );
             }
         }
@@ -346,7 +346,7 @@ class ArticleController extends AbstractController
             $em->flush();
 
             if ($user && $user->getId() !== null) {
-                $articleUrl = $this->generateUrl('app_article_show', ['id' => $article->getId()]);
+                $articleUrl = $this->generateUrl('app_article_show', ['slug' => $article->getSlug()]);
 
                 $auteur = $article->getAuteur();
                 if ($auteur && $auteur->getId() !== null && $auteur->getId() !== $user->getId()) {
