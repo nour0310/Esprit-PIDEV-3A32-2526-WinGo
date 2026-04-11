@@ -90,10 +90,6 @@ class TrainSentimentModelCommand extends Command
         $model = new PersistentModel($estimator, $persister);
         $model->save();
 
-        // Afficher les classes apprises pour vérification
-        $classes = $estimator->classes();
-        $io->note('Classes apprises : ' . implode(', ', $classes));
-
         return Command::SUCCESS;
     }
 }
