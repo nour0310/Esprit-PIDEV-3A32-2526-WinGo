@@ -22,7 +22,3 @@ services:
             - '../src/Entity/'
             - '../src/Kernel.php'
 
-    App\Service\AISummaryService:
-        arguments:
-            $ollamaBaseUrl: '%env(OLLAMA_BASE_URL)%'
-            $ollamaModel: '%env(OLLAMA_MODEL)%'
