@@ -68,26 +68,53 @@ class ApiController extends AbstractController
                 'error' => 'Le modèle a renvoyé un résumé vide. Vérifiez qu\'Ollama répond et que le modèle est bien téléchargé (ollama pull mistral).',
             ], 502);
         } catch (TransportExceptionInterface $e) {
-            return $this->json([
-                'error' => 'Impossible de joindre Ollama. Démarrez l\'application Ollama (ou la commande « ollama serve »), puis vérifiez OLLAMA_BASE_URL dans le fichier .env (ex. http://127.0.0.1:11434).',
-                'detail' => $this->getParameter('kernel.debug') ? $e->getMessage() : null,
-            ], 503);
+            return $this->ollamaTransportErrorResponse($e);
         } catch (HttpExceptionInterface $e) {
-            $detail = $this->getParameter('kernel.debug') ? $e->getMessage() : null;
-            try {
-                $detail ??= $e->getResponse()->getContent(false);
-            } catch (\Throwable) {
+            return $this->ollamaHttpErrorResponse($e);
+        } catch (\Throwable $e) {
+            for ($c = $e; $c instanceof \Throwable; $c = $c->getPrevious() ?? new \stdClass()) {
+                if (!$c instanceof \Throwable) {
+                    break;
+                }
+                if ($c instanceof TransportExceptionInterface) {
+                    return $this->ollamaTransportErrorResponse($c);
+                }
+                if ($c instanceof HttpExceptionInterface) {
+                    return $this->ollamaHttpErrorResponse($c);
+                }
             }
 
-            return $this->json([
-                'error' => 'Ollama a renvoyé une erreur HTTP (modèle manquant, requête invalide, etc.). Vérifiez « ollama list » et la variable OLLAMA_MODEL.',
-                'detail' => \is_string($detail) && $detail !== '' ? $detail : null,
-            ], 502);
-        } catch (\Throwable $e) {
             return $this->json([
                 'error' => 'Erreur technique lors du résumé.',
                 'detail' => $this->getParameter('kernel.debug') ? $e->getMessage() : null,
             ], 500);
         }
+    }
+
+    private function ollamaTransportErrorResponse(TransportExceptionInterface $e): JsonResponse
+    {
+        return $this->json([
+            'error' => 'Impossible de joindre Ollama. Démarrez l\'application Ollama (ou la commande « ollama serve »), puis vérifiez OLLAMA_BASE_URL dans le fichier .env (ex. http://127.0.0.1:11434).',
+            'detail' => $this->getParameter('kernel.debug') ? $e->getMessage() : null,
+        ], 503);
+    }
+
+    private function ollamaHttpErrorResponse(HttpExceptionInterface $e): JsonResponse
+    {
+        $detail = $this->getParameter('kernel.debug') ? $e->getMessage() : '';
+        try {
+            $body = $e->getResponse()->getContent(false);
+            if (\is_string($body) && $body !== '') {
+                $detail = $detail !== '' ? $detail."\n".$body : $body;
+            }
+        } catch (\Throwable) {
+        }
+
+        return $this->json([
+            'error' => 'Ollama a renvoyé une erreur HTTP (modèle manquant, requête invalide, etc.). Vérifiez « ollama list » et la variable OLLAMA_MODEL.',
+            'detail' => $detail !== '' ? $detail : null,
+        ], 502);
+    }
+}
     }
 }
