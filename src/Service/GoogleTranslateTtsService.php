@@ -8,6 +8,11 @@ class GoogleTranslateTtsService
 {
     private const API_URL = 'https://translate.google.com/translate_tts?ie=UTF-8&q=%s&tl=%s&client=tw-ob';
 
+    /** Limite pour éviter les timeouts PHP (une requête HTTP par morceau). */
+    private const MAX_TEXT_CHARS = 5000;
+
+    private const CHUNK_SIZE = 200;
+
     public function __construct(
         private readonly HttpClientInterface $client
     ) {
@@ -20,7 +25,11 @@ class GoogleTranslateTtsService
             return null;
         }
 
-        $chunks = $this->splitText($text, 180);
+        if (mb_strlen($text) > self::MAX_TEXT_CHARS) {
+            $text = mb_substr($text, 0, self::MAX_TEXT_CHARS) . '…';
+        }
+
+        $chunks = $this->splitText($text, self::CHUNK_SIZE);
         $audioData = '';
 
         foreach ($chunks as $chunk) {
@@ -31,7 +40,7 @@ class GoogleTranslateTtsService
                     'headers' => [
                         'User-Agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
                     ],
-                    'timeout' => 20,
+                    'timeout' => 25,
                 ]);
 
                 $audioData .= $response->getContent();

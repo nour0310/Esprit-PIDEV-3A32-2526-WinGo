@@ -14,6 +14,8 @@ class ApiController extends AbstractController
     #[Route('/api/tts', name: 'api_tts', methods: ['POST'])]
     public function tts(Request $request, GoogleTranslateTtsService $ttsService): JsonResponse
     {
+        @set_time_limit(300);
+
         $data = json_decode($request->getContent(), true);
         $text = isset($data['text']) ? (string) $data['text'] : '';
         $lang = isset($data['lang']) ? (string) $data['lang'] : 'fr';
@@ -30,6 +32,8 @@ class ApiController extends AbstractController
     #[Route('/api/summary/ai', name: 'api_summary_ai', methods: ['POST'])]
     public function aiSummary(Request $request, TransformersSummaryService $summaryService): JsonResponse
     {
+        @set_time_limit(300);
+
         if (!$summaryService->isAvailable()) {
             return $this->json([
                 'error' => 'Résumé IA indisponible : activez l\'extension PHP FFI (php.ini : extension=ffi et ffi.enable=true).',

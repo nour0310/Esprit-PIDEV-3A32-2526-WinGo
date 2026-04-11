@@ -602,6 +602,16 @@
 </div>
 
 <script>
+async function wingoReadJsonResponse(response) {
+    const raw = await response.text();
+    try {
+        return JSON.parse(raw);
+    } catch (e) {
+        console.error('Réponse non-JSON (HTTP ' + response.status + ')', raw.substring(0, 400));
+        return null;
+    }
+}
+
 function showReplyForm(commentId) {
     // Masquer les autres formulaires
     document.querySelectorAll('.reply-form-container').forEach(form => form.style.display = 'none');
@@ -706,14 +716,17 @@ if (summaryButton && summaryPanel && summaryTextEl) {
         try {
             const response = await fetch('/api/summary/ai', {
                 method: 'POST',
+                credentials: 'same-origin',
                 headers: {
                     'Content-Type': 'application/json',
                     'X-Requested-With': 'XMLHttpRequest'
                 },
                 body: JSON.stringify({ text: content })
             });
-            const data = await response.json();
-            if (response.status === 503 && data.error) {
+            const data = await wingoReadJsonResponse(response);
+            if (data === null) {
+                alert('Réponse du serveur invalide (voir la console ou les logs PHP).');
+            } else if (response.status === 503 && data.error) {
                 alert(data.error);
             } else if (data.summary) {
                 summaryTextEl.textContent = data.summary;
@@ -753,6 +766,7 @@ if (listenButton) {
         try {
             const response = await fetch('/api/tts', {
                 method: 'POST',
+                credentials: 'same-origin',
                 headers: {
                     'Content-Type': 'application/json',
                     'X-Requested-With': 'XMLHttpRequest'
@@ -763,12 +777,21 @@ if (listenButton) {
                 })
             });
 
-            const data = await response.json();
-            if (data.audioContent) {
-                const audioBlob = base64ToBlob(data.audioContent, 'audio/mp3');
-                const audioUrl = URL.createObjectURL(audioBlob);
-                const audio = new Audio(audioUrl);
-                audio.play();
+            const data = await wingoReadJsonResponse(response);
+            if (data === null) {
+                alert('Réponse du serveur invalide (voir la console ou les logs PHP).');
+            } else if (data.audioContent) {
+                try {
+                    const audioBlob = base64ToBlob(data.audioContent, 'audio/mp3');
+                    const audioUrl = URL.createObjectURL(audioBlob);
+                    const audio = new Audio(audioUrl);
+                    await audio.play();
+                } catch (playErr) {
+                    console.error(playErr);
+                    alert('L’audio a été reçu mais la lecture a échoué (navigateur ou format).');
+                }
+            } else if (data.error) {
+                alert(data.error);
             } else {
                 alert('Erreur lors de la génération audio.');
             }
