@@ -65,7 +65,7 @@ class TrainSentimentModelCommand extends Command
 
         $estimator = new PersistentModel(
             new Pipeline([
-                new WordCountVectorizer(10000, 1, 2),
+                new WordCountVectorizer(),
                 new TfIdfTransformer(),
             ], new NaiveBayes()),
             new Filesystem($this->projectDir . '/var/ml/sentiment.model')
