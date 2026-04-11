@@ -64,25 +64,34 @@ class CommentaireController extends AbstractController
             return $this->json(['sentiment' => 'inconnu', 'label' => 'Modèle non disponible']);
         }
 
-        $model = PersistentModel::load(new Filesystem($modelPath));
-        
-        $dataset = new \Rubix\ML\Datasets\Unlabeled([[$commentaire->getContenu()]]);
-        $predictions = $model->predict($dataset);
-        $prediction = $predictions[0];
+        try {
+            $model = PersistentModel::load(new Filesystem($modelPath));
+            
+            $dataset = new \Rubix\ML\Datasets\Unlabeled([[$commentaire->getContenu()]]);
+            $predictions = $model->predict($dataset);
+            $prediction = $predictions[0];
 
-        $labels = [
-            'positif' => ['emoji' => '😊', 'text' => 'Positif', 'class' => 'success'],
-            'negatif' => ['emoji' => '😡', 'text' => 'Négatif', 'class' => 'danger'],
-            'neutre'  => ['emoji' => '😐', 'text' => 'Neutre', 'class' => 'secondary'],
-        ];
+            // Validation de la prédiction
+            if (!in_array($prediction, ['positif', 'negatif', 'neutre'])) {
+                $prediction = 'neutre';
+            }
 
-        $result = $labels[$prediction] ?? $labels['neutre'];
+            $labels = [
+                'positif' => ['emoji' => 'Ø', 'text' => 'Positif', 'class' => 'success'],
+                'negatif' => ['emoji' => 'Ø', 'text' => 'Négatif', 'class' => 'danger'],
+                'neutre'  => ['emoji' => 'Ø', 'text' => 'Neutre', 'class' => 'secondary'],
+            ];
 
-        return $this->json([
-            'sentiment' => $prediction,
-            'emoji'     => $result['emoji'],
-            'text'      => $result['text'],
-            'class'     => $result['class'],
-        ]);
+            $result = $labels[$prediction] ?? $labels['neutre'];
+
+            return $this->json([
+                'sentiment' => $prediction,
+                'emoji'     => $result['emoji'],
+                'text'      => $result['text'],
+                'class'     => $result['class'],
+            ]);
+        } catch (\Exception $e) {
+            return $this->json(['sentiment' => 'inconnu', 'label' => 'Erreur d\'analyse']);
+        }
     }
 }
