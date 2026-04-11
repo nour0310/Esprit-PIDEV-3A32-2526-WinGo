@@ -2,7 +2,7 @@
 
 namespace App\Command;
 
-use Rubix\ML\Classifiers\NaiveBayes;
+use Rubix\ML\Classifiers\KNearestNeighbors;
 use Rubix\ML\Datasets\Labeled;
 use Rubix\ML\PersistentModel;
 use Rubix\ML\Persisters\Filesystem;
