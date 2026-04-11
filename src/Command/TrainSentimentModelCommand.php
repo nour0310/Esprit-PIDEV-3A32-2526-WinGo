@@ -37,7 +37,7 @@ class TrainSentimentModelCommand extends Command
 
         // Exemples d'entraînement
         $samples = [
-            // POSITIFS
+            // POSITIFS (15)
             ['Ce produit est fantastique et je l\'adore.'],
             ['C\'est le meilleur article que j\'ai jamais lu.'],
             ['Je suis très content de ce service.'],
@@ -48,8 +48,13 @@ class TrainSentimentModelCommand extends Command
             ['parfait merci top incroyable cool bien'],
             ['très bien c\'est bien je recommande belle expérience'],
             ['c\'est joli vraiment super extra formidable'],
+            ['superbe expérience je suis ravi'],
+            ['formidable magnifique je recommande vivement'],
+            ['top du top excellent service'],
+            ['vraiment content merci beaucoup'],
+            ['génial j\'adore cet endroit'],
 
-            // NEUTRES
+            // NEUTRES (15)
             ['C\'est correct, sans plus.'],
             ['Je n\'ai pas d\'avis particulier là-dessus.'],
             ['Un article informatif.'],
@@ -58,8 +63,15 @@ class TrainSentimentModelCommand extends Command
             ['moyen bof passable normal ok okay'],
             ['Ça peut aller. Je ne sais pas. Peut-être.'],
             ['Rien à signaler. C\'est juste là. classique'],
+            ['c\'est normal sans plus'],
+            ['je suis neutre sur ce sujet'],
+            ['standard comme les autres'],
+            ['correct mais pas exceptionnel'],
+            ['dans la moyenne'],
+            ['pas d\'opinion particulière'],
+            ['c\'est acceptable'],
 
-            // NEGATIFS
+            // NEGATIFS (15)
             ['Je déteste vraiment ça.'],
             ['C\'est la pire expérience de ma vie.'],
             ['Nul, je ne recommande pas du tout.'],
@@ -70,18 +82,26 @@ class TrainSentimentModelCommand extends Command
             ['c\'est moche zéro inutile arnaque honteux'],
             ['pire pas terrible très mauvais je hais'],
             ['vraiment nul n\'importe quoi fuyez'],
+            ['décevant je ne recommande pas'],
+            ['très mauvais qualité'],
+            ['catastrophe à éviter'],
+            ['je suis très déçu'],
+            ['arnaque ne perdez pas votre temps'],
         ];
 
         $labels = [
-            // Positifs (10)
+            // Positifs (15)
+            'positif', 'positif', 'positif', 'positif', 'positif',
             'positif', 'positif', 'positif', 'positif', 'positif',
             'positif', 'positif', 'positif', 'positif', 'positif',
             
-            // Neutres (8)
+            // Neutres (15)
             'neutre', 'neutre', 'neutre', 'neutre', 'neutre',
-            'neutre', 'neutre', 'neutre',
+            'neutre', 'neutre', 'neutre', 'neutre', 'neutre',
+            'neutre', 'neutre', 'neutre', 'neutre', 'neutre',
             
-            // Négatifs (10)
+            // Négatifs (15)
+            'negatif', 'negatif', 'negatif', 'negatif', 'negatif',
             'negatif', 'negatif', 'negatif', 'negatif', 'negatif',
             'negatif', 'negatif', 'negatif', 'negatif', 'negatif',
         ];
