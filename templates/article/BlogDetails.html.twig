@@ -189,6 +189,34 @@
 	.share-btn-instagram {
 		background: linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888);
 	}
+	.article-summary-box {
+		display: none;
+		margin: 24px 0 8px;
+		padding: 20px 22px;
+		background: #fff;
+		border-radius: 16px;
+		border: 1px solid rgba(141, 79, 255, 0.2);
+		box-shadow: 0 8px 28px rgba(141, 79, 255, 0.08);
+	}
+	.article-summary-box.is-visible { display: block; }
+	.article-summary-title {
+		font-family: 'Playfair Display', serif;
+		font-size: 1.15rem;
+		font-weight: 700;
+		color: #2d3436;
+		margin-bottom: 10px;
+		display: flex;
+		align-items: center;
+		gap: 8px;
+	}
+	.article-summary-title i { color: var(--primary-color); }
+	.article-summary-text {
+		font-size: 1rem;
+		line-height: 1.75;
+		color: #555;
+		text-align: justify;
+		margin: 0;
+	}
 	.blog-details-hero {
 		background-image: url('{{ asset('images/BlogBack.jpg') }}');
 		background-size: cover;
@@ -504,6 +532,11 @@
                     {{ article.contenu|default('<p>Le contenu de cet article est vide pour le moment.</p>')|raw }}
                 </div>
             </div>
+
+			<div id="articleSummaryPanel" class="article-summary-box" aria-live="polite">
+				<div class="article-summary-title"><i class="fas fa-wand-magic-sparkles"></i> Résumé automatique</div>
+				<p id="articleSummaryText" class="article-summary-text"></p>
+			</div>
 
     		<div class="article-tags">
     			<span class="article-tag"><i class="fas fa-tag"></i> {{ article.categorie|default('Général') }}</span>
