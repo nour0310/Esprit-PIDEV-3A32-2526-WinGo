@@ -52,6 +52,10 @@ class ApiController extends AbstractController
             }
 
             $text = isset($payload['text']) ? (string) $payload['text'] : '';
+            if (trim($text) === '') {
+                return $this->json(['error' => 'Texte vide'], 400);
+            }
+
             $summary = $service->summarize($text);
 
             if ($summary !== null) {
