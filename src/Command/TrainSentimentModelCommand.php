@@ -2,24 +2,23 @@
 
 namespace App\Command;
 
-use Rubix\ML\Classifiers\KNearestNeighbors;
+use Rubix\ML\Classifiers\GaussianNB;
 use Rubix\ML\Datasets\Labeled;
 use Rubix\ML\PersistentModel;
 use Rubix\ML\Persisters\Filesystem;
 use Rubix\ML\Pipeline;
-use Rubix\ML\Transformers\TokenHashingVectorizer;
 use Rubix\ML\Transformers\TextNormalizer;
+use Rubix\ML\Transformers\WordCountVectorizer;
 use Rubix\ML\Transformers\TfIdfTransformer;
+use Rubix\ML\Tokenizers\Word;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 
-#[AsCommand(
-    name: 'app:train-sentiment',
-    description: 'Entraîne et sauvegarde le modèle d\'analyse de sentiment',
-)]
+#[AsCommand(name: 'app:train-sentiment')]
 class TrainSentimentModelCommand extends Command
 {
     private string $projectDir;
@@ -33,99 +32,51 @@ class TrainSentimentModelCommand extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $output->writeln('Démarrage de l\'entraînement du modèle...');
+        $io = new SymfonyStyle($input, $output);
+        $io->title('Entraînement du modèle de sentiment (Pipeline)');
 
-        // Exemples d'entraînement
+        // Corpus d'entraînement en français
         $samples = [
-            // POSITIFS (15)
-            ['Ce produit est fantastique et je l\'adore.'],
-            ['C\'est le meilleur article que j\'ai jamais lu.'],
-            ['Je suis très content de ce service.'],
-            ['Excellent travail !'],
-            ['Magnifique endroit, j\'ai adoré.'],
-            ['bravo super génial joli nice good excellent'],
-            ['J\'aime beaucoup, c\'est très beau.'],
-            ['parfait merci top incroyable cool bien'],
-            ['très bien c\'est bien je recommande belle expérience'],
-            ['c\'est joli vraiment super extra formidable'],
-            ['superbe expérience je suis ravi'],
-            ['formidable magnifique je recommande vivement'],
-            ['top du top excellent service'],
-            ['vraiment content merci beaucoup'],
-            ['génial j\'adore cet endroit'],
-
-            // NEUTRES (15)
-            ['C\'est correct, sans plus.'],
-            ['Je n\'ai pas d\'avis particulier là-dessus.'],
-            ['Un article informatif.'],
-            ['Les informations sont factuelles.'],
-            ['Comme ci comme ça.'],
-            ['moyen bof passable normal ok okay'],
-            ['Ça peut aller. Je ne sais pas. Peut-être.'],
-            ['Rien à signaler. C\'est juste là. classique'],
-            ['c\'est normal sans plus'],
-            ['je suis neutre sur ce sujet'],
-            ['standard comme les autres'],
-            ['correct mais pas exceptionnel'],
-            ['dans la moyenne'],
-            ['pas d\'opinion particulière'],
-            ['c\'est acceptable'],
-
-            // NEGATIFS (15)
-            ['Je déteste vraiment ça.'],
-            ['C\'est la pire expérience de ma vie.'],
-            ['Nul, je ne recommande pas du tout.'],
-            ['Très déçu par le service.'],
-            ['C\'est une perte de temps complète.'],
-            ['bad mauvais horrible nul catastrophe terrible'],
-            ['jaime pas j\'aime pas je n\'aime pas décevant'],
-            ['c\'est moche zéro inutile arnaque honteux'],
-            ['pire pas terrible très mauvais je hais'],
-            ['vraiment nul n\'importe quoi fuyez'],
-            ['décevant je ne recommande pas'],
-            ['très mauvais qualité'],
-            ['catastrophe à éviter'],
-            ['je suis très déçu'],
-            ['arnaque ne perdez pas votre temps'],
+            "J'adore cet article, très utile",
+            "Superbe expérience, merci beaucoup",
+            "Excellent contenu, bravo",
+            "Très intéressant, j'ai appris des choses",
+            "Parfait, rien à redire",
+            "Nul, perte de temps",
+            "Déçu, ne correspond pas à mes attentes",
+            "Mauvais article, sans intérêt",
+            "Je n'ai pas aimé du tout",
+            "À éviter absolument",
+            "Correct, sans plus",
+            "Pas mal mais peut mieux faire",
+            "Moyen, ni bon ni mauvais",
+            "Bof, je m'attendais à mieux",
         ];
 
         $labels = [
-            // Positifs (15)
             'positif', 'positif', 'positif', 'positif', 'positif',
-            'positif', 'positif', 'positif', 'positif', 'positif',
-            'positif', 'positif', 'positif', 'positif', 'positif',
-            
-            // Neutres (15)
-            'neutre', 'neutre', 'neutre', 'neutre', 'neutre',
-            'neutre', 'neutre', 'neutre', 'neutre', 'neutre',
-            'neutre', 'neutre', 'neutre', 'neutre', 'neutre',
-            
-            // Négatifs (15)
             'negatif', 'negatif', 'negatif', 'negatif', 'negatif',
-            'negatif', 'negatif', 'negatif', 'negatif', 'negatif',
-            'negatif', 'negatif', 'negatif', 'negatif', 'negatif',
+            'neutre', 'neutre', 'neutre', 'neutre',
         ];
 
         $dataset = new Labeled($samples, $labels);
 
-        $estimator = new PersistentModel(
-            new Pipeline([
-                new TextNormalizer(),
-                new \Rubix\ML\Transformers\WordCountVectorizer(10000),
-                new TfIdfTransformer(),
-            ], new \Rubix\ML\Classifiers\GaussianNB()),
-            new Filesystem($this->projectDir . '/var/ml/sentiment.model')
-        );
+        // Pipeline : normalisation → vectorisation → TF-IDF → classifieur
+        $estimator = new Pipeline([
+            new TextNormalizer(),
+            new WordCountVectorizer(1000, 1, 0.8, new Word()),
+            new TfIdfTransformer(),
+        ], new NaiveBayes());
 
-        // Créer le dossier s'il n'existe pas
-        if (!is_dir($this->projectDir . '/var/ml')) {
-            mkdir($this->projectDir . '/var/ml', 0777, true);
-        }
-
+        $io->section('Entraînement du pipeline');
         $estimator->train($dataset);
-        $estimator->save();
+        $io->success('Modèle entraîné avec succès');
 
-        $output->writeln('Modèle entraîné et sauvegardé avec succès dans var/ml/sentiment.model !');
+        $io->section('Sauvegarde du modèle');
+        $persister = new Filesystem($this->projectDir . '/var/ml/sentiment.model');
+        $model = new PersistentModel($estimator, $persister);
+        $model->save();
+        $io->success('Pipeline sauvegardé dans var/ml/sentiment.model');
 
         return Command::SUCCESS;
     }
