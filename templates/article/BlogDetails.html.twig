@@ -446,6 +446,36 @@
         <div class="comment-body" id="comment-body-{{ comment.id }}">
             {{ comment.contenu|nl2br }}
         </div>
+
+        {# Analyse de sentiment AJAX #}
+        <div class="comment-sentiment" id="sentiment-{{ comment.id }}" style="margin-left: 55px; margin-top: 5px;">
+            <span class="badge bg-secondary">⏳ Analyse...</span>
+        </div>
+        <script>
+            (function() {
+                const container = document.getElementById('sentiment-{{ comment.id }}');
+                if (!container) return;
+
+                fetch('{{ path('app_commentaire_sentiment', {id: comment.id}) }}')
+                    .then(response => response.json())
+                    .then(data => {
+                        let badgeClass = '';
+                        if (data.class === 'success') badgeClass = 'bg-success';
+                        else if (data.class === 'danger') badgeClass = 'bg-danger';
+                        else badgeClass = 'bg-secondary';
+                        
+                        // Sécurité pour "Modèle non disponible"
+                        if(data.emoji && data.text) {
+                            container.innerHTML = `<span class="badge ${badgeClass}">${data.emoji} ${data.text}</span>`;
+                        } else {
+                            container.innerHTML = `<span class="badge bg-secondary">${data.label || 'Inconnu'}</span>`;
+                        }
+                    })
+                    .catch(() => {
+                        container.innerHTML = '<span class="badge bg-secondary">❌ Erreur</span>';
+                    });
+            })();
+        </script>
         <div class="edit-comment-form" id="edit-form-{{ comment.id }}">
             <textarea id="edit-text-{{ comment.id }}" rows="3">{{ comment.contenu }}</textarea>
             <div class="edit-actions">
