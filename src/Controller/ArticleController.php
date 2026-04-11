@@ -303,10 +303,10 @@ class ArticleController extends AbstractController
     }
 
     // ===================== AFFICHER UN ARTICLE =====================
-    #[Route('/article/{id}/{slug}', name: 'app_article_show', requirements: ['id' => '\d+'])]
+    #[Route('/article/{id}/{slug}', name: 'app_article_show', requirements: ['id' => '\d+'], defaults: ['slug' => null])]
     public function show(
         Article $article,
-        string $slug = null,
+        ?string $slug = null,  // 🆕 Le paramètre devient optionnel
         Request $request,
         EntityManagerInterface $em,
         CommentaireRepository $commentaireRepository,
@@ -317,10 +317,9 @@ class ArticleController extends AbstractController
         NotificationService $notificationService
     ): Response
     {
-        // Si le slug dans l'URL ne correspond pas au titre slugifié,
-        // on redirige vers la bonne URL (SEO canonique)
+        // Si aucun slug n'est fourni, on redirige vers l'URL canonique avec le bon slug
         $expectedSlug = $this->slugify($article->getTitre());
-        if ($slug !== $expectedSlug) {
+        if ($slug === null || $slug !== $expectedSlug) {
             return $this->redirectToRoute('app_article_show', [
                 'id'   => $article->getId(),
                 'slug' => $expectedSlug,
