@@ -1,5 +1,8 @@
 parameters:
     images_directory: '%kernel.project_dir%/public/images'
+    # Modèle ONNX Hugging Face pour le résumé (ex. Xenova/distilbart-cnn-6-6 ou moussaKam/barthez si disponible en ONNX)
+    app.summary_model: '%env(default:app_summary_model_default:SUMMARY_MODEL)%'
+    app_summary_model_default: 'Xenova/distilbart-cnn-6-6'
 
 services:
     _defaults:
@@ -14,6 +17,11 @@ services:
     App\Command\GenerateRepositoriesCommand:
         arguments:
             $finder: '@Symfony\Component\Finder\Finder'
+
+    App\Service\TransformersSummaryService:
+        arguments:
+            $projectDir: '%kernel.project_dir%'
+            $summaryModel: '%app.summary_model%'
 
     App\:
         resource: '../src/'
