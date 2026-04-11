@@ -1,16 +1,19 @@
 <?php
 namespace App\Command;
 
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Finder\Finder;
 
+#[AsCommand(
+    name: 'app:generate-repositories',
+    description: 'Generates repository classes for all entities.',
+)]
 class GenerateRepositoriesCommand extends Command
 {
-    protected static $defaultName = 'app:generate-repositories';
-
     private $filesystem;
     private $finder;
 
