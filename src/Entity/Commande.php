@@ -29,6 +29,10 @@ class Commande
     #[ORM\Column(name: 'date_commande', type: 'datetime', nullable: true)]
     private ?\DateTimeInterface $dateCommande = null;
 
+    #[ORM\Column(name: 'cause_annulation', type: 'string', length: 255, nullable: true)]
+    private ?string $causeAnnulation = null;
+
+
     public function __construct() { $this->dateCommande = new \DateTime(); }
 
     public function getId(): ?int { return $this->id; }
@@ -42,4 +46,14 @@ class Commande
     public function setItemsJson(?string $itemsJson): static { $this->itemsJson = $itemsJson; return $this; }
     public function getDateCommande(): ?\DateTimeInterface { return $this->dateCommande; }
     public function setDateCommande(?\DateTimeInterface $dateCommande): static { $this->dateCommande = $dateCommande; return $this; }
+    public function getCauseAnnulation(): ?string
+    {
+        return $this->causeAnnulation;
+    }
+
+    public function setCauseAnnulation(?string $causeAnnulation): static
+    {
+        $this->causeAnnulation = $causeAnnulation;
+        return $this;
+    }
 }
