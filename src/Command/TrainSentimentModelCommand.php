@@ -2,7 +2,7 @@
 
 namespace App\Command;
 
-use Rubix\ML\Classifiers\GaussianNB;
+use Rubix\ML\Classifiers\ComplementNB;
 use Rubix\ML\Datasets\Labeled;
 use Rubix\ML\PersistentModel;
 use Rubix\ML\Persisters\Filesystem;
@@ -33,19 +33,21 @@ class TrainSentimentModelCommand extends Command
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $io = new SymfonyStyle($input, $output);
-        $io->title('Entraînement du modèle de sentiment (MultinomialNB)');
+        $io->title('Entraînement du modèle de sentiment (ComplementNB)');
 
-        // Corpus équilibré avec autant de neutres que de positifs et négatifs
+        // Corpus enrichi pour couvrir les cas courts
         $samples = [
-            // Positifs (~18 exemples)
+            // ===== POSITIFS =====
             "J'adore cet article, très utile",
             "Superbe expérience, merci beaucoup",
             "Excellent contenu, bravo",
             "Très intéressant, j'ai appris des choses",
             "Parfait, rien à redire",
             "joli",
+            "jolie",
             "nice",
             "beau",
+            "belle",
             "magnifique",
             "top",
             "génial",
@@ -56,8 +58,16 @@ class TrainSentimentModelCommand extends Command
             "agréable",
             "cool",
             "excellent",
-            
-            // Négatifs (~18 exemples)
+            "j'aime beaucoup",
+            "très bon",
+            "vraiment top",
+            "c'est génial",
+            "je suis fan",
+            "j'adore",
+            "super article",
+            "contenu de qualité",
+
+            // ===== NÉGATIFS =====
             "Nul, perte de temps",
             "Déçu, ne correspond pas à mes attentes",
             "Mauvais article, sans intérêt",
@@ -69,14 +79,22 @@ class TrainSentimentModelCommand extends Command
             "nul",
             "horrible",
             "mauvais",
+            "mauvaise",
             "décevant",
             "inutile",
             "pas bon",
             "bof",
             "naze",
             "affreux",
-            
-            // Neutres (~18 exemples pour équilibrer)
+            "c'est nul",
+            "très déçu",
+            "je déteste",
+            "vraiment mauvais",
+            "à chier",
+            "c'est de la merde",
+            "aucun intérêt",
+
+            // ===== NEUTRES =====
             "Correct, sans plus",
             "Pas mal mais peut mieux faire",
             "Moyen, ni bon ni mauvais",
@@ -97,46 +115,34 @@ class TrainSentimentModelCommand extends Command
             "assez moyen",
             "bof bof",
             "sans plus",
+            "mouais",
+            "pourquoi pas",
         ];
 
-        $labels = [
-            // Positifs (18)
-            'positif', 'positif', 'positif', 'positif', 'positif',
-            'positif', 'positif', 'positif', 'positif', 'positif',
-            'positif', 'positif', 'positif', 'positif', 'positif',
-            'positif', 'positif', 'positif',
-            
-            // Négatifs (18)
-            'negatif', 'negatif', 'negatif', 'negatif', 'negatif',
-            'negatif', 'negatif', 'negatif', 'negatif', 'negatif',
-            'negatif', 'negatif', 'negatif', 'negatif', 'negatif',
-            'negatif', 'negatif', 'negatif',
-            
-            // Neutres (19)
-            'neutre', 'neutre', 'neutre', 'neutre', 'neutre',
-            'neutre', 'neutre', 'neutre', 'neutre', 'neutre',
-            'neutre', 'neutre', 'neutre', 'neutre', 'neutre',
-            'neutre', 'neutre', 'neutre', 'neutre',
-        ];
+        // Étiquettes correspondantes (même nombre que les échantillons)
+        $labels = array_merge(
+            array_fill(0, 28, 'positif'),
+            array_fill(0, 25, 'negatif'),
+            array_fill(0, 22, 'neutre')
+        );
 
         $dataset = new Labeled($samples, $labels);
 
-        // Pipeline avec GaussianNB (compatible avec les données continues)
+        // Pipeline avec ComplementNB (robuste pour le texte)
         $estimator = new Pipeline([
             new TextNormalizer(),
-            new WordCountVectorizer(2000, 1, 0.8, new Word()),
+            new WordCountVectorizer(5000, 1, 0.8, new Word()),
             new TfIdfTransformer(),
-        ], new GaussianNB());
+        ], new ComplementNB());
 
-        $io->section('Entraînement du pipeline');
+        $io->section('Entraînement du modèle (cela peut prendre quelques secondes)...');
         $estimator->train($dataset);
         $io->success('Modèle entraîné avec succès');
 
-        $io->section('Sauvegarde du modèle');
         $persister = new Filesystem($this->projectDir . '/var/ml/sentiment.model');
         $model = new PersistentModel($estimator, $persister);
         $model->save();
-        $io->success('Pipeline sauvegardé dans var/ml/sentiment.model');
+        $io->success('Modèle sauvegardé dans var/ml/sentiment.model');
 
         return Command::SUCCESS;
     }
