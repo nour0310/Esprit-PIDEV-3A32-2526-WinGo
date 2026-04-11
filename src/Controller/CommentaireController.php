@@ -70,7 +70,7 @@ public function analyzeSentiment(Commentaire $commentaire): JsonResponse
         ]);
     }
 
-    $modelPath = $this->getParameter('kernel.project_dir') . '/var/ml/sentiment.model');
+    $modelPath = $this->getParameter('kernel.project_dir') . '/var/ml/sentiment.model';
     if (!file_exists($modelPath)) {
         return $this->json(['sentiment' => 'inconnu', 'label' => 'Modèle non disponible']);
     }
