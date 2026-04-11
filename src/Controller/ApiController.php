@@ -60,11 +60,29 @@ class ApiController extends AbstractController
 
             $summary = $service->summarize($text);
 
-            if ($summary !== null) {
+            if ($summary !== null && $summary !== '') {
                 return $this->json(['summary' => $summary]);
             }
 
-            return $this->json(['error' => 'Résumé impossible'], 500);
+            return $this->json([
+                'error' => 'Le modèle a renvoyé un résumé vide. Vérifiez qu\'Ollama répond et que le modèle est bien téléchargé (ollama pull mistral).',
+            ], 502);
+        } catch (TransportExceptionInterface $e) {
+            return $this->json([
+                'error' => 'Impossible de joindre Ollama. Démarrez l\'application Ollama (ou la commande « ollama serve »), puis vérifiez OLLAMA_BASE_URL dans le fichier .env (ex. http://127.0.0.1:11434).',
+                'detail' => $this->getParameter('kernel.debug') ? $e->getMessage() : null,
+            ], 503);
+        } catch (HttpExceptionInterface $e) {
+            $detail = $this->getParameter('kernel.debug') ? $e->getMessage() : null;
+            try {
+                $detail ??= $e->getResponse()->getContent(false);
+            } catch (\Throwable) {
+            }
+
+            return $this->json([
+                'error' => 'Ollama a renvoyé une erreur HTTP (modèle manquant, requête invalide, etc.). Vérifiez « ollama list » et la variable OLLAMA_MODEL.',
+                'detail' => \is_string($detail) && $detail !== '' ? $detail : null,
+            ], 502);
         } catch (\Throwable $e) {
             return $this->json([
                 'error' => 'Erreur technique lors du résumé.',
