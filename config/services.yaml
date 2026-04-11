@@ -18,14 +18,15 @@ services:
         arguments:
             $finder: '@Symfony\Component\Finder\Finder'
 
-    App\Service\TransformersSummaryService:
-        arguments:
-            $projectDir: '%kernel.project_dir%'
-            $summaryModel: '%app.summary_model%'
-
     App\:
         resource: '../src/'
         exclude:
             - '../src/DependencyInjection/'
             - '../src/Entity/'
             - '../src/Kernel.php'
+
+    # Après le scan App\ : sinon l’auto-découverte écrase les arguments ($projectDir, $summaryModel).
+    App\Service\TransformersSummaryService:
+        arguments:
+            $projectDir: '%kernel.project_dir%'
+            $summaryModel: '%app.summary_model%'
