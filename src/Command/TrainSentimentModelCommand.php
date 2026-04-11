@@ -13,6 +13,7 @@ use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
 
 #[AsCommand(
     name: 'app:train-sentiment',
@@ -22,8 +23,9 @@ class TrainSentimentModelCommand extends Command
 {
     private string $projectDir;
 
-    public function __construct(string $projectDir)
-    {
+    public function __construct(
+        #[Autowire('%kernel.project_dir%')] string $projectDir
+    ) {
         parent::__construct();
         $this->projectDir = $projectDir;
     }
