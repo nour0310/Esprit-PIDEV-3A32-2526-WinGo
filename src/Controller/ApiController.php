@@ -98,13 +98,16 @@ class ApiController extends AbstractController
 
     private function ollamaHttpErrorResponse(HttpExceptionInterface $e): JsonResponse
     {
-        $detail = $this->getParameter('kernel.debug') ? $e->getMessage() : '';
-        try {
-            $body = $e->getResponse()->getContent(false);
-            if (\is_string($body) && $body !== '') {
-                $detail = $detail !== '' ? $detail."\n".$body : $body;
+        $detail = '';
+        if ($this->getParameter('kernel.debug')) {
+            $detail = $e->getMessage();
+            try {
+                $body = $e->getResponse()->getContent(false);
+                if (\is_string($body) && $body !== '') {
+                    $detail = $detail !== '' ? $detail."\n".$body : $body;
+                }
+            } catch (\Throwable) {
             }
-        } catch (\Throwable) {
         }
 
         return $this->json([
