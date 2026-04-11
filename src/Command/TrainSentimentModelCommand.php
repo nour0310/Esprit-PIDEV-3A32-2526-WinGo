@@ -79,7 +79,7 @@ class TrainSentimentModelCommand extends Command
             new TextNormalizer(),
             new WordCountVectorizer(3000, 1, 0.8, new Word()),
             new TfIdfTransformer(),
-        ], new MultinomialNB());
+        ], new NaiveBayes());
 
         $io->section('Entraînement du modèle...');
         $estimator->train($dataset);
