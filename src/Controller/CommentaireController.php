@@ -9,6 +9,8 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
+use Rubix\ML\PersistentModel;
+use Rubix\ML\Persisters\Filesystem;
 
 class CommentaireController extends AbstractController
 {
