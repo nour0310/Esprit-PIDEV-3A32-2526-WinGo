@@ -2,7 +2,7 @@
 
 namespace App\Command;
 
-use Rubix\ML\Classifiers\GaussianNB;
+use Rubix\ML\Classifiers\MultinomialNB;
 use Rubix\ML\Datasets\Labeled;
 use Rubix\ML\PersistentModel;
 use Rubix\ML\Persisters\Filesystem;
@@ -33,40 +33,90 @@ class TrainSentimentModelCommand extends Command
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $io = new SymfonyStyle($input, $output);
-        $io->title('Entraînement du modèle de sentiment (Pipeline)');
+        $io->title('Entraînement du modèle de sentiment (MultinomialNB)');
 
-        // Corpus d'entraînement en français
+        // Corpus enrichi avec des mots courts et expressions variées
         $samples = [
+            // Positifs
             "J'adore cet article, très utile",
             "Superbe expérience, merci beaucoup",
             "Excellent contenu, bravo",
             "Très intéressant, j'ai appris des choses",
             "Parfait, rien à redire",
+            "joli",
+            "nice",
+            "beau",
+            "magnifique",
+            "top",
+            "génial",
+            "super",
+            "merveilleux",
+            "bravo",
+            "bien",
+            "agréable",
+            "cool",
+            "excellent",
+            
+            // Négatifs
             "Nul, perte de temps",
             "Déçu, ne correspond pas à mes attentes",
             "Mauvais article, sans intérêt",
             "Je n'ai pas aimé du tout",
             "À éviter absolument",
+            "bad",
+            "jaime pas",
+            "j'aime pas",
+            "nul",
+            "horrible",
+            "mauvais",
+            "décevant",
+            "inutile",
+            "pas bon",
+            "bof",
+            "naze",
+            "affreux",
+            
+            // Neutres
             "Correct, sans plus",
             "Pas mal mais peut mieux faire",
             "Moyen, ni bon ni mauvais",
             "Bof, je m'attendais à mieux",
+            "ok",
+            "moyen",
+            "passable",
+            "quelconque",
+            "sans avis",
+            "rien de spécial",
+            "ordinaire",
         ];
 
         $labels = [
+            // Positifs (18)
             'positif', 'positif', 'positif', 'positif', 'positif',
+            'positif', 'positif', 'positif', 'positif', 'positif',
+            'positif', 'positif', 'positif', 'positif', 'positif',
+            'positif', 'positif', 'positif',
+            
+            // Négatifs (17)
             'negatif', 'negatif', 'negatif', 'negatif', 'negatif',
-            'neutre', 'neutre', 'neutre', 'neutre',
+            'negatif', 'negatif', 'negatif', 'negatif', 'negatif',
+            'negatif', 'negatif', 'negatif', 'negatif', 'negatif',
+            'negatif', 'negatif',
+            
+            // Neutres (11)
+            'neutre', 'neutre', 'neutre', 'neutre', 'neutre',
+            'neutre', 'neutre', 'neutre', 'neutre', 'neutre',
+            'neutre',
         ];
 
         $dataset = new Labeled($samples, $labels);
 
-        // Pipeline : normalisation → vectorisation → TF-IDF → classifieur
+        // Pipeline avec MultinomialNB (adapté aux données textuelles)
         $estimator = new Pipeline([
             new TextNormalizer(),
-            new WordCountVectorizer(1000, 1, 0.8, new Word()),
+            new WordCountVectorizer(2000, 1, 0.8, new Word()),
             new TfIdfTransformer(),
-        ], new GaussianNB());
+        ], new MultinomialNB());
 
         $io->section('Entraînement du pipeline');
         $estimator->train($dataset);
