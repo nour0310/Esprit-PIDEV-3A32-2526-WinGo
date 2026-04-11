@@ -797,7 +797,11 @@ if (listenButton) {
                     alert('L’audio a été reçu mais la lecture a échoué (navigateur ou format).');
                 }
             } else if (data.error) {
-                alert(data.error);
+                let msg = data.error;
+                if (data.detail) {
+                    msg += '\n\n' + data.detail;
+                }
+                alert(msg);
             } else {
                 alert('Erreur lors de la génération audio.');
             }
