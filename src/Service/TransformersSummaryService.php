@@ -27,7 +27,7 @@ class TransformersSummaryService
         }
 
         if (!\extension_loaded('ffi')) {
-            throw new \RuntimeException('L\'extension PHP FFI est requise pour le résumé IA (transformers-php). Activez-la dans php.ini.');
+            return;
         }
 
         $cacheDir = $this->projectDir . \DIRECTORY_SEPARATOR . 'var' . \DIRECTORY_SEPARATOR . 'transformers-cache';
@@ -41,6 +41,11 @@ class TransformersSummaryService
             ->apply();
 
         $this->initialized = true;
+    }
+
+    public function isAvailable(): bool
+    {
+        return \extension_loaded('ffi');
     }
 
     public function summarize(string $text, int $maxLength = 150, int $minLength = 30): ?string
