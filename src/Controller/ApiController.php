@@ -62,10 +62,10 @@ class ApiController extends AbstractController
         }
 
         return $this->json([
-            'error' => 'Résumé impossible. Démarrez Ollama (ollama serve), vérifiez OLLAMA_BASE_URL et OLLAMA_MODEL dans .env, et installez le modèle si besoin (ex. ollama pull mistral).',
+            'error' => 'Résumé impossible. Le texte soumis est peut-être trop court ou ne peut pas être analysé.',
             'detail' => $this->getParameter('kernel.debug')
-                ? 'Aucune réponse exploitable depuis Ollama (/api/generate).'
+                ? 'Aucune phrase clé n\'a pu être extraite via l\'algorithme TextRank.'
                 : null,
-        ], 502);
+        ], 500);
     }
 }
