@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Service\GoogleTranslateTtsService;
+use App\Service\TransformersSummaryService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -24,5 +25,30 @@ class ApiController extends AbstractController
         }
 
         return $this->json(['error' => 'Impossible de générer l\'audio'], 500);
+    }
+
+    #[Route('/api/summary/ai', name: 'api_summary_ai', methods: ['POST'])]
+    public function aiSummary(Request $request, TransformersSummaryService $summaryService): JsonResponse
+    {
+        if (!$summaryService->isAvailable()) {
+            return $this->json([
+                'error' => 'Résumé IA indisponible : activez l\'extension PHP FFI (php.ini : extension=ffi et ffi.enable=true).',
+            ], 503);
+        }
+
+        $data = json_decode($request->getContent(), true);
+        $text = isset($data['text']) ? (string) $data['text'] : '';
+
+        if (trim($text) === '') {
+            return $this->json(['error' => 'Texte vide'], 400);
+        }
+
+        $summary = $summaryService->summarize($text);
+
+        if ($summary !== null) {
+            return $this->json(['summary' => $summary]);
+        }
+
+        return $this->json(['error' => 'Impossible de générer le résumé'], 500);
     }
 }

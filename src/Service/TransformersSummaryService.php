@@ -64,14 +64,20 @@ class TransformersSummaryService
         try {
             $this->initialize();
 
+            if (!$this->initialized) {
+                return null;
+            }
+
             if ($this->summarizer === null) {
                 $this->summarizer = pipeline('summarization', $this->summaryModel);
             }
 
+            $minTokens = min($minLength, max(1, $maxLength - 10));
+
             $result = ($this->summarizer)(
                 $text,
                 maxNewTokens: $maxLength,
-                minNewTokens: min($minLength, $maxLength - 1),
+                minNewTokens: $minTokens,
                 doSample: false
             );
 
