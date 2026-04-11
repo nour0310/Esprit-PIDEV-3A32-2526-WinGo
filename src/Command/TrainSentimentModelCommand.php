@@ -2,7 +2,7 @@
 
 namespace App\Command;
 
-use Rubix\ML\Classifiers\KNearestNeighbors;
+use Rubix\ML\Classifiers\MultinomialNB;
 use Rubix\ML\Datasets\Labeled;
 use Rubix\ML\PersistentModel;
 use Rubix\ML\Persisters\Filesystem;
@@ -33,116 +33,66 @@ class TrainSentimentModelCommand extends Command
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $io = new SymfonyStyle($input, $output);
-        $io->title('Entraînement du modèle de sentiment (ComplementNB)');
+        $io->title('Entraînement du modèle de sentiment (MultinomialNB)');
 
-        // Corpus enrichi pour couvrir les cas courts
+        // Corpus enrichi
         $samples = [
-            // ===== POSITIFS =====
+            // POSITIFS
             "J'adore cet article, très utile",
             "Superbe expérience, merci beaucoup",
             "Excellent contenu, bravo",
             "Très intéressant, j'ai appris des choses",
             "Parfait, rien à redire",
-            "joli",
-            "jolie",
-            "nice",
-            "beau",
-            "belle",
-            "magnifique",
-            "top",
-            "génial",
-            "super",
-            "merveilleux",
-            "bravo",
-            "bien",
-            "agréable",
-            "cool",
-            "excellent",
-            "j'aime beaucoup",
-            "très bon",
-            "vraiment top",
-            "c'est génial",
-            "je suis fan",
-            "j'adore",
-            "super article",
-            "contenu de qualité",
+            "joli", "jolie", "nice", "beau", "belle", "magnifique", "top", "génial",
+            "super", "merveilleux", "bravo", "bien", "agréable", "cool", "excellent",
+            "j'aime beaucoup", "très bon", "vraiment top", "c'est génial",
 
-            // ===== NÉGATIFS =====
+            // NÉGATIFS
             "Nul, perte de temps",
             "Déçu, ne correspond pas à mes attentes",
             "Mauvais article, sans intérêt",
             "Je n'ai pas aimé du tout",
             "À éviter absolument",
-            "bad",
-            "jaime pas",
-            "j'aime pas",
-            "nul",
-            "horrible",
-            "mauvais",
-            "mauvaise",
-            "décevant",
-            "inutile",
-            "pas bon",
-            "bof",
-            "naze",
-            "affreux",
-            "c'est nul",
-            "très déçu",
-            "je déteste",
-            "vraiment mauvais",
-            "à chier",
-            "c'est de la merde",
-            "aucun intérêt",
+            "bad", "jaime pas", "j'aime pas", "nul", "horrible", "mauvais",
+            "décevant", "inutile", "pas bon", "bof", "naze", "affreux",
+            "c'est nul", "très déçu", "je déteste", "vraiment mauvais",
 
-            // ===== NEUTRES =====
+            // NEUTRES
             "Correct, sans plus",
             "Pas mal mais peut mieux faire",
             "Moyen, ni bon ni mauvais",
             "Bof, je m'attendais à mieux",
-            "ok",
-            "moyen",
-            "passable",
-            "quelconque",
-            "sans avis",
-            "rien de spécial",
-            "ordinaire",
-            "ça va",
-            "comme ci comme ça",
-            "peut mieux faire",
-            "pas terrible mais pas mauvais",
-            "je ne sais pas quoi en penser",
-            "mitigé",
-            "assez moyen",
-            "bof bof",
-            "sans plus",
-            "mouais",
-            "pourquoi pas",
+            "ok", "moyen", "passable", "quelconque", "sans avis",
+            "rien de spécial", "ordinaire", "ça va", "comme ci comme ça",
+            "pas terrible mais pas mauvais", "mitigé", "bof bof", "sans plus",
         ];
 
-        // Étiquettes correspondantes (même nombre que les échantillons)
         $labels = array_merge(
-            array_fill(0, 28, 'positif'),
-            array_fill(0, 25, 'negatif'),
-            array_fill(0, 22, 'neutre')
+            array_fill(0, 24, 'positif'),
+            array_fill(0, 20, 'negatif'),
+            array_fill(0, 18, 'neutre')
         );
 
         $dataset = new Labeled($samples, $labels);
 
-        // Pipeline avec KNearestNeighbors (compatible avec les données continues)
         $estimator = new Pipeline([
             new TextNormalizer(),
-            new WordCountVectorizer(5000, 1, 0.8, new Word()),
+            new WordCountVectorizer(3000, 1, 0.8, new Word()),
             new TfIdfTransformer(),
-        ], new KNearestNeighbors(3));
+        ], new MultinomialNB());
 
-        $io->section('Entraînement du modèle (cela peut prendre quelques secondes)...');
+        $io->section('Entraînement du modèle...');
         $estimator->train($dataset);
-        $io->success('Modèle entraîné avec succès');
+        $io->success('Modèle entraîné.');
 
+        // Sauvegarde
         $persister = new Filesystem($this->projectDir . '/var/ml/sentiment.model');
         $model = new PersistentModel($estimator, $persister);
         $model->save();
-        $io->success('Modèle sauvegardé dans var/ml/sentiment.model');
+
+        // Afficher les classes apprises pour vérification
+        $classes = $estimator->classes();
+        $io->note('Classes apprises : ' . implode(', ', $classes));
 
         return Command::SUCCESS;
     }
