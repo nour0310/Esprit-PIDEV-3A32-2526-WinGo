@@ -22,22 +22,6 @@ class CommentaireController extends AbstractController
         return $this->json(['contenu' => $commentaire->getContenu()]);
     }
 
-    #[Route('/commentaire/{id}/update', name: 'app_commentaire_update', methods: ['POST'])]
-    public function update(Request $request, Commentaire $commentaire, EntityManagerInterface $em): JsonResponse
-    {
-        if ($this->getUser() !== $commentaire->getUtilisateur() && !$this->isGranted('ROLE_ADMIN')) {
-            return $this->json(['success' => false, 'message' => 'Non autorisé'], 403);
-        }
-
-        $data = json_decode($request->getContent(), true);
-        if (isset($data['contenu'])) {
-            $commentaire->setContenu($data['contenu']);
-            $em->flush();
-            return $this->json(['success' => true, 'contenu' => $commentaire->getContenu()]);
-        }
-        return $this->json(['success' => false], 400);
-    }
-
     #[Route('/commentaire/{id}/delete', name: 'app_commentaire_delete', methods: ['POST'])]
     public function delete(Request $request, Commentaire $commentaire, EntityManagerInterface $em): Response
     {
@@ -90,3 +74,4 @@ class CommentaireController extends AbstractController
             'class' => $class,
         ]);
     }
+}
