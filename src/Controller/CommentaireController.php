@@ -66,10 +66,24 @@ class CommentaireController extends AbstractController
 
         $model = PersistentModel::load(new Filesystem($modelPath));
 
-        // Créer un dataset non étiqueté avec le texte
+        // Créer un dataset non étiqueté
         $dataset = new \Rubix\ML\Datasets\Unlabeled([$commentaire->getContenu()]);
-        $predictions = $model->predict($dataset);
-        $prediction = $predictions[0];
+        
+        // Récupérer les probabilités de chaque classe
+        $probabilities = $model->proba($dataset)[0];
+        
+        // Classes dans l'ordre d'entraînement
+        $classes = ['negatif', 'neutre', 'positif'];
+        
+        // Trouver la classe avec la probabilité max
+        $maxProb = max($probabilities);
+        $predictedIndex = array_search($maxProb, $probabilities);
+        $prediction = $classes[$predictedIndex];
+        
+        // Si la probabilité max est inférieure à 0.5, on force "neutre"
+        if ($maxProb < 0.5) {
+            $prediction = 'neutre';
+        }
 
         $labels = [
             'positif' => ['emoji' => '😊', 'text' => 'Positif', 'class' => 'success'],

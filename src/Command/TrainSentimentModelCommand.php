@@ -112,11 +112,11 @@ class TrainSentimentModelCommand extends Command
             'negatif', 'negatif', 'negatif', 'negatif', 'negatif',
             'negatif', 'negatif', 'negatif',
             
-            // Neutres (18)
+            // Neutres (19)
             'neutre', 'neutre', 'neutre', 'neutre', 'neutre',
             'neutre', 'neutre', 'neutre', 'neutre', 'neutre',
             'neutre', 'neutre', 'neutre', 'neutre', 'neutre',
-            'neutre', 'neutre', 'neutre',
+            'neutre', 'neutre', 'neutre', 'neutre',
         ];
 
         $dataset = new Labeled($samples, $labels);
