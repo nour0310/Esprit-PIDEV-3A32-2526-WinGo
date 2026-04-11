@@ -35,9 +35,9 @@ class TrainSentimentModelCommand extends Command
         $io = new SymfonyStyle($input, $output);
         $io->title('Entraînement du modèle de sentiment (MultinomialNB)');
 
-        // Corpus enrichi avec des mots courts et expressions variées
+        // Corpus équilibré avec autant de neutres que de positifs et négatifs
         $samples = [
-            // Positifs
+            // Positifs (~18 exemples)
             "J'adore cet article, très utile",
             "Superbe expérience, merci beaucoup",
             "Excellent contenu, bravo",
@@ -57,7 +57,7 @@ class TrainSentimentModelCommand extends Command
             "cool",
             "excellent",
             
-            // Négatifs
+            // Négatifs (~18 exemples)
             "Nul, perte de temps",
             "Déçu, ne correspond pas à mes attentes",
             "Mauvais article, sans intérêt",
@@ -76,7 +76,7 @@ class TrainSentimentModelCommand extends Command
             "naze",
             "affreux",
             
-            // Neutres
+            // Neutres (~18 exemples pour équilibrer)
             "Correct, sans plus",
             "Pas mal mais peut mieux faire",
             "Moyen, ni bon ni mauvais",
@@ -88,6 +88,15 @@ class TrainSentimentModelCommand extends Command
             "sans avis",
             "rien de spécial",
             "ordinaire",
+            "ça va",
+            "comme ci comme ça",
+            "peut mieux faire",
+            "pas terrible mais pas mauvais",
+            "je ne sais pas quoi en penser",
+            "mitigé",
+            "assez moyen",
+            "bof bof",
+            "sans plus",
         ];
 
         $labels = [
@@ -97,16 +106,17 @@ class TrainSentimentModelCommand extends Command
             'positif', 'positif', 'positif', 'positif', 'positif',
             'positif', 'positif', 'positif',
             
-            // Négatifs (17)
+            // Négatifs (18)
             'negatif', 'negatif', 'negatif', 'negatif', 'negatif',
             'negatif', 'negatif', 'negatif', 'negatif', 'negatif',
             'negatif', 'negatif', 'negatif', 'negatif', 'negatif',
-            'negatif', 'negatif',
+            'negatif', 'negatif', 'negatif',
             
-            // Neutres (11)
+            // Neutres (18)
             'neutre', 'neutre', 'neutre', 'neutre', 'neutre',
             'neutre', 'neutre', 'neutre', 'neutre', 'neutre',
-            'neutre',
+            'neutre', 'neutre', 'neutre', 'neutre', 'neutre',
+            'neutre', 'neutre', 'neutre',
         ];
 
         $dataset = new Labeled($samples, $labels);
