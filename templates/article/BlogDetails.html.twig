@@ -602,6 +602,14 @@
 </div>
 
 <script>
+const WINGO_API_TTS_URL = '{{ path('api_tts')|e('js') }}';
+const WINGO_API_SUMMARY_URL = '{{ path('api_summary_ai')|e('js') }}';
+const WINGO_JSON_FETCH_HEADERS = {
+    'Content-Type': 'application/json',
+    'Accept': 'application/json',
+    'X-Requested-With': 'XMLHttpRequest'
+};
+
 async function wingoReadJsonResponse(response) {
     const raw = await response.text();
     try {
@@ -714,13 +722,10 @@ if (summaryButton && summaryPanel && summaryTextEl) {
         }
 
         try {
-            const response = await fetch('/api/summary/ai', {
+            const response = await fetch(WINGO_API_SUMMARY_URL, {
                 method: 'POST',
                 credentials: 'same-origin',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-Requested-With': 'XMLHttpRequest'
-                },
+                headers: WINGO_JSON_FETCH_HEADERS,
                 body: JSON.stringify({ text: content })
             });
             const data = await wingoReadJsonResponse(response);
@@ -733,7 +738,11 @@ if (summaryButton && summaryPanel && summaryTextEl) {
                 summaryPanel.classList.add('is-visible');
                 summaryPanel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
             } else {
-                alert(data.error || 'Impossible de générer le résumé.');
+                let msg = data.error || 'Impossible de générer le résumé.';
+                if (data.detail) {
+                    msg += '\n\n' + data.detail;
+                }
+                alert(msg);
             }
         } catch (error) {
             console.error(error);
