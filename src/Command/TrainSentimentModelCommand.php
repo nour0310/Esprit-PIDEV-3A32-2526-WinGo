@@ -33,7 +33,7 @@ class TrainSentimentModelCommand extends Command
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $io = new SymfonyStyle($input, $output);
-        $io->title('Entraînement du modèle de sentiment (NaiveBayes)');
+        $io->title('Entraînement du modèle de sentiment (KNearestNeighbors)');
 
         // Corpus enrichi
         $samples = [
@@ -79,7 +79,7 @@ class TrainSentimentModelCommand extends Command
             new TextNormalizer(),
             new WordCountVectorizer(3000, 1, 0.8, new Word()),
             new TfIdfTransformer(),
-        ], new NaiveBayes());
+        ], new KNearestNeighbors(3));
 
         $io->section('Entraînement du modèle...');
         $estimator->train($dataset);
