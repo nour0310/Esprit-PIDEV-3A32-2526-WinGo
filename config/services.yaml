@@ -1,8 +1,8 @@
 parameters:
     images_directory: '%kernel.project_dir%/public/images'
-    # Modèle ONNX Hugging Face pour le résumé (ex. Xenova/distilbart-cnn-6-6 ou moussaKam/barthez si disponible en ONNX)
-    app.summary_model: '%env(default:app_summary_model_default:SUMMARY_MODEL)%'
+    # Modèle ONNX Hugging Face pour le résumé (définir SUMMARY_MODEL dans .env.local pour surcharger, ex. moussaKam/barthez)
     app_summary_model_default: 'Xenova/distilbart-cnn-6-6'
+    app.summary_model: '%env(string:default:app_summary_model_default:SUMMARY_MODEL)%'
 
 services:
     _defaults:
