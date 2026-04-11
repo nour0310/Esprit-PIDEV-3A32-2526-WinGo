@@ -2,7 +2,7 @@
 
 namespace App\Command;
 
-use Rubix\ML\Classifiers\NaiveBayes;
+use Rubix\ML\Classifiers\KNearestNeighbors;
 use Rubix\ML\Datasets\Labeled;
 use Rubix\ML\PersistentModel;
 use Rubix\ML\Persisters\Filesystem;
@@ -33,7 +33,7 @@ class TrainSentimentModelCommand extends Command
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $io = new SymfonyStyle($input, $output);
-        $io->title('Entraînement du modèle de sentiment (MultinomialNB)');
+        $io->title('Entraînement du modèle de sentiment (NaiveBayes)');
 
         // Corpus enrichi
         $samples = [
