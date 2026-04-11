@@ -11,12 +11,8 @@ $samples = [
 $labels = ['positif'];
 $dataset = new Labeled($samples, $labels);
 
-$normalizer = new TextNormalizer();
-$normalizer->fit($dataset);
-$normalizer->transform($dataset->samples());
+$dataset->apply(new TextNormalizer());
 
-$vectorizer = new WordCountVectorizer();
-$vectorizer->fit($dataset);
-$vectorizer->transform($dataset->samples());
+$dataset->apply(new WordCountVectorizer());
 
 var_dump($dataset->samples()[0]);
