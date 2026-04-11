@@ -2,55 +2,53 @@
 
 namespace App\Service;
 
-use Psr\Log\LoggerInterface;
-use Symfony\AI\Agent\AgentInterface;
-use Symfony\AI\Platform\Message\Content\Text;
-use Symfony\AI\Platform\Message\MessageBag;
-use Symfony\AI\Platform\Message\UserMessage;
+use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 class AISummaryService
 {
     public function __construct(
-        private readonly AgentInterface $agent,
-        private readonly LoggerInterface $logger,
-    ) {}
+        private readonly HttpClientInterface $client,
+        private readonly string $ollamaBaseUrl,
+        private readonly string $ollamaModel,
+    ) {
+    }
 
     public function summarize(string $text): ?string
     {
         $text = trim(strip_tags($text));
         if (mb_strlen($text) < 200) {
-            return 'Texte trop court pour un résumé.';
+            return 'Le texte est trop court pour être résumé (minimum 200 caractères).';
         }
 
         $prompt = <<<PROMPT
-Tu es un assistant qui résume des articles de blog en français.
-Résume le texte suivant en 3-4 phrases maximum, en gardant l'essentiel.
+Tu es un assistant expert en résumé de texte. Résume le texte suivant en français en 3 à 5 phrases maximum, en conservant uniquement les informations essentielles.
 
-Texte : {$text}
+Texte à résumer :
+{$text}
 PROMPT;
 
-        $result = $this->agent->call(
-            new MessageBag(new UserMessage(new Text($prompt))),
-            [
-                'temperature' => 0.3,
-                'num_predict' => 200,
-            ],
-        );
+        try {
+            $url = rtrim($this->ollamaBaseUrl, '/').'/api/generate';
 
-        $content = $result->getContent();
-        if (!\is_string($content)) {
-            $this->logger->warning('Résumé IA : contenu de réponse inattendu.', ['type' => \get_debug_type($content)]);
+            $response = $this->client->request('POST', $url, [
+                'json' => [
+                    'model' => $this->ollamaModel,
+                    'prompt' => $prompt,
+                    'stream' => false,
+                    'options' => [
+                        'temperature' => 0.3,
+                        'num_predict' => 200,
+                    ],
+                ],
+                'timeout' => 120,
+            ]);
 
-            throw new \RuntimeException('Le modèle n\'a pas renvoyé de texte exploitable.');
-        }
+            $data = $response->toArray();
+            $out = trim($data['response'] ?? '');
 
-        $content = trim($content);
-        if ($content === '') {
-            $this->logger->warning('Résumé IA : réponse vide depuis Ollama.');
-
+            return $out === '' ? null : $out;
+        } catch (\Throwable) {
             return null;
         }
-
-        return $content;
     }
 }

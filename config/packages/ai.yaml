@@ -1,9 +1,0 @@
-ai:
-    platform:
-        ollama:
-            endpoint: '%env(OLLAMA_BASE_URL)%'
-    agent:
-        default:
-            platform: 'ai.platform.ollama'
-            model: '%env(OLLAMA_MODEL)%'
-            tools: false
