@@ -6,6 +6,7 @@ use App\Entity\Article;
 use App\Entity\Commande;
 use App\Entity\Commentaire;
 use App\Form\ArticleType;
+use App\Form\CommandeAnnulationType;
 use App\Repository\ArticleRepository;
 use App\Repository\CommandeRepository;
 use App\Repository\CommentaireRepository;
@@ -298,23 +299,70 @@ class AdminController extends AbstractController
     }
 
     #[Route('/commande/{id}/livrer', name: 'admin_commande_livrer', methods: ['POST'])]
-    public function livrer(Commande $commande, EntityManagerInterface $em): Response
-    {
+    public function livrer(
+        Commande $commande,
+        EntityManagerInterface $em,
+        UtilisateurRepository $userRepo,
+        \App\Service\CommandeMailerService $commandeMailer
+    ): Response {
+        if ($commande->getStatus() !== 'en_cours') {
+            $this->addFlash('error', 'Cette commande ne peut plus être livrée.');
+            return $this->redirectToRoute('admin_commandes');
+        }
+
+        $client = $userRepo->find($commande->getIdUser());
+
+        if (!$client) {
+            $this->addFlash('error', 'Client introuvable.');
+            return $this->redirectToRoute('admin_commandes');
+        }
+
         $commande->setStatus('livree');
         $em->flush();
 
-        $this->addFlash('success', 'Commande marquée comme livrée.');
+        $commandeMailer->sendCommandeLivreeEmail($client, $commande);
+
+        $this->addFlash('success', 'Commande marquée comme livrée et email envoyé.');
 
         return $this->redirectToRoute('admin_commandes');
     }
 
+
     #[Route('/commande/{id}/annuler', name: 'admin_commande_annuler', methods: ['POST'])]
-    public function annuler(Commande $commande, EntityManagerInterface $em): Response
-    {
+    public function annuler(
+        Request $request,
+        Commande $commande,
+        EntityManagerInterface $em,
+        UtilisateurRepository $userRepo,
+        \App\Service\CommandeMailerService $commandeMailer
+    ): Response {
+        if ($commande->getStatus() !== 'en_cours') {
+            $this->addFlash('error', 'Cette commande ne peut plus être annulée.');
+            return $this->redirectToRoute('admin_commandes');
+        }
+
+        $cause = trim((string) $request->request->get('cause_annulation', ''));
+
+        if ($cause === '') {
+            $this->addFlash('error', 'Veuillez choisir ou saisir une cause d’annulation.');
+            return $this->redirectToRoute('admin_commandes');
+        }
+
+        $client = $userRepo->find($commande->getIdUser());
+
+        if (!$client) {
+            $this->addFlash('error', 'Client introuvable.');
+            return $this->redirectToRoute('admin_commandes');
+        }
+
         $commande->setStatus('annulee');
+        $commande->setCauseAnnulation($cause);
+
         $em->flush();
 
-        $this->addFlash('success', 'Commande annulée.');
+        $commandeMailer->sendCommandeAnnuleeEmail($client, $commande);
+
+        $this->addFlash('success', 'Commande annulée et email envoyé au client.');
 
         return $this->redirectToRoute('admin_commandes');
     }
