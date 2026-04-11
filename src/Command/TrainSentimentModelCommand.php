@@ -2,12 +2,12 @@
 
 namespace App\Command;
 
-use Rubix\ML\Classifiers\GaussianNB;
+use Rubix\ML\Classifiers\KNearestNeighbors;
 use Rubix\ML\Datasets\Labeled;
 use Rubix\ML\PersistentModel;
 use Rubix\ML\Persisters\Filesystem;
 use Rubix\ML\Pipeline;
-use Rubix\ML\Transformers\WordCountVectorizer;
+use Rubix\ML\Transformers\TokenHashingVectorizer;
 use Rubix\ML\Transformers\TextNormalizer;
 use Rubix\ML\Transformers\TfIdfTransformer;
 use Symfony\Component\Console\Attribute\AsCommand;
@@ -67,9 +67,9 @@ class TrainSentimentModelCommand extends Command
         $estimator = new PersistentModel(
             new Pipeline([
                 new TextNormalizer(),
-                new WordCountVectorizer(10000),
+                new TokenHashingVectorizer(100),
                 new TfIdfTransformer(),
-            ], new GaussianNB()),
+            ], new KNearestNeighbors(3)),
             new Filesystem($this->projectDir . '/var/ml/sentiment.model')
         );
 
