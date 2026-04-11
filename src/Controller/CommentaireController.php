@@ -56,60 +56,39 @@ class CommentaireController extends AbstractController
     }
 
     #[Route('/commentaire/{id}/sentiment', name: 'app_commentaire_sentiment', methods: ['GET'])]
-    public function analyzeSentiment(Commentaire $commentaire): JsonResponse
-    {
-        $contenu = trim($commentaire->getContenu());
+public function analyzeSentiment(Commentaire $commentaire): JsonResponse
+{
+    $contenu = trim($commentaire->getContenu());
 
-        // Si le commentaire est très court ou ne contient que des mentions/ponctuations
-        if (mb_strlen($contenu) < 5 || preg_match('/^@\w+$/', $contenu)) {
-            return $this->json([
-                'sentiment' => 'neutre',
-                'emoji'     => '😐',
-                'text'      => 'Neutre',
-                'class'     => 'secondary',
-            ]);
-        }
-
-        $modelPath = $this->getParameter('kernel.project_dir') . '/var/ml/sentiment.model';
-
-        if (!file_exists($modelPath)) {
-            return $this->json(['sentiment' => 'inconnu', 'label' => 'Modèle non disponible']);
-        }
-
-        $model = PersistentModel::load(new Filesystem($modelPath));
-
-        // Créer un dataset non étiqueté
-        $dataset = new \Rubix\ML\Datasets\Unlabeled([$contenu]);
-        
-        // Récupérer les probabilités de chaque classe
-        $probabilities = $model->proba($dataset)[0];
-        
-        // L'ordre des classes doit être récupéré dynamiquement
-        $classes = $model->estimator()->classes(); // ex: ['negatif', 'neutre', 'positif']
-        
-        // Trouver la classe avec la probabilité max
-        $maxProb = max($probabilities);
-        $predictedIndex = array_search($maxProb, $probabilities);
-        $prediction = $classes[$predictedIndex];
-        
-        // Seuil : si probabilité max < 0.6, on force "neutre"
-        if ($maxProb < 0.6) {
-            $prediction = 'neutre';
-        }
-
-        $labels = [
-            'positif' => ['emoji' => '😊', 'text' => 'Positif', 'class' => 'success'],
-            'negatif' => ['emoji' => '😡', 'text' => 'Négatif', 'class' => 'danger'],
-            'neutre'  => ['emoji' => '😐', 'text' => 'Neutre', 'class' => 'secondary'],
-        ];
-
-        $result = $labels[$prediction] ?? $labels['neutre'];
-
+    // Règle simple pour les mentions pures
+    if (preg_match('/^@\w+$/', $contenu)) {
         return $this->json([
-            'sentiment' => $prediction,
-            'emoji'     => $result['emoji'],
-            'text'      => $result['text'],
-            'class'     => $result['class'],
+            'sentiment' => 'neutre',
+            'emoji'     => '😐',
+            'text'      => 'Neutre',
+            'class'     => 'secondary',
         ]);
     }
+
+    $modelPath = $this->getParameter('kernel.project_dir') . '/var/ml/sentiment.model');
+    if (!file_exists($modelPath)) {
+        return $this->json(['sentiment' => 'inconnu', 'label' => 'Modèle non disponible']);
+    }
+
+    $model = PersistentModel::load(new Filesystem($modelPath));
+    $dataset = new \Rubix\ML\Datasets\Unlabeled([$contenu]);
+
+    // Prédiction directe (la plus simple)
+    $prediction = $model->predict($dataset)[0];
+
+    $labels = [
+        'positif' => ['emoji' => '😊', 'text' => 'Positif', 'class' => 'success'],
+        'negatif' => ['emoji' => '😡', 'text' => 'Négatif', 'class' => 'danger'],
+        'neutre'  => ['emoji' => '😐', 'text' => 'Neutre', 'class' => 'secondary'],
+    ];
+
+    $result = $labels[$prediction] ?? $labels['neutre'];
+
+    return $this->json(array_merge(['sentiment' => $prediction], $result));
+}
 }
