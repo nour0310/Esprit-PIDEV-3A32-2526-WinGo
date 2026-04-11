@@ -40,6 +40,7 @@ security:
         - { path: ^/blog, roles: ROLE_USER }
         - { path: ^/article, roles: ROLE_USER }
         - { path: ^/commentaire, roles: ROLE_USER }
+        - { path: ^/api/notifications, roles: ROLE_USER }
 
 when@test:
     security:

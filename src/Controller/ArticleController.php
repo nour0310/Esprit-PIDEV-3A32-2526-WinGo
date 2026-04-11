@@ -11,6 +11,7 @@ use App\Repository\ArticleRepository;
 use App\Repository\CommentaireRepository;
 use App\Repository\LikesRepository;
 use App\Repository\UtilisateurRepository;
+use App\Service\NotificationService;
 use App\Service\WeatherService;
 use Doctrine\ORM\EntityManagerInterface;
 use Knp\Component\Pager\PaginatorInterface;
@@ -183,7 +184,7 @@ class ArticleController extends AbstractController
     }
 
     #[Route('/article/{id}/like', name: 'app_article_like', methods: ['POST'])]
-    public function like(Article $article, EntityManagerInterface $em, LikesRepository $likesRepository): JsonResponse
+    public function like(Article $article, EntityManagerInterface $em, LikesRepository $likesRepository, NotificationService $notificationService): JsonResponse
     {
         /** @var \App\Entity\Utilisateur|null $user */
         $user = $this->getUser();
@@ -203,6 +204,17 @@ class ArticleController extends AbstractController
             $like->setArticleId($articleId);
             $em->persist($like);
             $em->flush();
+
+            $auteur = $article->getAuteur();
+            if ($auteur && $auteur->getId() !== null && $auteur->getId() !== $user->getId()) {
+                $notificationService->create(
+                    $auteur->getId(),
+                    $user->getId(),
+                    'like',
+                    trim($user->getPrenom() . ' ' . $user->getNom()) . ' a aimé votre article.',
+                    $this->generateUrl('app_article_show', ['id' => $articleId])
+                );
+            }
         }
 
         return new JsonResponse([
@@ -300,7 +312,8 @@ class ArticleController extends AbstractController
         LikesRepository $likesRepository,
         UtilisateurRepository $utilisateurRepository,
         PaginatorInterface $paginator,
-        WeatherService $weatherService
+        WeatherService $weatherService,
+        NotificationService $notificationService
     ): Response
     {
         $commentaire = new Commentaire();
@@ -331,6 +344,38 @@ class ArticleController extends AbstractController
 
             $em->persist($commentaire);
             $em->flush();
+
+            if ($user && $user->getId() !== null) {
+                $articleUrl = $this->generateUrl('app_article_show', ['id' => $article->getId()]);
+
+                $auteur = $article->getAuteur();
+                if ($auteur && $auteur->getId() !== null && $auteur->getId() !== $user->getId()) {
+                    $notificationService->create(
+                        $auteur->getId(),
+                        $user->getId(),
+                        'commentaire',
+                        trim($user->getPrenom() . ' ' . $user->getNom()) . ' a commenté votre article.',
+                        $articleUrl
+                    );
+                }
+
+                $parent = $commentaire->getParent();
+                $parentAuthor = $parent?->getUtilisateur();
+                if (
+                    $parentAuthor
+                    && $parentAuthor->getId() !== null
+                    && $parentAuthor->getId() !== $user->getId()
+                ) {
+                    $notificationService->create(
+                        $parentAuthor->getId(),
+                        $user->getId(),
+                        'reponse',
+                        trim($user->getPrenom() . ' ' . $user->getNom()) . ' a répondu à votre commentaire.',
+                        $articleUrl . '#comment-card-' . $parent->getId()
+                    );
+                }
+            }
+
             return $this->redirectToRoute('app_article_show', ['id' => $article->getId()]);
         }
 
