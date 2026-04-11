@@ -549,6 +549,9 @@
 				<button id="listenButton" type="button" class="btn-custom btn-secondary-outline">
 					<i class="fas fa-volume-up" style="margin-right: 8px;"></i> Écouter
 				</button>
+				<button id="summaryButton" type="button" class="btn-custom btn-secondary-outline">
+					<i class="fas fa-compress-alt" style="margin-right: 8px;"></i> Résumé IA
+				</button>
                 {% if app.user and (app.user == article.auteur or is_granted('ROLE_ADMIN')) %}
     			<a href="{{ path('app_article_edit', {id: article.id}) }}" class="btn-custom btn-primary-gradient">
     				<i class="fas fa-edit" style="margin-right: 8px;"></i> Modifier l'article
@@ -678,6 +681,55 @@ async function saveComment(commentId) {
         console.error(error);
         alert('Impossible de communiquer avec le serveur.');
     }
+}
+
+const summaryButton = document.getElementById('summaryButton');
+const summaryPanel = document.getElementById('articleSummaryPanel');
+const summaryTextEl = document.getElementById('articleSummaryText');
+if (summaryButton && summaryPanel && summaryTextEl) {
+    summaryButton.addEventListener('click', async function () {
+        const button = this;
+        const originalText = button.innerHTML;
+        button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Résumé...';
+        button.disabled = true;
+
+        const contentContainer = document.querySelector('.article-content');
+        const content = contentContainer ? contentContainer.innerText.trim() : '';
+
+        if (!content || content.length < 80) {
+            alert('Le texte est trop court pour générer un résumé.');
+            button.innerHTML = originalText;
+            button.disabled = false;
+            return;
+        }
+
+        try {
+            const response = await fetch('/api/summary/ai', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                body: JSON.stringify({ text: content })
+            });
+            const data = await response.json();
+            if (response.status === 503 && data.error) {
+                alert(data.error);
+            } else if (data.summary) {
+                summaryTextEl.textContent = data.summary;
+                summaryPanel.classList.add('is-visible');
+                summaryPanel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            } else {
+                alert(data.error || 'Impossible de générer le résumé.');
+            }
+        } catch (error) {
+            console.error(error);
+            alert('Erreur de communication avec le serveur.');
+        } finally {
+            button.innerHTML = originalText;
+            button.disabled = false;
+        }
+    });
 }
 
 const listenButton = document.getElementById('listenButton');
