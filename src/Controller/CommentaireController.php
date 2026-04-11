@@ -4,13 +4,12 @@ namespace App\Controller;
 
 use App\Entity\Commentaire;
 use Doctrine\ORM\EntityManagerInterface;
+use Sentiment\Analyzer;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
-use Rubix\ML\PersistentModel;
-use Rubix\ML\Persisters\Filesystem;
 
 class CommentaireController extends AbstractController
 {
@@ -56,70 +55,38 @@ class CommentaireController extends AbstractController
     }
 
     #[Route('/commentaire/{id}/sentiment', name: 'app_commentaire_sentiment', methods: ['GET'])]
-public function analyzeSentiment(Commentaire $commentaire): JsonResponse
-{
-    $contenu = trim($commentaire->getContenu());
-
-    // 1. Règles absolues (force brute pour les cas simples)
-    $positifsObligatoires = ['joli', 'jolie', 'nice', 'beau', 'belle', 'magnifique', 'top', 'génial', 'super', 'merveilleux', 'bravo', 'bien', 'agréable', 'cool', 'excellent'];
-    $negatifsObligatoires = ['bad', 'jaime pas', 'j\'aime pas', 'nul', 'horrible', 'mauvais', 'décevant', 'inutile', 'pas bon', 'bof', 'naze', 'affreux'];
-    $neutresObligatoires = ['ok', 'moyen', 'passable', 'quelconque', 'sans avis', 'mitigé', 'bof bof'];
-
-    $contenuLower = mb_strtolower($contenu);
-
-    foreach ($positifsObligatoires as $mot) {
-        if (str_contains($contenuLower, $mot)) {
-            return $this->json([
-                'sentiment' => 'positif',
-                'emoji'     => '😊',
-                'text'      => 'Positif',
-                'class'     => 'success',
-            ]);
+    public function analyzeSentiment(Commentaire $commentaire): JsonResponse
+    {
+        $contenu = trim($commentaire->getContenu());
+        
+        $analyzer = new Analyzer();
+        $scores = $analyzer->getSentiment($contenu);
+        
+        // $scores est un tableau comme ['pos' => 0.6, 'neg' => 0.1, 'neu' => 0.3, 'compound' => 0.7]
+        
+        $compound = $scores['compound'];
+        
+        if ($compound >= 0.05) {
+            $sentiment = 'positif';
+            $emoji = '😊';
+            $text = 'Positif';
+            $class = 'success';
+        } elseif ($compound <= -0.05) {
+            $sentiment = 'negatif';
+            $emoji = '😡';
+            $text = 'Négatif';
+            $class = 'danger';
+        } else {
+            $sentiment = 'neutre';
+            $emoji = '😐';
+            $text = 'Neutre';
+            $class = 'secondary';
         }
+        
+        return $this->json([
+            'sentiment' => $sentiment,
+            'emoji' => $emoji,
+            'text' => $text,
+            'class' => $class,
+        ]);
     }
-    foreach ($negatifsObligatoires as $mot) {
-        if (str_contains($contenuLower, $mot)) {
-            return $this->json([
-                'sentiment' => 'negatif',
-                'emoji'     => '😡',
-                'text'      => 'Négatif',
-                'class'     => 'danger',
-            ]);
-        }
-    }
-    foreach ($neutresObligatoires as $mot) {
-        if (str_contains($contenuLower, $mot)) {
-            return $this->json([
-                'sentiment' => 'neutre',
-                'emoji'     => '😐',
-                'text'      => 'Neutre',
-                'class'     => 'secondary',
-            ]);
-        }
-    }
-
-    // Mentions pures = neutre
-    if (preg_match('/^@\w+$/', $contenu)) {
-        return $this->json(['sentiment' => 'neutre', 'emoji' => '😐', 'text' => 'Neutre', 'class' => 'secondary']);
-    }
-
-    // 2. Modèle ML
-    $modelPath = $this->getParameter('kernel.project_dir') . '/var/ml/sentiment.model';
-    if (!file_exists($modelPath)) {
-        return $this->json(['sentiment' => 'inconnu', 'label' => 'Modèle non disponible']);
-    }
-
-    $model = PersistentModel::load(new Filesystem($modelPath));
-    $dataset = new \Rubix\ML\Datasets\Unlabeled([$contenu]);
-    $prediction = $model->predict($dataset)[0];
-
-    $labels = [
-        'positif' => ['emoji' => '😊', 'text' => 'Positif', 'class' => 'success'],
-        'negatif' => ['emoji' => '😡', 'text' => 'Négatif', 'class' => 'danger'],
-        'neutre'  => ['emoji' => '😐', 'text' => 'Neutre', 'class' => 'secondary'],
-    ];
-    $result = $labels[$prediction] ?? $labels['neutre'];
-
-    return $this->json(array_merge(['sentiment' => $prediction], $result));
-}
-}
