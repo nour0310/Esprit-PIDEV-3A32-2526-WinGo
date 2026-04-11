@@ -12,7 +12,7 @@ class TransformersSummaryService
     private bool $initialized = false;
 
     /** @var object|null pipeline instance (SummarizationPipeline) */
-    private mixed $summarizer = null;
+    private ?object $summarizer = null;
 
     public function __construct(
         private readonly string $projectDir,
