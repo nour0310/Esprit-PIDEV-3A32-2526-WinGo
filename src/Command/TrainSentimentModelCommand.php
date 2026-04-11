@@ -2,7 +2,7 @@
 
 namespace App\Command;
 
-use Rubix\ML\Classifiers\NaiveBayes;
+use Rubix\ML\Classifiers\KNearestNeighbors;
 use Rubix\ML\Datasets\Labeled;
 use Rubix\ML\PersistentModel;
 use Rubix\ML\Persisters\Filesystem;
@@ -111,12 +111,12 @@ class TrainSentimentModelCommand extends Command
 
         $dataset = new Labeled($samples, $labels);
 
-        // Pipeline avec MultinomialNB (adapté aux données textuelles)
+        // Pipeline avec KNearestNeighbors (compatible avec les données continues)
         $estimator = new Pipeline([
             new TextNormalizer(),
             new WordCountVectorizer(2000, 1, 0.8, new Word()),
             new TfIdfTransformer(),
-        ], new MultinomialNB());
+        ], new KNearestNeighbors(3));
 
         $io->section('Entraînement du pipeline');
         $estimator->train($dataset);
