@@ -65,7 +65,7 @@ class AdminController extends AbstractController
             'total_commentaires'  => $totalCommentaires,
             'recent_users'        => $userRepo->findBy([], ['id' => 'DESC'], 5),
             'recent_reclamations' => $reclamationRepo->findBy([], ['id' => 'DESC'], 5),
-            'region_stats'        => $regionStats, // Statistiques par région
+            'region_stats'        => $regionStats,
         ]);
     }
 
@@ -105,7 +105,7 @@ class AdminController extends AbstractController
             'total_commentaires'  => $totalCommentaires,
             'recent_users'        => $userRepo->findBy([], ['id' => 'DESC'], 5),
             'recent_reclamations' => $reclamationRepo->findBy([], ['id' => 'DESC'], 5),
-            'region_stats'        => $regionStats, // Statistiques par région
+            'region_stats'        => $regionStats,
         ]);
     }
 
@@ -119,16 +119,14 @@ class AdminController extends AbstractController
 
     #[Route('/articles', name: 'admin_articles')]
     public function articles(
-        ArticleRepository $repo, 
+        ArticleRepository $repo,
         CommentaireRepository $commentRepo,
         Request $request,
         EntityManagerInterface $em
-    ): Response
-    {
+    ): Response {
         $search = $request->query->get('search', '');
         
         if ($search) {
-            // Recherche par DQL sur le titre et le contenu
             $query = $em->createQuery("
                 SELECT a 
                 FROM App\Entity\Article a 
@@ -144,15 +142,14 @@ class AdminController extends AbstractController
 
         $totalCommentaires = $commentRepo->count([]);
         
-        // Articles par mois (6 derniers mois)
+        // Articles par mois (6 derniers mois) – corrigé sans DATE_FORMAT
         $articlesParMois = $em->createQuery("
-            SELECT DATE_FORMAT(a.datePublication, '%Y-%m') as mois, COUNT(a.id) as nb
+            SELECT CONCAT(YEAR(a.datePublication), '-', LPAD(MONTH(a.datePublication), 2, '0')) as mois, COUNT(a.id) as nb
             FROM App\Entity\Article a
             WHERE a.datePublication >= :date
             GROUP BY mois
             ORDER BY mois ASC
-        ")->setParameter('date', new \DateTime('-6 months'))
-        ->getResult();
+        ")->setParameter('date', new \DateTime('-6 months'))->getResult();
 
         // Articles par catégorie
         $articlesParCategorie = $em->createQuery("
@@ -162,25 +159,23 @@ class AdminController extends AbstractController
             GROUP BY a.categorie
         ")->getResult();
 
-        // Commentaires par mois (6 derniers mois)
+        // Commentaires par mois (6 derniers mois) – corrigé
         $commentairesParMois = $em->createQuery("
-            SELECT DATE_FORMAT(c.dateCommentaire, '%Y-%m') as mois, COUNT(c.id) as nb
+            SELECT CONCAT(YEAR(c.dateCommentaire), '-', LPAD(MONTH(c.dateCommentaire), 2, '0')) as mois, COUNT(c.id) as nb
             FROM App\Entity\Commentaire c
             WHERE c.dateCommentaire >= :date
             GROUP BY mois
             ORDER BY mois ASC
-        ")->setParameter('date', new \DateTime('-6 months'))
-        ->getResult();
+        ")->setParameter('date', new \DateTime('-6 months'))->getResult();
 
-        // Likes par mois (6 derniers mois)
+        // Likes par mois (6 derniers mois) – corrigé
         $likesParMois = $em->createQuery("
-            SELECT DATE_FORMAT(l.dateLike, '%Y-%m') as mois, COUNT(l.id) as nb
+            SELECT CONCAT(YEAR(l.dateLike), '-', LPAD(MONTH(l.dateLike), 2, '0')) as mois, COUNT(l.id) as nb
             FROM App\Entity\Likes l
             WHERE l.dateLike >= :date
             GROUP BY mois
             ORDER BY mois ASC
-        ")->setParameter('date', new \DateTime('-6 months'))
-        ->getResult();
+        ")->setParameter('date', new \DateTime('-6 months'))->getResult();
 
         // Statistiques par région
         $regionStats = $em->createQuery("
@@ -209,7 +204,6 @@ class AdminController extends AbstractController
             'article_top'          => $articleMaxComs,
             'search'               => $search,
             'region_stats'         => $regionStats,
-            // Données pour les graphiques
             'articlesParMois'      => $articlesParMois,
             'articlesParCategorie' => $articlesParCategorie,
             'commentairesParMois'  => $commentairesParMois,
@@ -219,16 +213,14 @@ class AdminController extends AbstractController
 
     #[Route('/articles-with-charts', name: 'admin_articles_with_charts')]
     public function articlesWithCharts(
-        ArticleRepository $repo, 
+        ArticleRepository $repo,
         CommentaireRepository $commentRepo,
         Request $request,
         EntityManagerInterface $em
-    ): Response
-    {
+    ): Response {
         $search = $request->query->get('search', '');
         
         if ($search) {
-            // Recherche par DQL sur le titre et le contenu
             $query = $em->createQuery("
                 SELECT a 
                 FROM App\Entity\Article a 
@@ -244,15 +236,14 @@ class AdminController extends AbstractController
 
         $totalCommentaires = $commentRepo->count([]);
         
-        // Articles par mois (6 derniers mois)
+        // Articles par mois (6 derniers mois) – corrigé
         $articlesParMois = $em->createQuery("
-            SELECT DATE_FORMAT(a.datePublication, '%Y-%m') as mois, COUNT(a.id) as nb
+            SELECT CONCAT(YEAR(a.datePublication), '-', LPAD(MONTH(a.datePublication), 2, '0')) as mois, COUNT(a.id) as nb
             FROM App\Entity\Article a
             WHERE a.datePublication >= :date
             GROUP BY mois
             ORDER BY mois ASC
-        ")->setParameter('date', new \DateTime('-6 months'))
-        ->getResult();
+        ")->setParameter('date', new \DateTime('-6 months'))->getResult();
 
         // Articles par catégorie
         $articlesParCategorie = $em->createQuery("
@@ -262,25 +253,23 @@ class AdminController extends AbstractController
             GROUP BY a.categorie
         ")->getResult();
 
-        // Commentaires par mois (6 derniers mois)
+        // Commentaires par mois (6 derniers mois) – corrigé
         $commentairesParMois = $em->createQuery("
-            SELECT DATE_FORMAT(c.dateCommentaire, '%Y-%m') as mois, COUNT(c.id) as nb
+            SELECT CONCAT(YEAR(c.dateCommentaire), '-', LPAD(MONTH(c.dateCommentaire), 2, '0')) as mois, COUNT(c.id) as nb
             FROM App\Entity\Commentaire c
             WHERE c.dateCommentaire >= :date
             GROUP BY mois
             ORDER BY mois ASC
-        ")->setParameter('date', new \DateTime('-6 months'))
-        ->getResult();
+        ")->setParameter('date', new \DateTime('-6 months'))->getResult();
 
-        // Likes par mois (6 derniers mois)
+        // Likes par mois (6 derniers mois) – corrigé
         $likesParMois = $em->createQuery("
-            SELECT DATE_FORMAT(l.dateLike, '%Y-%m') as mois, COUNT(l.id) as nb
+            SELECT CONCAT(YEAR(l.dateLike), '-', LPAD(MONTH(l.dateLike), 2, '0')) as mois, COUNT(l.id) as nb
             FROM App\Entity\Likes l
             WHERE l.dateLike >= :date
             GROUP BY mois
             ORDER BY mois ASC
-        ")->setParameter('date', new \DateTime('-6 months'))
-        ->getResult();
+        ")->setParameter('date', new \DateTime('-6 months'))->getResult();
 
         // Statistiques par région
         $regionStats = $em->createQuery("
@@ -309,7 +298,6 @@ class AdminController extends AbstractController
             'article_top'          => $articleMaxComs,
             'search'               => $search,
             'region_stats'         => $regionStats,
-            // Données pour les graphiques
             'articlesParMois'      => $articlesParMois,
             'articlesParCategorie' => $articlesParCategorie,
             'commentairesParMois'  => $commentairesParMois,
@@ -450,25 +438,21 @@ class AdminController extends AbstractController
         ]);
     }
 
-    // src/Controller/AdminController.php
+    #[Route('/reservations', name: 'admin_reservations')]
+    public function reservations(ReservationRepository $repo, Request $request): Response
+    {
+        $searchTerm = $request->query->get('search');
+        $sortBy = $request->query->get('sort');
 
-#[Route('/reservations', name: 'admin_reservations')]
-public function reservations(ReservationRepository $repo, Request $request): Response
-{
-    // 1. Capture the data from the form
-    $searchTerm = $request->query->get('search');
-    $sortBy = $request->query->get('sort');
+        $list = $repo->searchAndSortReservations($searchTerm, $sortBy);
 
-    // 2. Call the search method
-    $list = $repo->searchAndSortReservations($searchTerm, $sortBy);
-
-    return $this->render('admin/reservations.html.twig', [
-        'list'          => $list,          // Used for your table loop
-        'reservations'  => $list,          // FIX: This solves the "Variable reservations does not exist" error
-        'searchTerm'    => $searchTerm, 
-        'currentSort'   => $sortBy
-    ]);
-}
+        return $this->render('admin/reservations.html.twig', [
+            'list'          => $list,
+            'reservations'  => $list,
+            'searchTerm'    => $searchTerm,
+            'currentSort'   => $sortBy
+        ]);
+    }
 
     #[Route('/transports', name: 'admin_transports')]
     public function transports(TransportRepository $repo): Response
