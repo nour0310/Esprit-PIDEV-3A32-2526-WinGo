@@ -57,9 +57,30 @@ class AdminController extends AbstractController
     }
 
     #[Route('/articles', name: 'admin_articles')]
-    public function articles(ArticleRepository $repo, CommentaireRepository $commentRepo): Response
+    public function articles(
+        ArticleRepository $repo, 
+        CommentaireRepository $commentRepo,
+        Request $request,
+        EntityManagerInterface $em
+    ): Response
     {
-        $articles = $repo->findBy([], ['id' => 'DESC']);
+        $search = $request->query->get('search', '');
+        
+        if ($search) {
+            // Recherche par DQL sur le titre et le contenu
+            $query = $em->createQuery("
+                SELECT a 
+                FROM App\Entity\Article a 
+                WHERE a.titre LIKE :search 
+                OR a.contenu LIKE :search 
+                ORDER BY a.id DESC
+            ");
+            $query->setParameter('search', '%' . $search . '%');
+            $articles = $query->getResult();
+        } else {
+            $articles = $repo->findBy([], ['id' => 'DESC']);
+        }
+        
         $totalCommentaires = $commentRepo->count([]);
         
         $articleMaxComs = null;
@@ -77,6 +98,7 @@ class AdminController extends AbstractController
             'total_articles' => count($articles),
             'total_commentaires' => $totalCommentaires,
             'article_top' => $articleMaxComs,
+            'search' => $search,
         ]);
     }
 
