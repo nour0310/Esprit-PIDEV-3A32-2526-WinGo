@@ -217,6 +217,106 @@ class AdminController extends AbstractController
         ]);
     }
 
+    #[Route('/articles-with-charts', name: 'admin_articles_with_charts')]
+    public function articlesWithCharts(
+        ArticleRepository $repo, 
+        CommentaireRepository $commentRepo,
+        Request $request,
+        EntityManagerInterface $em
+    ): Response
+    {
+        $search = $request->query->get('search', '');
+        
+        if ($search) {
+            // Recherche par DQL sur le titre et le contenu
+            $query = $em->createQuery("
+                SELECT a 
+                FROM App\Entity\Article a 
+                WHERE a.titre LIKE :search 
+                OR a.contenu LIKE :search 
+                ORDER BY a.id DESC
+            ");
+            $query->setParameter('search', '%' . $search . '%');
+            $articles = $query->getResult();
+        } else {
+            $articles = $repo->findBy([], ['id' => 'DESC']);
+        }
+
+        $totalCommentaires = $commentRepo->count([]);
+        
+        // Articles par mois (6 derniers mois)
+        $articlesParMois = $em->createQuery("
+            SELECT DATE_FORMAT(a.datePublication, '%Y-%m') as mois, COUNT(a.id) as nb
+            FROM App\Entity\Article a
+            WHERE a.datePublication >= :date
+            GROUP BY mois
+            ORDER BY mois ASC
+        ")->setParameter('date', new \DateTime('-6 months'))
+        ->getResult();
+
+        // Articles par catégorie
+        $articlesParCategorie = $em->createQuery("
+            SELECT a.categorie, COUNT(a.id) as nb
+            FROM App\Entity\Article a
+            WHERE a.categorie IS NOT NULL AND a.categorie != ''
+            GROUP BY a.categorie
+        ")->getResult();
+
+        // Commentaires par mois (6 derniers mois)
+        $commentairesParMois = $em->createQuery("
+            SELECT DATE_FORMAT(c.dateCommentaire, '%Y-%m') as mois, COUNT(c.id) as nb
+            FROM App\Entity\Commentaire c
+            WHERE c.dateCommentaire >= :date
+            GROUP BY mois
+            ORDER BY mois ASC
+        ")->setParameter('date', new \DateTime('-6 months'))
+        ->getResult();
+
+        // Likes par mois (6 derniers mois)
+        $likesParMois = $em->createQuery("
+            SELECT DATE_FORMAT(l.dateLike, '%Y-%m') as mois, COUNT(l.id) as nb
+            FROM App\Entity\Likes l
+            WHERE l.dateLike >= :date
+            GROUP BY mois
+            ORDER BY mois ASC
+        ")->setParameter('date', new \DateTime('-6 months'))
+        ->getResult();
+
+        // Statistiques par région
+        $regionStats = $em->createQuery("
+            SELECT a.region, COUNT(a.id) as count
+            FROM App\Entity\Article a
+            WHERE a.region IS NOT NULL AND a.region != ''
+            GROUP BY a.region
+            ORDER BY count DESC
+        ")->getResult();
+        
+        // Article avec le plus de commentaires
+        $articleMaxComs = null;
+        $maxComs = -1;
+        foreach ($articles as $a) {
+            $count = count($a->getCommentaires());
+            if ($count > $maxComs) {
+                $maxComs = $count;
+                $articleMaxComs = $a;
+            }
+        }
+
+        return $this->render('admin/articles_with_charts.html.twig', [
+            'articles'             => $articles,
+            'total_articles'       => count($articles),
+            'total_commentaires'   => $totalCommentaires,
+            'article_top'          => $articleMaxComs,
+            'search'               => $search,
+            'region_stats'         => $regionStats,
+            // Données pour les graphiques
+            'articlesParMois'      => $articlesParMois,
+            'articlesParCategorie' => $articlesParCategorie,
+            'commentairesParMois'  => $commentairesParMois,
+            'likesParMois'         => $likesParMois,
+        ]);
+    }
+
     #[Route('/article/{id}/delete', name: 'admin_article_delete', methods: ['POST'])]
     public function deleteArticle(Request $request, Article $article, EntityManagerInterface $em): Response
     {
