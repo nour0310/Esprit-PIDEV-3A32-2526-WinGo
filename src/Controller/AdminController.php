@@ -83,6 +83,15 @@ class AdminController extends AbstractController
         
         $totalCommentaires = $commentRepo->count([]);
         
+        // Statistiques par région
+        $regionStats = $em->createQuery("
+            SELECT a.region, COUNT(a.id) as count
+            FROM App\Entity\Article a
+            WHERE a.region IS NOT NULL AND a.region != ''
+            GROUP BY a.region
+            ORDER BY count DESC
+        ")->getResult();
+        
         $articleMaxComs = null;
         $maxComs = -1;
         foreach ($articles as $a) {
@@ -99,6 +108,7 @@ class AdminController extends AbstractController
             'total_commentaires' => $totalCommentaires,
             'article_top' => $articleMaxComs,
             'search' => $search,
+            'region_stats' => $regionStats,
         ]);
     }
 
