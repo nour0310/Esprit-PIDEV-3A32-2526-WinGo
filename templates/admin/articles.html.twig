@@ -6,7 +6,7 @@
 {% block stylesheets %}
     {{ parent() }}
     <style>
-        /* Styles existants */
+        /* Cartes statistiques */
         .stats-container {
             display: flex;
             gap: 20px;
@@ -31,6 +31,8 @@
         }
         .stat-info h3 { margin: 0; font-size: 1.5rem; color: #333; }
         .stat-info p { margin: 0; color: #777; font-size: 0.9rem; }
+
+        /* Boutons d'action */
         .action-btn {
             display: inline-flex;
             align-items: center;
@@ -53,24 +55,24 @@
         .btn-edit:hover { background: #e0a800; }
         .btn-comments:hover { background: #5a32a3; }
         .btn-delete:hover { background: #c82333; }
+
+        /* Barre de recherche */
         .search-container {
             margin-bottom: 20px;
             display: flex;
-            justify-content: space-between;
+            justify-content: flex-end;
             align-items: center;
         }
         .search-form {
             display: flex;
             gap: 10px;
-            flex: 1;
-            max-width: 400px;
         }
         .search-input {
-            flex: 1;
             padding: 8px 12px;
             border: 1px solid #ddd;
             border-radius: 6px;
             font-size: 14px;
+            min-width: 280px;
         }
         .search-btn {
             padding: 8px 16px;
@@ -81,14 +83,14 @@
             cursor: pointer;
             transition: background 0.3s;
         }
-        .search-btn:hover {
-            background: #e89e0c;
-        }
+        .search-btn:hover { background: #e89e0c; }
         .search-results {
             color: #666;
             font-size: 14px;
-            margin-left: 10px;
+            margin-left: 15px;
         }
+
+        /* Tableau */
         .data_card {
             background: #fff;
             border-radius: 14px;
@@ -129,14 +131,10 @@
             font-size: 14px;
             color: #444;
         }
-        tr:last-child td {
-            border-bottom: none;
-        }
-        tr:hover td {
-            background: #fafbff;
-        }
+        tr:last-child td { border-bottom: none; }
+        tr:hover td { background: #fafbff; }
 
-        /* 🆕 Styles pour les graphiques */
+        /* Graphiques */
         .stats-grid {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
@@ -165,7 +163,7 @@
 <div class="container-fluid">
     <h1>Gestion des Articles</h1>
 
-    {# 🆕 Section Graphiques Statistiques #}
+    {# Graphiques statistiques #}
     <div class="stats-grid">
         <div class="chart-card">
             <div class="chart-title">📅 Articles par mois</div>
@@ -187,7 +185,7 @@
         </div>
     </div>
 
-    {# Cartes statistiques existantes #}
+    {# Cartes statistiques #}
     <div class="stats-container">
         <div class="stat-card">
             <i class="fa fa-newspaper-o stat-icon"></i>
@@ -217,17 +215,12 @@
         </div>
     </div>
 
-    {# Formulaire de recherche #}
+    {# Barre de recherche à droite #}
     <div class="search-container">
         <form method="GET" class="search-form">
-            <input 
-                type="text" 
-                name="search" 
-                class="search-input" 
-                placeholder="Rechercher par titre ou contenu..." 
-                value="{{ search|default('') }}"
-                autocomplete="off"
-            >
+            <input type="text" name="search" class="search-input" 
+                   placeholder="Rechercher par titre ou contenu..." 
+                   value="{{ search|default('') }}" autocomplete="off">
             <button type="submit" class="search-btn">
                 <i class="fa fa-search"></i> Rechercher
             </button>
@@ -270,16 +263,17 @@
                     </td>
                     <td>{{ article.datePublication ? article.datePublication|date('d/m/Y H:i') : '-' }}</td>
                     <td style="display: flex; gap: 5px;">
-                        <a href="{{ path('admin_article_show', {id: article.id}) }}" class="action-btn btn-view" title="Voir l'article">
+                        <a href="{{ path('admin_article_show', {id: article.id}) }}" class="action-btn btn-view" title="Voir">
                             <i class="fa fa-eye"></i>
                         </a>
                         <a href="{{ path('admin_article_edit', {id: article.id}) }}" class="action-btn btn-edit" title="Modifier">
                             <i class="fa fa-pencil"></i>
                         </a>
-                        <a href="{{ path('admin_article_commentaires', {id: article.id}) }}" class="action-btn btn-comments" title="Gérer les commentaires">
+                        <a href="{{ path('admin_article_commentaires', {id: article.id}) }}" class="action-btn btn-comments" title="Commentaires">
                             <i class="fa fa-comments"></i>
                         </a>
-                        <form method="post" action="{{ path('admin_article_delete', {id: article.id}) }}" style="margin: 0;" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer cet article et tous ses commentaires ?');">
+                        <form method="post" action="{{ path('admin_article_delete', {id: article.id}) }}" style="margin: 0;"
+                              onsubmit="return confirm('Supprimer cet article et tous ses commentaires ?');">
                             <input type="hidden" name="_token" value="{{ csrf_token('delete_admin' ~ article.id) }}">
                             <button type="submit" class="action-btn btn-delete" title="Supprimer">
                                 <i class="fa fa-trash"></i>
@@ -301,9 +295,8 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // Graphique 1 : Articles par mois
-            const articlesCtx = document.getElementById('articlesChart').getContext('2d');
-            new Chart(articlesCtx, {
+            // Articles par mois
+            new Chart(document.getElementById('articlesChart').getContext('2d'), {
                 type: 'bar',
                 data: {
                     labels: [{% for item in articlesParMois %}'{{ item.mois }}',{% endfor %}],
@@ -321,9 +314,8 @@
                 }
             });
 
-            // Graphique 2 : Catégories (camembert)
-            const catCtx = document.getElementById('categoriesChart').getContext('2d');
-            new Chart(catCtx, {
+            // Catégories (camembert)
+            new Chart(document.getElementById('categoriesChart').getContext('2d'), {
                 type: 'pie',
                 data: {
                     labels: [{% for item in articlesParCategorie %}'{{ item.categorie }}',{% endfor %}],
@@ -339,15 +331,12 @@
                 }
             });
 
-            // Graphique 3 : Évolution commentaires/likes
-            const evoCtx = document.getElementById('evolutionChart').getContext('2d');
-            
+            // Évolution commentaires/likes
             const commMap = { {% for item in commentairesParMois %}'{{ item.mois }}': {{ item.nb }},{% endfor %} };
             const likeMap = { {% for item in likesParMois %}'{{ item.mois }}': {{ item.nb }},{% endfor %} };
-            
             const allMonths = [...new Set([...Object.keys(commMap), ...Object.keys(likeMap)])].sort();
             
-            new Chart(evoCtx, {
+            new Chart(document.getElementById('evolutionChart').getContext('2d'), {
                 type: 'line',
                 data: {
                     labels: allMonths,
