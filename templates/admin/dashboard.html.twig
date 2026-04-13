@@ -4,6 +4,38 @@
 {% block page_title %}Tableau de bord{% endblock %}
 
 {% block content %}
+<style>
+.stat_icon.green { background: linear-gradient(135deg,#28a745,#20c997); }
+.region-stat-item {
+    background: #fff;
+    border-radius: 8px;
+    padding: 15px;
+    text-align: center;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    transition: transform 0.3s;
+}
+.region-stat-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+}
+.region-stat-name {
+    font-weight: 600;
+    color: #333;
+    font-size: 0.9rem;
+    margin-bottom: 8px;
+    text-transform: capitalize;
+}
+.region-stat-count {
+    background: #fa9e1b;
+    color: white;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: bold;
+    display: inline-block;
+}
+</style>
+
 <!-- Stats -->
 <div class="row mb-4">
     <div class="col-lg-3 col-md-6 mb-3">
@@ -39,6 +71,44 @@
             <div>
                 <div class="stat_num">{{ total_reclamations }}</div>
                 <div class="stat_label">Réclamations</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-3 col-md-6 mb-3">
+        <div class="stat_card">
+            <div class="stat_icon green"><i class="fa fa-comments"></i></div>
+            <div>
+                <div class="stat_num">{{ total_commentaires }}</div>
+                <div class="stat_label">Commentaires</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Statistiques Blog & Commentaires par Région -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="data_card">
+            <div class="data_card_header">
+                <div class="data_card_title"><i class="fa fa-map-marker" style="color:#fa9e1b"></i> Statistiques Blog par Région</div>
+            </div>
+            <div style="padding: 20px;">
+                {% if region_stats %}
+                    <div class="row">
+                        {% for stat in region_stats %}
+                        <div class="col-md-3 col-sm-6 mb-3">
+                            <div class="region-stat-item">
+                                <div class="region-stat-name">{{ stat.region|default('Non spécifiée') }}</div>
+                                <div class="region-stat-count">{{ stat.count }} articles</div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div style="text-align:center; color:#999; font-style:italic; padding:30px;">
+                        <i class="fa fa-info-circle"></i> Aucune statistique de région disponible
+                    </div>
+                {% endif %}
             </div>
         </div>
     </div>
