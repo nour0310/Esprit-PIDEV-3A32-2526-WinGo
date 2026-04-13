@@ -141,9 +141,47 @@ class AdminController extends AbstractController
         } else {
             $articles = $repo->findBy([], ['id' => 'DESC']);
         }
-        
+
         $totalCommentaires = $commentRepo->count([]);
         
+        // Articles par mois (6 derniers mois)
+        $articlesParMois = $em->createQuery("
+            SELECT DATE_FORMAT(a.datePublication, '%Y-%m') as mois, COUNT(a.id) as nb
+            FROM App\Entity\Article a
+            WHERE a.datePublication >= :date
+            GROUP BY mois
+            ORDER BY mois ASC
+        ")->setParameter('date', new \DateTime('-6 months'))
+        ->getResult();
+
+        // Articles par catégorie
+        $articlesParCategorie = $em->createQuery("
+            SELECT a.categorie, COUNT(a.id) as nb
+            FROM App\Entity\Article a
+            WHERE a.categorie IS NOT NULL AND a.categorie != ''
+            GROUP BY a.categorie
+        ")->getResult();
+
+        // Commentaires par mois (6 derniers mois)
+        $commentairesParMois = $em->createQuery("
+            SELECT DATE_FORMAT(c.dateCommentaire, '%Y-%m') as mois, COUNT(c.id) as nb
+            FROM App\Entity\Commentaire c
+            WHERE c.dateCommentaire >= :date
+            GROUP BY mois
+            ORDER BY mois ASC
+        ")->setParameter('date', new \DateTime('-6 months'))
+        ->getResult();
+
+        // Likes par mois (6 derniers mois)
+        $likesParMois = $em->createQuery("
+            SELECT DATE_FORMAT(l.dateLike, '%Y-%m') as mois, COUNT(l.id) as nb
+            FROM App\Entity\Likes l
+            WHERE l.dateLike >= :date
+            GROUP BY mois
+            ORDER BY mois ASC
+        ")->setParameter('date', new \DateTime('-6 months'))
+        ->getResult();
+
         // Statistiques par région
         $regionStats = $em->createQuery("
             SELECT a.region, COUNT(a.id) as count
@@ -165,12 +203,17 @@ class AdminController extends AbstractController
         }
 
         return $this->render('admin/articles.html.twig', [
-            'articles' => $articles,
-            'total_articles' => count($articles),
-            'total_commentaires' => $totalCommentaires,
-            'article_top' => $articleMaxComs,
-            'search' => $search,
-            'region_stats' => $regionStats,
+            'articles'             => $articles,
+            'total_articles'       => count($articles),
+            'total_commentaires'   => $totalCommentaires,
+            'article_top'          => $articleMaxComs,
+            'search'               => $search,
+            'region_stats'         => $regionStats,
+            // Données pour les graphiques
+            'articlesParMois'      => $articlesParMois,
+            'articlesParCategorie' => $articlesParCategorie,
+            'commentairesParMois'  => $commentairesParMois,
+            'likesParMois'         => $likesParMois,
         ]);
     }
 
