@@ -39,15 +39,6 @@ class AdminController extends AbstractController
         CommentaireRepository $commentRepo,
         EntityManagerInterface $em
     ): Response {
-        // Statistiques par région pour les articles
-        $regionStats = $em->createQuery("
-            SELECT a.region, COUNT(a.id) as count
-            FROM App\Entity\Article a
-            WHERE a.region IS NOT NULL AND a.region != ''
-            GROUP BY a.region
-            ORDER BY count DESC
-        ")->getResult();
-        
         // Statistiques générales
         $totalArticles = count($articleRepo->findAll());
         $totalUsers = count($userRepo->findAll());
@@ -55,7 +46,7 @@ class AdminController extends AbstractController
         $totalReservations = count($reservationRepo->findAll());
         $totalReclamations = count($reclamationRepo->findAll());
         $totalCommentaires = count($commentRepo->findAll());
-        
+
         return $this->render('admin/dashboard.html.twig', [
             'total_users'         => $totalUsers,
             'total_articles'      => $totalArticles,
@@ -65,7 +56,6 @@ class AdminController extends AbstractController
             'total_commentaires'  => $totalCommentaires,
             'recent_users'        => $userRepo->findBy([], ['id' => 'DESC'], 5),
             'recent_reclamations' => $reclamationRepo->findBy([], ['id' => 'DESC'], 5),
-            'region_stats'        => $regionStats,
         ]);
     }
 
@@ -79,15 +69,6 @@ class AdminController extends AbstractController
         CommentaireRepository $commentRepo,
         EntityManagerInterface $em
     ): Response {
-        // Statistiques par région pour les articles
-        $regionStats = $em->createQuery("
-            SELECT a.region, COUNT(a.id) as count
-            FROM App\Entity\Article a
-            WHERE a.region IS NOT NULL AND a.region != ''
-            GROUP BY a.region
-            ORDER BY count DESC
-        ")->getResult();
-        
         // Statistiques générales
         $totalArticles = count($articleRepo->findAll());
         $totalUsers = count($userRepo->findAll());
@@ -95,7 +76,7 @@ class AdminController extends AbstractController
         $totalReservations = count($reservationRepo->findAll());
         $totalReclamations = count($reclamationRepo->findAll());
         $totalCommentaires = count($commentRepo->findAll());
-        
+
         return $this->render('admin/dashboard_modern.html.twig', [
             'total_users'         => $totalUsers,
             'total_articles'      => $totalArticles,
@@ -105,7 +86,6 @@ class AdminController extends AbstractController
             'total_commentaires'  => $totalCommentaires,
             'recent_users'        => $userRepo->findBy([], ['id' => 'DESC'], 5),
             'recent_reclamations' => $reclamationRepo->findBy([], ['id' => 'DESC'], 5),
-            'region_stats'        => $regionStats,
         ]);
     }
 
@@ -178,15 +158,6 @@ class AdminController extends AbstractController
             ORDER BY mois ASC
         ", ['date' => (new \DateTime('-6 months'))->format('Y-m-d H:i:s')])->fetchAllAssociative();
 
-        // Statistiques par région – SQL natif
-        $regionStats = $connection->executeQuery("
-            SELECT a.region, COUNT(a.id) as count
-            FROM article a
-            WHERE a.region IS NOT NULL AND a.region != ''
-            GROUP BY a.region
-            ORDER BY count DESC
-        ")->fetchAllAssociative();
-
         // Article avec le plus de commentaires
         $articleMaxComs = null;
         $maxComs = -1;
@@ -204,7 +175,6 @@ class AdminController extends AbstractController
             'total_commentaires'   => $totalCommentaires,
             'article_top'          => $articleMaxComs,
             'search'               => $search,
-            'region_stats'         => $regionStats,
             'articlesParMois'      => $articlesParMois,
             'articlesParCategorie' => $articlesParCategorie,
             'commentairesParMois'  => $commentairesParMois,
@@ -273,15 +243,6 @@ class AdminController extends AbstractController
             ORDER BY mois ASC
         ", ['date' => (new \DateTime('-6 months'))->format('Y-m-d H:i:s')])->fetchAllAssociative();
 
-        // Statistiques par région – SQL natif
-        $regionStats = $connection->executeQuery("
-            SELECT a.region, COUNT(a.id) as count
-            FROM article a
-            WHERE a.region IS NOT NULL AND a.region != ''
-            GROUP BY a.region
-            ORDER BY count DESC
-        ")->fetchAllAssociative();
-
         // Article avec le plus de commentaires
         $articleMaxComs = null;
         $maxComs = -1;
@@ -299,7 +260,6 @@ class AdminController extends AbstractController
             'total_commentaires'   => $totalCommentaires,
             'article_top'          => $articleMaxComs,
             'search'               => $search,
-            'region_stats'         => $regionStats,
             'articlesParMois'      => $articlesParMois,
             'articlesParCategorie' => $articlesParCategorie,
             'commentairesParMois'  => $commentairesParMois,
