@@ -125,7 +125,8 @@ class AdminController extends AbstractController
         EntityManagerInterface $em
     ): Response {
         $search = $request->query->get('search', '');
-        
+        $connection = $em->getConnection();
+
         if ($search) {
             $query = $em->createQuery("
                 SELECT a 
@@ -141,51 +142,51 @@ class AdminController extends AbstractController
         }
 
         $totalCommentaires = $commentRepo->count([]);
-        
-        // Articles par mois (6 derniers mois) – corrigé sans DATE_FORMAT
-        $articlesParMois = $em->createQuery("
-            SELECT CONCAT(YEAR(a.datePublication), '-', LPAD(MONTH(a.datePublication), 2, '0')) as mois, COUNT(a.id) as nb
-            FROM App\Entity\Article a
-            WHERE a.datePublication >= :date
+
+        // Articles par mois (6 derniers mois) – SQL natif
+        $articlesParMois = $connection->executeQuery("
+            SELECT CONCAT(YEAR(a.date_publication), '-', LPAD(MONTH(a.date_publication), 2, '0')) as mois, COUNT(a.id) as nb
+            FROM article a
+            WHERE a.date_publication >= :date
             GROUP BY mois
             ORDER BY mois ASC
-        ")->setParameter('date', new \DateTime('-6 months'))->getResult();
+        ", ['date' => (new \DateTime('-6 months'))->format('Y-m-d')])->fetchAllAssociative();
 
-        // Articles par catégorie
-        $articlesParCategorie = $em->createQuery("
+        // Articles par catégorie – SQL natif
+        $articlesParCategorie = $connection->executeQuery("
             SELECT a.categorie, COUNT(a.id) as nb
-            FROM App\Entity\Article a
+            FROM article a
             WHERE a.categorie IS NOT NULL AND a.categorie != ''
             GROUP BY a.categorie
-        ")->getResult();
+        ")->fetchAllAssociative();
 
-        // Commentaires par mois (6 derniers mois) – corrigé
-        $commentairesParMois = $em->createQuery("
-            SELECT CONCAT(YEAR(c.dateCommentaire), '-', LPAD(MONTH(c.dateCommentaire), 2, '0')) as mois, COUNT(c.id) as nb
-            FROM App\Entity\Commentaire c
-            WHERE c.dateCommentaire >= :date
+        // Commentaires par mois (6 derniers mois) – SQL natif
+        $commentairesParMois = $connection->executeQuery("
+            SELECT CONCAT(YEAR(c.date_commentaire), '-', LPAD(MONTH(c.date_commentaire), 2, '0')) as mois, COUNT(c.id) as nb
+            FROM commentaire c
+            WHERE c.date_commentaire >= :date
             GROUP BY mois
             ORDER BY mois ASC
-        ")->setParameter('date', new \DateTime('-6 months'))->getResult();
+        ", ['date' => (new \DateTime('-6 months'))->format('Y-m-d H:i:s')])->fetchAllAssociative();
 
-        // Likes par mois (6 derniers mois) – corrigé
-        $likesParMois = $em->createQuery("
-            SELECT CONCAT(YEAR(l.dateLike), '-', LPAD(MONTH(l.dateLike), 2, '0')) as mois, COUNT(l.id) as nb
-            FROM App\Entity\Likes l
-            WHERE l.dateLike >= :date
+        // Likes par mois (6 derniers mois) – SQL natif
+        $likesParMois = $connection->executeQuery("
+            SELECT CONCAT(YEAR(l.date_like), '-', LPAD(MONTH(l.date_like), 2, '0')) as mois, COUNT(l.id) as nb
+            FROM likes l
+            WHERE l.date_like >= :date
             GROUP BY mois
             ORDER BY mois ASC
-        ")->setParameter('date', new \DateTime('-6 months'))->getResult();
+        ", ['date' => (new \DateTime('-6 months'))->format('Y-m-d H:i:s')])->fetchAllAssociative();
 
-        // Statistiques par région
-        $regionStats = $em->createQuery("
+        // Statistiques par région – SQL natif
+        $regionStats = $connection->executeQuery("
             SELECT a.region, COUNT(a.id) as count
-            FROM App\Entity\Article a
+            FROM article a
             WHERE a.region IS NOT NULL AND a.region != ''
             GROUP BY a.region
             ORDER BY count DESC
-        ")->getResult();
-        
+        ")->fetchAllAssociative();
+
         // Article avec le plus de commentaires
         $articleMaxComs = null;
         $maxComs = -1;
@@ -219,7 +220,8 @@ class AdminController extends AbstractController
         EntityManagerInterface $em
     ): Response {
         $search = $request->query->get('search', '');
-        
+        $connection = $em->getConnection();
+
         if ($search) {
             $query = $em->createQuery("
                 SELECT a 
@@ -235,51 +237,51 @@ class AdminController extends AbstractController
         }
 
         $totalCommentaires = $commentRepo->count([]);
-        
-        // Articles par mois (6 derniers mois) – corrigé
-        $articlesParMois = $em->createQuery("
-            SELECT CONCAT(YEAR(a.datePublication), '-', LPAD(MONTH(a.datePublication), 2, '0')) as mois, COUNT(a.id) as nb
-            FROM App\Entity\Article a
-            WHERE a.datePublication >= :date
+
+        // Articles par mois – SQL natif
+        $articlesParMois = $connection->executeQuery("
+            SELECT CONCAT(YEAR(a.date_publication), '-', LPAD(MONTH(a.date_publication), 2, '0')) as mois, COUNT(a.id) as nb
+            FROM article a
+            WHERE a.date_publication >= :date
             GROUP BY mois
             ORDER BY mois ASC
-        ")->setParameter('date', new \DateTime('-6 months'))->getResult();
+        ", ['date' => (new \DateTime('-6 months'))->format('Y-m-d')])->fetchAllAssociative();
 
-        // Articles par catégorie
-        $articlesParCategorie = $em->createQuery("
+        // Articles par catégorie – SQL natif
+        $articlesParCategorie = $connection->executeQuery("
             SELECT a.categorie, COUNT(a.id) as nb
-            FROM App\Entity\Article a
+            FROM article a
             WHERE a.categorie IS NOT NULL AND a.categorie != ''
             GROUP BY a.categorie
-        ")->getResult();
+        ")->fetchAllAssociative();
 
-        // Commentaires par mois (6 derniers mois) – corrigé
-        $commentairesParMois = $em->createQuery("
-            SELECT CONCAT(YEAR(c.dateCommentaire), '-', LPAD(MONTH(c.dateCommentaire), 2, '0')) as mois, COUNT(c.id) as nb
-            FROM App\Entity\Commentaire c
-            WHERE c.dateCommentaire >= :date
+        // Commentaires par mois – SQL natif
+        $commentairesParMois = $connection->executeQuery("
+            SELECT CONCAT(YEAR(c.date_commentaire), '-', LPAD(MONTH(c.date_commentaire), 2, '0')) as mois, COUNT(c.id) as nb
+            FROM commentaire c
+            WHERE c.date_commentaire >= :date
             GROUP BY mois
             ORDER BY mois ASC
-        ")->setParameter('date', new \DateTime('-6 months'))->getResult();
+        ", ['date' => (new \DateTime('-6 months'))->format('Y-m-d H:i:s')])->fetchAllAssociative();
 
-        // Likes par mois (6 derniers mois) – corrigé
-        $likesParMois = $em->createQuery("
-            SELECT CONCAT(YEAR(l.dateLike), '-', LPAD(MONTH(l.dateLike), 2, '0')) as mois, COUNT(l.id) as nb
-            FROM App\Entity\Likes l
-            WHERE l.dateLike >= :date
+        // Likes par mois – SQL natif
+        $likesParMois = $connection->executeQuery("
+            SELECT CONCAT(YEAR(l.date_like), '-', LPAD(MONTH(l.date_like), 2, '0')) as mois, COUNT(l.id) as nb
+            FROM likes l
+            WHERE l.date_like >= :date
             GROUP BY mois
             ORDER BY mois ASC
-        ")->setParameter('date', new \DateTime('-6 months'))->getResult();
+        ", ['date' => (new \DateTime('-6 months'))->format('Y-m-d H:i:s')])->fetchAllAssociative();
 
-        // Statistiques par région
-        $regionStats = $em->createQuery("
+        // Statistiques par région – SQL natif
+        $regionStats = $connection->executeQuery("
             SELECT a.region, COUNT(a.id) as count
-            FROM App\Entity\Article a
+            FROM article a
             WHERE a.region IS NOT NULL AND a.region != ''
             GROUP BY a.region
             ORDER BY count DESC
-        ")->getResult();
-        
+        ")->fetchAllAssociative();
+
         // Article avec le plus de commentaires
         $articleMaxComs = null;
         $maxComs = -1;
