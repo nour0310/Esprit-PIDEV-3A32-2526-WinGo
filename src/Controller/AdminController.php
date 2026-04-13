@@ -158,6 +158,15 @@ class AdminController extends AbstractController
             ORDER BY mois ASC
         ", ['date' => (new \DateTime('-6 months'))->format('Y-m-d H:i:s')])->fetchAllAssociative();
 
+        // Statistiques par région - SQL natif
+        $regionStats = $connection->executeQuery("
+            SELECT a.region, COUNT(a.id) as count
+            FROM article a
+            WHERE a.region IS NOT NULL AND a.region != ''
+            GROUP BY a.region
+            ORDER BY count DESC
+        ")->fetchAllAssociative();
+
         // Article avec le plus de commentaires
         $articleMaxComs = null;
         $maxComs = -1;
