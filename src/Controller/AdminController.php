@@ -69,6 +69,46 @@ class AdminController extends AbstractController
         ]);
     }
 
+    #[Route('/dashboard-modern', name: 'admin_dashboard_modern')]
+    public function dashboardModern(
+        UtilisateurRepository $userRepo,
+        ArticleRepository $articleRepo,
+        CommandeRepository $commandeRepo,
+        ReservationRepository $reservationRepo,
+        ReclamationRepository $reclamationRepo,
+        CommentaireRepository $commentRepo,
+        EntityManagerInterface $em
+    ): Response {
+        // Statistiques par région pour les articles
+        $regionStats = $em->createQuery("
+            SELECT a.region, COUNT(a.id) as count
+            FROM App\Entity\Article a
+            WHERE a.region IS NOT NULL AND a.region != ''
+            GROUP BY a.region
+            ORDER BY count DESC
+        ")->getResult();
+        
+        // Statistiques générales
+        $totalArticles = count($articleRepo->findAll());
+        $totalUsers = count($userRepo->findAll());
+        $totalCommandes = count($commandeRepo->findAll());
+        $totalReservations = count($reservationRepo->findAll());
+        $totalReclamations = count($reclamationRepo->findAll());
+        $totalCommentaires = count($commentRepo->findAll());
+        
+        return $this->render('admin/dashboard_modern.html.twig', [
+            'total_users'         => $totalUsers,
+            'total_articles'      => $totalArticles,
+            'total_commandes'     => $totalCommandes,
+            'total_reservations'  => $totalReservations,
+            'total_reclamations'  => $totalReclamations,
+            'total_commentaires'  => $totalCommentaires,
+            'recent_users'        => $userRepo->findBy([], ['id' => 'DESC'], 5),
+            'recent_reclamations' => $reclamationRepo->findBy([], ['id' => 'DESC'], 5),
+            'region_stats'        => $regionStats, // Statistiques par région
+        ]);
+    }
+
     #[Route('/users', name: 'admin_users')]
     public function users(UtilisateurRepository $repo): Response
     {
