@@ -89,51 +89,6 @@
             font-size: 14px;
             margin-left: 10px;
         }
-        .region-stats {
-            background: #fff;
-            border-radius: 8px;
-            padding: 20px;
-            margin-bottom: 20px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
-        }
-        .region-stats h4 {
-            margin: 0 0 15px 0;
-            color: #333;
-            font-size: 1.1rem;
-            border-bottom: 2px solid #fa9e1b;
-            padding-bottom: 8px;
-        }
-        .region-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 8px 0;
-            border-bottom: 1px solid #eee;
-        }
-        .region-item:last-child {
-            border-bottom: none;
-        }
-        .region-name {
-            font-weight: 500;
-            color: #555;
-            text-transform: capitalize;
-        }
-        .region-count {
-            background: #fa9e1b;
-            color: white;
-            padding: 4px 12px;
-            border-radius: 20px;
-            font-size: 0.9rem;
-            font-weight: bold;
-            min-width: 30px;
-            text-align: center;
-        }
-        .no-regions {
-            text-align: center;
-            color: #999;
-            font-style: italic;
-            padding: 20px;
-        }
         .data_card {
             background: #fff;
             border-radius: 14px;
@@ -280,23 +235,6 @@
         {% if search %}
             <div class="search-results">
                 {{ articles|length }} résultat(s) pour "{{ search }}"
-            </div>
-        {% endif %}
-    </div>
-
-    {# Statistiques par région #}
-    <div class="region-stats">
-        <h4><i class="fa fa-map-marker" style="color:#fa9e1b"></i> Statistiques par Région</h4>
-        {% if region_stats %}
-            {% for stat in region_stats %}
-            <div class="region-item">
-                <span class="region-name">{{ stat.region|default('Non spécifiée') }}</span>
-                <span class="region-count">{{ stat.count }}</span>
-            </div>
-            {% endfor %}
-        {% else %}
-            <div class="no-regions">
-                <i class="fa fa-info-circle"></i> Aucune statistique de région disponible
             </div>
         {% endif %}
     </div>

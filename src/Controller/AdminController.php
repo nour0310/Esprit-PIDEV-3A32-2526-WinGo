@@ -184,6 +184,7 @@ class AdminController extends AbstractController
             'total_commentaires'   => $totalCommentaires,
             'article_top'          => $articleMaxComs,
             'search'               => $search,
+            'region_stats'         => $regionStats,
             'articlesParMois'      => $articlesParMois,
             'articlesParCategorie' => $articlesParCategorie,
             'commentairesParMois'  => $commentairesParMois,
