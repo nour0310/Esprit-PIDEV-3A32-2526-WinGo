@@ -117,6 +117,28 @@
     </div>
 </div>
 
+<!-- Formulaire de recherche -->
+<div class="search-container">
+    <form method="GET" class="search-form">
+        <input 
+            type="text" 
+            name="search" 
+            class="search-input" 
+            placeholder="Rechercher par titre ou contenu..." 
+            value="{{ search|default('') }}"
+            autocomplete="off"
+        >
+        <button type="submit" class="search-btn">
+            <i class="fa fa-search"></i> Rechercher
+        </button>
+    </form>
+    {% if search %}
+        <div class="search-results">
+            {{ articles|length }} résultat(s) pour "{{ search }}"
+        </div>
+    {% endif %}
+</div>
+
 <div class="data_card">
     <div class="data_card_header">
         <div class="data_card_title"><i class="fa fa-list" style="color:#fa9e1b"></i> Liste des Articles</div>
