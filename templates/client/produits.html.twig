@@ -1,0 +1,40 @@
+{% extends 'client/base_client.html.twig' %}
+{% block title %}Produits - WinGo{% endblock %}
+{% block page_title %}Boutique WinGo{% endblock %}
+
+{% block content %}
+<div class="article_grid">
+    {% for p in produits %}
+    <div class="article_card">
+        <div class="article_img" style="background:linear-gradient(135deg,#fa9e1b33,#8d4fff33)">
+            {% if p.image %}
+                <img src="{{ p.image }}" alt="{{ p.nom }}" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+                <div class="article_img_placeholder" style="display:none"><i class="fa fa-shopping-bag"></i></div>
+            {% else %}
+                <div class="article_img_placeholder"><i class="fa fa-shopping-bag"></i></div>
+            {% endif %}
+            {% if p.categorie %}
+                <span class="article_cat">{{ p.categorie }}</span>
+            {% endif %}
+        </div>
+        <div class="article_body">
+            <div class="article_title">{{ p.nom }}</div>
+            {% if p.description %}
+                <p style="font-size:13px;color:#777;margin:8px 0;line-height:1.5;">{{ p.description|slice(0,100) }}{% if p.description|length > 100 %}...{% endif %}</p>
+            {% endif %}
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-top:12px;">
+                <div style="font-size:20px;font-weight:800;background:linear-gradient(135deg,#fa9e1b,#8d4fff);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">{{ p.prix }} TND</div>
+                <span class="badge_s {% if p.stock > 0 %}badge_done{% else %}badge_pending{% endif %}">
+                    {% if p.stock > 0 %}En stock ({{ p.stock }}){% else %}Rupture{% endif %}
+                </span>
+            </div>
+            {% if p.region %}
+                <div class="article_meta" style="margin-top:8px;"><span><i class="fa fa-map-marker"></i> {{ p.region }}</span></div>
+            {% endif %}
+        </div>
+    </div>
+    {% else %}
+    <div class="empty_state" style="grid-column:1/-1"><i class="fa fa-shopping-bag"></i> Aucun produit disponible</div>
+    {% endfor %}
+</div>
+{% endblock %}

@@ -1,0 +1,83 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}WinGo - Inscription{% endblock %}
+
+{% block stylesheets %}
+<link rel="stylesheet" type="text/css" href="{{ asset('styles/main_styles.css') }}">
+<link rel="stylesheet" type="text/css" href="{{ asset('styles/responsive.css') }}">
+<style>
+    .auth_section { min-height: 80vh; display: flex; align-items: center; padding-top: 200px; padding-bottom: 60px; background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%); }
+    .auth_card { background: #fff; border-radius: 16px; padding: 50px 40px; box-shadow: 0 20px 60px rgba(0,0,0,0.3); max-width: 520px; width: 100%; margin: 0 auto; }
+    .auth_title { font-size: 28px; font-weight: 700; color: #333; margin-bottom: 8px; text-align: center; }
+    .auth_subtitle { color: #888; text-align: center; margin-bottom: 35px; font-size: 14px; }
+    .auth_input { width: 100%; padding: 13px 16px; border: 2px solid #e8e8e8; border-radius: 10px; font-size: 15px; transition: all 0.3s; outline: none; margin-bottom: 16px; }
+    .auth_input:focus { border-color: #fa9e1b; box-shadow: 0 0 0 3px rgba(250,158,27,0.15); }
+    .auth_label { font-size: 13px; font-weight: 600; color: #555; margin-bottom: 5px; display: block; }
+    .auth_btn { width: 100%; padding: 15px; background: linear-gradient(135deg, #fa9e1b, #8d4fff); border: none; border-radius: 10px; color: #fff; font-size: 16px; font-weight: 600; cursor: pointer; transition: all 0.3s; margin-top: 8px; }
+    .auth_btn:hover { opacity: 0.9; transform: translateY(-1px); }
+    .auth_link { text-align: center; margin-top: 20px; font-size: 14px; color: #666; }
+    .auth_link a { color: #fa9e1b; font-weight: 600; text-decoration: none; }
+    .alert_error { background: #fff3f3; border: 1px solid #ffcdd2; color: #c62828; padding: 12px 16px; border-radius: 8px; margin-bottom: 20px; font-size: 14px; }
+    .wingo_logo_auth { text-align: center; margin-bottom: 24px; }
+    .wingo_logo_auth span { font-size: 36px; font-weight: 800; background: linear-gradient(135deg, #fa9e1b, #8d4fff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+    .row_fields { display: flex; gap: 12px; }
+    .row_fields > div { flex: 1; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="auth_section">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-6 col-md-8">
+                <div class="auth_card">
+                    <div class="wingo_logo_auth"><span>WinGo</span></div>
+                    <div class="auth_title">Créer un compte</div>
+                    <div class="auth_subtitle">Rejoignez la communauté WinGo</div>
+
+                    {% if error %}
+                        <div class="alert_error"><i class="fa fa-exclamation-circle"></i> {{ error }}</div>
+                    {% endif %}
+
+                    <form method="post" action="{{ path('app_register') }}">
+                        <div class="row_fields">
+                            <div>
+                                <label class="auth_label" for="prenom">Prénom *</label>
+                                <input class="auth_input" type="text" id="prenom" name="prenom" placeholder="Votre prénom" required>
+                            </div>
+                            <div>
+                                <label class="auth_label" for="nom">Nom *</label>
+                                <input class="auth_input" type="text" id="nom" name="nom" placeholder="Votre nom" required>
+                            </div>
+                        </div>
+
+                        <label class="auth_label" for="email">Adresse email *</label>
+                        <input class="auth_input" type="email" id="email" name="email" placeholder="votre@email.com" required>
+
+                        <label class="auth_label" for="password">Mot de passe *</label>
+                        <input class="auth_input" type="password" id="password" name="password" placeholder="••••••••" required>
+
+                        <div class="row_fields">
+                            <div>
+                                <label class="auth_label" for="telephone">Téléphone</label>
+                                <input class="auth_input" type="number" id="telephone" name="telephone" placeholder="12345678">
+                            </div>
+                            <div>
+                                <label class="auth_label" for="age">Âge</label>
+                                <input class="auth_input" type="number" id="age" name="age" placeholder="25" min="1" max="120">
+                            </div>
+                        </div>
+
+                        <input type="hidden" name="_csrf_token" value="{{ csrf_token('register') }}">
+                        <button type="submit" class="auth_btn">Créer mon compte</button>
+                    </form>
+
+                    <div class="auth_link">
+                        Déjà un compte ? <a href="{{ path('app_login') }}">Se connecter</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

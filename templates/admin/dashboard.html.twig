@@ -1,0 +1,136 @@
+{% extends 'admin/base_admin.html.twig' %}
+
+{% block title %}Admin Dashboard - WinGo{% endblock %}
+{% block page_title %}Tableau de bord{% endblock %}
+
+{% block content %}
+<!-- Stats -->
+<div class="row mb-4">
+    <div class="col-lg-3 col-md-6 mb-3">
+        <div class="stat_card">
+            <div class="stat_icon orange"><i class="fa fa-users"></i></div>
+            <div>
+                <div class="stat_num">{{ total_users }}</div>
+                <div class="stat_label">Utilisateurs</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-3 col-md-6 mb-3">
+        <div class="stat_card">
+            <div class="stat_icon purple"><i class="fa fa-newspaper-o"></i></div>
+            <div>
+                <div class="stat_num">{{ total_articles }}</div>
+                <div class="stat_label">Articles</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-3 col-md-6 mb-3">
+        <div class="stat_card">
+            <div class="stat_icon blue"><i class="fa fa-calendar-check-o"></i></div>
+            <div>
+                <div class="stat_num">{{ total_reservations }}</div>
+                <div class="stat_label">Réservations</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-3 col-md-6 mb-3">
+        <div class="stat_card">
+            <div class="stat_icon red"><i class="fa fa-exclamation-circle"></i></div>
+            <div>
+                <div class="stat_num">{{ total_reclamations }}</div>
+                <div class="stat_label">Réclamations</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Quick actions -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="data_card">
+            <div class="data_card_header">
+                <div class="data_card_title"><i class="fa fa-bolt" style="color:#fa9e1b"></i> Accès rapide</div>
+            </div>
+            <div style="padding: 20px 24px; display:flex; flex-wrap:wrap; gap:12px;">
+                <a href="{{ path('admin_users') }}" class="topbar_btn"><i class="fa fa-users"></i> Gérer utilisateurs</a>
+                <a href="{{ path('admin_articles') }}" class="topbar_btn"><i class="fa fa-newspaper-o"></i> Gérer articles</a>
+                <a href="{{ path('admin_reclamations') }}" class="topbar_btn"><i class="fa fa-exclamation-circle"></i> Réclamations</a>
+                <a href="{{ path('admin_produits') }}" class="topbar_btn"><i class="fa fa-shopping-bag"></i> Produits</a>
+                <a href="{{ path('admin_transports') }}" class="topbar_btn"><i class="fa fa-bus"></i> Transports</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Recent users -->
+    <div class="col-lg-6 mb-4">
+        <div class="data_card">
+            <div class="data_card_header">
+                <div class="data_card_title">Derniers utilisateurs</div>
+                <a href="{{ path('admin_users') }}" class="data_card_link">Voir tout</a>
+            </div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Nom</th>
+                        <th>Email</th>
+                        <th>Rôle</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for user in recent_users %}
+                    <tr>
+                        <td><strong>{{ user.fullName }}</strong></td>
+                        <td>{{ user.email }}</td>
+                        <td>
+                            {% if user.isAdmin %}
+                                <span class="badge_status badge_admin">Admin</span>
+                            {% else %}
+                                <span class="badge_status badge_client">Client</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr><td colspan="3" style="text-align:center;color:#aaa;padding:30px;">Aucun utilisateur</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Recent reclamations -->
+    <div class="col-lg-6 mb-4">
+        <div class="data_card">
+            <div class="data_card_header">
+                <div class="data_card_title">Dernières réclamations</div>
+                <a href="{{ path('admin_reclamations') }}" class="data_card_link">Voir tout</a>
+            </div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Sujet</th>
+                        <th>Type</th>
+                        <th>Statut</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for rec in recent_reclamations %}
+                    <tr>
+                        <td>{{ rec.sujet ?? 'Sans sujet' }}</td>
+                        <td>{{ rec.typeReclamation ?? '-' }}</td>
+                        <td>
+                            <span class="badge_status {% if rec.statut == 'Résolue' %}badge_done{% else %}badge_pending{% endif %}">
+                                {{ rec.statut }}
+                            </span>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr><td colspan="3" style="text-align:center;color:#aaa;padding:30px;">Aucune réclamation</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
