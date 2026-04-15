@@ -14,10 +14,8 @@ use App\Repository\SuggestionRepository;
 use App\Repository\CommentaireRepository;
 use App\Repository\TransportRepository;
 use App\Repository\UtilisateurRepository;
-use App\Service\ArticleGeneratorService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use App\Form\ArticleType;
@@ -274,25 +272,6 @@ class AdminController extends AbstractController
             'search'               => $search,
             'articlesParMois'      => $articlesParMois,
             'articlesParCategorie' => $articlesParCategorie,
-            'commentairesParMois'  => $commentairesParMois,
-            'likesParMois'         => $likesParMois,
-        ]);
-    }
-
-    #[Route('/article/generate', name: 'admin_article_generate', methods: ['POST'])]
-    public function generateArticle(Request $request, ArticleGeneratorService $generator): JsonResponse
-    {
-        $topic = $request->request->get('topic');
-        if (!$topic) {
-            return $this->json(['error' => 'Sujet requis'], 400);
-        }
-
-        $generated = $generator->generateArticle($topic);
-        if (!$generated) {
-            return $this->json(['error' => 'Erreur lors de la génération'], 500);
-        }
-
-        return $this->json($generated);
     }
 
     #[Route('/article/{id}/delete', name: 'admin_article_delete', methods: ['POST'])]
