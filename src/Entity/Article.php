@@ -20,7 +20,7 @@ class Article
     #[ORM\Column(type: 'string', length: 255, nullable: false)]
     #[Assert\NotBlank(message: "Le titre est obligatoire")]
     #[Assert\Length(min: 3, minMessage: "Le titre doit contenir au moins {{ limit }} caractères")]
-    #[Assert\Regex(pattern: '/^[a-zA-ZÀ-ÿ\s\.,!?\'-]+$/u', message: "Le titre ne doit pas contenir de chiffres")]
+    #[Assert\Regex(pattern: '/^[a-zA-ZÀ-ÿ\s\.,!?:;\(\)\'-]+$/u', message: "Le titre ne doit pas contenir de chiffres")]
     private string $titre = '';
 
     #[ORM\Column(type: 'text', nullable: true)]
