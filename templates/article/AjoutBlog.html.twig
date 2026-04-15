@@ -188,12 +188,147 @@
 		.form-body { padding: 30px 20px; }
 		.form-header { padding: 40px 20px; }
 	}
+	.ai-assistant {
+		background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+		color: white;
+		border-radius: 12px;
+		padding: 20px;
+		margin-bottom: 25px;
+		box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+	}
+	.ai-assistant h4 {
+		margin: 0 0 15px 0;
+		font-size: 1.2rem;
+		display: flex;
+		align-items: center;
+		gap: 10px;
+	}
+	.ai-input-group {
+		display: flex;
+		gap: 10px;
+		margin-bottom: 10px;
+	}
+	.ai-input {
+		flex: 1;
+		padding: 12px 15px;
+		border: none;
+		border-radius: 8px;
+		font-size: 0.95rem;
+		background: rgba(255, 255, 255, 0.9);
+	}
+	.ai-btn {
+		padding: 12px 25px;
+		background: #28a745;
+		color: white;
+		border: none;
+		border-radius: 8px;
+		font-weight: 600;
+		cursor: pointer;
+		transition: all 0.3s;
+	}
+	.ai-btn:hover { background: #218838; transform: translateY(-1px); }
+	.ai-btn:disabled { 
+		background: #6c757d; 
+		cursor: not-allowed; 
+		transform: none;
+	}
+	.ai-status {
+		font-size: 0.9rem;
+		opacity: 0.9;
+		min-height: 20px;
+	}
 </style>
 {% endblock %}
 
 {% block javascripts %}
 <script src="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.js"></script>
 <script>
+// Assistant IA
+document.getElementById('ai-generate-btn').addEventListener('click', async () => {
+    const topic = document.getElementById('ai-topic').value.trim();
+    const status = document.getElementById('ai-status');
+    const btn = document.getElementById('ai-generate-btn');
+    
+    if (!topic) {
+        status.textContent = '❌ Veuillez saisir un sujet.';
+        return;
+    }
+    
+    // Désactiver le bouton et afficher le chargement
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Génération...';
+    status.textContent = '⏳ Génération en cours...';
+    
+    const formData = new FormData();
+    formData.append('topic', topic);
+    
+    try {
+        const response = await fetch('{{ path('api_article_generate') }}', {
+            method: 'POST',
+            body: formData
+        });
+        
+        const data = await response.json();
+        if (data.error) {
+            status.textContent = '❌ ' + data.error;
+        } else {
+            status.textContent = '✅ Contenu généré !';
+            
+            // Remplir directement les champs du formulaire
+            const titreField = document.querySelector('#article_titre');
+            if (titreField && data.titre) {
+                titreField.value = data.titre;
+            }
+            
+            // Pré-remplir le contenu avec Quill
+            if (typeof quill !== 'undefined' && data.contenu) {
+                quill.root.innerHTML = data.contenu;
+            }
+            
+            // Pré-sélectionner la région
+            if (data.region) {
+                const regionSelect = document.querySelector('#article_region');
+                if (regionSelect) {
+                    for (let option of regionSelect.options) {
+                        if (option.value === data.region || option.text === data.region) {
+                            option.selected = true;
+                            break;
+                        }
+                    }
+                }
+            }
+            
+            // Pré-sélectionner la catégorie
+            if (data.categorie) {
+                const catSelect = document.querySelector('#article_categorie');
+                if (catSelect) {
+                    for (let option of catSelect.options) {
+                        if (option.value === data.categorie || option.text === data.categorie) {
+                            option.selected = true;
+                            break;
+                        }
+                    }
+                }
+            }
+            
+            // Pré-remplir les tags (si champ existe)
+            if (data.tags && Array.isArray(data.tags)) {
+                const tagsField = document.querySelector('#article_tags');
+                if (tagsField) {
+                    tagsField.value = data.tags.join(', ');
+                }
+            }
+        }
+    } catch (error) {
+        status.textContent = '❌ Erreur réseau.';
+        console.error('Error:', error);
+    } finally {
+        // Réactiver le bouton
+        btn.disabled = false;
+        btn.innerHTML = 'Générer';
+    }
+});
+
 function initAjoutBlogQuill() {
 	const textarea = document.getElementById('article_contenu');
 	if (!textarea) {
@@ -295,19 +430,24 @@ document.addEventListener('turbo:load', function () {
 						<h3>Partagez votre histoire</h3>
 						<p>Inspirez les autres avec votre expérience de voyage en Tunisie</p>
 					</div>
-					<div class="form-body">
-						{{ form_start(form, {'attr': {'novalidate': 'novalidate', 'class': 'wingo-form', 'enctype': 'multipart/form-data'}}) }}
-							<div class="form-group-custom">
-								{{ form_label(form.titre, 'Titre de votre blog', {'label_attr': {'class': 'form-label'}}) }}
-								{{ form_widget(form.titre, {'attr': {'class': 'form-control wingo-input', 'placeholder': 'Donnez un titre captivant...'}}) }}
-								{{ form_errors(form.titre) }}
-							</div>
-							<div class="form-group-custom">
-								{{ form_row(form.contenu, {
-									'label': 'Votre histoire',
-									'label_attr': {'class': 'form-label'}
-								}) }}
-							</div>
+				</div>
+
+				<!-- Assistant IA -->
+				<div class="ai-assistant">
+					<h4>🤖 Assistant de rédaction IA</h4>
+					<div class="ai-input-group">
+						<input type="text" id="ai-topic" class="ai-input" placeholder="Ex: Randonnée dans le désert de Douz">
+						<button id="ai-generate-btn" class="ai-btn" type="button">Générer</button>
+					</div>
+					<div id="ai-status" class="ai-status"></div>
+				</div>
+
+				<div class="form-body">
+					{{ form_start(form, {'attr': {'novalidate': 'novalidate', 'class': 'wingo-form', 'enctype': 'multipart/form-data'}}) }}
+						<div class="form-group-custom">
+							{{ form_label(form.titre, 'Titre de votre blog', {'label_attr': {'class': 'form-label'}}) }}
+							{{ form_widget(form.titre, {'attr': {'class': 'form-control wingo-input', 'placeholder': 'Donnez un titre captivant...'}}) }}
+							{{ form_errors(form.titre) }}
 							<div class="row">
 								<div class="col-md-6">
 									{{ form_row(form.region, {'attr': {'class': 'wingo-input'}, 'row_attr': {'class': 'form-group-custom'}}) }}
