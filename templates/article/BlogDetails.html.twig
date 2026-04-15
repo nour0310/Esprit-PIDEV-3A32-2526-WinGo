@@ -416,7 +416,7 @@
             {% endif %}
         </div>
         <div class="comment-body" id="comment-body-{{ comment.id }}">
-            {{ comment.contenu|censor|nl2br }}
+            {{ comment.contenu|censor|raw }}
         </div>
 
         {# Analyse de sentiment AJAX #}
@@ -581,6 +581,21 @@
 						<div class="error-text">
 							{{ form_errors(commentForm.contenu) }}
 						</div>
+
+                        <!-- GIF Picker -->
+                        <div class="gif-picker" style="margin-top: 12px;">
+                            <button type="button" id="openGifPicker" style="background: linear-gradient(135deg, #8d4fff, #fa9e1c); color: #fff; border: none; padding: 8px 20px; border-radius: 25px; font-weight: 600; cursor: pointer; font-size: 0.9rem; transition: all 0.3s;">
+                                🎥 Ajouter un GIF
+                            </button>
+                            <div id="gifSearchContainer" style="display: none; margin-top: 12px; background: #f8f9fa; border-radius: 16px; padding: 15px; border: 1px solid #e9ecef;">
+                                <input type="text" id="gifSearchInput" placeholder="Rechercher un GIF (ex: happy, love, travel)..." class="wingo-input" style="margin-bottom: 10px;">
+                                <div id="gifResults" style="display: flex; flex-wrap: wrap; gap: 8px; max-height: 250px; overflow-y: auto;"></div>
+                                <div id="gifLoading" style="display: none; text-align: center; padding: 20px; color: #888;"><i class="fas fa-spinner fa-spin"></i> Recherche...</div>
+                            </div>
+                            <div id="gifPreview" style="display: none; margin-top: 10px; position: relative; display: inline-block;">
+                            </div>
+                        </div>
+
     		            <button type="submit" class="btn-submit-comment">
     		                <i class="fas fa-paper-plane" style="margin-right: 8px;"></i> Publier
     		            </button>

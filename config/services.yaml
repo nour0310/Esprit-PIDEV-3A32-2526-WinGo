@@ -7,6 +7,8 @@ services:
     _defaults:
         autowire: true
         autoconfigure: true
+        bind:
+            string $giphyApiKey: '%giphy_api_key%'
 
     Symfony\Component\Finder\Finder:
         class: Symfony\Component\Finder\Finder
