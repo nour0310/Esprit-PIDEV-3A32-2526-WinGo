@@ -290,11 +290,26 @@ class AdminController extends AbstractController
     }
 
     #[Route('/article/{id}/commentaires', name: 'admin_article_commentaires')]
-    public function articleCommentaires(Article $article): Response
+    public function articleCommentaires(Article $article, \App\Service\BadWordService $badWordService): Response
     {
+        $commentaires = $article->getCommentaires();
+
+        // Analyser chaque commentaire pour les mots inappropriés
+        $badWordResults = [];
+        $badWordCount = 0;
+        foreach ($commentaires as $commentaire) {
+            $analysis = $badWordService->analyze($commentaire->getContenu() ?? '');
+            $badWordResults[$commentaire->getId()] = $analysis;
+            if ($analysis['has_bad_words']) {
+                $badWordCount++;
+            }
+        }
+
         return $this->render('admin/article_commentaires.html.twig', [
             'article' => $article,
-            'commentaires' => $article->getCommentaires(),
+            'commentaires' => $commentaires,
+            'badWordResults' => $badWordResults,
+            'badWordCount' => $badWordCount,
         ]);
     }
 

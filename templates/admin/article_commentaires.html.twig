@@ -8,21 +8,105 @@
     .btn-delete { background: #dc3545; }
     .btn-delete:hover { background: #c82333; }
     .data_card { background: #fff; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); overflow: hidden; }
-    .data_card_header { padding: 15px 20px; border-bottom: 1px solid #eee; }
+    .data_card_header { padding: 15px 20px; border-bottom: 1px solid #eee; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; }
     .data_card_title { font-size: 1.1rem; font-weight: bold; color: #333; }
     table { width: 100%; border-collapse: collapse; }
     th { background: #f8f9fa; padding: 12px 20px; text-align: left; font-size: 0.9rem; color: #555; text-transform: uppercase; border-bottom: 2px solid #dee2e6; }
     td { padding: 15px 20px; border-bottom: 1px solid #eee; vertical-align: middle; color: #444; }
     tr:hover { background-color: #fcfcfc; }
+
+    /* Bad Word Badges */
+    .badge-badword {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        font-size: 0.72rem;
+        font-weight: 700;
+        padding: 4px 10px;
+        border-radius: 20px;
+        color: #fff;
+        letter-spacing: 0.3px;
+    }
+    .badge-danger { background: linear-gradient(135deg, #dc3545, #c0392b); }
+    .badge-warning { background: linear-gradient(135deg, #f39c12, #e67e22); }
+    .badge-clean { background: linear-gradient(135deg, #28a745, #20c997); }
+    
+    .badword-alert {
+        background: linear-gradient(135deg, #fff5f5, #ffe0e0);
+        border: 1px solid #f5c6cb;
+        border-left: 4px solid #dc3545;
+        border-radius: 8px;
+        padding: 14px 20px;
+        margin-bottom: 20px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        font-size: 0.92rem;
+        color: #721c24;
+    }
+    .badword-alert i { font-size: 1.3rem; }
+    .badword-alert strong { color: #dc3545; }
+
+    .badword-details {
+        margin-top: 6px;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 4px;
+    }
+    .badword-tag {
+        background: rgba(220, 53, 69, 0.12);
+        color: #dc3545;
+        font-size: 0.7rem;
+        font-weight: 600;
+        padding: 2px 8px;
+        border-radius: 10px;
+        border: 1px solid rgba(220, 53, 69, 0.25);
+    }
+
+    .row-flagged { background-color: #fff8f8 !important; }
+    .row-flagged:hover { background-color: #fff0f0 !important; }
+
+    .filter-btns { display: flex; gap: 8px; }
+    .filter-btn {
+        padding: 6px 14px;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        border: 2px solid transparent;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+    .filter-btn.active { box-shadow: 0 2px 8px rgba(0,0,0,0.15); }
+    .filter-btn-all { background: #f0f0f0; color: #333; }
+    .filter-btn-all.active { background: #333; color: #fff; }
+    .filter-btn-bad { background: #fde8e8; color: #dc3545; }
+    .filter-btn-bad.active { background: #dc3545; color: #fff; }
+    .filter-btn-clean { background: #e8fde8; color: #28a745; }
+    .filter-btn-clean.active { background: #28a745; color: #fff; }
 </style>
 
 <div style="margin-bottom: 20px;">
     <a href="{{ path('admin_articles') }}" class="btn btn-secondary" style="background:#6c757d;color:#fff;padding:8px 15px;text-decoration:none;border-radius:4px;"><i class="fa fa-arrow-left"></i> Retour aux articles</a>
 </div>
 
+{% if badWordCount > 0 %}
+<div class="badword-alert">
+    <i class="fa fa-exclamation-triangle"></i>
+    <div>
+        <strong>🚫 {{ badWordCount }} commentaire{{ badWordCount > 1 ? 's' : '' }}</strong> contenant des mots inappropriés {{ badWordCount > 1 ? 'ont été détectés' : 'a été détecté' }}.
+        <br><small>Vérifiez et supprimez les commentaires signalés si nécessaire.</small>
+    </div>
+</div>
+{% endif %}
+
 <div class="data_card">
     <div class="data_card_header">
         <div class="data_card_title"><i class="fa fa-comments" style="color:#6f42c1; margin-right:8px;"></i> Liste des commentaires ({{ commentaires|length }})</div>
+        <div class="filter-btns">
+            <button class="filter-btn filter-btn-all active" onclick="filterComments('all')">Tous ({{ commentaires|length }})</button>
+            <button class="filter-btn filter-btn-bad" onclick="filterComments('flagged')">🚫 Signalés ({{ badWordCount }})</button>
+            <button class="filter-btn filter-btn-clean" onclick="filterComments('clean')">✅ OK ({{ commentaires|length - badWordCount }})</button>
+        </div>
     </div>
     <table>
         <thead>
@@ -31,16 +115,36 @@
                 <th>Auteur</th>
                 <th>Date</th>
                 <th>Contenu</th>
+                <th>Statut</th>
                 <th>Actions</th>
             </tr>
         </thead>
         <tbody>
             {% for commentaire in commentaires %}
-            <tr>
+            {% set analysis = badWordResults[commentaire.id] ?? {has_bad_words: false, severity: 'clean', bad_words: []} %}
+            <tr class="{{ analysis.has_bad_words ? 'row-flagged' : '' }}" data-status="{{ analysis.has_bad_words ? 'flagged' : 'clean' }}">
                 <td>{{ commentaire.id }}</td>
                 <td><strong>{{ commentaire.utilisateur ? commentaire.utilisateur.prenom ~ ' ' ~ commentaire.utilisateur.nom : 'Anonyme' }}</strong></td>
                 <td>{{ commentaire.dateCommentaire ? commentaire.dateCommentaire|date('d/m/Y H:i') : '-' }}</td>
-                <td style="max-width: 400px; white-space: pre-wrap; word-wrap: break-word;">{{ commentaire.contenu }}</td>
+                <td style="max-width: 400px; white-space: pre-wrap; word-wrap: break-word;">
+                    {{ commentaire.contenu }}
+                    {% if analysis.has_bad_words %}
+                    <div class="badword-details">
+                        {% for word in analysis.bad_words %}
+                            <span class="badword-tag">{{ word }}</span>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                </td>
+                <td>
+                    {% if analysis.severity == 'danger' %}
+                        <span class="badge-badword badge-danger">🚫 Inapproprié</span>
+                    {% elseif analysis.severity == 'warning' %}
+                        <span class="badge-badword badge-warning">⚠️ Suspect</span>
+                    {% else %}
+                        <span class="badge-badword badge-clean">✅ OK</span>
+                    {% endif %}
+                </td>
                 <td>
                     <form method="post" action="{{ path('admin_commentaire_delete', {id: commentaire.id}) }}" style="margin: 0;" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer ce commentaire ?');">
                         <input type="hidden" name="_token" value="{{ csrf_token('delete_comment_admin' ~ commentaire.id) }}">
@@ -51,9 +155,29 @@
                 </td>
             </tr>
             {% else %}
-            <tr><td colspan="5" style="text-align:center;color:#aaa;padding:40px;">Aucun commentaire pour cet article.</td></tr>
+            <tr><td colspan="6" style="text-align:center;color:#aaa;padding:40px;">Aucun commentaire pour cet article.</td></tr>
             {% endfor %}
         </tbody>
     </table>
 </div>
+
+<script>
+function filterComments(type) {
+    const rows = document.querySelectorAll('tbody tr[data-status]');
+    const btns = document.querySelectorAll('.filter-btn');
+    
+    btns.forEach(b => b.classList.remove('active'));
+    event.target.classList.add('active');
+    
+    rows.forEach(row => {
+        if (type === 'all') {
+            row.style.display = '';
+        } else if (type === 'flagged') {
+            row.style.display = row.dataset.status === 'flagged' ? '' : 'none';
+        } else {
+            row.style.display = row.dataset.status === 'clean' ? '' : 'none';
+        }
+    });
+}
+</script>
 {% endblock %}
