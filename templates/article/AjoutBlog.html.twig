@@ -448,6 +448,11 @@ document.addEventListener('turbo:load', function () {
 							{{ form_label(form.titre, 'Titre de votre blog', {'label_attr': {'class': 'form-label'}}) }}
 							{{ form_widget(form.titre, {'attr': {'class': 'form-control wingo-input', 'placeholder': 'Donnez un titre captivant...'}}) }}
 							{{ form_errors(form.titre) }}
+							<div class="form-group-custom">
+								{{ form_label(form.contenu, 'Votre histoire', {'label_attr': {'class': 'form-label'}}) }}
+								{{ form_widget(form.contenu) }}
+								{{ form_errors(form.contenu) }}
+							</div>
 							<div class="row">
 								<div class="col-md-6">
 									{{ form_row(form.region, {'attr': {'class': 'wingo-input'}, 'row_attr': {'class': 'form-group-custom'}}) }}

@@ -70,6 +70,13 @@ PROMPT;
             $content = $data['candidates'][0]['content']['parts'][0]['text'] ?? '';
             $this->logger->debug('Raw content from Gemini: ' . $content);
             
+            // Nettoyer le contenu si enveloppé dans du markdown ```json ... ```
+            if (preg_match('/```(?:json)?(.*?)```/s', $content, $matches)) {
+                $content = trim($matches[1]);
+            } else {
+                $content = trim($content);
+            }
+
             // Tenter de décoder le JSON
             $result = json_decode($content, true);
             
