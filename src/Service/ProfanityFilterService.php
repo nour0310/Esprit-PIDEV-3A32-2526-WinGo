@@ -19,6 +19,13 @@ class ProfanityFilterService
         // Filtre français + anglais avec sensibilité HIGH
         $this->filterFr = new ProfanityFilter(ProfanityLevel::HIGH, 'fr');
         $this->filterEn = new ProfanityFilter(ProfanityLevel::HIGH, 'en');
+
+        // Mots supplémentaires pour la démo
+        $demoWords = ['stupid', 'idiot', 'nul', 'bete', 'bête', 'dumb', 'loser', 'moron', 'imbecile', 'imbécile', 'crétin', 'cretin', 'débile', 'debile'];
+        foreach ($demoWords as $word) {
+            $this->filterFr->addWord($word);
+            $this->filterEn->addWord($word);
+        }
     }
 
     /**
