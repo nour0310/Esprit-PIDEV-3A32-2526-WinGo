@@ -416,7 +416,7 @@
             {% endif %}
         </div>
         <div class="comment-body" id="comment-body-{{ comment.id }}">
-            {{ comment.contenu|nl2br }}
+            {{ comment.contenu|censor|nl2br }}
         </div>
 
         {# Analyse de sentiment AJAX #}
