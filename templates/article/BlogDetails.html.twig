@@ -592,7 +592,7 @@
                                 <div id="gifResults" style="display: flex; flex-wrap: wrap; gap: 8px; max-height: 250px; overflow-y: auto;"></div>
                                 <div id="gifLoading" style="display: none; text-align: center; padding: 20px; color: #888;"><i class="fas fa-spinner fa-spin"></i> Recherche...</div>
                             </div>
-                            <div id="gifPreview" style="display: none; margin-top: 10px; position: relative; display: inline-block;">
+                            <div id="gifPreview" style="display: none; margin-top: 10px; position: relative;">
                             </div>
                         </div>
 
@@ -894,7 +894,7 @@ function showShareNotification(message) {
 
 // ==================== GIF PICKER ====================
 (function() {
-    const textarea = document.getElementById('new-comment-content');
+    const textarea = document.getElementById('new-comment-content') || document.querySelector('.comment-form-container textarea');
     const openBtn = document.getElementById('openGifPicker');
     const container = document.getElementById('gifSearchContainer');
     const searchInput = document.getElementById('gifSearchInput');
