@@ -101,34 +101,6 @@
 		justify-content: center;
 		margin-top: 50px;
 	}
-	.weather-chip {
-		margin: 16px auto 0;
-		padding: 8px 14px;
-		display: inline-flex;
-		align-items: center;
-		gap: 10px;
-		border-radius: 999px;
-		background: #fff;
-		border: 1px solid rgba(141, 79, 255, 0.2);
-		box-shadow: 0 6px 20px rgba(141, 79, 255, 0.08);
-	}
-	.weather-chip img {
-		width: 34px;
-		height: 34px;
-		object-fit: contain;
-	}
-	.weather-chip-temp {
-		font-size: 1rem;
-		font-weight: 700;
-		color: #2d3436;
-		line-height: 1.1;
-	}
-	.weather-chip-desc {
-		font-size: 0.85rem;
-		color: #666;
-		text-transform: capitalize;
-		line-height: 1.1;
-	}
 	.btn-custom {
 		padding: 12px 35px;
 		border-radius: 30px;
@@ -542,17 +514,6 @@
     				<span><i class="fas fa-user-circle"></i>{{ article.auteur ? article.auteur.prenom ~ ' ' ~ article.auteur.nom : 'Anonyme' }}</span>
     				<span><i class="fas fa-map-marker-alt"></i>{{ article.region|default('Non spécifiée') }}</span>
     			</div>
-				{% if weather is not null %}
-				<div class="weather-chip">
-					{% if weather.icon %}
-						<img src="{{ weather.icon }}" alt="Météo {{ weather.city|default(article.region) }}" loading="lazy">
-					{% endif %}
-					<div>
-						<div class="weather-chip-temp">{{ weather.temp|round }}°C - {{ weather.city|default(article.region) }}</div>
-						<div class="weather-chip-desc">{{ weather.description }}</div>
-					</div>
-				</div>
-				{% endif %}
     		</div>
 
     		<img src="{{ cover_src }}" alt="{{ article.titre|e('html_attr') }}" class="article-creative-image" loading="lazy" decoding="async" onerror="this.onerror=null;this.src='{{ blog_img_fallback|e('html_attr') }}';">
