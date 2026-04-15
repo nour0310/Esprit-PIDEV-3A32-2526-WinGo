@@ -128,13 +128,6 @@
                 <td>{{ commentaire.dateCommentaire ? commentaire.dateCommentaire|date('d/m/Y H:i') : '-' }}</td>
                 <td style="max-width: 400px; white-space: pre-wrap; word-wrap: break-word;">
                     {{ commentaire.contenu }}
-                    {% if analysis.has_bad_words %}
-                    <div class="badword-details">
-                        {% for word in analysis.bad_words %}
-                            <span class="badword-tag">{{ word }}</span>
-                        {% endfor %}
-                    </div>
-                    {% endif %}
                 </td>
                 <td>
                     {% if analysis.severity == 'danger' %}

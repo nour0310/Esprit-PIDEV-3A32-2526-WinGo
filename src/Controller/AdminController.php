@@ -290,17 +290,21 @@ class AdminController extends AbstractController
     }
 
     #[Route('/article/{id}/commentaires', name: 'admin_article_commentaires')]
-    public function articleCommentaires(Article $article, \App\Service\BadWordService $badWordService): Response
+    public function articleCommentaires(Article $article, \App\Service\ProfanityFilterService $profanityFilter): Response
     {
         $commentaires = $article->getCommentaires();
 
-        // Analyser chaque commentaire pour les mots inappropriés
+        // Analyser chaque commentaire avec le bundle devtrope/profanity-filter
         $badWordResults = [];
         $badWordCount = 0;
         foreach ($commentaires as $commentaire) {
-            $analysis = $badWordService->analyze($commentaire->getContenu() ?? '');
-            $badWordResults[$commentaire->getId()] = $analysis;
-            if ($analysis['has_bad_words']) {
+            $contenu = $commentaire->getContenu() ?? '';
+            $isProfane = $profanityFilter->containsProfanity($contenu);
+            $badWordResults[$commentaire->getId()] = [
+                'has_bad_words' => $isProfane,
+                'severity' => $isProfane ? 'danger' : 'clean',
+            ];
+            if ($isProfane) {
                 $badWordCount++;
             }
         }
