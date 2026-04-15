@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "25d04350c3c626560c32a0299d5883ff",
+    "content-hash": "b60c02341143b922876be44f5e813de2",
     "packages": [
         {
             "name": "amphp/amp",
@@ -687,6 +687,52 @@
                 "source": "https://github.com/davmixcool/php-sentiment-analyzer/tree/1.2.2"
             },
             "time": "2020-09-17T13:50:06+00:00"
+        },
+        {
+            "name": "devtrope/profanity-filter",
+            "version": "v0.0.4",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/devtrope/profanity-filter.git",
+                "reference": "73eb9fe320b61b779a9d258d75c5dbd49fef1e65"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/devtrope/profanity-filter/zipball/73eb9fe320b61b779a9d258d75c5dbd49fef1e65",
+                "reference": "73eb9fe320b61b779a9d258d75c5dbd49fef1e65",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=8.1"
+            },
+            "require-dev": {
+                "phpstan/phpstan": "^2.1",
+                "squizlabs/php_codesniffer": "^3.13"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "ProfanityFilter\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "authors": [
+                {
+                    "name": "Quentin SCHIFFERLE",
+                    "email": "dev.trope@gmail.com"
+                }
+            ],
+            "description": "A profanity filter for PHP",
+            "keywords": [
+                "filter",
+                "php",
+                "profanity"
+            ],
+            "support": {
+                "issues": "https://github.com/devtrope/profanity-filter/issues",
+                "source": "https://github.com/devtrope/profanity-filter/tree/v0.0.4"
+            },
+            "time": "2025-08-07T15:04:36+00:00"
         },
         {
             "name": "doctrine/collections",

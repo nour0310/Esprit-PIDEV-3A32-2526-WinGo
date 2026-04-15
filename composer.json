@@ -9,6 +9,7 @@
         "ext-fileinfo": "*",
         "ext-iconv": "*",
         "davmixcool/php-sentiment-analyzer": "^1.2",
+        "devtrope/profanity-filter": "^0.0.4",
         "doctrine/doctrine-bundle": "^3.2",
         "doctrine/doctrine-migrations-bundle": "*",
         "doctrine/orm": "^3.6",
