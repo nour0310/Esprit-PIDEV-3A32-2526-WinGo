@@ -2,18 +2,22 @@
 
 namespace App\Service;
 
-use Symfony\AI\Platform\PlatformInterface;
-use Symfony\Component\DependencyInjection\Attribute\Target;
+use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 class ArticleGeneratorService
 {
     public function __construct(
-        #[Target('gemini')] private PlatformInterface $platform
+        private readonly HttpClientInterface $client
     ) {}
 
     public function generateArticle(string $topic): ?array
     {
         try {
+            $apiKey = $_ENV['GEMINI_API_KEY'] ?? null;
+            if (!$apiKey) {
+                throw new \Exception('Gemini API key not found');
+            }
+
             $prompt = <<<PROMPT
 Tu es un assistant expert en rédaction d'articles de blog de voyage pour le site "WinGo".
 Ta mission est de générer un article de blog complet et structuré en français à partir du sujet fourni.
@@ -31,24 +35,42 @@ Sujet: {topic}
 PROMPT;
 
             $prompt = str_replace('{topic}', $topic, $prompt);
-            
-            // Créer un MessageBag avec le prompt
-            $messageBag = new \Symfony\AI\Platform\Message\MessageBag([
-                new \Symfony\AI\Platform\Message\TextMessage($prompt)
+
+            $response = $this->client->request('POST', 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=' . $apiKey, [
+                'json' => [
+                    'contents' => [
+                        [
+                            'parts' => [
+                                [
+                                    'text' => $prompt
+                                ]
+                            ]
+                        ]
+                    ],
+                    'generationConfig' => [
+                        'temperature' => 0.7,
+                        'topK' => 40,
+                        'topP' => 0.95,
+                        'maxOutputTokens' => 2048,
+                    ]
+                ]
             ]);
+
+            $data = $response->toArray();
             
-            $response = $this->platform->call($messageBag);
-            $content = $response->getContent();
-            
-            // Nettoyer la réponse (parfois l'IA ajoute des backticks ou du texte autour)
-            $content = trim($content);
-            $content = preg_replace('/^```json\s*/', '', $content);
-            $content = preg_replace('/\s*```$/', '', $content);
-            
-            $data = json_decode($content, true);
-            
-            if (isset($data['titre'], $data['contenu'])) {
-                return $data;
+            if (isset($data['candidates'][0]['content']['parts'][0]['text'])) {
+                $content = $data['candidates'][0]['content']['parts'][0]['text'];
+                
+                // Nettoyer la réponse (parfois l'IA ajoute des backticks ou du texte autour)
+                $content = trim($content);
+                $content = preg_replace('/^```json\s*/', '', $content);
+                $content = preg_replace('/\s*```$/', '', $content);
+                
+                $articleData = json_decode($content, true);
+                
+                if (isset($articleData['titre'], $articleData['contenu'])) {
+                    return $articleData;
+                }
             }
         } catch (\Exception $e) {
             // Logguer l'erreur
