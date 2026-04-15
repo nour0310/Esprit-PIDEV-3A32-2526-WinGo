@@ -303,6 +303,7 @@ class AdminController extends AbstractController
             $badWordResults[$commentaire->getId()] = [
                 'has_bad_words' => $isProfane,
                 'severity' => $isProfane ? 'danger' : 'clean',
+                'cleaned' => $isProfane ? $profanityFilter->clean($contenu) : $contenu,
             ];
             if ($isProfane) {
                 $badWordCount++;
