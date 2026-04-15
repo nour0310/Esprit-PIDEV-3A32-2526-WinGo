@@ -41,7 +41,7 @@ PROMPT;
             $this->logger->info('Generating article for topic: ' . $topic);
             
             $response = $this->client->request('POST', 
-                'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=' . $this->apiKey, [
+                'https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent?key=' . $this->apiKey, [
                     'headers' => ['Content-Type' => 'application/json'],
                     'json' => [
                         'contents' => [

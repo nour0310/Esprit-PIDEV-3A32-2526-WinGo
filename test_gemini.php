@@ -1,6 +1,6 @@
 <?php
 $key = 'AIzaSyDMVZPz1vjvXaUQxfQCqe-Mpssh0HT8qj0';
-$url = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=' . $key;
+$url = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent?key=' . $key;
 $data = ['contents' => [['parts' => [['text' => 'Hi']]]]];
 $options = [
     'http' => [
@@ -12,5 +12,4 @@ $options = [
 ];
 $context  = stream_context_create($options);
 $result = file_get_contents($url, false, $context);
-echo $http_response_header[0] . "\n";
-echo $result;
+echo "Result:\n" . substr($result, 0, 100) . "\n";
