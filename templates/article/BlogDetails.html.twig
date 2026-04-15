@@ -891,5 +891,85 @@ function showShareNotification(message) {
         notification.remove();
     }, 3000);
 }
+
+// ==================== GIF PICKER ====================
+(function() {
+    const textarea = document.getElementById('new-comment-content');
+    const openBtn = document.getElementById('openGifPicker');
+    const container = document.getElementById('gifSearchContainer');
+    const searchInput = document.getElementById('gifSearchInput');
+    const resultsDiv = document.getElementById('gifResults');
+    const loadingDiv = document.getElementById('gifLoading');
+    const previewDiv = document.getElementById('gifPreview');
+
+    if (!openBtn || !textarea) return;
+
+    openBtn.addEventListener('click', () => {
+        container.style.display = container.style.display === 'none' ? 'block' : 'none';
+        if (container.style.display === 'block') {
+            searchInput.focus();
+        }
+    });
+
+    let timeout;
+    searchInput.addEventListener('input', function() {
+        clearTimeout(timeout);
+        const query = this.value.trim();
+        if (query.length < 2) {
+            resultsDiv.innerHTML = '';
+            return;
+        }
+        loadingDiv.style.display = 'block';
+        resultsDiv.innerHTML = '';
+
+        timeout = setTimeout(() => {
+            fetch(`/comment/gif-search?q=${encodeURIComponent(query)}`)
+                .then(res => res.json())
+                .then(gifs => {
+                    loadingDiv.style.display = 'none';
+                    resultsDiv.innerHTML = '';
+                    if (gifs.length === 0) {
+                        resultsDiv.innerHTML = '<p style="color:#888;font-size:0.85rem;width:100%;text-align:center;">Aucun GIF trouvé.</p>';
+                        return;
+                    }
+                    gifs.forEach(gif => {
+                        const img = document.createElement('img');
+                        img.src = gif.url;
+                        img.alt = gif.title || 'GIF';
+                        img.title = 'Cliquez pour ajouter ce GIF';
+                        img.style.cssText = 'width:100px;height:75px;object-fit:cover;cursor:pointer;border-radius:10px;border:2px solid transparent;transition:all 0.2s;';
+                        img.addEventListener('mouseenter', () => { img.style.borderColor = '#8d4fff'; img.style.transform = 'scale(1.05)'; });
+                        img.addEventListener('mouseleave', () => { img.style.borderColor = 'transparent'; img.style.transform = 'scale(1)'; });
+                        img.addEventListener('click', () => {
+                            const imgTag = `<img src="${gif.url}" alt="GIF" style="max-width:200px;border-radius:8px;">`;
+                            const start = textarea.selectionStart;
+                            const end = textarea.selectionEnd;
+                            const text = textarea.value;
+                            textarea.value = text.substring(0, start) + imgTag + text.substring(end);
+                            textarea.focus();
+
+                            // Aperçu
+                            previewDiv.style.display = 'block';
+                            previewDiv.innerHTML = `
+                                <p style="font-size:0.8rem;color:#888;margin-bottom:5px;">Aperçu du GIF :</p>
+                                <img src="${gif.url}" style="max-width:150px;border-radius:10px;border:2px solid #8d4fff;">
+                                <button type="button" onclick="this.parentElement.style.display='none'" style="position:absolute;top:-5px;right:-5px;background:#dc3545;color:#fff;border:none;border-radius:50%;width:20px;height:20px;font-size:12px;cursor:pointer;line-height:1;">×</button>
+                            `;
+
+                            container.style.display = 'none';
+                            searchInput.value = '';
+                            resultsDiv.innerHTML = '';
+                        });
+                        resultsDiv.appendChild(img);
+                    });
+                })
+                .catch(() => {
+                    loadingDiv.style.display = 'none';
+                    resultsDiv.innerHTML = '<p style="color:#dc3545;font-size:0.85rem;">Erreur de connexion à GIPHY.</p>';
+                });
+        }, 400);
+    });
+})();
+
 </script>
 {% endblock %}
