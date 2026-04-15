@@ -32,9 +32,12 @@ PROMPT;
 
             $prompt = str_replace('{topic}', $topic, $prompt);
             
-            // Créer un message simple
-            $message = new \Symfony\AI\Platform\Message\TextMessage($prompt);
-            $response = $this->platform->call($message);
+            // Créer un MessageBag avec le prompt
+            $messageBag = new \Symfony\AI\Platform\Message\MessageBag([
+                new \Symfony\AI\Platform\Message\TextMessage($prompt)
+            ]);
+            
+            $response = $this->platform->call($messageBag);
             $content = $response->getContent();
             
             // Nettoyer la réponse (parfois l'IA ajoute des backticks ou du texte autour)
