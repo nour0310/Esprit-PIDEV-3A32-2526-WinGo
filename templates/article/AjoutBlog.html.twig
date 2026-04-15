@@ -281,8 +281,15 @@ document.getElementById('ai-generate-btn').addEventListener('click', async () =>
             }
             
             // Pré-remplir le contenu avec Quill
-            if (typeof quill !== 'undefined' && data.contenu) {
-                quill.root.innerHTML = data.contenu;
+            if (data.contenu) {
+                const editor = document.querySelector('.ql-editor');
+                if (editor) {
+                    editor.innerHTML = data.contenu;
+                }
+                const textarea = document.getElementById('article_contenu');
+                if (textarea) {
+                    textarea.value = data.contenu;
+                }
             }
             
             // Pré-sélectionner la région
@@ -290,7 +297,7 @@ document.getElementById('ai-generate-btn').addEventListener('click', async () =>
                 const regionSelect = document.querySelector('#article_region');
                 if (regionSelect) {
                     for (let option of regionSelect.options) {
-                        if (option.value === data.region || option.text === data.region) {
+                        if (option.value && (option.value.toLowerCase().includes(data.region.toLowerCase()) || data.region.toLowerCase().includes(option.value.toLowerCase()))) {
                             option.selected = true;
                             break;
                         }
@@ -303,7 +310,7 @@ document.getElementById('ai-generate-btn').addEventListener('click', async () =>
                 const catSelect = document.querySelector('#article_categorie');
                 if (catSelect) {
                     for (let option of catSelect.options) {
-                        if (option.value === data.categorie || option.text === data.categorie) {
+                        if (option.value && (option.value.toLowerCase().includes(data.categorie.toLowerCase()) || data.categorie.toLowerCase().includes(option.value.toLowerCase()))) {
                             option.selected = true;
                             break;
                         }
