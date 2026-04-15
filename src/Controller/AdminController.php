@@ -272,11 +272,15 @@ class AdminController extends AbstractController
             'search'               => $search,
             'articlesParMois'      => $articlesParMois,
             'articlesParCategorie' => $articlesParCategorie,
+            'commentairesParMois'  => $commentairesParMois,
+            'likesParMois'         => $likesParMois,
+        ]);
     }
 
     #[Route('/article/{id}/delete', name: 'admin_article_delete', methods: ['POST'])]
     public function deleteArticle(Request $request, Article $article, EntityManagerInterface $em): Response
     {
+        // ... rest of the code remains the same ...
         if ($this->isCsrfTokenValid('delete_admin' . $article->getId(), $request->request->get('_token'))) {
             $em->remove($article);
             $em->flush();
