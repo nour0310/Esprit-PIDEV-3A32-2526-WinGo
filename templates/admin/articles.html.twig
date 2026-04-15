@@ -360,6 +360,54 @@
     {{ parent() }}
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
+        // Assistant IA
+        document.getElementById('ai-generate-btn').addEventListener('click', async () => {
+            const topic = document.getElementById('ai-topic').value.trim();
+            const status = document.getElementById('ai-status');
+            const btn = document.getElementById('ai-generate-btn');
+            
+            if (!topic) {
+                status.textContent = '❌ Veuillez saisir un sujet.';
+                return;
+            }
+            
+            // Désactiver le bouton et afficher le chargement
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Génération...';
+            status.textContent = '⏳ Génération en cours...';
+            
+            const formData = new FormData();
+            formData.append('topic', topic);
+            
+            try {
+                const response = await fetch('{{ path('admin_article_generate') }}', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const data = await response.json();
+                if (data.error) {
+                    status.textContent = '❌ ' + data.error;
+                } else {
+                    status.textContent = '✅ Article généré ! Redirection...';
+                    
+                    // Stocker les données dans sessionStorage pour les récupérer dans le formulaire
+                    sessionStorage.setItem('generatedArticle', JSON.stringify(data));
+                    
+                    // Rediriger vers le formulaire de création
+                    setTimeout(() => {
+                        window.location.href = '{{ path('app_article_new') }}';
+                    }, 1000);
+                }
+            } catch (error) {
+                status.textContent = '❌ Erreur réseau.';
+                console.error('Error:', error);
+            } finally {
+                // Réactiver le bouton
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-magic"></i> Générer';
+            }
+        });
         document.addEventListener('DOMContentLoaded', function() {
             // Articles par mois
             new Chart(document.getElementById('articlesChart').getContext('2d'), {
