@@ -1,6 +1,7 @@
 parameters:
     images_directory: '%kernel.project_dir%/public/images'
     gemini_api_key: '%env(GEMINI_API_KEY)%'
+    giphy_api_key: '%env(GIPHY_API_KEY)%'
 
 services:
     _defaults:
