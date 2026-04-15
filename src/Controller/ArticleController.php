@@ -327,21 +327,17 @@ class ArticleController extends AbstractController
         $form = $this->createForm(CommentaireType::class, $commentaire);
         $form->handleRequest($request);
 
-        if ($form->isSubmitted() && $form->isValid()) {
-            $parentId = $form->has('parent_id') ? $form->get('parent_id')->getData() : null;
-            if ($parentId !== null && $parentId !== '') {
-                $parentComment = $commentaireRepository->find((int) $parentId);
-                if (
-                    $parentComment instanceof Commentaire
-                    && $parentComment->getArticle()
-                    && $parentComment->getArticle()->getId() === $article->getId()
-                ) {
-                    $commentaire->setParent($parentComment);
+        if ($form->isSubmitted()) {
+            if ($form->isValid()) {
+                $parentId = $form->has('parent_id') ? $form->get('parent_id')->getData() : null;
+                if ($parentId !== null && $parentId !== '') {
+                    $parentComment = $commentaireRepository->find((int) $parentId);
+                    if ($parentComment instanceof Commentaire && $parentComment->getArticle()?->getId() === $article->getId()) {
+                        $commentaire->setParent($parentComment);
+                    }
                 }
-            }
-
-            $em->persist($commentaire);
-            $em->flush();
+                $em->persist($commentaire);
+                $em->flush();
 
             if ($user && $user->getId() !== null) {
                 $articleUrl = $this->generateUrl('app_article_show', ['id' => $article->getId()]);
