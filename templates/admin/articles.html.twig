@@ -214,6 +214,21 @@
 <div class="container-fluid">
     <h1>Gestion des Articles</h1>
 
+    <!-- Assistant IA -->
+    <div class="ai-card">
+        <h4>
+            <i class="fas fa-robot"></i>
+            Assistant de rédaction IA
+        </h4>
+        <div class="ai-input-group">
+            <input type="text" id="ai-topic" class="ai-input" placeholder="Ex: Randonnée dans le désert de Douz">
+            <button id="ai-generate-btn" class="ai-btn">
+                <i class="fas fa-magic"></i> Générer
+            </button>
+        </div>
+        <div id="ai-status" class="ai-status"></div>
+    </div>
+
     {# Graphiques statistiques #}
     <div class="stats-grid">
         <div class="chart-card">
