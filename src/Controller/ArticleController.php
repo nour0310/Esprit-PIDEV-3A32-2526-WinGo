@@ -339,35 +339,39 @@ class ArticleController extends AbstractController
                 $em->persist($commentaire);
                 $em->flush();
 
-            if ($user && $user->getId() !== null) {
-                $articleUrl = $this->generateUrl('app_article_show', ['id' => $article->getId()]);
+                if ($user && $user->getId() !== null) {
+                    $articleUrl = $this->generateUrl('app_article_show', ['id' => $article->getId()]);
 
-                $auteur = $article->getAuteur();
-                if ($auteur && $auteur->getId() !== null && $auteur->getId() !== $user->getId()) {
-                    $notificationService->create(
-                        $auteur->getId(),
-                        $user->getId(),
-                        'commentaire',
-                        trim($user->getPrenom() . ' ' . $user->getNom()) . ' a commenté votre article.',
-                        $articleUrl
-                    );
-                }
+                    $auteur = $article->getAuteur();
+                    if ($auteur && $auteur->getId() !== null && $auteur->getId() !== $user->getId()) {
+                        $notificationService->create(
+                            $auteur->getId(),
+                            $user->getId(),
+                            'commentaire',
+                            trim($user->getPrenom() . ' ' . $user->getNom()) . ' a commenté votre article.',
+                            $articleUrl
+                        );
+                    }
 
-                $parent = $commentaire->getParent();
-                $parentAuthor = $parent?->getUtilisateur();
-                if (
-                    $parentAuthor
-                    && $parentAuthor->getId() !== null
-                    && $parentAuthor->getId() !== $user->getId()
-                ) {
-                    $notificationService->create(
-                        $parentAuthor->getId(),
-                        $user->getId(),
-                        'reponse',
-                        trim($user->getPrenom() . ' ' . $user->getNom()) . ' a répondu à votre commentaire.',
-                        $articleUrl . '#comment-card-' . $parent->getId()
-                    );
-                }
+                    $parent = $commentaire->getParent();
+                    $parentAuthor = $parent?->getUtilisateur();
+                    if (
+                        $parentAuthor
+                        && $parentAuthor->getId() !== null
+                        && $parentAuthor->getId() !== $user->getId()
+                    ) {
+                        $notificationService->create(
+                            $parentAuthor->getId(),
+                            $user->getId(),
+                            'reponse',
+                            trim($user->getPrenom() . ' ' . $user->getNom()) . ' a répondu à votre commentaire.',
+                            $articleUrl . '#comment-card-' . $parent->getId()
+                        );
+                    }
+                } // This closes: if ($user && $user->getId() !== null)
+            } else { // This else is for: if ($form->isValid())
+                // Si l'utilisateur a juste inséré un GIF, il n'y a pas de problème de validation bloquant
+                error_log('FORM INVALID: ' . (string) $form->getErrors(true, false));
             }
 
             return $this->redirectToRoute('app_article_show', ['id' => $article->getId()]);
