@@ -11,20 +11,23 @@ use ProfanityFilter\ProfanityLevel;
  */
 class ProfanityFilterService
 {
-    private ProfanityFilter $filter;
+    private ProfanityFilter $filterFr;
+    private ProfanityFilter $filterEn;
 
     public function __construct()
     {
-        // Filtre français avec sensibilité HIGH
-        $this->filter = new ProfanityFilter(ProfanityLevel::HIGH, 'fr');
+        // Filtre français + anglais avec sensibilité HIGH
+        $this->filterFr = new ProfanityFilter(ProfanityLevel::HIGH, 'fr');
+        $this->filterEn = new ProfanityFilter(ProfanityLevel::HIGH, 'en');
     }
 
     /**
-     * Vérifie si un texte contient des mots inappropriés.
+     * Vérifie si un texte contient des mots inappropriés (FR + EN).
      */
     public function containsProfanity(string $text): bool
     {
-        return $this->filter->containsProfanity($text);
+        return $this->filterFr->containsProfanity($text) 
+            || $this->filterEn->containsProfanity($text);
     }
 
     /**
@@ -32,6 +35,9 @@ class ProfanityFilterService
      */
     public function clean(string $text): string
     {
-        return $this->filter->clean($text);
+        $text = $this->filterFr->clean($text);
+        $text = $this->filterEn->clean($text);
+        return $text;
     }
 }
+
