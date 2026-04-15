@@ -3,80 +3,92 @@
 namespace App\Service;
 
 use Symfony\Contracts\HttpClient\HttpClientInterface;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
+use Psr\Log\LoggerInterface;
 
 class ArticleGeneratorService
 {
     public function __construct(
-        private readonly HttpClientInterface $client
+        private readonly HttpClientInterface $client,
+        #[Autowire('%gemini_api_key%')] private readonly string $apiKey,
+        private readonly LoggerInterface $logger
     ) {}
 
     public function generateArticle(string $topic): ?array
     {
-        try {
-            $apiKey = $_ENV['GEMINI_API_KEY'] ?? null;
-            if (!$apiKey) {
-                throw new \Exception('Gemini API key not found');
-            }
-
-            $prompt = <<<PROMPT
-Tu es un assistant expert en rédaction d'articles de blog de voyage pour le site "WinGo".
-Ta mission est de générer un article de blog complet et structuré en français à partir du sujet fourni.
-
-Format de réponse attendu (JSON strict, sans texte supplémentaire) :
-{
-    "titre": "Titre accrocheur de l'article",
-    "contenu": "Contenu de l'article avec des paragraphes en HTML simple (<p>, <h2>, <ul>)",
-    "categorie": "Aventure|Culture|Gastronomie|Détente",
-    "region": "Nom de la région principale concernée",
-    "tags": ["mot1", "mot2", "mot3"]
-}
-
-Sujet: {topic}
-PROMPT;
-
-            $prompt = str_replace('{topic}', $topic, $prompt);
-
-            $response = $this->client->request('POST', 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=' . $apiKey, [
-                'json' => [
-                    'contents' => [
-                        [
-                            'parts' => [
-                                [
-                                    'text' => $prompt
-                                ]
-                            ]
-                        ]
-                    ],
-                    'generationConfig' => [
-                        'temperature' => 0.7,
-                        'topK' => 40,
-                        'topP' => 0.95,
-                        'maxOutputTokens' => 2048,
-                    ]
-                ]
-            ]);
-
-            $data = $response->toArray();
-            
-            if (isset($data['candidates'][0]['content']['parts'][0]['text'])) {
-                $content = $data['candidates'][0]['content']['parts'][0]['text'];
-                
-                // Nettoyer la réponse (parfois l'IA ajoute des backticks ou du texte autour)
-                $content = trim($content);
-                $content = preg_replace('/^```json\s*/', '', $content);
-                $content = preg_replace('/\s*```$/', '', $content);
-                
-                $articleData = json_decode($content, true);
-                
-                if (isset($articleData['titre'], $articleData['contenu'])) {
-                    return $articleData;
-                }
-            }
-        } catch (\Exception $e) {
-            // Logguer l'erreur
-            error_log('Article generation error: ' . $e->getMessage());
+        if (empty(trim($topic))) {
+            $this->logger->warning('Empty topic provided for article generation');
+            return null;
         }
 
-        return null;
+        $prompt = <<<PROMPT
+Tu es un assistant expert en rédaction d'articles de blog de voyage pour "WinGo".
+Génère un article complet en français sur le sujet : "$topic".
+
+Réponds UNIQUEMENT avec un objet JSON valide, sans aucun texte avant ou après.
+
+Format exact :
+{
+    "titre": "Titre accrocheur et attractif",
+    "contenu": "Contenu HTML structuré avec paragraphes, titres et listes",
+    "categorie": "Aventure ou Culture ou Gastronomie ou Détente",
+    "region": "Nom de la région tunisienne concernée",
+    "tags": ["mot-clé1", "mot-clé2", "mot-clé3"]
+}
+PROMPT;
+
+        try {
+            $this->logger->info('Generating article for topic: ' . $topic);
+            
+            $response = $this->client->request('POST', 
+                'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=' . $this->apiKey, [
+                    'headers' => ['Content-Type' => 'application/json'],
+                    'json' => [
+                        'contents' => [
+                            [
+                                'parts' => [['text' => $prompt]]
+                            ]
+                        ],
+                        'generationConfig' => [
+                            'temperature' => 0.7,
+                            'maxOutputTokens' => 2048,
+                            'candidateCount' => 1,
+                        ]
+                    ],
+                    'timeout' => 30,
+                ]
+            );
+
+            $data = $response->toArray();
+            $this->logger->debug('Gemini API response status: ' . $response->getStatusCode());
+            
+            if ($response->getStatusCode() !== 200) {
+                $this->logger->error('Gemini API error: ' . $response->getContent(false));
+                return null;
+            }
+
+            $content = $data['candidates'][0]['content']['parts'][0]['text'] ?? '';
+            $this->logger->debug('Raw content from Gemini: ' . $content);
+            
+            // Tenter de décoder le JSON
+            $result = json_decode($content, true);
+            
+            if (json_last_error() !== JSON_ERROR_NONE) {
+                $this->logger->warning('Failed to decode JSON from Gemini, raw content: ' . $content);
+                return null;
+            }
+
+            $this->logger->info('Successfully generated article for topic: ' . $topic);
+            
+            return $result;
+            
+        } catch (\Exception $e) {
+            $this->logger->error('Article generation failed: ' . $e->getMessage(), [
+                'exception' => get_class($e),
+                'trace' => $e->getTraceAsString()
+            ]);
+            
+            return null;
+        }
     }
 }
