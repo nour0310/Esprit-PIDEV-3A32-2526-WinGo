@@ -279,6 +279,22 @@ class AdminController extends AbstractController
         ]);
     }
 
+    #[Route('/article/generate', name: 'admin_article_generate', methods: ['POST'])]
+    public function generateArticle(Request $request, ArticleGeneratorService $generator): JsonResponse
+    {
+        $topic = $request->request->get('topic');
+        if (!$topic) {
+            return $this->json(['error' => 'Sujet requis'], 400);
+        }
+
+        $generated = $generator->generateArticle($topic);
+        if (!$generated) {
+            return $this->json(['error' => 'Erreur lors de la génération'], 500);
+        }
+
+        return $this->json($generated);
+    }
+
     #[Route('/article/{id}/delete', name: 'admin_article_delete', methods: ['POST'])]
     public function deleteArticle(Request $request, Article $article, EntityManagerInterface $em): Response
     {
