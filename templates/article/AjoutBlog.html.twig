@@ -274,16 +274,26 @@
 	.ai-tips ul li {
 		font-size: 0.82rem;
 		opacity: 0.85;
-		padding: 4px 0;
+		padding: 6px 10px;
+		border-radius: 8px;
+		cursor: pointer;
+		transition: all 0.2s;
 		display: flex;
 		align-items: flex-start;
 		gap: 6px;
+	}
+	.ai-tips ul li:hover {
+		opacity: 1;
+		background: rgba(255,255,255,0.15);
 	}
 	.ai-tips ul li::before {
 		content: '✦';
 		font-size: 0.7rem;
 		flex-shrink: 0;
 		margin-top: 2px;
+	}
+	@media (max-width: 991px) {
+		.ai-sidebar { position: static; margin-bottom: 30px; order: -1; }
 	}
 </style>
 {% endblock %}
@@ -462,6 +472,17 @@ function bootAjoutBlogQuill(retriesLeft = 20) {
 
 document.addEventListener('DOMContentLoaded', function () {
 	bootAjoutBlogQuill();
+
+	// Suggestions cliquables
+	document.querySelectorAll('.ai-tips ul li').forEach(function(li) {
+		li.addEventListener('click', function() {
+			const topicInput = document.getElementById('ai-topic');
+			if (topicInput) {
+				topicInput.value = this.textContent.trim();
+				document.getElementById('ai-generate-btn').click();
+			}
+		});
+	});
 });
 document.addEventListener('turbo:load', function () {
 	bootAjoutBlogQuill();
@@ -478,31 +499,21 @@ document.addEventListener('turbo:load', function () {
 	</div>
 
 	<div class="container" style="padding-bottom: 80px;">
-		<div class="row justify-content-center">
+		<div class="row">
+			<!-- Formulaire (gauche) -->
 			<div class="col-lg-8">
 				<div class="form-card">
 					<div class="form-header">
 						<h3>Partagez votre histoire</h3>
 						<p>Inspirez les autres avec votre expérience de voyage en Tunisie</p>
 					</div>
-				</div>
-
-				<!-- Assistant IA -->
-				<div class="ai-assistant">
-					<h4>🤖 Assistant de rédaction IA</h4>
-					<div class="ai-input-group">
-						<input type="text" id="ai-topic" class="ai-input" placeholder="Ex: Randonnée dans le désert de Douz">
-						<button id="ai-generate-btn" class="ai-btn" type="button">Générer</button>
-					</div>
-					<div id="ai-status" class="ai-status"></div>
-				</div>
-
-				<div class="form-body">
-					{{ form_start(form, {'attr': {'novalidate': 'novalidate', 'class': 'wingo-form', 'enctype': 'multipart/form-data'}}) }}
-						<div class="form-group-custom">
-							{{ form_label(form.titre, 'Titre de votre blog', {'label_attr': {'class': 'form-label'}}) }}
-							{{ form_widget(form.titre, {'attr': {'class': 'form-control wingo-input', 'placeholder': 'Donnez un titre captivant...'}}) }}
-							{{ form_errors(form.titre) }}
+					<div class="form-body">
+						{{ form_start(form, {'attr': {'novalidate': 'novalidate', 'class': 'wingo-form', 'enctype': 'multipart/form-data'}}) }}
+							<div class="form-group-custom">
+								{{ form_label(form.titre, 'Titre de votre blog', {'label_attr': {'class': 'form-label'}}) }}
+								{{ form_widget(form.titre, {'attr': {'class': 'form-control wingo-input', 'placeholder': 'Donnez un titre captivant...'}}) }}
+								{{ form_errors(form.titre) }}
+							</div>
 							<div class="form-group-custom">
 								{{ form_label(form.contenu, 'Votre histoire', {'label_attr': {'class': 'form-label'}}) }}
 								{{ form_widget(form.contenu) }}
@@ -527,6 +538,27 @@ document.addEventListener('turbo:load', function () {
 						{{ form_end(form) }}
 						<div class="text-center">
 							<a href="{{ path('blog') }}" class="back-link">Retour aux articles</a>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<!-- Assistant IA (droite, sticky) -->
+			<div class="col-lg-4">
+				<div class="ai-sidebar">
+					<div class="ai-assistant">
+						<h4>🤖 Assistant IA</h4>
+						<input type="text" id="ai-topic" class="ai-input" placeholder="Ex: Désert de Douz, Médina de Tunis...">
+						<button id="ai-generate-btn" class="ai-btn" type="button"><i class="fas fa-magic"></i> Générer l'article</button>
+						<div id="ai-status" class="ai-status"></div>
+						<div class="ai-tips">
+							<h5>💡 Suggestions</h5>
+							<ul>
+								<li>Randonnée dans le Sahara</li>
+								<li>Gastronomie tunisienne</li>
+								<li>Les ruines de Carthage</li>
+								<li>Plages de Djerba</li>
+							</ul>
 						</div>
 					</div>
 				</div>
