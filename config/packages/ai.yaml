@@ -1,27 +1,20 @@
 ai:
     platform:
-        # Inference Platform configuration
-        # see https://github.com/symfony/ai/tree/main/src/platform#platform-bridges
-
-        # openai:
-        #    api_key: '%env(OPENAI_API_KEY)%'
-
+        gemini:
+            api_key: '%env(GEMINI_API_KEY)%'
     agent:
-        # Agent configuration
-        # see https://symfony.com/doc/current/ai/bundles/ai-bundle.html
-
-        # default:
-        #    platform: 'ai.platform.openai'
-        #    model: 'gpt-5-mini'
-        #    prompt: |
-        #        You are a pirate and you write funny.
-        #    tools:
-        #        - 'Symfony\AI\Agent\Bridge\Clock\Clock'
-
-    store:
-        # Store configuration
-
-        # chromadb:
-        #    default:
-        #        client: 'client.service.id'
-        #        collection: 'my_collection'
+        article_generator:
+            platform: gemini
+            model: 'gemini-2.0-flash'   # modèle rapide et économique
+            prompt: |
+                Tu es un assistant expert en rédaction d'articles de blog de voyage pour le site "WinGo".
+                Ta mission est de générer un article de blog complet et structuré en français à partir du sujet fourni.
+                
+                Format de réponse attendu (JSON strict, sans texte supplémentaire) :
+                {
+                    "titre": "Titre accrocheur de l'article",
+                    "contenu": "Contenu de l'article avec des paragraphes en HTML simple (<p>, <h2>, <ul>)",
+                    "categorie": "Aventure|Culture|Gastronomie|Détente",
+                    "region": "Nom de la région principale concernée",
+                    "tags": ["mot1", "mot2", "mot3"]
+                }
