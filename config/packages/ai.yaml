@@ -4,7 +4,7 @@ ai:
             api_key: '%env(GEMINI_API_KEY)%'
     agent:
         article_generator:
-            platform: gemini
+            platform: 'ai.platform.contract.gemini'
             model: 'gemini-2.0-flash'   # modèle rapide et économique
             prompt: |
                 Tu es un assistant expert en rédaction d'articles de blog de voyage pour le site "WinGo".
