@@ -35,13 +35,21 @@ security:
                 path: /
 
     access_control:
+        # Les routes d'administration restent protégées
         - { path: ^/admin, roles: ROLE_ADMIN }
+        # Les routes client (ex: panier, commandes) restent protégées
         - { path: ^/client, roles: ROLE_USER }
-        - { path: ^/blog, roles: ROLE_USER }
-        - { path: ^/article, roles: ROLE_USER }
-        - { path: ^/commentaire, roles: ROLE_USER }
-        - { path: ^/api/notifications, roles: ROLE_USER }
-        - { path: ^/api/summary, roles: ROLE_USER }
+        
+        # Rendre publiques les routes du blog (lecture seule)
+        - { path: ^/blog, roles: PUBLIC_ACCESS }
+        - { path: ^/article, roles: PUBLIC_ACCESS }
+        - { path: ^/api/tts, roles: PUBLIC_ACCESS }
+        - { path: ^/api/summary/ai, roles: PUBLIC_ACCESS }
+        - { path: ^/commentaire/sentiment, roles: PUBLIC_ACCESS }
+        - { path: ^/article/[0-9]+/image, roles: PUBLIC_ACCESS }
+
+        # Par défaut, tout le reste est accessible seulement aux utilisateurs connectés
+        # - { path: ^/, roles: ROLE_USER }   # à décommenter si vous voulez bloquer le reste
 
 when@test:
     security:
