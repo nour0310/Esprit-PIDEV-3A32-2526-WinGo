@@ -10,6 +10,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 class CommentaireController extends AbstractController
 {
@@ -39,14 +40,13 @@ class CommentaireController extends AbstractController
     }
 
     #[Route('/commentaire/{id}/sentiment', name: 'app_commentaire_sentiment', methods: ['GET'])]
+    #[IsGranted('PUBLIC_ACCESS')]
     public function analyzeSentiment(Commentaire $commentaire): JsonResponse
     {
         $contenu = trim($commentaire->getContenu());
         
         $analyzer = new Analyzer();
         $scores = $analyzer->getSentiment($contenu);
-        
-        // $scores est un tableau comme ['pos' => 0.6, 'neg' => 0.1, 'neu' => 0.3, 'compound' => 0.7]
         
         $compound = $scores['compound'];
         
