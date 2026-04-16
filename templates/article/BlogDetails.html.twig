@@ -835,7 +835,7 @@ function base64ToBlob(base64, mimeType) {
 
 document.addEventListener('DOMContentLoaded', function () {
     // Récupération de l'URL absolue générée par Symfony (pour que le partage utilise l'URL publique)
-    const articleUrl = '{{ url('app_article_show', {'id': article.id}) }}';
+    const articleUrl = '{{ app_domain }}{{ path('app_article_show', {'id': article.id}) }}';
     const articleTitle = '{{ article.titre|e('js') }}';
     
     const contentContainer = document.querySelector('.article-content');
