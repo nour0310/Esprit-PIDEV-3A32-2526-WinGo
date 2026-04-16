@@ -32,6 +32,7 @@ class ApiController extends AbstractController
     }
 
     #[Route('/api/tts', name: 'api_tts', methods: ['POST'])]
+    #[IsGranted('PUBLIC_ACCESS')] // Rendre public si vous voulez que le bouton "Écouter" fonctionne sans login
     public function tts(Request $request, GoogleTranslateTtsService $ttsService): JsonResponse
     {
         try {
@@ -61,6 +62,7 @@ class ApiController extends AbstractController
     }
 
     #[Route('/api/summary/ai', name: 'api_summary_ai', methods: ['POST'])]
+    #[IsGranted('PUBLIC_ACCESS')]
     public function aiSummary(Request $request, AISummaryService $service): JsonResponse
     {
         @set_time_limit(300);
