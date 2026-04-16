@@ -1,17 +1,22 @@
 {% extends 'base.html.twig' %}
 
 {# --- Calcul de l'URL de l'image (pour OG et affichage) --- #}
-{% set blog_img_fallback = asset('images/placeholder.svg') %}
+{% set blog_img_fallback = absolute_url(asset('images/placeholder.svg')) %}
 {% set im = article.image|default('')|trim %}
 {% if im is empty %}
-    {% set cover_src = asset('images/placeholder.svg') %}
+    {% set cover_src = blog_img_fallback %}
+    {% set cover_src_absolute = blog_img_fallback %}
 {% elseif im starts with 'http://' or im starts with 'https://' %}
     {% set cover_src = im %}
+    {% set cover_src_absolute = im %}
 {% elseif im starts with '//' %}
     {% set cover_src = 'https:' ~ im %}
+    {% set cover_src_absolute = 'https:' ~ im %}
 {% else %}
-    {% set fn = im|replace({'\\':'/'})|split('/')|last %}
-    {% set cover_src = asset('uploads/articles/' ~ fn) %}
+    {# Utilisation de la route Symfony pour servir l'image (URL relative pour l'affichage) #}
+    {% set cover_src = path('app_article_image', {'id': article.id}) %}
+    {# URL absolue pour les balises Open Graph #}
+    {% set cover_src_absolute = url('app_article_image', {'id': article.id}) %}
 {% endif %}
 
 {% block title %}{{ article.titre }} — WinGo{% endblock %}
@@ -20,7 +25,7 @@
     {# --- Balises Open Graph pour les réseaux sociaux --- #}
     <meta property="og:title" content="{{ article.titre|striptags|e('html_attr') }}" />
     <meta property="og:description" content="{{ article.contenu|striptags|slice(0, 200)|e('html_attr') }}..." />
-    <meta property="og:image" content="{{ cover_src|e('html_attr') }}" />
+    <meta property="og:image" content="{{ cover_src_absolute|e('html_attr') }}" />
     <meta property="og:url" content="{{ url('app_article_show', {'id': article.id})|e('html_attr') }}" />
     <meta property="og:type" content="article" />
     <meta property="og:site_name" content="WinGo - Voyages en Tunisie" />
@@ -34,6 +39,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
+        /* Tous vos styles CSS existants (rien à changer) */
         :root {
             --primary-color: #8d4fff;
             --accent-color: #fa9e1c;
@@ -348,7 +354,6 @@
         .error-text { color: #dc3545; font-size: 0.85rem; margin-top: 8px; display: block; font-weight: 500; }
         .error-text ul { margin: 0; padding: 0; list-style: none; }
 
-        /* Styles pour l'édition inline */
         .edit-comment-form {
             display: none;
             margin-top: 15px;
@@ -442,7 +447,6 @@
             {{ comment.contenu|censor|raw }}
         </div>
 
-        {# Analyse de sentiment AJAX #}
         <div class="comment-sentiment" id="sentiment-{{ comment.id }}" style="margin-left: 55px; margin-top: 5px;">
             <span class="badge bg-secondary">⏳ Analyse...</span>
         </div>
@@ -478,7 +482,6 @@
             </div>
         </div>
 
-        {# Formulaire de réponse caché #}
         <div class="reply-form-container" id="reply-form-{{ comment.id }}" style="display: none; margin-top: 15px; padding-left: 20px;">
             <form method="post" action="{{ path('app_article_show', {id: article.id}) }}">
                 <textarea name="commentaire[contenu]" class="wingo-input" rows="3" placeholder="Tapez votre réponse ici..." required></textarea>
@@ -494,7 +497,6 @@
         </div>
     </div>
 
-    {# Boucle récursive pour afficher les réponses hiérarchiques #}
     {% if comment.reponses|length > 0 %}
         <div class="replies-container" style="margin-left: 40px; border-left: 2px dashed #ececec; padding-left: 20px; margin-top: -10px; margin-bottom: 20px;">
             {% for reponse in comment.reponses %}
