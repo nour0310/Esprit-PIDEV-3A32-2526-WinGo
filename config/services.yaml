@@ -2,7 +2,10 @@ parameters:
     images_directory: '%kernel.project_dir%/public/images'
     gemini_api_key: '%env(GEMINI_API_KEY)%'
     giphy_api_key: '%env(GIPHY_API_KEY)%'
+    app_domain: '%env(APP_DOMAIN)%'
 
+    router.request_context.host: 'overpower-neatly-democrat.ngrok-free.dev'
+    router.request_context.scheme: 'https'
 services:
     _defaults:
         autowire: true
@@ -27,3 +30,4 @@ services:
             - '../src/Entity/'
             - '../src/Kernel.php'
 
+    
