@@ -13,20 +13,17 @@
     {% set cover_src = 'https:' ~ im %}
     {% set cover_src_absolute = 'https:' ~ im %}
 {% else %}
-    {# Utilisation de la route Symfony pour servir l'image (URL relative pour l'affichage) #}
     {% set cover_src = path('app_article_image', {'id': article.id}) %}
-    {# URL absolue pour les balises Open Graph #}
     {% set cover_src_absolute = url('app_article_image', {'id': article.id}) %}
 {% endif %}
 
 {% block title %}{{ article.titre }} — WinGo{% endblock %}
 
 {% block stylesheets %}
-    {# --- Balises Open Graph pour les réseaux sociaux --- #}
     <meta property="og:title" content="{{ article.titre|striptags|e('html_attr') }}" />
     <meta property="og:description" content="{{ article.contenu|striptags|slice(0, 200)|e('html_attr') }}..." />
     <meta property="og:image" content="{{ cover_src_absolute|e('html_attr') }}" />
-    <meta property="og:url" content="{{ url('app_article_show', {'id': article.id})|e('html_attr') }}" />
+    <meta property="og:url" content="{{ app_domain ~ path('app_article_show', {'id': article.id})|e('html_attr') }}" />
     <meta property="og:type" content="article" />
     <meta property="og:site_name" content="WinGo - Voyages en Tunisie" />
     <meta name="twitter:card" content="summary_large_image" />
@@ -39,6 +36,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
+        /* Vos styles CSS (inchangés) */
         :root {
             --primary-color: #8d4fff;
             --accent-color: #fa9e1c;
@@ -178,6 +176,7 @@
             font-weight: 600;
             font-size: 14px;
             transition: transform 0.2s ease, box-shadow 0.2s ease;
+            text-decoration: none;
         }
         .share-btn i { font-size: 18px; }
         .share-btn:hover {
@@ -453,7 +452,6 @@
             (function() {
                 const container = document.getElementById('sentiment-{{ comment.id }}');
                 if (!container) return;
-
                 fetch('{{ path('app_commentaire_sentiment', {id: comment.id}) }}')
                     .then(response => response.json())
                     .then(data => {
@@ -461,7 +459,6 @@
                         if (data.class === 'success') badgeClass = 'bg-success';
                         else if (data.class === 'danger') badgeClass = 'bg-danger';
                         else badgeClass = 'bg-secondary';
-                        
                         if(data.emoji && data.text) {
                             container.innerHTML = `<span class="badge ${badgeClass}">${data.emoji} ${data.text}</span>`;
                         } else {
@@ -561,13 +558,17 @@
                 {% endif %}
             </div>
             <div class="share-buttons">
-                <button id="shareWhatsApp" class="share-btn share-btn-whatsapp" data-platform="whatsapp" type="button">
+                {# WhatsApp reste en JavaScript (mais on peut aussi le faire en lien) #}
+                <button id="shareWhatsApp" class="share-btn share-btn-whatsapp">
                     <i class="fab fa-whatsapp"></i> WhatsApp
                 </button>
-                <button id="shareFacebook" class="share-btn share-btn-facebook" data-platform="facebook" type="button">
+                {# Facebook : lien direct avec URL absolue construite via app_domain #}
+                <a href="https://www.facebook.com/sharer/sharer.php?u={{ app_domain ~ path('app_article_show', {'id': article.id})|url_encode }}&quote={{ article.titre|url_encode }}"
+                   target="_blank"
+                   class="share-btn share-btn-facebook">
                     <i class="fab fa-facebook-f"></i> Facebook
-                </button>
-                <button id="shareInstagram" class="share-btn share-btn-instagram" data-platform="instagram" type="button">
+                </a>
+                <button id="shareInstagram" class="share-btn share-btn-instagram">
                     <i class="fab fa-instagram"></i> Instagram
                 </button>
             </div>
@@ -593,7 +594,6 @@
                             {{ form_errors(commentForm.contenu) }}
                         </div>
 
-                        <!-- GIF Picker -->
                         <div class="gif-picker" style="margin-top: 12px;">
                             <button type="button" id="openGifPicker" style="background: linear-gradient(135deg, #8d4fff, #fa9e1c); color: #fff; border: none; padding: 8px 20px; border-radius: 25px; font-weight: 600; cursor: pointer; font-size: 0.9rem; transition: all 0.3s;">
                                 🎥 Ajouter un GIF
@@ -833,9 +833,9 @@ function base64ToBlob(base64, mimeType) {
     return new Blob([byteArray], { type: mimeType });
 }
 
+// WhatsApp et Instagram restent en JavaScript (mais on pourrait aussi les convertir)
 document.addEventListener('DOMContentLoaded', function () {
-    // Récupération de l'URL absolue générée par Symfony (pour que le partage utilise l'URL publique)
-    const articleUrl = '{{ app_domain }}{{ path('app_article_show', {'id': article.id}) }}';
+    const articleUrl = '{{ app_domain ~ path('app_article_show', {'id': article.id}) }}';
     const articleTitle = '{{ article.titre|e('js') }}';
     
     const contentContainer = document.querySelector('.article-content');
@@ -844,21 +844,13 @@ document.addEventListener('DOMContentLoaded', function () {
     const shareText = `${articleTitle} - ${preview}... ${articleUrl}`;
     const encodedText = encodeURIComponent(shareText);
     const encodedUrl = encodeURIComponent(articleUrl);
-    const encodedTitle = encodeURIComponent(articleTitle);
 
     const whatsappBtn = document.getElementById('shareWhatsApp');
-    const facebookBtn = document.getElementById('shareFacebook');
     const instagramBtn = document.getElementById('shareInstagram');
 
     if (whatsappBtn) {
         whatsappBtn.addEventListener('click', function () {
             window.open(`https://wa.me/?text=${encodedText}`, '_blank');
-        });
-    }
-
-    if (facebookBtn) {
-        facebookBtn.addEventListener('click', function () {
-            window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}&quote=${encodedTitle}`, '_blank', 'width=600,height=400');
         });
     }
 
