@@ -39,7 +39,6 @@
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        /* Tous vos styles CSS existants (rien à changer) */
         :root {
             --primary-color: #8d4fff;
             --accent-color: #fa9e1c;
@@ -835,30 +834,35 @@ function base64ToBlob(base64, mimeType) {
 }
 
 document.addEventListener('DOMContentLoaded', function () {
-    const titleEl = document.querySelector('.article-title');
-    const contentEl = document.querySelector('.article-content');
+    // Récupération de l'URL absolue générée par Symfony (pour que le partage utilise l'URL publique)
+    const articleUrl = '{{ url('app_article_show', {'id': article.id}) }}';
+    const articleTitle = '{{ article.titre|e('js') }}';
+    
+    const contentContainer = document.querySelector('.article-content');
+    const articleContent = contentContainer ? contentContainer.innerText.trim() : '';
+    const preview = articleContent.substring(0, 100);
+    const shareText = `${articleTitle} - ${preview}... ${articleUrl}`;
+    const encodedText = encodeURIComponent(shareText);
+    const encodedUrl = encodeURIComponent(articleUrl);
+    const encodedTitle = encodeURIComponent(articleTitle);
+
     const whatsappBtn = document.getElementById('shareWhatsApp');
     const facebookBtn = document.getElementById('shareFacebook');
     const instagramBtn = document.getElementById('shareInstagram');
 
-    if (titleEl && contentEl && whatsappBtn && facebookBtn && instagramBtn) {
-        const articleTitle = titleEl.innerText || '';
-        const articleContent = contentEl.innerText || '';
-        const articleUrl = window.location.href;
-        const preview = articleContent.substring(0, 100);
-        const shareText = `${articleTitle} - ${preview}... ${articleUrl}`;
-        const encodedText = encodeURIComponent(shareText);
-        const encodedUrl = encodeURIComponent(articleUrl);
-        const encodedTitle = encodeURIComponent(articleTitle);
-
+    if (whatsappBtn) {
         whatsappBtn.addEventListener('click', function () {
             window.open(`https://wa.me/?text=${encodedText}`, '_blank');
         });
+    }
 
+    if (facebookBtn) {
         facebookBtn.addEventListener('click', function () {
             window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}&quote=${encodedTitle}`, '_blank', 'width=600,height=400');
         });
+    }
 
+    if (instagramBtn) {
         instagramBtn.addEventListener('click', function () {
             navigator.clipboard.writeText(shareText).then(() => {
                 showShareNotification('Texte copié ! Collez-le dans Instagram.');
