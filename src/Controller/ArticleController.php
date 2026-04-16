@@ -186,6 +186,7 @@ class ArticleController extends AbstractController
     #[Route('/article/{id}/like', name: 'app_article_like', methods: ['POST'])]
     public function like(Article $article, EntityManagerInterface $em, LikesRepository $likesRepository, NotificationService $notificationService): JsonResponse
     {
+        /** @var \App\Entity\Utilisateur|null $user */
         $user = $this->getUser();
         if (!$user || $user->getId() === null) {
             return new JsonResponse(['success' => false, 'message' => 'Non authentifié'], Response::HTTP_UNAUTHORIZED);
@@ -204,6 +205,7 @@ class ArticleController extends AbstractController
             $em->persist($like);
             $em->flush();
 
+            /** @var \App\Entity\Utilisateur|null $auteur */
             $auteur = $article->getAuteur();
             if ($auteur && $auteur->getId() !== null && $auteur->getId() !== $user->getId()) {
                 $notificationService->create(
@@ -226,6 +228,7 @@ class ArticleController extends AbstractController
     #[Route('/article/{id}/unlike', name: 'app_article_unlike', methods: ['POST'])]
     public function unlike(Article $article, EntityManagerInterface $em, LikesRepository $likesRepository): JsonResponse
     {
+        /** @var \App\Entity\Utilisateur|null $user */
         $user = $this->getUser();
         if (!$user || $user->getId() === null) {
             return new JsonResponse(['success' => false, 'message' => 'Non authentifié'], Response::HTTP_UNAUTHORIZED);
@@ -262,6 +265,7 @@ class ArticleController extends AbstractController
         $article = new Article();
         $article->setDatePublication(new \DateTime());
 
+        /** @var \App\Entity\Utilisateur|null $user */
         $user = $this->getUser();
         if ($user) {
             $article->setAuteur($user);
@@ -317,6 +321,7 @@ class ArticleController extends AbstractController
         $commentaire->setArticle($article);
         $commentaire->setDateCommentaire(new \DateTime());
 
+        /** @var \App\Entity\Utilisateur|null $user */
         $user = $this->getUser();
         if ($user) {
             $commentaire->setUtilisateur($user);
@@ -340,6 +345,7 @@ class ArticleController extends AbstractController
                 if ($user && $user->getId() !== null) {
                     $articleUrl = $this->generateUrl('app_article_show', ['id' => $article->getId()]);
 
+                    /** @var \App\Entity\Utilisateur|null $auteur */
                     $auteur = $article->getAuteur();
                     if ($auteur && $auteur->getId() !== null && $auteur->getId() !== $user->getId()) {
                         $notificationService->create(
@@ -352,6 +358,7 @@ class ArticleController extends AbstractController
                     }
 
                     $parent = $commentaire->getParent();
+                    /** @var \App\Entity\Utilisateur|null $parentAuthor */
                     $parentAuthor = $parent?->getUtilisateur();
                     if (
                         $parentAuthor
