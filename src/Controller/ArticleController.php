@@ -23,11 +23,13 @@ use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 class ArticleController extends AbstractController
 {
     // ===================== ROUTE POUR LES IMAGES =====================
     #[Route('/article/{id}/image', name: 'app_article_image', methods: ['GET'])]
+    #[IsGranted('PUBLIC_ACCESS')]
     public function image(Article $article): Response
     {
         $raw = $article->getImage();
@@ -90,6 +92,7 @@ class ArticleController extends AbstractController
 
     // ===================== LISTE DES ARTICLES =====================
     #[Route('/blog', name: 'blog')]
+    #[IsGranted('PUBLIC_ACCESS')]
     public function blog(
         Request $request,
         ArticleRepository $articleRepository,
@@ -303,6 +306,7 @@ class ArticleController extends AbstractController
 
     // ===================== AFFICHER UN ARTICLE =====================
     #[Route('/article/{id}', name: 'app_article_show')]
+    #[IsGranted('PUBLIC_ACCESS')]
     public function show(
         Request $request,
         Article $article,
@@ -368,9 +372,8 @@ class ArticleController extends AbstractController
                             $articleUrl . '#comment-card-' . $parent->getId()
                         );
                     }
-                } // This closes: if ($user && $user->getId() !== null)
-            } else { // This else is for: if ($form->isValid())
-                // Si l'utilisateur a juste inséré un GIF, il n'y a pas de problème de validation bloquant
+                }
+            } else {
                 error_log('FORM INVALID: ' . (string) $form->getErrors(true, false));
             }
 
@@ -422,8 +425,6 @@ class ArticleController extends AbstractController
             return $this->redirectToRoute('blog');
         }
 
-        // Les vérifications de null ne sont plus nécessaires si l'entité gère correctement les valeurs par défaut.
-        // (Les setters acceptent ?string et convertissent null en chaîne vide)
         $form = $this->createForm(ArticleType::class, $article);
         $form->handleRequest($request);
 
