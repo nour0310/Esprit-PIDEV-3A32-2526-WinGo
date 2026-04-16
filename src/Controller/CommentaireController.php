@@ -40,7 +40,7 @@ class CommentaireController extends AbstractController
     }
 
     #[Route('/commentaire/{id}/sentiment', name: 'app_commentaire_sentiment', methods: ['GET'])]
-    #[IsGranted('PUBLIC_ACCESS')]
+    #[IsGranted('PUBLIC_ACCESS')]   // Rendre public pour l'affichage du sentiment
     public function analyzeSentiment(Commentaire $commentaire): JsonResponse
     {
         $contenu = trim($commentaire->getContenu());
