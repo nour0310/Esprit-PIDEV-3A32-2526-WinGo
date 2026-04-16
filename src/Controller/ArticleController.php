@@ -39,7 +39,6 @@ class ArticleController extends AbstractController
             return $this->defaultImage();
         }
 
-        // URL absolue ou protocol-relative
         if (str_starts_with($imageName, '//')) {
             return new RedirectResponse('https:' . $imageName);
         }
@@ -47,7 +46,6 @@ class ArticleController extends AbstractController
             return new RedirectResponse($imageName);
         }
 
-        // Extraire le nom du fichier (si chemin Windows)
         $cleanName = basename(str_replace('\\', '/', $imageName));
 
         $projectDir = $this->getParameter('kernel.project_dir');
@@ -188,7 +186,6 @@ class ArticleController extends AbstractController
     #[Route('/article/{id}/like', name: 'app_article_like', methods: ['POST'])]
     public function like(Article $article, EntityManagerInterface $em, LikesRepository $likesRepository, NotificationService $notificationService): JsonResponse
     {
-        /** @var \App\Entity\Utilisateur|null $user */
         $user = $this->getUser();
         if (!$user || $user->getId() === null) {
             return new JsonResponse(['success' => false, 'message' => 'Non authentifié'], Response::HTTP_UNAUTHORIZED);
@@ -229,7 +226,6 @@ class ArticleController extends AbstractController
     #[Route('/article/{id}/unlike', name: 'app_article_unlike', methods: ['POST'])]
     public function unlike(Article $article, EntityManagerInterface $em, LikesRepository $likesRepository): JsonResponse
     {
-        /** @var \App\Entity\Utilisateur|null $user */
         $user = $this->getUser();
         if (!$user || $user->getId() === null) {
             return new JsonResponse(['success' => false, 'message' => 'Non authentifié'], Response::HTTP_UNAUTHORIZED);
@@ -266,7 +262,6 @@ class ArticleController extends AbstractController
         $article = new Article();
         $article->setDatePublication(new \DateTime());
 
-        /** @var \App\Entity\Utilisateur $user */
         $user = $this->getUser();
         if ($user) {
             $article->setAuteur($user);
@@ -322,7 +317,6 @@ class ArticleController extends AbstractController
         $commentaire->setArticle($article);
         $commentaire->setDateCommentaire(new \DateTime());
 
-        /** @var \App\Entity\Utilisateur $user */
         $user = $this->getUser();
         if ($user) {
             $commentaire->setUtilisateur($user);
