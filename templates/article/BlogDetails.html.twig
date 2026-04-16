@@ -1,390 +1,413 @@
 {% extends 'base.html.twig' %}
 
+{# --- Calcul de l'URL de l'image (pour OG et affichage) --- #}
+{% set blog_img_fallback = asset('images/placeholder.svg') %}
+{% set im = article.image|default('')|trim %}
+{% if im is empty %}
+    {% set cover_src = asset('images/placeholder.svg') %}
+{% elseif im starts with 'http://' or im starts with 'https://' %}
+    {% set cover_src = im %}
+{% elseif im starts with '//' %}
+    {% set cover_src = 'https:' ~ im %}
+{% else %}
+    {% set fn = im|replace({'\\':'/'})|split('/')|last %}
+    {% set cover_src = asset('uploads/articles/' ~ fn) %}
+{% endif %}
+
 {% block title %}{{ article.titre }} — WinGo{% endblock %}
 
 {% block stylesheets %}
-<link rel="stylesheet" type="text/css" href="{{ asset('styles/main_styles.css') }}">
-<link rel="stylesheet" type="text/css" href="{{ asset('styles/responsive.css') }}">
-<link rel="stylesheet" type="text/css" href="{{ asset('styles/blog_styles.css') }}">
-<link rel="stylesheet" type="text/css" href="{{ asset('styles/blog_responsive.css') }}">
-<link rel="stylesheet" type="text/css" href="{{ asset('styles/wingo_blog.css') }}">
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-<style>
-	:root {
-		--primary-color: #8d4fff;
-		--accent-color: #fa9e1c;
-		--text-color: #4a4a4a;
-		--light-bg: #f9f9fc;
-	}
-	body { background-color: var(--light-bg); font-family: 'Inter', sans-serif; }
-	.article-main-container {
-		max-width: 900px;
-		margin: 0 auto 80px; 
-		padding: 40px 20px;
-		position: relative;
-		z-index: 10;
-	}
-	.article-creative-image {
-		width: 100%;
-		max-width: 450px;
-		height: auto;
-		border-radius: 20px;
-		margin: 0 auto 40px auto;
-		display: block;
-		box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-		border: 4px solid #fff;
-	}
-	.article-header { text-align: center; margin-bottom: 40px; }
-	.article-category {
-		display: inline-block;
-		background: rgba(250, 158, 28, 0.1);
-		color: var(--accent-color);
-		padding: 6px 20px;
-		border-radius: 30px;
-		font-size: 0.85rem;
-		font-weight: 600;
-		text-transform: uppercase;
-		letter-spacing: 2px;
-		margin-bottom: 20px;
-	}
-	.article-title {
-		font-family: 'Playfair Display', serif;
-		font-size: 2.8rem;
-		font-weight: 700;
-		color: #2d3436;
-		line-height: 1.3;
-		margin-bottom: 20px;
-	}
-	.article-meta {
-		display: flex;
-		justify-content: center;
-		align-items: center;
-		gap: 20px;
-		color: #888;
-		font-size: 0.95rem;
-		flex-wrap: wrap;
-	}
-	.article-meta i { margin-right: 8px; color: var(--primary-color); }
-	.article-content {
-		font-size: 1.1rem;
-		line-height: 1.8;
-		color: var(--text-color);
-		text-align: justify;
-	}
-	.article-content p { margin-bottom: 25px; }
-	.article-tags {
-		display: flex;
-		gap: 12px;
-		margin-top: 50px;
-		padding-top: 30px;
-		border-top: 1px solid #f1f2f6;
-		justify-content: center;
-	}
-	.article-tag {
-		display: inline-flex;
-		align-items: center;
-		background: #f8f9fa;
-		color: var(--primary-color);
-		padding: 8px 20px;
-		border-radius: 30px;
-		font-size: 0.9rem;
-		font-weight: 500;
-		transition: all 0.3s ease;
-		border: 1px solid rgba(141, 79, 255, 0.2);
-	}
-	.article-tag i { margin-right: 8px; }
-	.article-tag:hover { background: var(--primary-color); color: #fff; }
-	.article-actions {
-		display: flex;
-		gap: 15px;
-		justify-content: center;
-		margin-top: 50px;
-	}
-	.btn-custom {
-		padding: 12px 35px;
-		border-radius: 30px;
-		font-weight: 600;
-		text-decoration: none;
-		transition: all 0.3s ease;
-		display: inline-flex;
-		align-items: center;
-		font-size: 0.95rem;
-	}
-	.btn-primary-gradient {
-		background: linear-gradient(135deg, var(--primary-color) 0%, var(--accent-color) 100%);
-		color: #fff;
-		border: none;
-		box-shadow: 0 5px 15px rgba(141, 79, 255, 0.3);
-	}
-	.btn-primary-gradient:hover {
-		transform: translateY(-2px);
-		box-shadow: 0 8px 25px rgba(250, 158, 28, 0.4);
-		color: #fff;
-	}
-	.btn-secondary-outline {
-		background: #fff;
-		color: var(--primary-color);
-		border: 2px solid var(--primary-color);
-	}
-	.btn-secondary-outline:hover {
-		background: var(--primary-color);
-		color: #fff;
-	}
-	.share-buttons {
-		display: flex;
-		gap: 10px;
-		justify-content: center;
-		margin: 20px 0;
-		flex-wrap: wrap;
-	}
-	.share-btn {
-		display: inline-flex;
-		align-items: center;
-		gap: 8px;
-		border: none;
-		padding: 10px 15px;
-		border-radius: 30px;
-		cursor: pointer;
-		color: #fff;
-		font-weight: 600;
-		font-size: 14px;
-		transition: transform 0.2s ease, box-shadow 0.2s ease;
-	}
-	.share-btn i { font-size: 18px; }
-	.share-btn:hover {
-		transform: translateY(-2px);
-		box-shadow: 0 6px 15px rgba(0,0,0,0.2);
-	}
-	.share-btn-whatsapp { background-color: #25D366; }
-	.share-btn-facebook { background-color: #4267B2; }
-	.share-btn-instagram {
-		background: linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888);
-	}
-	.article-summary-box {
-		display: none;
-		margin: 24px 0 8px;
-		padding: 20px 22px;
-		background: #fff;
-		border-radius: 16px;
-		border: 1px solid rgba(141, 79, 255, 0.2);
-		box-shadow: 0 8px 28px rgba(141, 79, 255, 0.08);
-	}
-	.article-summary-box.is-visible { display: block; }
-	.article-summary-title {
-		font-family: 'Playfair Display', serif;
-		font-size: 1.15rem;
-		font-weight: 700;
-		color: #2d3436;
-		margin-bottom: 10px;
-		display: flex;
-		align-items: center;
-		gap: 8px;
-	}
-	.article-summary-title i { color: var(--primary-color); }
-	.article-summary-text {
-		font-size: 1rem;
-		line-height: 1.75;
-		color: #555;
-		text-align: justify;
-		margin: 0;
-	}
-	.blog-details-hero {
-		background-image: url('{{ asset('images/BlogBack.jpg') }}');
-		background-size: cover;
-		background-position: center;
-		background-repeat: no-repeat;
-		height: 400px;
-		position: relative;
-		width: 100%;
-		z-index: 1;
-	}
-	.blog-details-wrapper { padding-top: 40px; }
-	.blog-details-hero-overlay {
-		position: absolute;
-		top: 0; left: 0; width: 100%; height: 100%;
-		background: rgba(45, 52, 54, 0.6);
-	}
-	.hero-title-container {
-		position: absolute;
-		top: 50%; left: 50%;
-		transform: translate(-50%, -50%);
-		text-align: center;
-		color: white;
-		width: 100%;
-		z-index: 2;
-	}
-	.hero-title-container h1 {
-		font-family: 'Playfair Display', serif;
-		font-size: 3.5rem;
-		font-weight: 700;
-		text-transform: capitalize;
-		text-shadow: 0 2px 10px rgba(0,0,0,0.3);
-		margin: 0;
-	}
-	@media (max-width: 768px) {
-		.blog-details-hero { height: 300px; }
-		.article-title { font-size: 2rem; }
-		.hero-title-container h1 { font-size: 2.5rem; }
-	}
-	.comments-section {
-		margin-top: 60px;
-		padding-top: 40px;
-		border-top: 2px dashed #ececec;
-	}
-	.comments-title {
-		font-family: 'Playfair Display', serif;
-		font-size: 1.8rem;
-		color: #2d3436;
-		margin-bottom: 30px;
-		font-weight: 700;
-	}
-	.comment-card {
-		background: #fff;
-		border-radius: 16px;
-		padding: 20px;
-		margin-bottom: 20px;
-		box-shadow: 0 5px 20px rgba(0,0,0,0.03);
-		border-left: 4px solid var(--primary-color);
-	}
-	.comment-header {
-		display: flex;
-		align-items: center;
-		margin-bottom: 12px;
-	}
-	.comment-avatar {
-		width: 40px;
-		height: 40px;
-		border-radius: 50%;
-		background: linear-gradient(135deg, var(--primary-color) 0%, var(--accent-color) 100%);
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		color: white;
-		font-weight: bold;
-		margin-right: 15px;
-	}
-	.comment-author { font-weight: 600; color: #333; font-size: 1rem; }
-	.comment-date { font-size: 0.8rem; color: #999; margin-left: auto; }
-	.comment-body {
-		color: #555;
-		font-size: 0.95rem;
-		line-height: 1.6;
-		padding-left: 55px;
-	}
-	.comment-form-container {
-		background: #fff;
-		border-radius: 20px;
-		padding: 30px;
-		margin-top: 40px;
-		box-shadow: 0 10px 30px rgba(0,0,0,0.05);
-	}
-	.comment-form-title {
-		font-family: 'Playfair Display', serif;
-		font-size: 1.5rem;
-		color: #2d3436;
-		margin-bottom: 20px;
-		font-weight: 600;
-	}
-	.wingo-input {
-		background-color: var(--light-bg);
-		border: 2px solid transparent !important;
-		border-radius: 16px !important;
-		padding: 16px 20px !important;
-		font-size: 1rem !important;
-		color: #333 !important;
-		transition: all 0.3s ease !important;
-		width: 100%;
-		box-shadow: none !important;
-		resize: vertical;
-	}
-	.wingo-input:focus {
-		background-color: #fff;
-		border-color: var(--primary-color) !important;
-		box-shadow: 0 8px 25px rgba(141, 79, 255, 0.1) !important;
-		outline: none;
-	}
-	.btn-submit-comment {
-		margin-top: 15px;
-		padding: 12px 30px;
-		border-radius: 25px;
-		background: var(--primary-color);
-		color: white;
-		font-weight: 600;
-		border: none;
-		float: right;
-		transition: all 0.3s ease;
-		box-shadow: 0 4px 15px rgba(141, 79, 255, 0.3);
-	}
-	.btn-submit-comment:hover {
-		background: var(--accent-color);
-		transform: translateY(-2px);
-		box-shadow: 0 6px 20px rgba(250, 158, 28, 0.4);
-	}
-	.clearfix::after { content: ""; clear: both; display: table; }
-	.error-text { color: #dc3545; font-size: 0.85rem; margin-top: 8px; display: block; font-weight: 500; }
-	.error-text ul { margin: 0; padding: 0; list-style: none; }
+    {# --- Balises Open Graph pour les réseaux sociaux --- #}
+    <meta property="og:title" content="{{ article.titre|striptags|e('html_attr') }}" />
+    <meta property="og:description" content="{{ article.contenu|striptags|slice(0, 200)|e('html_attr') }}..." />
+    <meta property="og:image" content="{{ cover_src|e('html_attr') }}" />
+    <meta property="og:url" content="{{ url('app_article_show', {'id': article.id})|e('html_attr') }}" />
+    <meta property="og:type" content="article" />
+    <meta property="og:site_name" content="WinGo - Voyages en Tunisie" />
+    <meta name="twitter:card" content="summary_large_image" />
 
-	/* Styles pour l'édition inline */
-	.edit-comment-form {
-		display: none;
-		margin-top: 15px;
-		padding: 15px;
-		background: #f8f9fa;
-		border-radius: 12px;
-	}
-	.edit-comment-form textarea {
-		width: 100%;
-		padding: 12px;
-		border-radius: 12px;
-		border: 1px solid #e0e0e0;
-		resize: vertical;
-		font-family: inherit;
-	}
-	.edit-actions {
-		margin-top: 10px;
-		text-align: right;
-	}
-	.btn-save, .btn-cancel {
-		padding: 6px 20px;
-		border-radius: 20px;
-		border: none;
-		cursor: pointer;
-		font-size: 0.85rem;
-	}
-	.btn-save {
-		background: linear-gradient(135deg, #8d4fff, #fa9e1c);
-		color: white;
-		margin-right: 10px;
-	}
-	.btn-cancel {
-		background: #e9ecef;
-		color: #333;
-	}
-	.pagination-container nav {
-		display: flex;
-		justify-content: center;
-	}
-	.pagination {
-		display: flex;
-		gap: 8px;
-		list-style: none;
-		padding: 0;
-	}
-	.pagination .page-item .page-link {
-		background: #fff;
-		color: #8d4fff;
-		border: 1px solid rgba(141, 79, 255, 0.2);
-		border-radius: 8px;
-		padding: 8px 14px;
-		text-decoration: none;
-	}
-	.pagination .page-item.active .page-link {
-		background: linear-gradient(135deg, #8d4fff, #fa9e1c);
-		color: #fff;
-		border-color: transparent;
-	}
-</style>
+    <link rel="stylesheet" type="text/css" href="{{ asset('styles/main_styles.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ asset('styles/responsive.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ asset('styles/blog_styles.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ asset('styles/blog_responsive.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ asset('styles/wingo_blog.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #8d4fff;
+            --accent-color: #fa9e1c;
+            --text-color: #4a4a4a;
+            --light-bg: #f9f9fc;
+        }
+        body { background-color: var(--light-bg); font-family: 'Inter', sans-serif; }
+        .article-main-container {
+            max-width: 900px;
+            margin: 0 auto 80px; 
+            padding: 40px 20px;
+            position: relative;
+            z-index: 10;
+        }
+        .article-creative-image {
+            width: 100%;
+            max-width: 450px;
+            height: auto;
+            border-radius: 20px;
+            margin: 0 auto 40px auto;
+            display: block;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            border: 4px solid #fff;
+        }
+        .article-header { text-align: center; margin-bottom: 40px; }
+        .article-category {
+            display: inline-block;
+            background: rgba(250, 158, 28, 0.1);
+            color: var(--accent-color);
+            padding: 6px 20px;
+            border-radius: 30px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 20px;
+        }
+        .article-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 2.8rem;
+            font-weight: 700;
+            color: #2d3436;
+            line-height: 1.3;
+            margin-bottom: 20px;
+        }
+        .article-meta {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 20px;
+            color: #888;
+            font-size: 0.95rem;
+            flex-wrap: wrap;
+        }
+        .article-meta i { margin-right: 8px; color: var(--primary-color); }
+        .article-content {
+            font-size: 1.1rem;
+            line-height: 1.8;
+            color: var(--text-color);
+            text-align: justify;
+        }
+        .article-content p { margin-bottom: 25px; }
+        .article-tags {
+            display: flex;
+            gap: 12px;
+            margin-top: 50px;
+            padding-top: 30px;
+            border-top: 1px solid #f1f2f6;
+            justify-content: center;
+        }
+        .article-tag {
+            display: inline-flex;
+            align-items: center;
+            background: #f8f9fa;
+            color: var(--primary-color);
+            padding: 8px 20px;
+            border-radius: 30px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(141, 79, 255, 0.2);
+        }
+        .article-tag i { margin-right: 8px; }
+        .article-tag:hover { background: var(--primary-color); color: #fff; }
+        .article-actions {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-top: 50px;
+        }
+        .btn-custom {
+            padding: 12px 35px;
+            border-radius: 30px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            font-size: 0.95rem;
+        }
+        .btn-primary-gradient {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--accent-color) 100%);
+            color: #fff;
+            border: none;
+            box-shadow: 0 5px 15px rgba(141, 79, 255, 0.3);
+        }
+        .btn-primary-gradient:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(250, 158, 28, 0.4);
+            color: #fff;
+        }
+        .btn-secondary-outline {
+            background: #fff;
+            color: var(--primary-color);
+            border: 2px solid var(--primary-color);
+        }
+        .btn-secondary-outline:hover {
+            background: var(--primary-color);
+            color: #fff;
+        }
+        .share-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin: 20px 0;
+            flex-wrap: wrap;
+        }
+        .share-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 30px;
+            cursor: pointer;
+            color: #fff;
+            font-weight: 600;
+            font-size: 14px;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        .share-btn i { font-size: 18px; }
+        .share-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(0,0,0,0.2);
+        }
+        .share-btn-whatsapp { background-color: #25D366; }
+        .share-btn-facebook { background-color: #4267B2; }
+        .share-btn-instagram {
+            background: linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888);
+        }
+        .article-summary-box {
+            display: none;
+            margin: 24px 0 8px;
+            padding: 20px 22px;
+            background: #fff;
+            border-radius: 16px;
+            border: 1px solid rgba(141, 79, 255, 0.2);
+            box-shadow: 0 8px 28px rgba(141, 79, 255, 0.08);
+        }
+        .article-summary-box.is-visible { display: block; }
+        .article-summary-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.15rem;
+            font-weight: 700;
+            color: #2d3436;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .article-summary-title i { color: var(--primary-color); }
+        .article-summary-text {
+            font-size: 1rem;
+            line-height: 1.75;
+            color: #555;
+            text-align: justify;
+            margin: 0;
+        }
+        .blog-details-hero {
+            background-image: url('{{ asset('images/BlogBack.jpg') }}');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            height: 400px;
+            position: relative;
+            width: 100%;
+            z-index: 1;
+        }
+        .blog-details-wrapper { padding-top: 40px; }
+        .blog-details-hero-overlay {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(45, 52, 54, 0.6);
+        }
+        .hero-title-container {
+            position: absolute;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            color: white;
+            width: 100%;
+            z-index: 2;
+        }
+        .hero-title-container h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 3.5rem;
+            font-weight: 700;
+            text-transform: capitalize;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.3);
+            margin: 0;
+        }
+        @media (max-width: 768px) {
+            .blog-details-hero { height: 300px; }
+            .article-title { font-size: 2rem; }
+            .hero-title-container h1 { font-size: 2.5rem; }
+        }
+        .comments-section {
+            margin-top: 60px;
+            padding-top: 40px;
+            border-top: 2px dashed #ececec;
+        }
+        .comments-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.8rem;
+            color: #2d3436;
+            margin-bottom: 30px;
+            font-weight: 700;
+        }
+        .comment-card {
+            background: #fff;
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.03);
+            border-left: 4px solid var(--primary-color);
+        }
+        .comment-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+        .comment-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--accent-color) 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            margin-right: 15px;
+        }
+        .comment-author { font-weight: 600; color: #333; font-size: 1rem; }
+        .comment-date { font-size: 0.8rem; color: #999; margin-left: auto; }
+        .comment-body {
+            color: #555;
+            font-size: 0.95rem;
+            line-height: 1.6;
+            padding-left: 55px;
+        }
+        .comment-form-container {
+            background: #fff;
+            border-radius: 20px;
+            padding: 30px;
+            margin-top: 40px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+        }
+        .comment-form-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.5rem;
+            color: #2d3436;
+            margin-bottom: 20px;
+            font-weight: 600;
+        }
+        .wingo-input {
+            background-color: var(--light-bg);
+            border: 2px solid transparent !important;
+            border-radius: 16px !important;
+            padding: 16px 20px !important;
+            font-size: 1rem !important;
+            color: #333 !important;
+            transition: all 0.3s ease !important;
+            width: 100%;
+            box-shadow: none !important;
+            resize: vertical;
+        }
+        .wingo-input:focus {
+            background-color: #fff;
+            border-color: var(--primary-color) !important;
+            box-shadow: 0 8px 25px rgba(141, 79, 255, 0.1) !important;
+            outline: none;
+        }
+        .btn-submit-comment {
+            margin-top: 15px;
+            padding: 12px 30px;
+            border-radius: 25px;
+            background: var(--primary-color);
+            color: white;
+            font-weight: 600;
+            border: none;
+            float: right;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(141, 79, 255, 0.3);
+        }
+        .btn-submit-comment:hover {
+            background: var(--accent-color);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(250, 158, 28, 0.4);
+        }
+        .clearfix::after { content: ""; clear: both; display: table; }
+        .error-text { color: #dc3545; font-size: 0.85rem; margin-top: 8px; display: block; font-weight: 500; }
+        .error-text ul { margin: 0; padding: 0; list-style: none; }
+
+        /* Styles pour l'édition inline */
+        .edit-comment-form {
+            display: none;
+            margin-top: 15px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 12px;
+        }
+        .edit-comment-form textarea {
+            width: 100%;
+            padding: 12px;
+            border-radius: 12px;
+            border: 1px solid #e0e0e0;
+            resize: vertical;
+            font-family: inherit;
+        }
+        .edit-actions {
+            margin-top: 10px;
+            text-align: right;
+        }
+        .btn-save, .btn-cancel {
+            padding: 6px 20px;
+            border-radius: 20px;
+            border: none;
+            cursor: pointer;
+            font-size: 0.85rem;
+        }
+        .btn-save {
+            background: linear-gradient(135deg, #8d4fff, #fa9e1c);
+            color: white;
+            margin-right: 10px;
+        }
+        .btn-cancel {
+            background: #e9ecef;
+            color: #333;
+        }
+        .pagination-container nav {
+            display: flex;
+            justify-content: center;
+        }
+        .pagination {
+            display: flex;
+            gap: 8px;
+            list-style: none;
+            padding: 0;
+        }
+        .pagination .page-item .page-link {
+            background: #fff;
+            color: #8d4fff;
+            border: 1px solid rgba(141, 79, 255, 0.2);
+            border-radius: 8px;
+            padding: 8px 14px;
+            text-decoration: none;
+        }
+        .pagination .page-item.active .page-link {
+            background: linear-gradient(135deg, #8d4fff, #fa9e1c);
+            color: #fff;
+            border-color: transparent;
+        }
+    </style>
 {% endblock %}
 
 {% macro comment_tree(comment, article, commentForm, app) %}
@@ -436,7 +459,6 @@
                         else if (data.class === 'danger') badgeClass = 'bg-danger';
                         else badgeClass = 'bg-secondary';
                         
-                        // Sécurité pour "Modèle non disponible"
                         if(data.emoji && data.text) {
                             container.innerHTML = `<span class="badge ${badgeClass}">${data.emoji} ${data.text}</span>`;
                         } else {
@@ -483,104 +505,92 @@
 {% endmacro %}
 
 {% block content %}
-{% set blog_img_fallback = asset('images/placeholder.svg') %}
-{% set im = article.image|default('')|trim %}
-{% if im is empty %}
-	{% set cover_src = asset('images/placeholder.svg') %}
-{% elseif im starts with 'http://' or im starts with 'https://' %}
-	{% set cover_src = im %}
-{% elseif im starts with '//' %}
-	{% set cover_src = 'https:' ~ im %}
-{% else %}
-	{% set fn = im|replace({'\\':'/'})|split('/')|last %}
-	{% set cover_src = asset('uploads/articles/' ~ fn) %}
-{% endif %}
 <div class="blog-details-hero">
-	<div class="blog-details-hero-overlay"></div>
-	<div class="hero-title-container">
-		<h1>Article Details</h1>
-	</div>
+    <div class="blog-details-hero-overlay"></div>
+    <div class="hero-title-container">
+        <h1>Article Details</h1>
+    </div>
 </div>
 
 <div class="blog-details-wrapper">
     <div class="container">
-    	<div class="article-main-container">
+        <div class="article-main-container">
 
-    		<div class="article-header">
-    			<div class="article-category">{{ article.categorie|default('Général') }}</div>
-    			<h2 class="article-title">{{ article.titre|default('Titre de l\'article') }}</h2>
-    			<div class="article-meta">
-    				<span><i class="fas fa-calendar-alt"></i>{{ article.datePublication ? article.datePublication|date('d F Y') : 'Aujourd\'hui' }}</span>
-    				<span><i class="fas fa-user-circle"></i>{{ article.auteur ? article.auteur.prenom ~ ' ' ~ article.auteur.nom : 'Anonyme' }}</span>
-    				<span><i class="fas fa-map-marker-alt"></i>{{ article.region|default('Non spécifiée') }}</span>
-    			</div>
-    		</div>
+            <div class="article-header">
+                <div class="article-category">{{ article.categorie|default('Général') }}</div>
+                <h2 class="article-title">{{ article.titre|default('Titre de l\'article') }}</h2>
+                <div class="article-meta">
+                    <span><i class="fas fa-calendar-alt"></i>{{ article.datePublication ? article.datePublication|date('d F Y') : 'Aujourd\'hui' }}</span>
+                    <span><i class="fas fa-user-circle"></i>{{ article.auteur ? article.auteur.prenom ~ ' ' ~ article.auteur.nom : 'Anonyme' }}</span>
+                    <span><i class="fas fa-map-marker-alt"></i>{{ article.region|default('Non spécifiée') }}</span>
+                </div>
+            </div>
 
-    		<img src="{{ cover_src }}" alt="{{ article.titre|e('html_attr') }}" class="article-creative-image" loading="lazy" decoding="async" onerror="this.onerror=null;this.src='{{ blog_img_fallback|e('html_attr') }}';">
+            <img src="{{ cover_src }}" alt="{{ article.titre|e('html_attr') }}" class="article-creative-image" loading="lazy" decoding="async" onerror="this.onerror=null;this.src='{{ blog_img_fallback|e('html_attr') }}';">
 
-    		<div class="article-content ql-snow">
+            <div class="article-content ql-snow">
                 <div class="ql-editor" style="padding: 0;">
                     {{ article.contenu|default('<p>Le contenu de cet article est vide pour le moment.</p>')|raw }}
                 </div>
             </div>
 
-			<div id="articleSummaryPanel" class="article-summary-box" aria-live="polite">
-				<div class="article-summary-title"><i class="fas fa-magic"></i> Résumé automatique</div>
-				<p id="articleSummaryText" class="article-summary-text"></p>
-			</div>
+            <div id="articleSummaryPanel" class="article-summary-box" aria-live="polite">
+                <div class="article-summary-title"><i class="fas fa-magic"></i> Résumé automatique</div>
+                <p id="articleSummaryText" class="article-summary-text"></p>
+            </div>
 
-    		<div class="article-tags">
-    			<span class="article-tag"><i class="fas fa-tag"></i> {{ article.categorie|default('Général') }}</span>
-    			<span class="article-tag"><i class="fas fa-map-pin"></i> {{ article.region|default('Non spécifiée') }}</span>
-    		</div>
-    		<div class="article-actions" style="margin-bottom: 40px;">
-    			<a href="{{ path('blog') }}" class="btn-custom btn-secondary-outline">
-    				<i class="fas fa-arrow-left" style="margin-right: 8px;"></i> Retour aux blogs
-    			</a>
-				<button id="listenButton" type="button" class="btn-custom btn-secondary-outline">
-					<i class="fas fa-volume-up" style="margin-right: 8px;"></i> Écouter
-				</button>
-				<button id="summaryButton" type="button" class="btn-custom btn-secondary-outline">
-					<i class="fas fa-compress-alt" style="margin-right: 8px;"></i> Résumé IA
-				</button>
+            <div class="article-tags">
+                <span class="article-tag"><i class="fas fa-tag"></i> {{ article.categorie|default('Général') }}</span>
+                <span class="article-tag"><i class="fas fa-map-pin"></i> {{ article.region|default('Non spécifiée') }}</span>
+            </div>
+            <div class="article-actions" style="margin-bottom: 40px;">
+                <a href="{{ path('blog') }}" class="btn-custom btn-secondary-outline">
+                    <i class="fas fa-arrow-left" style="margin-right: 8px;"></i> Retour aux blogs
+                </a>
+                <button id="listenButton" type="button" class="btn-custom btn-secondary-outline">
+                    <i class="fas fa-volume-up" style="margin-right: 8px;"></i> Écouter
+                </button>
+                <button id="summaryButton" type="button" class="btn-custom btn-secondary-outline">
+                    <i class="fas fa-compress-alt" style="margin-right: 8px;"></i> Résumé IA
+                </button>
                 {% if app.user and (app.user == article.auteur or is_granted('ROLE_ADMIN')) %}
-    			<a href="{{ path('app_article_edit', {id: article.id}) }}" class="btn-custom btn-primary-gradient">
-    				<i class="fas fa-edit" style="margin-right: 8px;"></i> Modifier l'article
-    			</a>
-    			{% endif %}
-    		</div>
-			<div class="share-buttons">
-				<button id="shareWhatsApp" class="share-btn share-btn-whatsapp" data-platform="whatsapp" type="button">
-					<i class="fab fa-whatsapp"></i> WhatsApp
-				</button>
-				<button id="shareFacebook" class="share-btn share-btn-facebook" data-platform="facebook" type="button">
-					<i class="fab fa-facebook-f"></i> Facebook
-				</button>
-				<button id="shareInstagram" class="share-btn share-btn-instagram" data-platform="instagram" type="button">
-					<i class="fab fa-instagram"></i> Instagram
-				</button>
-			</div>
+                <a href="{{ path('app_article_edit', {id: article.id}) }}" class="btn-custom btn-primary-gradient">
+                    <i class="fas fa-edit" style="margin-right: 8px;"></i> Modifier l'article
+                </a>
+                {% endif %}
+            </div>
+            <div class="share-buttons">
+                <button id="shareWhatsApp" class="share-btn share-btn-whatsapp" data-platform="whatsapp" type="button">
+                    <i class="fab fa-whatsapp"></i> WhatsApp
+                </button>
+                <button id="shareFacebook" class="share-btn share-btn-facebook" data-platform="facebook" type="button">
+                    <i class="fab fa-facebook-f"></i> Facebook
+                </button>
+                <button id="shareInstagram" class="share-btn share-btn-instagram" data-platform="instagram" type="button">
+                    <i class="fab fa-instagram"></i> Instagram
+                </button>
+            </div>
 
-    		<div class="comments-section">
-    		    <h3 class="comments-title">Commentaires ({{ commentsPagination.getTotalItemCount|default(0) }})</h3>
-    		    <div class="comments-list">
-    		        {% for comm in commentsPagination %}
-    		            {{ _self.comment_tree(comm, article, commentForm, app) }}
-    		        {% else %}
-    		            <p style="color: #888; font-style: italic;">Aucun commentaire pour le moment. Soyez le premier !</p>
-    		        {% endfor %}
-    		    </div>
-				<div class="pagination-container" style="margin-top: 20px;">
-					{{ knp_pagination_render(commentsPagination) }}
-				</div>
+            <div class="comments-section">
+                <h3 class="comments-title">Commentaires ({{ commentsPagination.getTotalItemCount|default(0) }})</h3>
+                <div class="comments-list">
+                    {% for comm in commentsPagination %}
+                        {{ _self.comment_tree(comm, article, commentForm, app) }}
+                    {% else %}
+                        <p style="color: #888; font-style: italic;">Aucun commentaire pour le moment. Soyez le premier !</p>
+                    {% endfor %}
+                </div>
+                <div class="pagination-container" style="margin-top: 20px;">
+                    {{ knp_pagination_render(commentsPagination) }}
+                </div>
 
-    		    <div class="comment-form-container">
-    		        <h4 class="comment-form-title">Laisser un commentaire</h4>
-    		        {{ form_start(commentForm, {'attr': {'novalidate': 'novalidate', 'class': 'clearfix'}}) }}
-    		            {{ form_widget(commentForm.contenu, {'attr': {'class': 'wingo-input', 'rows': 4, 'id': 'new-comment-content'}}) }}
-						<div class="error-text">
-							{{ form_errors(commentForm.contenu) }}
-						</div>
+                <div class="comment-form-container">
+                    <h4 class="comment-form-title">Laisser un commentaire</h4>
+                    {{ form_start(commentForm, {'attr': {'novalidate': 'novalidate', 'class': 'clearfix'}}) }}
+                        {{ form_widget(commentForm.contenu, {'attr': {'class': 'wingo-input', 'rows': 4, 'id': 'new-comment-content'}}) }}
+                        <div class="error-text">
+                            {{ form_errors(commentForm.contenu) }}
+                        </div>
 
                         <!-- GIF Picker -->
                         <div class="gif-picker" style="margin-top: 12px;">
@@ -596,14 +606,14 @@
                             </div>
                         </div>
 
-    		            <button type="submit" class="btn-submit-comment">
-    		                <i class="fas fa-paper-plane" style="margin-right: 8px;"></i> Publier
-    		            </button>
-    		        {{ form_end(commentForm) }}
-    		    </div>
-    		</div>
+                        <button type="submit" class="btn-submit-comment">
+                            <i class="fas fa-paper-plane" style="margin-right: 8px;"></i> Publier
+                        </button>
+                    {{ form_end(commentForm) }}
+                </div>
+            </div>
 
-    	</div>
+        </div>
     </div>
 </div>
 
@@ -627,10 +637,7 @@ async function wingoReadJsonResponse(response) {
 }
 
 function showReplyForm(commentId) {
-    // Masquer les autres formulaires
     document.querySelectorAll('.reply-form-container').forEach(form => form.style.display = 'none');
-    
-    // Afficher celui-ci
     const formContainer = document.getElementById('reply-form-' + commentId);
     if (formContainer) {
         formContainer.style.display = 'block';
@@ -652,14 +659,12 @@ function hideReplyForm(commentId) {
 }
 
 function showEditForm(commentId) {
-    // Masquer tous les formulaires d'édition ouverts
     document.querySelectorAll('.edit-comment-form').forEach(form => {
         form.style.display = 'none';
     });
     const form = document.getElementById('edit-form-' + commentId);
     if (form) {
         form.style.display = 'block';
-        // Scroll fluide vers ce formulaire
         form.scrollIntoView({ behavior: 'smooth', block: 'center' });
     }
 }
@@ -668,7 +673,6 @@ function hideEditForm(commentId) {
     const form = document.getElementById('edit-form-' + commentId);
     if (form) {
         form.style.display = 'none';
-        // Remettre le texte original
         const originalText = document.getElementById('comment-body-' + commentId).innerText.replace(/\n/g, '');
         document.getElementById('edit-text-' + commentId).value = originalText;
     }
@@ -692,7 +696,6 @@ async function saveComment(commentId) {
         if (response.ok) {
             const data = await response.json();
             if (data.success) {
-                // Mettre à jour l'affichage du commentaire
                 document.getElementById('comment-body-' + commentId).innerHTML = data.contenu.replace(/\n/g, '<br>');
                 hideEditForm(commentId);
             } else {
@@ -836,38 +839,33 @@ document.addEventListener('DOMContentLoaded', function () {
     const facebookBtn = document.getElementById('shareFacebook');
     const instagramBtn = document.getElementById('shareInstagram');
 
-    if (!titleEl || !contentEl || !whatsappBtn || !facebookBtn || !instagramBtn) {
-        return;
-    }
+    if (titleEl && contentEl && whatsappBtn && facebookBtn && instagramBtn) {
+        const articleTitle = titleEl.innerText || '';
+        const articleContent = contentEl.innerText || '';
+        const articleUrl = window.location.href;
+        const preview = articleContent.substring(0, 100);
+        const shareText = `${articleTitle} - ${preview}... ${articleUrl}`;
+        const encodedText = encodeURIComponent(shareText);
+        const encodedUrl = encodeURIComponent(articleUrl);
+        const encodedTitle = encodeURIComponent(articleTitle);
 
-    const articleTitle = titleEl.innerText || '';
-    const articleContent = contentEl.innerText || '';
-    const articleUrl = window.location.href;
-
-    const preview = articleContent.substring(0, 100);
-    const shareText = `${articleTitle} - ${preview}... ${articleUrl}`;
-    const encodedText = encodeURIComponent(shareText);
-    const encodedUrl = encodeURIComponent(articleUrl);
-    const encodedTitle = encodeURIComponent(articleTitle);
-
-    whatsappBtn.addEventListener('click', function () {
-        const whatsappUrl = `https://wa.me/?text=${encodedText}`;
-        window.open(whatsappUrl, '_blank');
-    });
-
-    facebookBtn.addEventListener('click', function () {
-        const facebookUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}&quote=${encodedTitle}`;
-        window.open(facebookUrl, '_blank', 'width=600,height=400');
-    });
-
-    instagramBtn.addEventListener('click', function () {
-        navigator.clipboard.writeText(shareText).then(() => {
-            showShareNotification('Texte copié ! Collez-le dans Instagram.');
-        }).catch((err) => {
-            console.error('Erreur de copie :', err);
-            alert('Impossible de copier automatiquement. Veuillez copier le texte manuellement.');
+        whatsappBtn.addEventListener('click', function () {
+            window.open(`https://wa.me/?text=${encodedText}`, '_blank');
         });
-    });
+
+        facebookBtn.addEventListener('click', function () {
+            window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}&quote=${encodedTitle}`, '_blank', 'width=600,height=400');
+        });
+
+        instagramBtn.addEventListener('click', function () {
+            navigator.clipboard.writeText(shareText).then(() => {
+                showShareNotification('Texte copié ! Collez-le dans Instagram.');
+            }).catch((err) => {
+                console.error('Erreur de copie :', err);
+                alert('Impossible de copier automatiquement. Veuillez copier le texte manuellement.');
+            });
+        });
+    }
 });
 
 function showShareNotification(message) {
@@ -886,10 +884,7 @@ function showShareNotification(message) {
     notification.style.fontSize = '14px';
     notification.style.fontWeight = '500';
     document.body.appendChild(notification);
-
-    setTimeout(() => {
-        notification.remove();
-    }, 3000);
+    setTimeout(() => notification.remove(), 3000);
 }
 
 // ==================== GIF PICKER ====================
@@ -948,7 +943,6 @@ function showShareNotification(message) {
                             textarea.value = text.substring(0, start) + imgTag + text.substring(end);
                             textarea.focus();
 
-                            // Aperçu
                             previewDiv.style.display = 'block';
                             previewDiv.innerHTML = `
                                 <p style="font-size:0.8rem;color:#888;margin-bottom:5px;">Aperçu du GIF :</p>
@@ -970,6 +964,5 @@ function showShareNotification(message) {
         }, 400);
     });
 })();
-
 </script>
 {% endblock %}
