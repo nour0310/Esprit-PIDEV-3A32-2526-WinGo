@@ -586,6 +586,7 @@
                     {{ knp_pagination_render(commentsPagination) }}
                 </div>
 
+                {% if app.user %}
                 <div class="comment-form-container">
                     <h4 class="comment-form-title">Laisser un commentaire</h4>
                     {{ form_start(commentForm, {'attr': {'novalidate': 'novalidate', 'class': 'clearfix'}}) }}
@@ -612,6 +613,17 @@
                         </button>
                     {{ form_end(commentForm) }}
                 </div>
+                {% else %}
+                <div class="comment-form-container text-center" style="padding: 20px;">
+                    <div style="background: rgba(141, 79, 255, 0.1); color: #8d4fff; border-radius: 12px; padding: 15px; font-weight: 500;">
+                        <i class="fas fa-lock" style="margin-right: 8px;"></i>
+                        Vous devez être connecté pour laisser un commentaire.
+                        <div style="margin-top: 10px;">
+                            <a href="{{ path('app_login') }}" class="btn-custom btn-primary-gradient" style="padding: 8px 25px; font-size: 0.85rem;">Se connecter</a>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
             </div>
 
         </div>
