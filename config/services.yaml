@@ -29,6 +29,7 @@ services:
             - '../src/DependencyInjection/'
             - '../src/Entity/'
             - '../src/Kernel.php'
+            - '../src/RateLimitBundle/'
 
     RateLimit\RateLimitBundle\EventListener\RateLimitListener:
         arguments:
