@@ -263,6 +263,7 @@ class ArticleController extends AbstractController
 
     // ===================== AJOUTER UN ARTICLE =====================
     #[Route('/article/new', name: 'app_article_new')]
+    #[IsGranted('IS_AUTHENTICATED_FULLY')]
     public function new(Request $request, EntityManagerInterface $em): Response
     {
         $article = new Article();
@@ -341,9 +342,10 @@ class ArticleController extends AbstractController
         }
 
         $form = $this->createForm(CommentaireType::class, $commentaire);
-        $form->handleRequest($request);
+        if ($user !== null) {
+            $form->handleRequest($request);
 
-        if ($form->isSubmitted()) {
+            if ($form->isSubmitted()) {
             if ($form->isValid()) {
                 $parentId = $form->has('parent_id') ? $form->get('parent_id')->getData() : null;
                 if ($parentId !== null && $parentId !== '') {
@@ -397,6 +399,7 @@ class ArticleController extends AbstractController
             $slugExpected = $slugger->slug($article->getTitre())->lower()->toString();
             return $this->redirectToRoute('app_article_show', ['id' => $article->getId(), 'slug' => $slugExpected]);
         }
+        }
 
         $commentsQb = $commentaireRepository->createQueryBuilder('c')
             ->andWhere('c.article = :article')
@@ -436,6 +439,7 @@ class ArticleController extends AbstractController
 
     // ===================== MODIFIER UN ARTICLE =====================
     #[Route('/article/{id}/edit', name: 'app_article_edit')]
+    #[IsGranted('IS_AUTHENTICATED_FULLY')]
     public function edit(Request $request, Article $article, EntityManagerInterface $em): Response
     {
         if ($this->getUser() !== $article->getAuteur() && !$this->isGranted('ROLE_ADMIN')) {
@@ -480,6 +484,7 @@ class ArticleController extends AbstractController
 
     // ===================== SUPPRIMER UN ARTICLE =====================
     #[Route('/article/{id}/delete', name: 'app_article_delete', methods: ['POST'])]
+    #[IsGranted('IS_AUTHENTICATED_FULLY')]
     public function delete(Request $request, Article $article, EntityManagerInterface $em): Response
     {
         if ($this->getUser() !== $article->getAuteur() && !$this->isGranted('ROLE_ADMIN')) {
