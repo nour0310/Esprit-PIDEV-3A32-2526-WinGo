@@ -5,22 +5,27 @@ namespace App\Controller;
 use App\Entity\Article;
 use App\Entity\Commande;
 use App\Entity\Commentaire;
+use App\Entity\Profil;
+use App\Entity\Utilisateur;
+use App\Form\ArticleType;
+use App\Form\UtilisateurType;
 use App\Repository\ArticleRepository;
 use App\Repository\CommandeRepository;
+use App\Repository\CommentaireRepository;
 use App\Repository\ProduitRepository;
+use App\Repository\ProfilRepository;
 use App\Repository\ReclamationRepository;
 use App\Repository\ReservationRepository;
 use App\Repository\SuggestionRepository;
-use App\Repository\CommentaireRepository;
 use App\Repository\TransportRepository;
 use App\Repository\UtilisateurRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
-use App\Form\ArticleType;
 use Symfony\Component\HttpFoundation\File\Exception\FileException;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 
@@ -28,6 +33,7 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 #[Route('/admin')]
 class AdminController extends AbstractController
 {
+    private const ALLOWED_PHOTO_EXTENSIONS = ['jpg', 'jpeg', 'png', 'webp', 'gif'];
     #[Route('', name: 'admin_dashboard')]
     #[Route('/dashboard', name: 'admin_dashboard_page')]
     public function dashboard(
@@ -102,12 +108,271 @@ class AdminController extends AbstractController
         ]);
     }
 
+    // ─────────────────────────────────────────────
+    //  UTILISATEURS
+    // ─────────────────────────────────────────────
+
     #[Route('/users', name: 'admin_users')]
-    public function users(UtilisateurRepository $repo): Response
+    public function users(Request $request, UtilisateurRepository $repo): Response
     {
+        $query = $request->query->get('q', '');
+        $sort = $request->query->get('sort', 'id');
+        $direction = $request->query->get('direction', 'DESC');
+
+        // Validation simple du tri
+        $allowedSorts = ['id', 'nom', 'prenom', 'email', 'type', 'age'];
+        if (!in_array($sort, $allowedSorts)) {
+            $sort = 'id';
+        }
+        if (!in_array(strtoupper($direction), ['ASC', 'DESC'])) {
+            $direction = 'DESC';
+        }
+
+        $users = $repo->searchAndSort($query, $sort, $direction);
+
+        // On injecte le score de fiabilitÃ© pour chaque utilisateur
+        $totalReliability = 0;
+        foreach ($users as $user) {
+            $user->reliabilityScore = $repo->calculateReliabilityScore($user);
+            $totalReliability += $user->reliabilityScore;
+        }
+
+        $avgReliability = count($users) > 0 ? round($totalReliability / count($users)) : 100;
+
         return $this->render('admin/users.html.twig', [
-            'users' => $repo->findAll(),
+            'users'             => $users,
+            'q'                 => $query,
+            'current_sort'      => $sort,
+            'current_direction' => $direction,
+            'stats' => [
+                'total' => count($repo->findAll()),
+                'admins' => count($repo->findBy(['type' => 'ADMIN'])),
+                'merchants' => count($repo->findBy(['type' => 'COMMERCANT'])),
+                'avg_reliability' => $avgReliability,
+            ]
         ]);
+    }
+
+    /**
+     * Upload ou remplacement de la photo d'un utilisateur par l'admin.
+     */
+    #[Route('/user/{id}/photo', name: 'admin_user_photo', methods: ['POST'])]
+    public function uploadUserPhoto(
+        int $id,
+        Request $request,
+        UtilisateurRepository $userRepo,
+        ProfilRepository $profilRepo,
+        EntityManagerInterface $em,
+    ): Response {
+        $user = $userRepo->find($id);
+        if (!$user) {
+            throw $this->createNotFoundException('Utilisateur introuvable.');
+        }
+
+        $photoFile = $request->files->get('photo');
+        if (!$photoFile) {
+            $this->addFlash('error', 'Aucun fichier sÃ©lectionnÃ©.');
+            return $this->redirectToRoute('admin_users');
+        }
+
+        // VÃ©rification des erreurs de tÃ©lÃ©chargement
+        if (!$photoFile->isValid()) {
+            $errorMsg = match ($photoFile->getError()) {
+                UPLOAD_ERR_INI_SIZE  => 'Le fichier est trop volumineux pour le serveur (max. 2 Mo).',
+                UPLOAD_ERR_PARTIAL   => 'Le fichier n\'a Ã©tÃ© que partiellement tÃ©lÃ©chargÃ©.',
+                UPLOAD_ERR_NO_FILE   => 'Aucun fichier n\'a Ã©tÃ© tÃ©lÃ©chargÃ©.',
+                default              => 'Une erreur est survenue lors du tÃ©lÃ©chargement (' . $photoFile->getErrorMessage() . ').',
+            };
+            $this->addFlash('error', $errorMsg);
+            return $this->redirectToRoute('admin_users');
+        }
+
+        $extension = strtolower($photoFile->getClientOriginalExtension());
+        if (!in_array($extension, self::ALLOWED_PHOTO_EXTENSIONS, true)) {
+            $this->addFlash('error', 'Format invalide. Utilisez JPG, PNG, WEBP ou GIF.');
+            return $this->redirectToRoute('admin_users');
+        }
+
+        // Validation taille (max 2 Mo)
+        if ($photoFile->getSize() > 2 * 1024 * 1024) {
+            $this->addFlash('error', 'La photo ne doit pas dÃ©passer 2 Mo.');
+            return $this->redirectToRoute('admin_users');
+        }
+
+        $uploadDir = $this->getParameter('kernel.project_dir') . '/public/uploads/photos';
+        if (!is_dir($uploadDir)) {
+            mkdir($uploadDir, 0755, true);
+        }
+
+        // CrÃ©ation du profil si inexistant
+        $profil = $profilRepo->findOneBy(['utilisateur' => $user]);
+        if (!$profil) {
+            $profil = new Profil();
+            $profil->setUtilisateur($user);
+            $em->persist($profil);
+        }
+
+        // Suppression ancienne photo
+        if ($profil->getPhoto()) {
+            $oldPath = $uploadDir . '/' . $profil->getPhoto();
+            if (file_exists($oldPath)) {
+                unlink($oldPath);
+            }
+        }
+
+        // Sauvegarde nouvelle photo
+        $filename = uniqid('photo_', true) . '.' . $extension;
+        $photoFile->move($uploadDir, $filename);
+        $profil->setPhoto($filename);
+
+        $em->flush();
+        $this->addFlash('success', 'Photo mise Ã  jour avec succÃ¨s.');
+
+        return $this->redirectToRoute('admin_users');
+    }
+
+    /**
+     * Suppression de la photo d'un utilisateur par l'admin.
+     */
+    #[Route('/user/{id}/photo/delete', name: 'admin_user_photo_delete', methods: ['POST'])]
+    public function deleteUserPhoto(
+        int $id,
+        UtilisateurRepository $userRepo,
+        ProfilRepository $profilRepo,
+        EntityManagerInterface $em,
+    ): Response {
+        $user = $userRepo->find($id);
+        if (!$user) {
+            throw $this->createNotFoundException('Utilisateur introuvable.');
+        }
+
+        $profil = $profilRepo->findOneBy(['utilisateur' => $user]);
+        if ($profil && $profil->getPhoto()) {
+            $uploadDir = $this->getParameter('kernel.project_dir') . '/public/uploads/photos';
+            $oldPath   = $uploadDir . '/' . $profil->getPhoto();
+            if (file_exists($oldPath)) {
+                unlink($oldPath);
+            }
+            $profil->setPhoto(null);
+            $em->flush();
+            $this->addFlash('success', 'Photo supprimÃ©e.');
+        }
+
+        return $this->redirectToRoute('admin_users');
+    }
+
+    #[Route('/user/{id}/change-type', name: 'admin_change_user_type', methods: ['POST'])]
+    public function changeType(
+        int $id,
+        Request $request,
+        UtilisateurRepository $repo,
+        EntityManagerInterface $em,
+    ): Response {
+        $user = $repo->find($id);
+        if (!$user) {
+            throw $this->createNotFoundException('Utilisateur introuvable.');
+        }
+
+        $newType = $request->request->get('type');
+        $allowedTypes = ['CLIENT', 'COMMERCANT', 'ADMIN'];
+
+        if (!in_array(strtoupper($newType), $allowedTypes, true)) {
+            $this->addFlash('error', 'Type d\'utilisateur invalide.');
+            return $this->redirectToRoute('admin_users');
+        }
+
+        $user->setType(strtoupper($newType));
+        $em->flush();
+
+        $this->addFlash('success', sprintf('Le rÃ´le de %s a Ã©tÃ© mis Ã  jour.', $user->getFullName()));
+
+        return $this->redirectToRoute('admin_users');
+    }
+
+    #[Route('/user/new', name: 'admin_user_new', methods: ['GET', 'POST'])]
+    public function userNew(
+        Request $request,
+        EntityManagerInterface $em,
+        UserPasswordHasherInterface $passwordHasher
+    ): Response {
+        $user = new Utilisateur();
+        $form = $this->createForm(UtilisateurType::class, $user);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $plainPassword = $form->get('plainPassword')->getData();
+            $user->setMotDePasse($passwordHasher->hashPassword($user, $plainPassword));
+
+            $em->persist($user);
+            $em->flush();
+
+            $this->addFlash('success', 'Utilisateur crÃ©Ã© avec succÃ¨s.');
+            return $this->redirectToRoute('admin_users');
+        }
+
+        return $this->render('admin/user_form.html.twig', [
+            'user' => $user,
+            'form' => $form->createView(),
+            'title' => 'Nouveau Utilisateur',
+        ]);
+    }
+
+    #[Route('/user/{id}/edit', name: 'admin_user_edit', methods: ['GET', 'POST'])]
+    public function userEdit(
+        Utilisateur $user,
+        Request $request,
+        EntityManagerInterface $em,
+        UserPasswordHasherInterface $passwordHasher
+    ): Response {
+        $form = $this->createForm(UtilisateurType::class, $user, ['is_edit' => true]);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $plainPassword = $form->get('plainPassword')->getData();
+            if ($plainPassword) {
+                $user->setMotDePasse($passwordHasher->hashPassword($user, $plainPassword));
+            }
+
+            $em->flush();
+
+            $this->addFlash('success', 'Utilisateur mis Ã  jour avec succÃ¨s.');
+            return $this->redirectToRoute('admin_users');
+        }
+
+        return $this->render('admin/user_form.html.twig', [
+            'user' => $user,
+            'form' => $form->createView(),
+            'title' => 'Modifier ' . $user->getFullName(),
+        ]);
+    }
+
+    #[Route('/user/{id}/delete', name: 'admin_user_delete', methods: ['POST'])]
+    public function userDelete(Request $request, Utilisateur $user, EntityManagerInterface $em, UtilisateurRepository $repo): Response
+    {
+        if ($this->isCsrfTokenValid('delete' . $user->getId(), $request->request->get('_token'))) {
+            
+            // MÃ‰TIER AVANCÃ‰ : VÃ©rification avant suppression
+            if (!$repo->canBeSafelyDeleted($user)) {
+                $this->addFlash('error', 'Cet utilisateur ne peut pas Ãªtre supprimÃ© car il a des commandes en cours ou est le dernier administrateur.');
+                return $this->redirectToRoute('admin_users');
+            }
+
+            // Delete associated photo if exists
+            if ($user->getProfil() && $user->getProfil()->getPhoto()) {
+                $photoPath = $this->getParameter('kernel.project_dir') . '/public/uploads/photos/' . $user->getProfil()->getPhoto();
+                if (file_exists($photoPath)) {
+                    unlink($photoPath);
+                }
+            }
+
+            $em->remove($user);
+            $em->flush();
+            $this->addFlash('success', 'Utilisateur supprimÃ©.');
+        } else {
+            $this->addFlash('error', 'Token CSRF invalide.');
+        }
+
+        return $this->redirectToRoute('admin_users');
     }
 
     #[Route('/articles', name: 'admin_articles')]
