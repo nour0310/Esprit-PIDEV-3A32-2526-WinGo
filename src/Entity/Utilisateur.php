@@ -373,9 +373,33 @@ public function isEnAttenteCommercant(): bool
         return strtoupper($this->prenom[0] . $this->nom[0]);
     }
 
-    public function getAvatarUrl(): ?string
+    public function getAvatarUrl(): string
     {
-        return $this->photo ? '/uploads/photos/' . $this->photo : null;
+        // 1. Photo locale dans l'entité Profil
+        if ($this->profil && $this->profil->getPhoto()) {
+            $photo = $this->profil->getPhoto();
+            if (filter_var($photo, FILTER_VALIDATE_URL)) {
+                return $photo;
+            }
+            return '/uploads/photos/' . $photo;
+        }
+
+        // 2. Photo dans l'entité Utilisateur (legacy)
+        if ($this->photo) {
+            return '/uploads/photos/' . $this->photo;
+        }
+
+        // 3. Avatar DiceBear automatique selon le genre
+        $seed = urlencode($this->email ?: ($this->nom ?? 'user'));
+        $genre = strtolower($this->genre ?? '');
+
+        if (in_array($genre, ['femme', 'fille', 'f'])) {
+            return "https://api.dicebear.com/8.x/adventurer/svg?seed={$seed}&hair=long01,long02,long03,long04&backgroundColor=b6e3f4,ffd5dc";
+        } elseif (in_array($genre, ['homme', 'garcon', 'garçon', 'm'])) {
+            return "https://api.dicebear.com/8.x/adventurer/svg?seed={$seed}&hair=short01,short02,short03&backgroundColor=b6e3f4,d1d4f9";
+        }
+
+        return "https://api.dicebear.com/8.x/avataaars/svg?seed={$seed}&backgroundColor=b6e3f4,c0aede,d1d4f9,ffd5dc";
     }
 
     public function getAgeCategory(): string

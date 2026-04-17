@@ -34,4 +34,8 @@ class Profil
 
     public function getImage(): ?string { return $this->image; }
     public function setImage(?string $image): static { $this->image = $image; return $this; }
+
+    // Alias photo → image (compatibilité avec AdminController et ProfileController)
+    public function getPhoto(): ?string { return $this->image; }
+    public function setPhoto(?string $photo): static { $this->image = $photo; return $this; }
 }
