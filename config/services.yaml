@@ -37,4 +37,9 @@ services:
         tags:
             - { name: kernel.event_subscriber }
 
+    # Public alias to make the private limiter service accessible to our listener
+    limiter.comment_submit.public:
+        alias: 'limiter.comment_submit'
+        public: true
+
     
