@@ -30,4 +30,11 @@ services:
             - '../src/Entity/'
             - '../src/Kernel.php'
 
+    RateLimit\RateLimitBundle\EventListener\RateLimitListener:
+        arguments:
+            $container: '@service_container'
+            $requestStack: '@request_stack'
+        tags:
+            - { name: kernel.event_subscriber }
+
     

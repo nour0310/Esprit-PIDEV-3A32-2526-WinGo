@@ -15,4 +15,5 @@ return [
     Symfony\Bundle\MakerBundle\MakerBundle::class => ['dev' => true],
     Ehyiah\QuillJsBundle\QuillJsBundle::class => ['all' => true],
     Knp\Bundle\PaginatorBundle\KnpPaginatorBundle::class => ['all' => true],
+    RateLimit\RateLimitBundle\RateLimitBundle::class => ['all' => true],
 ];
