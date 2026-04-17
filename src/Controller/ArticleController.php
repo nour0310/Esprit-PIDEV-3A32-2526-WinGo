@@ -25,6 +25,8 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Component\String\Slugger\AsciiSlugger;
+use RateLimit\RateLimitBundle\Attribute\RateLimit;  // 🆕 Import de l'attribut
+
 
 class ArticleController extends AbstractController
 {
@@ -309,7 +311,9 @@ class ArticleController extends AbstractController
 
     // ===================== AFFICHER UN ARTICLE =====================
     #[Route('/article/{id}-{slug}', name: 'app_article_show', requirements: ['id' => '\d+', 'slug' => '.+'])]
+    #[RateLimit(limit: 5, period: 60, identifier: 'ip')]  // 🆕 Limitation
     #[IsGranted('PUBLIC_ACCESS')]
+
     public function show(
         Request $request,
         Article $article,
