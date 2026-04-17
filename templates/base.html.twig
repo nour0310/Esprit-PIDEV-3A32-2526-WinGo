@@ -49,6 +49,12 @@
         .wingo-notif-item--unread { background: #f3efff; font-weight: 500; }
         .wingo-notif-item-meta { font-size: 11px; color: #888; margin-top: 4px; }
         .wingo-notif-empty { padding: 24px; text-align: center; color: #888; font-size: 13px; }
+        /* Nav Avatar */
+        .wingo-nav-avatar { display: inline-flex; align-items: center; margin-left: 14px; }
+        .wingo-nav-avatar-link { display: block; width: 36px; height: 36px; border-radius: 50%; border: 2px solid rgba(255,255,255,0.4); overflow: hidden; transition: border-color 0.2s, transform 0.2s; }
+        .wingo-nav-avatar-link:hover { border-color: #fa9e1c; transform: scale(1.08); }
+        .wingo-nav-avatar-img { width: 36px; height: 36px; object-fit: cover; display: block; background: #fff; }
+        .wingo-nav-avatar-initials { width: 36px; height: 36px; background: linear-gradient(135deg, #fa9e1b, #8d4fff); color: #fff; font-size: 13px; font-weight: 700; display: flex; align-items: center; justify-content: center; border-radius: 50%; }
     </style>
     {% endif %}
 </head>
@@ -93,6 +99,9 @@
                 </div>
                 <div class="wingo-notif-list" id="wingo-notif-list"></div>
             </div>
+        </div>
+        <div class="user_box_login user_box_link">
+            <a href="{{ path('app_profile') }}"><i class="fa fa-user" aria-hidden="true"></i> Mon profil</a>
         </div>
         <div class="user_box_register user_box_link">
             <a href="{{ path('app_logout') }}">logout</a>
@@ -178,7 +187,19 @@
         >
         <button type="submit" style="display:none;"></button>
     </form>
-                        
+                        {% if app.user %}
+                        <div class="wingo-nav-avatar" id="wingo-nav-avatar-wrap">
+                            <a href="{{ path('app_profile') }}" class="wingo-nav-avatar-link" title="{{ app.user.fullName }}">
+                                <img
+                                    src="{{ app.user.avatarUrl }}"
+                                    alt="{{ app.user.initials }}"
+                                    class="wingo-nav-avatar-img"
+                                    width="36" height="36"
+                                    onerror="this.remove(); document.getElementById('wingo-nav-avatar-wrap').querySelector('a').innerHTML='<span class=\'wingo-nav-avatar-initials\'>{{ app.user.initials }}</span>';"
+                                >
+                            </a>
+                        </div>
+                        {% endif %}
                         <div class="hamburger">
                             <i class="fa fa-bars trans_200"></i>
                         </div>
