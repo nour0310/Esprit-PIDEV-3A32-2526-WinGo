@@ -336,7 +336,7 @@ class SecurityController extends AbstractController
             return $this->redirectToRoute('app_login_choice');
         }
 
-        return $this->redirectToRoute('client_produits');
+        return $this->redirectToRoute('home');
     }
 
     #[Route('/login-choice', name: 'app_login_choice')]

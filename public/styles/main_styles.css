@@ -490,13 +490,13 @@ section
 
 .main_nav_container
 {
-	margin-right: 221px;
+	margin-right: 0px;
 }
 .main_nav_item
 {
 	position: relative;
 	display: inline-block;
-	margin-right: 40px;
+	margin-right: 18px;
 }
 .main_nav_item:last-child
 {
