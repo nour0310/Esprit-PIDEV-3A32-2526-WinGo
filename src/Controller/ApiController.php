@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\Exception\ArticleGenerationException;
 use App\Service\AISummaryService;
 use App\Service\ArticleGeneratorService;
 use App\Service\GoogleTranslateTtsService;
@@ -23,15 +24,18 @@ class ApiController extends AbstractController
             return $this->json(['error' => 'Sujet requis'], 400);
         }
 
-        $generated = $generator->generateArticle($topic);
-        if (!$generated) {
-            return $this->json(['error' => 'Erreur lors de la génération'], 500);
+        try {
+            $generated = $generator->generateArticle($topic);
+            return $this->json($generated);
+        } catch (ArticleGenerationException $e) {
+            return $this->json([
+                'error' => $e->getPublicMessage(),
+                'detail' => $this->getParameter('kernel.debug') ? $e->getDetail() : null,
+            ], $e->getStatusCode());
         }
-
-        return $this->json($generated);
     }
 
-    #[Route('/api/tts', name: 'api_tts', methods: ['POST'])]
+    #[Route('/tts', name: 'api_tts', methods: ['POST'])]
     #[IsGranted('PUBLIC_ACCESS')]   // Rendre public pour le bouton "Écouter"
     public function tts(Request $request, GoogleTranslateTtsService $ttsService): JsonResponse
     {
@@ -61,7 +65,7 @@ class ApiController extends AbstractController
         }
     }
 
-    #[Route('/api/summary/ai', name: 'api_summary_ai', methods: ['POST'])]
+    #[Route('/summary/ai', name: 'api_summary_ai', methods: ['POST'])]
     #[IsGranted('PUBLIC_ACCESS')]   // Rendre public pour le bouton "Résumé IA"
     public function aiSummary(Request $request, AISummaryService $service): JsonResponse
     {

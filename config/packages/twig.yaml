@@ -2,7 +2,7 @@ twig:
     file_name_pattern: '*.twig'
     form_themes: ['@QuillJs/form.html.twig']
     globals:
-        app_domain: '%env(APP_DOMAIN)%'
+        app_domain: '%app_domain%'
 
 when@test:
     twig:

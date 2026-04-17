@@ -2,10 +2,14 @@ parameters:
     images_directory: '%kernel.project_dir%/public/images'
     gemini_api_key: '%env(GEMINI_API_KEY)%'
     giphy_api_key: '%env(GIPHY_API_KEY)%'
+    # Utilisé pour l’affichage (Twig) et éventuellement pour générer des URLs absolues.
+    # - Valeur par défaut dans `.env`: APP_DOMAIN=127.0.0.1
+    # - En partage (ngrok), override dans `.env.local`: APP_DOMAIN=xxxx.ngrok-free.dev
     app_domain: '%env(APP_DOMAIN)%'
 
-    router.request_context.host: 'overpower-neatly-democrat.ngrok-free.dev'
-    router.request_context.scheme: 'https'
+    # Contexte de routage (utile pour générer des URLs en CLI / emails).
+    router.request_context.host: '%env(APP_DOMAIN)%'
+    router.request_context.scheme: '%env(APP_SCHEME)%'
 services:
     _defaults:
         autowire: true
