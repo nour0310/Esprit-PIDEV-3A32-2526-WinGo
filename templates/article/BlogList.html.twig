@@ -165,7 +165,9 @@
 			<div class="home_slider_content_inner">
 				<h1>discover</h1>
 				<h1>our Blogs</h1>
+				{% if app.user %}
 				<div class="button home_slider_button"><div class="button_bcg"></div><a href="{{ path('app_article_new') }}">add blog<span></span><span></span><span></span></a></div>
+				{% endif %}
 			</div>
 		</div>
 	</div>
