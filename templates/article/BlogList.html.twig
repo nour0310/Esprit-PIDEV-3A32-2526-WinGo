@@ -220,6 +220,7 @@
 									</a>
 								</div>
 								<div class="blog_post_likes" style="display: inline-block; margin-left: 15px;">
+									{% if app.user %}
 									<a href="javascript:void(0);"
 									   class="like-button"
 									   data-article-id="{{ article.id }}"
@@ -231,6 +232,12 @@
 										<i class="{% if item.userLiked %}fas{% else %}far{% endif %} fa-heart like-icon"></i>
 										<span class="like-count">{{ item.likesCount }}</span>
 									</a>
+									{% else %}
+									<span title="{{ item.likersText|e('html_attr') }}" style="color: #8d4fff; font-size: 14px; display: inline-flex; align-items: center; cursor: default;">
+										<i class="far fa-heart" style="margin-right: 5px;"></i>
+										<span>{{ item.likesCount }}</span>
+									</span>
+									{% endif %}
 								</div>
 							</div>
 							{% if app.user and (app.user == article.auteur or is_granted('ROLE_ADMIN')) %}
