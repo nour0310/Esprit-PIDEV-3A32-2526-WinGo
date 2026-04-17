@@ -8,9 +8,12 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
+use Vich\UploaderBundle\Mapping\Annotation as Vich;
+use Symfony\Component\HttpFoundation\File\File;
 
 #[ORM\Entity(repositoryClass: UtilisateurRepository::class)]
 #[ORM\Table(name: 'utilisateur')]
+#[Vich\Uploadable]
 class Utilisateur implements UserInterface, PasswordAuthenticatedUserInterface
 {
     #[ORM\Id]
@@ -47,6 +50,18 @@ class Utilisateur implements UserInterface, PasswordAuthenticatedUserInterface
 
     #[ORM\Column(name: 'verification_code', type: 'string', length: 10, nullable: true)]
     private ?string $verificationCode = null;
+
+    #[ORM\Column(type: 'text', nullable: true)]
+    private ?string $faceDescriptor = null;
+
+    #[ORM\Column(type: 'string', length: 255, nullable: true)]
+    private ?string $photo = null;
+
+    #[Vich\UploadableField(mapping: 'profile_photo', fileNameProperty: 'photo')]
+    private ?File $imageFile = null;
+
+    #[ORM\Column(type: 'datetime_immutable', nullable: true)]
+    private ?\DateTimeImmutable $updatedAt = null;
 
     #[ORM\OneToOne(mappedBy: 'utilisateur', targetEntity: Profil::class, cascade: ['persist', 'remove'])]
     private ?Profil $profil = null;
@@ -304,5 +319,74 @@ public function isEnAttenteCommercant(): bool
     public function isAdmin(): bool
     {
         return strtolower($this->type ?? '') === 'admin';
+    }
+
+    public function getFaceDescriptor(): ?string
+    {
+        return $this->faceDescriptor;
+    }
+
+    public function setFaceDescriptor(?string $faceDescriptor): static
+    {
+        $this->faceDescriptor = $faceDescriptor;
+        return $this;
+    }
+
+    public function getPhoto(): ?string
+    {
+        return $this->photo;
+    }
+
+    public function setPhoto(?string $photo): static
+    {
+        $this->photo = $photo;
+        return $this;
+    }
+
+    public function getImageFile(): ?File
+    {
+        return $this->imageFile;
+    }
+
+    public function setImageFile(?File $imageFile = null): void
+    {
+        $this->imageFile = $imageFile;
+
+        if (null !== $imageFile) {
+            $this->updatedAt = new \DateTimeImmutable();
+        }
+    }
+
+    public function getUpdatedAt(): ?\DateTimeImmutable
+    {
+        return $this->updatedAt;
+    }
+
+    public function getInitials(): string
+    {
+        if (!$this->prenom || !$this->nom) return 'U';
+        return strtoupper($this->prenom[0] . $this->nom[0]);
+    }
+
+    public function getAvatarUrl(): ?string
+    {
+        return $this->photo ? '/uploads/photos/' . $this->photo : null;
+    }
+
+    public function getAgeCategory(): string
+    {
+        if (!$this->age) return 'Non prÃ©cisÃ©';
+        if ($this->age < 18) return 'Enfant/Ado';
+        if ($this->age < 60) return 'Adulte';
+        return 'SÃ©nior';
+    }
+
+    public function getTypeLabel(): string
+    {
+        return match(strtoupper($this->type ?? 'CLIENT')) {
+            'ADMIN' => 'Administrateur',
+            'COMMERCANT' => 'CommerÃ§ant',
+            default => 'Client'
+        };
     }
 }

@@ -16,6 +16,8 @@ services:
         autoconfigure: true
         bind:
             string $giphyApiKey: '%giphy_api_key%'
+            string $deepLApiKey: '%env(DEEPL_API_KEY)%'
+            string $deepLApiUrl: '%env(DEEPL_API_URL)%'
 
     Symfony\Component\Finder\Finder:
         class: Symfony\Component\Finder\Finder

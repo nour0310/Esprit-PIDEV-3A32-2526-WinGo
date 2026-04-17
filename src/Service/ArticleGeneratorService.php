@@ -55,8 +55,8 @@ PROMPT;
         try {
             $this->logger->info('Generating article for topic: ' . $topic);
             
-            // Utilisation du modèle gemini-1.5-flash qui est plus récent et stable
-            $url = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=' . $this->apiKey;
+            // Utilisation de l'alias 'gemini-flash-latest' qui est garanti présent dans v1beta
+            $url = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent?key=' . $this->apiKey;
 
             $response = $this->client->request('POST', $url, [
                     'headers' => ['Content-Type' => 'application/json'],

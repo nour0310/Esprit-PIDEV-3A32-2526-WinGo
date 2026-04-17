@@ -1,0 +1,95 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}API Traduction - WinGo{% endblock %}
+
+{% block stylesheets %}
+<style>
+    .translator_section { min-height: 80vh; padding: 160px 20px 60px; background: linear-gradient(180deg, #f4efe7 0%, #fbfaf7 100%); }
+    .translator_shell { max-width: 1100px; margin: 0 auto; background: #fffaf2; border-radius: 28px; box-shadow: 0 24px 60px rgba(31, 41, 55, 0.12); overflow: hidden; border: 1px solid rgba(250, 158, 27, 0.12); }
+    .translator_header { padding: 36px 42px; background: linear-gradient(135deg, #19345e 0%, #0f6a73 100%); color: #fff; }
+    .translator_header h1 { margin: 0 0 8px; font-size: 38px; font-weight: 800; }
+    .translator_header p { margin: 0; opacity: 0.88; font-size: 16px; }
+    .translator_body { display: grid; grid-template-columns: 1.05fr 0.95fr; gap: 0; }
+    .translator_panel { padding: 34px 38px; }
+    .translator_panel.alt { background: #fff; border-left: 1px solid rgba(15, 106, 115, 0.08); }
+    .field_label { display: block; margin-bottom: 8px; color: #355070; font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; }
+    .field_input, .field_select, .field_textarea { width: 100%; border: 2px solid #eadfce; border-radius: 18px; padding: 14px 16px; font-size: 15px; color: #263238; background: #fffdf9; }
+    .field_textarea { min-height: 260px; resize: vertical; }
+    .field_input:focus, .field_select:focus, .field_textarea:focus { outline: none; border-color: #fa9e1b; }
+    .grid_two { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 18px; }
+    .submit_btn { margin-top: 18px; border: 0; border-radius: 18px; background: linear-gradient(135deg, #ff9f1c 0%, #e76f51 55%, #8d4fff 100%); color: #fff; font-size: 16px; font-weight: 800; padding: 15px 20px; width: 100%; box-shadow: 0 16px 30px rgba(231, 111, 81, 0.24); }
+    .result_card { min-height: 100%; background: linear-gradient(180deg, #fff 0%, #f7fbff 100%); border: 1px solid rgba(25, 52, 94, 0.08); border-radius: 24px; padding: 24px; }
+    .result_title { margin: 0 0 10px; color: #19345e; font-size: 24px; font-weight: 800; }
+    .result_meta { margin-bottom: 16px; color: #637381; font-size: 14px; }
+    .result_text { white-space: pre-wrap; color: #17212b; font-size: 17px; line-height: 1.7; }
+    .alert_box { margin-bottom: 18px; padding: 14px 16px; border-radius: 14px; font-size: 14px; }
+    .alert_box.error { background: #fff1f2; color: #be123c; border: 1px solid #fecdd3; }
+    .hint_box { margin-top: 18px; padding: 16px 18px; border-radius: 16px; background: #fff4df; color: #8a5a12; font-size: 14px; }
+    @media (max-width: 900px) {
+        .translator_body { grid-template-columns: 1fr; }
+        .translator_panel.alt { border-left: 0; border-top: 1px solid rgba(15, 106, 115, 0.08); }
+        .grid_two { grid-template-columns: 1fr; }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<section class="translator_section">
+    <div class="translator_shell">
+        <div class="translator_header">
+            <h1>Traduction PHP</h1>
+            <p>Interface Symfony connectee a DeepL API Free, prete pour tes pages et tes controllers.</p>
+        </div>
+
+        <div class="translator_body">
+            <div class="translator_panel">
+                {% if error %}
+                    <div class="alert_box error">{{ error }}</div>
+                {% endif %}
+
+                <form method="post" novalidate>
+                    <div class="grid_two">
+                        <div>
+                            <label class="field_label" for="source_lang">Langue source</label>
+                            <input class="field_input" id="source_lang" name="source_lang" value="{{ form_data.source_lang }}" placeholder="Auto ou FR, EN, AR...">
+                        </div>
+                        <div>
+                            <label class="field_label" for="target_lang">Langue cible</label>
+                            <select class="field_select" id="target_lang" name="target_lang">
+                                {% for code, label in target_languages %}
+                                    <option value="{{ code }}" {% if form_data.target_lang == code %}selected{% endif %}>{{ label }} ({{ code }})</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+
+                    <label class="field_label" for="text">Texte a traduire</label>
+                    <textarea class="field_textarea" id="text" name="text" placeholder="Ecris ton texte en francais, anglais, arabe...">{{ form_data.text }}</textarea>
+
+                    <button type="submit" class="submit_btn">Traduire maintenant</button>
+                </form>
+
+                <div class="hint_box">
+                    Ajoute ensuite ta cle dans <code>.env.local</code> :
+                    <code>DEEPL_API_KEY=ta_cle_deepl</code>
+                </div>
+            </div>
+
+            <div class="translator_panel alt">
+                <div class="result_card">
+                    <h2 class="result_title">Resultat</h2>
+                    {% if result %}
+                        <div class="result_meta">
+                            Langue detectee : {{ result.detected_source_language ?: 'Auto' }}
+                        </div>
+                        <div class="result_text">{{ result.text }}</div>
+                    {% else %}
+                        <div class="result_meta">Aucune traduction pour le moment.</div>
+                        <div class="result_text">Envoie un texte a gauche pour tester l'API de traduction en PHP.</div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

@@ -1,0 +1,40 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ ui.page_title|default('WinGo - Verifiez Votre Email') }}{% endblock %}
+
+{% block stylesheets %}
+<link rel="stylesheet" type="text/css" href="{{ asset('styles/main_styles.css') }}">
+<style>
+    .auth_section { min-height: 80vh; display: flex; align-items: center; justify-content: center; background: #f8f9fa; padding-top: 150px; padding-bottom: 50px; }
+    .auth_card { background: #fff; width: 100%; max-width: 520px; border-radius: 20px; box-shadow: 0 10px 40px rgba(0,0,0,0.1); overflow: hidden; }
+    .auth_header { background: linear-gradient(135deg, #1a1a2e 0%, #0f3460 100%); padding: 40px; text-align: center; color: #fff; }
+    .auth_logo { font-size: 32px; font-weight: 800; background: linear-gradient(135deg, #fa9e1b, #8d4fff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 10px; }
+    .auth_body { padding: 40px; text-align: center; }
+    .auth_text { color: #555; font-size: 15px; line-height: 1.7; margin-bottom: 24px; }
+    .btn_auth { display: inline-block; background: linear-gradient(135deg, #fa9e1b, #8d4fff); color: #fff; padding: 14px 20px; border-radius: 10px; text-decoration: none; font-weight: 700; font-size: 15px; }
+    .lang_switcher { display: flex; justify-content: center; gap: 10px; margin-bottom: 16px; }
+    .lang_chip { padding: 8px 12px; border-radius: 999px; border: 1px solid rgba(255,255,255,0.25); color: #fff; font-size: 12px; font-weight: 700; text-decoration: none; }
+    .lang_chip.active { background: rgba(255,255,255,0.2); }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="auth_section">
+    <div class="auth_card" {% if lang == 'AR' %}dir="rtl"{% endif %}>
+        <div class="auth_header">
+            <div class="auth_logo">WinGo</div>
+            <div class="lang_switcher">
+                <a class="lang_chip {% if lang == 'FR' %}active{% endif %}" href="{{ path('app_reset_password_link_check_email', {lang: 'FR'}) }}">FR</a>
+                <a class="lang_chip {% if lang == 'EN' %}active{% endif %}" href="{{ path('app_reset_password_link_check_email', {lang: 'EN'}) }}">EN</a>
+                <a class="lang_chip {% if lang == 'AR' %}active{% endif %}" href="{{ path('app_reset_password_link_check_email', {lang: 'AR'}) }}">AR</a>
+            </div>
+            <p style="margin:0; opacity:0.8; font-size:14px;">{{ ui.title }}</p>
+        </div>
+        <div class="auth_body">
+            <p class="auth_text">{{ ui.text_1 }}</p>
+            <p class="auth_text">{{ ui.text_2 }}</p>
+            <a href="{{ path('app_login', {lang: lang}) }}" class="btn_auth">{{ ui.back_to_login }}</a>
+        </div>
+    </div>
+</div>
+{% endblock %}
