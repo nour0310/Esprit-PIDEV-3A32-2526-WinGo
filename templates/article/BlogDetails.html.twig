@@ -23,7 +23,7 @@
     <meta property="og:title" content="{{ article.titre|striptags|e('html_attr') }}" />
     <meta property="og:description" content="{{ article.contenu|striptags|slice(0, 200)|e('html_attr') }}..." />
     <meta property="og:image" content="{{ cover_src_absolute|e('html_attr') }}" />
-    <meta property="og:url" content="{{ app_domain ~ path('app_article_show', {'id': article.id})|e('html_attr') }}" />
+    <meta property="og:url" content="{{ app_domain ~ path('app_article_show', {'id': article.id, 'slug': article.titre|slug})|e('html_attr') }}" />
     <meta property="og:type" content="article" />
     <meta property="og:site_name" content="WinGo - Voyages en Tunisie" />
     <meta name="twitter:card" content="summary_large_image" />
@@ -479,7 +479,7 @@
         </div>
 
         <div class="reply-form-container" id="reply-form-{{ comment.id }}" style="display: none; margin-top: 15px; padding-left: 20px;">
-            <form method="post" action="{{ path('app_article_show', {id: article.id}) }}">
+            <form method="post" action="{{ path('app_article_show', {id: article.id, slug: article.titre|slug}) }}">
                 <textarea name="commentaire[contenu]" class="wingo-input" rows="3" placeholder="Tapez votre réponse ici..." required></textarea>
                 <input type="hidden" name="commentaire[parent_id]" value="{{ comment.id }}">
                 {% if commentForm._token is defined %}
@@ -563,7 +563,7 @@
                     <i class="fab fa-whatsapp"></i> WhatsApp
                 </button>
                 {# Facebook : lien direct avec URL absolue construite via app_domain #}
-                <a href="https://www.facebook.com/sharer/sharer.php?u={{ app_domain ~ path('app_article_show', {'id': article.id})|url_encode }}&quote={{ article.titre|url_encode }}"
+                <a href="https://www.facebook.com/sharer/sharer.php?u={{ app_domain ~ path('app_article_show', {'id': article.id, 'slug': article.titre|slug})|url_encode }}&quote={{ article.titre|url_encode }}"
                    target="_blank"
                    class="share-btn share-btn-facebook">
                     <i class="fab fa-facebook-f"></i> Facebook
@@ -835,7 +835,7 @@ function base64ToBlob(base64, mimeType) {
 
 // WhatsApp et Instagram restent en JavaScript (mais on pourrait aussi les convertir)
 document.addEventListener('DOMContentLoaded', function () {
-    const articleUrl = '{{ app_domain ~ path('app_article_show', {'id': article.id}) }}';
+    const articleUrl = '{{ app_domain ~ path('app_article_show', {'id': article.id, 'slug': article.titre|slug}) }}';
     const articleTitle = '{{ article.titre|e('js') }}';
     
     const contentContainer = document.querySelector('.article-content');
