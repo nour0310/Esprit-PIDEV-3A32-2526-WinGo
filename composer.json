@@ -65,7 +65,7 @@
     "autoload": {
         "psr-4": {
             "App\\": "src/",
-            "RateLimit\\RateLimitBundle\\": "src/RateLimitBundle/"
+            "RateLimit\\RateLimitBundle\\": "lib/RateLimitBundle/"
         }
     },
     "autoload-dev": {
