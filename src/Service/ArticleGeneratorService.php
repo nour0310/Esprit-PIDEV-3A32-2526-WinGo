@@ -27,7 +27,7 @@ class ArticleGeneratorService
             );
         }
 
-        if (trim($this->apiKey) === '' || str_contains($this->apiKey, 'YOUR_API_KEY')) {
+        if (trim($this->apiKey) === '' || str_contains($this->apiKey, 'VOTRE_CLE_ICI') || str_contains($this->apiKey, 'YOUR_API_KEY')) {
             $this->logger->error('Missing or placeholder GEMINI_API_KEY for article generation');
             throw new ArticleGenerationException(
                 publicMessage: 'Configuration IA manquante',
