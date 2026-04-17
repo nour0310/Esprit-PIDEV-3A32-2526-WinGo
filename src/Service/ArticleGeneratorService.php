@@ -27,11 +27,11 @@ class ArticleGeneratorService
             );
         }
 
-        if (trim($this->apiKey) === '') {
-            $this->logger->error('Missing GEMINI_API_KEY for article generation');
+        if (trim($this->apiKey) === '' || str_contains($this->apiKey, 'YOUR_API_KEY')) {
+            $this->logger->error('Missing or placeholder GEMINI_API_KEY for article generation');
             throw new ArticleGenerationException(
                 publicMessage: 'Configuration IA manquante',
-                detail: 'La variable d’environnement GEMINI_API_KEY est absente ou vide.',
+                detail: 'La variable d’environnement GEMINI_API_KEY est absente, vide ou contient une valeur fictive.',
                 statusCode: 500,
             );
         }
@@ -55,8 +55,10 @@ PROMPT;
         try {
             $this->logger->info('Generating article for topic: ' . $topic);
             
-            $response = $this->client->request('POST', 
-                'https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent?key=' . $this->apiKey, [
+            // Utilisation du modèle gemini-1.5-flash qui est plus récent et stable
+            $url = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=' . $this->apiKey;
+
+            $response = $this->client->request('POST', $url, [
                     'headers' => ['Content-Type' => 'application/json'],
                     'json' => [
                         'contents' => [
@@ -70,33 +72,47 @@ PROMPT;
                             'candidateCount' => 1,
                         ]
                     ],
-                    'timeout' => 30,
+                    'timeout' => 45, // Augmenté un peu pour la génération de contenu long
                 ]
             );
 
             try {
-                $data = $response->toArray();
-            } catch (ClientException $e) {
                 $statusCode = $response->getStatusCode();
-                $body = $response->getContent(false);
+                if ($statusCode !== 200) {
+                    $errorBody = $response->getContent(false);
+                    $this->logger->error('Gemini API returned error', [
+                        'status_code' => $statusCode,
+                        'body' => $errorBody,
+                    ]);
 
-                $this->logger->error('Gemini API request failed', [
-                    'status_code' => $statusCode,
-                    'body' => $body,
-                ]);
+                    if ($statusCode === 403) {
+                        throw new ArticleGenerationException(
+                            publicMessage: 'Accès refusé par le service IA',
+                            detail: 'Clé API invalide, expirée ou API non activée. Vérifiez votre .env.local.',
+                            statusCode: 502,
+                        );
+                    }
 
-                if ($statusCode === 403) {
                     throw new ArticleGenerationException(
-                        publicMessage: 'Accès refusé par le service IA',
-                        detail: 'Clé API invalide/expirée ou API non activée (HTTP 403).',
+                        publicMessage: 'Erreur du service IA',
+                        detail: sprintf('Le service IA a répondu avec le code %d.', $statusCode),
                         statusCode: 502,
-                        previous: $e,
                     );
                 }
 
+                $data = $response->toArray();
+            } catch (\Throwable $e) {
+                if ($e instanceof ArticleGenerationException) {
+                    throw $e;
+                }
+                
+                $this->logger->error('Failed to parse Gemini response', [
+                    'exception' => $e->getMessage(),
+                ]);
+
                 throw new ArticleGenerationException(
-                    publicMessage: 'Erreur du service IA',
-                    detail: sprintf('Réponse HTTP %d reçue du service IA.', $statusCode),
+                    publicMessage: 'Réponse IA illisible',
+                    detail: 'Le service IA a renvoyé une réponse inattendue ou malformée.',
                     statusCode: 502,
                     previous: $e,
                 );
