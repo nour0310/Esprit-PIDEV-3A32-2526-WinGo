@@ -27,6 +27,13 @@ class RateLimitListener implements EventSubscriberInterface
 
     public function onKernelController(ControllerEvent $event): void
     {
+        $request = $this->requestStack->getCurrentRequest();
+        
+        // Only trigger rate limiting for POST requests (comment submissions)
+        if ($request->getMethod() !== 'POST') {
+            return;
+        }
+
         $controller = $event->getController();
 
         if (is_array($controller)) {
@@ -45,15 +52,16 @@ class RateLimitListener implements EventSubscriberInterface
         /** @var RateLimit $rateLimit */
         $rateLimit = $attribute->newInstance();
 
-        // We use the "comment_submit" limiter from our config
-        // Or we could create one dynamically if we had the factory.
-        // But the tutorial implies a specific config.
-        
         try {
+            // Use the public alias we created in services.yaml
+            if (!$this->container->has('limiter.comment_submit.public')) {
+                error_log('RateLimitListener Error: service limiter.comment_submit.public not found.');
+                return;
+            }
+
             /** @var RateLimiterFactory $limiterFactory */
-            $limiterFactory = $this->container->get('limiter.comment_submit');
+            $limiterFactory = $this->container->get('limiter.comment_submit.public');
             
-            $request = $this->requestStack->getCurrentRequest();
             $identifier = $request->getClientIp(); // default to IP
 
             if ($rateLimit->identifier === 'user') {
@@ -66,13 +74,10 @@ class RateLimitListener implements EventSubscriberInterface
             if (false === $limiter->consume(1)->isAccepted()) {
                 throw new RateLimitExceededException();
             }
+        } catch (RateLimitExceededException $e) {
+            throw $e;
         } catch (\Exception $e) {
-            // Rethrow our specific exception if it's the one we want
-            if ($e instanceof RateLimitExceededException) {
-                throw $e;
-            }
-            // Otherwise, we might want to log or ignore configuration errors
-            // For now, if the limiter is not configured, we just let it pass or log it.
+            error_log('RateLimitListener Exception: ' . $e->getMessage());
         }
     }
 }
