@@ -39,7 +39,7 @@ class AdminController extends AbstractController
         CommentaireRepository $commentRepo,
         EntityManagerInterface $em
     ): Response {
-        // Statistiques générales
+        // Statistiques gÃ©nÃ©rales
         $totalArticles = count($articleRepo->findAll());
         $totalUsers = count($userRepo->findAll());
         $totalCommandes = count($commandeRepo->findAll());
@@ -47,13 +47,26 @@ class AdminController extends AbstractController
         $totalReclamations = count($reclamationRepo->findAll());
         $totalCommentaires = count($commentRepo->findAll());
 
+        // Statistiques dÃ©mographiques
+        $statsAge = $userRepo->getAgeStats();
+        $totalForPercent = array_sum($statsAge) ?: 1;
+        $statsAgePercent = [];
+        foreach ($statsAge as $key => $value) {
+            $statsAgePercent[$key] = round(($value / $totalForPercent) * 100, 1);
+        }
+
+        $counts = $userRepo->getCountsByRole();
+
         return $this->render('admin/dashboard.html.twig', [
+            'stats'               => $counts,
             'total_users'         => $totalUsers,
             'total_articles'      => $totalArticles,
             'total_commandes'     => $totalCommandes,
             'total_reservations'  => $totalReservations,
             'total_reclamations'  => $totalReclamations,
             'total_commentaires'  => $totalCommentaires,
+            'stats_age'           => $statsAge,
+            'stats_age_percent'   => $statsAgePercent,
             'recent_users'        => $userRepo->findBy([], ['id' => 'DESC'], 5),
             'recent_reclamations' => $reclamationRepo->findBy([], ['id' => 'DESC'], 5),
         ]);
