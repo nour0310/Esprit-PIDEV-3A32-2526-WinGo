@@ -503,6 +503,14 @@
 {% endmacro %}
 
 {% block content %}
+<div class="container mt-4">
+    {% for message in app.flashes('error') %}
+        <div class="alert alert-danger" style="border-radius: 12px; margin-bottom: 20px; font-weight: 500;">
+            <i class="fas fa-exclamation-triangle" style="margin-right: 8px;"></i> {{ message }}
+        </div>
+    {% endfor %}
+</div>
+
 <div class="blog-details-hero">
     <div class="blog-details-hero-overlay"></div>
     <div class="hero-title-container">
