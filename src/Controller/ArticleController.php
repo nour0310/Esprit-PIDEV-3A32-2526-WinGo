@@ -24,6 +24,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
+use Symfony\Component\String\Slugger\AsciiSlugger;
 
 class ArticleController extends AbstractController
 {
@@ -208,13 +209,15 @@ class ArticleController extends AbstractController
             /** @var \App\Entity\Utilisateur|null $auteur */
             $auteur = $article->getAuteur();
             if ($auteur && $auteur->getId() !== null && $auteur->getId() !== $user->getId()) {
-                $notificationService->create(
-                    $auteur->getId(),
-                    $user->getId(),
-                    'like',
-                    trim($user->getPrenom() . ' ' . $user->getNom()) . ' a aimé votre article.',
-                    $this->generateUrl('app_article_show', ['id' => $articleId])
-                );
+                    $slugger = new AsciiSlugger();
+                    $slug = $slugger->slug($article->getTitre())->lower()->toString();
+                    $notificationService->create(
+                        $auteur->getId(),
+                        $user->getId(),
+                        'like',
+                        trim($user->getPrenom() . ' ' . $user->getNom()) . ' a aimé votre article.',
+                        $this->generateUrl('app_article_show', ['id' => $articleId, 'slug' => $slug])
+                    );
             }
         }
 
@@ -304,11 +307,12 @@ class ArticleController extends AbstractController
     }
 
     // ===================== AFFICHER UN ARTICLE =====================
-    #[Route('/article/{id}', name: 'app_article_show')]
+    #[Route('/article/{id}-{slug}', name: 'app_article_show', requirements: ['id' => '\d+', 'slug' => '.+'])]
     #[IsGranted('PUBLIC_ACCESS')]
     public function show(
         Request $request,
         Article $article,
+        string $slug,
         EntityManagerInterface $em,
         CommentaireRepository $commentaireRepository,
         LikesRepository $likesRepository,
@@ -317,6 +321,15 @@ class ArticleController extends AbstractController
         NotificationService $notificationService
     ): Response
     {
+        $slugger = new AsciiSlugger();
+        $expectedSlug = $slugger->slug($article->getTitre())->lower()->toString();
+
+        if ($slug !== $expectedSlug) {
+            return $this->redirectToRoute('app_article_show', [
+                'id' => $article->getId(),
+                'slug' => $expectedSlug,
+            ], 301);
+        }
         $commentaire = new Commentaire();
         $commentaire->setArticle($article);
         $commentaire->setDateCommentaire(new \DateTime());
@@ -343,7 +356,9 @@ class ArticleController extends AbstractController
                 $em->flush();
 
                 if ($user && $user->getId() !== null) {
-                    $articleUrl = $this->generateUrl('app_article_show', ['id' => $article->getId()]);
+                    $slugger = new AsciiSlugger();
+                    $slugExpected = $slugger->slug($article->getTitre())->lower()->toString();
+                    $articleUrl = $this->generateUrl('app_article_show', ['id' => $article->getId(), 'slug' => $slugExpected]);
 
                     /** @var \App\Entity\Utilisateur|null $auteur */
                     $auteur = $article->getAuteur();
@@ -378,7 +393,9 @@ class ArticleController extends AbstractController
                 error_log('FORM INVALID: ' . (string) $form->getErrors(true, false));
             }
 
-            return $this->redirectToRoute('app_article_show', ['id' => $article->getId()]);
+            $slugger = new AsciiSlugger();
+            $slugExpected = $slugger->slug($article->getTitre())->lower()->toString();
+            return $this->redirectToRoute('app_article_show', ['id' => $article->getId(), 'slug' => $slugExpected]);
         }
 
         $commentsQb = $commentaireRepository->createQueryBuilder('c')
