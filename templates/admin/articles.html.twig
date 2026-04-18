@@ -163,25 +163,23 @@
 <div class="container-fluid">
     <h1>Gestion des Articles</h1>
 
-    {# Graphiques statistiques #}
-    <div class="stats-grid">
-        <div class="chart-card">
-            <div class="chart-title">Articles par mois</div>
-            <div class="chart-container">
-                <canvas id="articlesChart"></canvas>
-            </div>
+    {# Répartition par catégorie (A la place des gros graphiques) #}
+    <div class="data_card" style="margin-bottom: 30px;">
+        <div class="data_card_header">
+            <div class="data_card_title"><i class="fa fa-pie-chart" style="color:#fa9e1b"></i> Répartition par Catégorie</div>
         </div>
-        <div class="chart-card">
-            <div class="chart-title">Articles par catégorie</div>
-            <div class="chart-container">
-                <canvas id="categoriesChart"></canvas>
+        <div style="padding: 20px 24px; display:flex; flex-wrap:wrap; gap:20px;">
+            {% for cat in articlesParCategorie %}
+            <div style="flex:1; min-width: 120px; text-align: center; border-right: 1px solid #eee;">
+                <div style="font-size:28px; font-weight:800; color:{{ cat.color }}; margin-bottom:5px;">{{ cat.count }}</div>
+                <div style="font-size:13px; color:#666; font-weight:600;">{{ cat.name }}</div>
+                <div style="width: 100%; background: #eee; height: 8px; border-radius: 4px; margin-top:10px;">
+                    <div style="width: {{ cat.percent }}%; background: {{ cat.color }}; height: 100%; border-radius: 4px;"></div>
+                </div>
             </div>
-        </div>
-        <div class="chart-card">
-            <div class="chart-title">Commentaires & Likes</div>
-            <div class="chart-container">
-                <canvas id="evolutionChart"></canvas>
-            </div>
+            {% else %}
+            <div style="flex:1; text-align: center; color: #888; font-style: italic;">Aucune catégorie disponible.</div>
+            {% endfor %}
         </div>
     </div>
 
@@ -289,79 +287,6 @@
     </div>
 </div>
 {% endblock %}
-
 {% block javascripts %}
     {{ parent() }}
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // Articles par mois
-            new Chart(document.getElementById('articlesChart').getContext('2d'), {
-                type: 'bar',
-                data: {
-                    labels: [{% for item in articlesParMois %}'{{ item.mois }}',{% endfor %}],
-                    datasets: [{
-                        label: 'Articles',
-                        data: [{% for item in articlesParMois %}{{ item.nb }},{% endfor %}],
-                        backgroundColor: '#8d4fff',
-                        borderRadius: 8
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: { legend: { display: false } }
-                }
-            });
-
-            // Catégories (camembert)
-            new Chart(document.getElementById('categoriesChart').getContext('2d'), {
-                type: 'pie',
-                data: {
-                    labels: [{% for item in articlesParCategorie %}'{{ item.categorie }}',{% endfor %}],
-                    datasets: [{
-                        data: [{% for item in articlesParCategorie %}{{ item.nb }},{% endfor %}],
-                        backgroundColor: ['#8d4fff', '#fa9e1c', '#10b981', '#ef4444', '#3b82f6', '#f59e0b']
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: { legend: { position: 'bottom' } }
-                }
-            });
-
-            // Évolution commentaires/likes
-            const commMap = { {% for item in commentairesParMois %}'{{ item.mois }}': {{ item.nb }},{% endfor %} };
-            const likeMap = { {% for item in likesParMois %}'{{ item.mois }}': {{ item.nb }},{% endfor %} };
-            const allMonths = [...new Set([...Object.keys(commMap), ...Object.keys(likeMap)])].sort();
-            
-            new Chart(document.getElementById('evolutionChart').getContext('2d'), {
-                type: 'line',
-                data: {
-                    labels: allMonths,
-                    datasets: [
-                        {
-                            label: 'Commentaires',
-                            data: allMonths.map(m => commMap[m] || 0),
-                            borderColor: '#8d4fff',
-                            tension: 0.3,
-                            pointBackgroundColor: '#8d4fff'
-                        },
-                        {
-                            label: 'Likes',
-                            data: allMonths.map(m => likeMap[m] || 0),
-                            borderColor: '#fa9e1c',
-                            tension: 0.3,
-                            pointBackgroundColor: '#fa9e1c'
-                        }
-                    ]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false
-                }
-            });
-        });
-    </script>
 {% endblock %}
