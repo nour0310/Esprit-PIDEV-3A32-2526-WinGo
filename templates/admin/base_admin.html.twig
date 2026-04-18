@@ -87,7 +87,15 @@
     </div>
 
     <div class="sidebar_user">
-        <img src="{{ app.user.avatarUrl }}" alt="{{ app.user.initials }}" class="user_avatar" style="border: 2px solid rgba(255,255,255,0.1); padding: 2px;">
+        <div style="position: relative; width: 44px; height: 44px; flex-shrink: 0; display: flex; align-items: center; justify-content: center;">
+            <div style="position: absolute; width: 100%; height: 100%; background: linear-gradient(135deg, var(--primary), var(--secondary)); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 16px; font-weight: 700; color: #fff; border: 2px solid rgba(255,255,255,0.1);">
+                {{ app.user.initials }}
+            </div>
+            <img src="{{ app.user.avatarUrl }}" 
+                 alt="{{ app.user.initials }}" 
+                 style="position: relative; z-index: 2; width: 100%; height: 100%; border-radius: 50%; object-fit: cover; border: 2px solid rgba(255,255,255,0.1); transition: opacity 0.3s;"
+                 onerror="this.style.opacity='0';">
+        </div>
         <div class="user_info">
             <div class="user_name">{{ app.user.fullName }}</div>
             <div class="user_email">{{ app.user.email }}</div>
@@ -151,7 +159,15 @@
                     <div style="font-size: 13px; font-weight: 700; color: #1a1a2e;">{{ app.user.prenom }}</div>
                     <div style="font-size: 10px; color: #888; text-transform: uppercase;">Admin</div>
                 </div>
-                <img src="{{ app.user.avatarUrl }}" alt="{{ app.user.initials }}" style="width: 38px; height: 38px; border-radius: 10px; border: 2px solid #fff; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
+                <div style="position: relative; width: 38px; height: 38px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                    <div style="position: absolute; width: 100%; height: 100%; background: linear-gradient(135deg, var(--primary), var(--secondary)); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 700; color: #fff; border: 2px solid #fff; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
+                        {{ app.user.initials }}
+                    </div>
+                    <img src="{{ app.user.avatarUrl }}" 
+                         alt="{{ app.user.initials }}" 
+                         style="position: relative; z-index: 2; width: 100%; height: 100%; border-radius: 8px; border: 2px solid #fff; box-shadow: 0 4px 8px rgba(0,0,0,0.1); object-fit: cover; transition: opacity 0.3s;"
+                         onerror="this.style.opacity='0';">
+                </div>
             </div>
         </div>
     </div>
