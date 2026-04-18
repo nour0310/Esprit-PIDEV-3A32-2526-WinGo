@@ -509,7 +509,7 @@ document.addEventListener('turbo:load', function () {
 						<p>Inspirez les autres avec votre expérience de voyage en Tunisie</p>
 					</div>
 					<div class="form-body">
-						{{ form_start(form, {'attr': {'class': 'wingo-form', 'enctype': 'multipart/form-data'}}) }}
+						{{ form_start(form, {'attr': {'novalidate': 'novalidate', 'class': 'wingo-form', 'enctype': 'multipart/form-data'}}) }}
 							<div class="form-group-custom">
 								{{ form_label(form.titre, 'Titre de votre blog', {'label_attr': {'class': 'form-label'}}) }}
 								{{ form_widget(form.titre, {'attr': {'class': 'form-control wingo-input', 'placeholder': 'Donnez un titre captivant...'}}) }}
