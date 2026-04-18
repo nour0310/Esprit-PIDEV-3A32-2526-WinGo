@@ -40,6 +40,7 @@ class ProfileController extends AbstractController
             $user->setPrenom($request->request->get('prenom', $user->getPrenom()));
             $user->setTelephone($request->request->get('telephone') ? (int) $request->request->get('telephone') : null);
             $user->setAge($request->request->get('age') ? (int) $request->request->get('age') : null);
+            $user->setGenre($request->request->get('genre', $user->getGenre()));
 
             $bio = $request->request->get('bio');
             if ($bio !== null) {

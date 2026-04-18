@@ -82,6 +82,14 @@
                                     <label class="form_label">Age</label>
                                     <input class="form_input" type="number" name="age" value="{{ user.age }}" min="1" max="120">
                                 </div>
+                                <div class="form_group">
+                                    <label class="form_label">Genre (Sexe)</label>
+                                    <select class="form_input" name="genre">
+                                        <option value="" {% if not user.genre %}selected{% endif %}>Non précisé</option>
+                                        <option value="Homme" {% if user.genre == 'Homme' %}selected{% endif %}>Homme (Garçon)</option>
+                                        <option value="Femme" {% if user.genre == 'Femme' %}selected{% endif %}>Femme (Fille)</option>
+                                    </select>
+                                </div>
                                 <div class="form_group full">
                                     <label class="form_label">Bio</label>
                                     <textarea class="form_input" name="bio">{{ profil ? profil.bio : '' }}</textarea>

@@ -188,14 +188,19 @@
         <button type="submit" style="display:none;"></button>
     </form>
                         {% if app.user %}
-                        <div class="wingo-nav-avatar" id="wingo-nav-avatar-wrap">
-                            <a href="{{ path('app_profile') }}" class="wingo-nav-avatar-link" title="{{ app.user.fullName }}">
+                        <div class="wingo-nav-avatar">
+                            <a href="{{ path('app_profile') }}" class="wingo-nav-avatar-link" title="{{ app.user.fullName }}" style="position: relative; display: flex; align-items: center; justify-content: center; background: #fff;">
+                                {# Initiales en arrière-plan (si l'image échoue) #}
+                                <div class="wingo-nav-avatar-initials" style="position: absolute; width: 100%; height: 100%; top: 0; left: 0; z-index: 1;">
+                                    {{ app.user.initials }}
+                                </div>
+                                {# L'image (si elle existe) #}
                                 <img
                                     src="{{ app.user.avatarUrl }}"
                                     alt="{{ app.user.initials }}"
                                     class="wingo-nav-avatar-img"
-                                    width="36" height="36"
-                                    onerror="this.remove(); document.getElementById('wingo-nav-avatar-wrap').querySelector('a').innerHTML='<span class=\'wingo-nav-avatar-initials\'>{{ app.user.initials }}</span>';"
+                                    style="position: relative; z-index: 2; width: 100%; height: 100%; object-fit: cover; transition: opacity 0.3s;"
+                                    onerror="this.style.opacity='0';"
                                 >
                             </a>
                         </div>

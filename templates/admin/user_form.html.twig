@@ -154,11 +154,18 @@
                     <div class="form_error">{{ form_errors(form.telephone) }}</div>
                 </div>
             </div>
-            <div class="col-md-4">
+            <div class="col-md-3">
                 <div class="form_group">
                     <label class="form_label">{{ form_label(form.age) }}</label>
                     {{ form_widget(form.age, {'attr': {'class': 'form_control'}}) }}
                     <div class="form_error">{{ form_errors(form.age) }}</div>
+                </div>
+            </div>
+            <div class="col-md-5">
+                <div class="form_group">
+                    <label class="form_label">{{ form_label(form.genre) }}</label>
+                    {{ form_widget(form.genre, {'attr': {'class': 'form_control'}}) }}
+                    <div class="form_error">{{ form_errors(form.genre) }}</div>
                 </div>
             </div>
         </div>
