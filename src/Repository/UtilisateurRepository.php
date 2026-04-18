@@ -31,7 +31,7 @@ class UtilisateurRepository extends ServiceEntityRepository
     }
 
     /**
-     * Calcule un score de fiabilitÃ© (0-100) basÃ© sur l'historique des commandes.
+     * Calcule un score de fiabilité (0-100) basé sur l'historique des commandes.
      */
     public function calculateReliabilityScore(Utilisateur $user): int
     {
@@ -49,13 +49,13 @@ class UtilisateurRepository extends ServiceEntityRepository
         $cancelled = (int)($result['cancelled'] ?? 0);
         $total = $delivered + $cancelled;
 
-        if ($total === 0) return 80; // Par dÃ©faut si pas de commandes
+        if ($total === 0) return 80; // Par défaut si pas de commandes
 
         return (int)round(($delivered / $total) * 100);
     }
 
     /**
-     * Calcule la rÃ©partition des utilisateurs par tranche d'Ã¢ge.
+     * Calcule la répartition des utilisateurs par tranche d'âge.
      */
     public function getAgeStats(): array
     {

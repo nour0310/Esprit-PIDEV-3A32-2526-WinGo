@@ -375,49 +375,58 @@ public function isEnAttenteCommercant(): bool
 
     public function getAvatarUrl(): string
     {
+        // On récupère le chemin absolu du dossier public pour vérifier l'existence des fichiers
+        // (Approche pragmatique pour éviter les liens cassés dans le back-office)
+        $publicDir = dirname(__DIR__, 2) . DIRECTORY_SEPARATOR . 'public';
+
         // 1. Photo locale dans l'entité Profil
         if ($this->profil && $this->profil->getPhoto()) {
             $photo = $this->profil->getPhoto();
             if (filter_var($photo, FILTER_VALIDATE_URL)) {
                 return $photo;
             }
-            return '/uploads/photos/' . $photo;
+            
+            $fullPath = $publicDir . DIRECTORY_SEPARATOR . 'uploads' . DIRECTORY_SEPARATOR . 'photos' . DIRECTORY_SEPARATOR . $photo;
+            if (file_exists($fullPath)) {
+                return '/uploads/photos/' . $photo;
+            }
         }
 
         // 2. Photo dans l'entité Utilisateur (legacy)
         if ($this->photo) {
-            return '/uploads/photos/' . $this->photo;
+            $fullPath = $publicDir . DIRECTORY_SEPARATOR . 'uploads' . DIRECTORY_SEPARATOR . 'photos' . DIRECTORY_SEPARATOR . $this->photo;
+            if (file_exists($fullPath)) {
+                return '/uploads/photos/' . $this->photo;
+            }
         }
 
-        // 3. Avatar DiceBear automatique selon le genre
-        $seed = urlencode($this->email ?: ($this->nom ?? 'user'));
+        // 3. Avatar DiceBear automatique (v9) selon le genre
+        $seed = urlencode($this->email ?: ($this->nom ? $this->nom . $this->id : 'user-' . $this->id));
         $genre = strtolower($this->genre ?? '');
 
         if (in_array($genre, ['femme', 'fille', 'f'])) {
-            // Options clairement féminines : cheveux longs, pas de barbe, couleurs douces
-            return "https://api.dicebear.com/8.x/avataaars/svg?seed={$seed}&top=longHair,longHairCurly,longHairStraight,longHairNotTooLong,longHairMiaWallace,longHairFrida,longHairStraight2&facialHairProbability=0&mouth=smile,twinkle&clothing=blazerShirt,blazerSweater,collarAndSweater,shirtScoopNeck,shirtVNeck&backgroundColor=ffd5dc,ffdfbf";
+            return "https://api.dicebear.com/9.x/avataaars/svg?seed={$seed}&mouth=smile,twinkle&clothing=blazerShirt,collarAndSweater,shirtScoopNeck&backgroundColor=ffd5dc,ffdfbf";
         } elseif (in_array($genre, ['homme', 'garcon', 'garçon', 'm'])) {
-            // Options clairement masculines : cheveux courts, barbe possible, vêtements classiques
-            return "https://api.dicebear.com/8.x/avataaars/svg?seed={$seed}&top=shortHair,shortHairDreads01,shortHairShortCurly,shortHairShortFlat,shortHairShortRound,shortHairShortWaved,shortHairTheCaesarAndSidePart&facialHairProbability=80&facialHair=beardLight,beardMedium,beardMagestic,moustacheFancy,moustacheMagnum&mouth=serious,smile&clothing=blazerShirt,hoodie,shirtCrewNeck,graphicShirt&backgroundColor=b6e3f4,d1d4f9,c0aede";
+            return "https://api.dicebear.com/9.x/avataaars/svg?seed={$seed}&mouth=serious,smile&clothing=blazerShirt,hoodie,shirtCrewNeck,graphicShirt&backgroundColor=b6e3f4,c0aede,d1d4f9";
         }
 
-        // 4. Fallback (Neutre/Mixte) si aucun genre n'est défini
-        return "https://api.dicebear.com/8.x/avataaars/svg?seed={$seed}&backgroundColor=b6e3f4,c0aede,d1d4f9,ffd5dc";
+        // 4. Fallback (Mixte)
+        return "https://api.dicebear.com/9.x/avataaars/svg?seed={$seed}&backgroundColor=b6e3f4,c0aede,d1d4f9,ffd5dc";
     }
 
     public function getAgeCategory(): string
     {
-        if (!$this->age) return 'Non prÃ©cisÃ©';
+        if (!$this->age) return 'Non précisé';
         if ($this->age < 18) return 'Enfant/Ado';
         if ($this->age < 60) return 'Adulte';
-        return 'SÃ©nior';
+        return 'Sénior';
     }
 
     public function getTypeLabel(): string
     {
         return match(strtoupper($this->type ?? 'CLIENT')) {
             'ADMIN' => 'Administrateur',
-            'COMMERCANT' => 'CommerÃ§ant',
+            'COMMERCANT' => 'Commerçant',
             default => 'Client'
         };
     }
