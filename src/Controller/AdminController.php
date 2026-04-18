@@ -366,15 +366,101 @@ class AdminController extends AbstractController
     // ─────────────────────────────────────────────
 
     #[Route('/articles', name: 'admin_articles')]
-    public function articles(ArticleRepository $repo, \App\Repository\CommentaireRepository $commentaireRepo): Response
+    public function articles(Request $request, ArticleRepository $repo, \App\Repository\CommentaireRepository $commentaireRepo): Response
     {
-        $articles = $repo->findAll();
+        $search = $request->query->get('search', '');
+
+        // Si une recherche est effectuée, vous pourriez filtrer les articles, 
+        // mais pour l'instant on garde findAll() (ou on pourrait utiliser un repo complet).
+        // Modifiez selon votre implémentation de recherche exacte.
+        if ($search) {
+            // Exemple basique de filtrage si vous avez une méthode search dans le repo
+            // $articles = $repo->search($search);
+            // Pour l'instant, faisons un filtrage basique en PHP
+            $allArticles = $repo->findAll();
+            $articles = array_filter($allArticles, function($a) use ($search) {
+                return stripos($a->getTitre() ?? '', $search) !== false 
+                    || stripos($a->getContenu() ?? '', $search) !== false;
+            });
+        } else {
+            $articles = $repo->findAll();
+        }
         
+        $articleTop = null;
+        $maxComments = -1;
+        foreach ($articles as $article) {
+            $commentsCount = count($article->getCommentaires());
+            if ($commentsCount > $maxComments) {
+                $maxComments = $commentsCount;
+                $articleTop = $article;
+            }
+        }
+
+        $cats = [];
+        $totalForStats = count($articles) ?: 1;
+        foreach ($articles as $a) {
+            $cat = $a->getCategorie() ?: 'Non classé';
+            $cats[$cat] = ($cats[$cat] ?? 0) + 1;
+        }
+
+        $articlesParCategorie = [];
+        $colors = ['#fa9e1b', '#8d4fff', '#4CAF50', '#2196F3', '#E91E63'];
+        $i = 0;
+        foreach ($cats as $name => $count) {
+            $articlesParCategorie[] = [
+                'name'    => $name,
+                'count'   => $count,
+                'percent' => round(($count / $totalForStats) * 100),
+                'color'   => $colors[$i % count($colors)],
+            ];
+            $i++;
+        }
+        usort($articlesParCategorie, fn($a, $b) => $b['count'] <=> $a['count']);
+
         return $this->render('admin/articles.html.twig', [
-            'articles'           => $articles,
-            'total_articles'     => count($articles),
-            'total_commentaires' => count($commentaireRepo->findAll()),
+            'articles'             => $articles,
+            'total_articles'       => count($articles),
+            'total_commentaires'   => count($commentaireRepo->findAll()),
+            'article_top'          => $articleTop,
+            'search'               => $search,
+            'articlesParCategorie' => $articlesParCategorie,
         ]);
+    }
+
+    #[Route('/article/{id}/show', name: 'admin_article_show')]
+    public function articleShow(Article $article): Response
+    {
+        $slugger = new \Symfony\Component\String\Slugger\AsciiSlugger();
+        $slug = $slugger->slug($article->getTitre())->lower()->toString();
+        return $this->redirectToRoute('app_article_show', ['id' => $article->getId(), 'slug' => $slug]);
+    }
+
+    #[Route('/article/{id}/edit', name: 'admin_article_edit')]
+    public function articleEdit(Article $article): Response
+    {
+        return $this->redirectToRoute('app_article_edit', ['id' => $article->getId()]);
+    }
+
+    #[Route('/article/{id}/commentaires', name: 'admin_article_commentaires')]
+    public function articleCommentaires(Article $article): Response
+    {
+        // S'il existe une vraie vue pour gérer les commentaires d'un article, redirigez-y.
+        // Sinon, on redirige vers la liste pour l'instant.
+        return $this->redirectToRoute('admin_articles');
+    }
+
+    #[Route('/article/{id}/delete', name: 'admin_article_delete', methods: ['POST'])]
+    public function articleDelete(Request $request, Article $article, EntityManagerInterface $em): Response
+    {
+        if ($this->isCsrfTokenValid('delete_admin' . $article->getId(), $request->request->get('_token'))) {
+            $em->remove($article);
+            $em->flush();
+            $this->addFlash('success', 'Article supprimé avec succès.');
+        } else {
+            $this->addFlash('error', 'Token CSRF invalide.');
+        }
+
+        return $this->redirectToRoute('admin_articles');
     }
 
     // ─────────────────────────────────────────────
