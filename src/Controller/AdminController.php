@@ -480,10 +480,29 @@ class AdminController extends AbstractController
     }
 
     #[Route('/article/{id}/commentaires', name: 'admin_article_commentaires')]
-    public function articleCommentaires(Article $article): Response
+    public function articleCommentaires(Article $article, \App\Service\ProfanityFilterService $profanityFilter): Response
     {
+        $commentaires = $article->getCommentaires();
+
+        $badWordResults = [];
+        $badWordCount = 0;
+        foreach ($commentaires as $commentaire) {
+            $contenu = $commentaire->getContenu() ?? '';
+            $isProfane = $profanityFilter->containsProfanity($contenu);
+            $badWordResults[$commentaire->getId()] = [
+                'has_bad_words' => $isProfane,
+                'severity' => $isProfane ? 'danger' : 'clean',
+                'cleaned' => $isProfane ? $profanityFilter->clean($contenu) : $contenu,
+            ];
+            if ($isProfane) {
+                $badWordCount++;
+            }
+        }
+
         return $this->render('admin/article_commentaires.html.twig', [
-            'article' => $article
+            'article' => $article,
+            'badWordResults' => $badWordResults,
+            'badWordCount' => $badWordCount,
         ]);
     }
 
