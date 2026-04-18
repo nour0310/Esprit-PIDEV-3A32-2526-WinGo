@@ -345,6 +345,7 @@ class ArticleController extends AbstractController
         $commentaire->setArticle($article);
         $commentaire->setDateCommentaire(new \DateTime());
 
+        $responseStatus = 200;
         /** @var \App\Entity\Utilisateur|null $user */
         $user = $this->getUser();
         if ($user) {
@@ -356,59 +357,60 @@ class ArticleController extends AbstractController
             $form->handleRequest($request);
 
             if ($form->isSubmitted()) {
-            if ($form->isValid()) {
-                $parentId = $form->has('parent_id') ? $form->get('parent_id')->getData() : null;
-                if ($parentId !== null && $parentId !== '') {
-                    $parentComment = $commentaireRepository->find((int) $parentId);
-                    if ($parentComment instanceof Commentaire && $parentComment->getArticle()?->getId() === $article->getId()) {
-                        $commentaire->setParent($parentComment);
+                if ($form->isValid()) {
+                    $parentId = $form->has('parent_id') ? $form->get('parent_id')->getData() : null;
+                    if ($parentId !== null && $parentId !== '') {
+                        $parentComment = $commentaireRepository->find((int) $parentId);
+                        if ($parentComment instanceof Commentaire && $parentComment->getArticle()?->getId() === $article->getId()) {
+                            $commentaire->setParent($parentComment);
+                        }
                     }
-                }
-                $em->persist($commentaire);
-                $em->flush();
+                    $em->persist($commentaire);
+                    $em->flush();
 
-                if ($user && $user->getId() !== null) {
+                    if ($user && $user->getId() !== null) {
+                        $slugger = new AsciiSlugger();
+                        $slugExpected = $slugger->slug($article->getTitre())->lower()->toString();
+                        $articleUrl = $this->generateUrl('app_article_show', ['id' => $article->getId(), 'slug' => $slugExpected]);
+
+                        /** @var \App\Entity\Utilisateur|null $auteur */
+                        $auteur = $article->getAuteur();
+                        if ($auteur && $auteur->getId() !== null && $auteur->getId() !== $user->getId()) {
+                            $notificationService->create(
+                                $auteur->getId(),
+                                $user->getId(),
+                                'commentaire',
+                                trim($user->getPrenom() . ' ' . $user->getNom()) . ' a commenté votre article.',
+                                $articleUrl
+                            );
+                        }
+
+                        $parent = $commentaire->getParent();
+                        /** @var \App\Entity\Utilisateur|null $parentAuthor */
+                        $parentAuthor = $parent?->getUtilisateur();
+                        if (
+                            $parentAuthor
+                            && $parentAuthor->getId() !== null
+                            && $parentAuthor->getId() !== $user->getId()
+                        ) {
+                            $notificationService->create(
+                                $parentAuthor->getId(),
+                                $user->getId(),
+                                'reponse',
+                                trim($user->getPrenom() . ' ' . $user->getNom()) . ' a répondu à votre commentaire.',
+                                $articleUrl . '#comment-card-' . $parent->getId()
+                            );
+                        }
+                    }
                     $slugger = new AsciiSlugger();
                     $slugExpected = $slugger->slug($article->getTitre())->lower()->toString();
-                    $articleUrl = $this->generateUrl('app_article_show', ['id' => $article->getId(), 'slug' => $slugExpected]);
-
-                    /** @var \App\Entity\Utilisateur|null $auteur */
-                    $auteur = $article->getAuteur();
-                    if ($auteur && $auteur->getId() !== null && $auteur->getId() !== $user->getId()) {
-                        $notificationService->create(
-                            $auteur->getId(),
-                            $user->getId(),
-                            'commentaire',
-                            trim($user->getPrenom() . ' ' . $user->getNom()) . ' a commenté votre article.',
-                            $articleUrl
-                        );
-                    }
-
-                    $parent = $commentaire->getParent();
-                    /** @var \App\Entity\Utilisateur|null $parentAuthor */
-                    $parentAuthor = $parent?->getUtilisateur();
-                    if (
-                        $parentAuthor
-                        && $parentAuthor->getId() !== null
-                        && $parentAuthor->getId() !== $user->getId()
-                    ) {
-                        $notificationService->create(
-                            $parentAuthor->getId(),
-                            $user->getId(),
-                            'reponse',
-                            trim($user->getPrenom() . ' ' . $user->getNom()) . ' a répondu à votre commentaire.',
-                            $articleUrl . '#comment-card-' . $parent->getId()
-                        );
-                    }
+                    return $this->redirectToRoute('app_article_show', ['id' => $article->getId(), 'slug' => $slugExpected]);
+                } else {
+                    // Si le formulaire est invalide, on ne redirige pas !
+                    // On laisse le code continuer jusqu'au render() plus bas pour afficher les erreurs.
+                    $responseStatus = 422;
                 }
-            } else {
-                error_log('FORM INVALID: ' . (string) $form->getErrors(true, false));
             }
-
-            $slugger = new AsciiSlugger();
-            $slugExpected = $slugger->slug($article->getTitre())->lower()->toString();
-            return $this->redirectToRoute('app_article_show', ['id' => $article->getId(), 'slug' => $slugExpected]);
-        }
         }
 
         $commentsQb = $commentaireRepository->createQueryBuilder('c')
@@ -444,7 +446,7 @@ class ArticleController extends AbstractController
             'likesCount' => $likesCount,
             'likersNames' => $likersNames,
             'commentsPagination' => $commentsPagination,
-        ]);
+        ], new Response(null, $responseStatus));
     }
 
     // ===================== MODIFIER UN ARTICLE =====================

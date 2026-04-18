@@ -684,9 +684,11 @@
                     <h4 class="comment-form-title">Laisser un commentaire</h4>
                     {{ form_start(commentForm, {'attr': {'novalidate': 'novalidate', 'class': 'clearfix'}}) }}
                         {{ form_widget(commentForm.contenu, {'attr': {'class': 'wingo-input', 'rows': 4, 'id': 'new-comment-content'}}) }}
-                        <div class="error-text">
-                            {{ form_errors(commentForm.contenu) }}
-                        </div>
+                        {% for error in commentForm.contenu.vars.errors %}
+                            <div style="color: #ff4757; font-size: 0.9rem; font-weight: bold; margin-top: 8px; margin-bottom: 10px;">
+                                <i class="fas fa-exclamation-circle" style="margin-right: 5px;"></i> {{ error.message }}
+                            </div>
+                        {% endfor %}
 
                         <div class="gif-picker" style="margin-top: 12px;">
                             <button type="button" id="openGifPicker" style="background: linear-gradient(135deg, #8d4fff, #fa9e1c); color: #fff; border: none; padding: 8px 20px; border-radius: 25px; font-weight: 600; cursor: pointer; font-size: 0.9rem; transition: all 0.3s;">
