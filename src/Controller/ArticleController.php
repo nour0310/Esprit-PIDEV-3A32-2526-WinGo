@@ -304,6 +304,12 @@ class ArticleController extends AbstractController
             $em->flush();
             return $this->redirectToRoute('blog');
         }
+        if ($form->isSubmitted() && !$form->isValid()) {
+            return $this->render('article/AjoutBlog.html.twig', [
+                'form' => $form->createView(),
+            ], new Response(null, 422));
+        }
+
         return $this->render('article/AjoutBlog.html.twig', [
             'form' => $form->createView(),
         ]);
@@ -480,6 +486,13 @@ class ArticleController extends AbstractController
             $em->flush();
             return $this->redirectToRoute('blog');
         }
+        if ($form->isSubmitted() && !$form->isValid()) {
+            return $this->render('article/EditBlog.html.twig', [
+                'form' => $form->createView(),
+                'article' => $article,
+            ], new Response(null, 422));
+        }
+
         return $this->render('article/EditBlog.html.twig', [
             'form' => $form->createView(),
             'article' => $article,
