@@ -366,17 +366,11 @@ class AdminController extends AbstractController
     // ─────────────────────────────────────────────
 
     #[Route('/articles', name: 'admin_articles')]
-    public function articles(Request $request, ArticleRepository $repo, \App\Repository\CommentaireRepository $commentaireRepo): Response
+    public function articles(Request $request, ArticleRepository $repo, \App\Repository\CommentaireRepository $commentaireRepo, \App\Repository\LikesRepository $likesRepo = null): Response
     {
         $search = $request->query->get('search', '');
 
-        // Si une recherche est effectuée, vous pourriez filtrer les articles, 
-        // mais pour l'instant on garde findAll() (ou on pourrait utiliser un repo complet).
-        // Modifiez selon votre implémentation de recherche exacte.
         if ($search) {
-            // Exemple basique de filtrage si vous avez une méthode search dans le repo
-            // $articles = $repo->search($search);
-            // Pour l'instant, faisons un filtrage basique en PHP
             $allArticles = $repo->findAll();
             $articles = array_filter($allArticles, function($a) use ($search) {
                 return stripos($a->getTitre() ?? '', $search) !== false 
@@ -396,6 +390,7 @@ class AdminController extends AbstractController
             }
         }
 
+        // Stats Category
         $cats = [];
         $totalForStats = count($articles) ?: 1;
         foreach ($articles as $a) {
@@ -408,14 +403,53 @@ class AdminController extends AbstractController
         $i = 0;
         foreach ($cats as $name => $count) {
             $articlesParCategorie[] = [
-                'name'    => $name,
-                'count'   => $count,
-                'percent' => round(($count / $totalForStats) * 100),
-                'color'   => $colors[$i % count($colors)],
+                'name'      => $name,
+                'categorie' => $name,
+                'nb'        => $count,
+                'percent'   => round(($count / $totalForStats) * 100),
+                'color'     => $colors[$i % count($colors)],
             ];
             $i++;
         }
-        usort($articlesParCategorie, fn($a, $b) => $b['count'] <=> $a['count']);
+        usort($articlesParCategorie, fn($a, $b) => $b['nb'] <=> $a['nb']);
+
+        // Stats Mois Articles
+        $articlesMoisMap = [];
+        foreach ($articles as $a) {
+            $date = $a->getDatePublication();
+            if ($date) {
+                $m = $date->format('M Y');
+                $articlesMoisMap[$m] = ($articlesMoisMap[$m] ?? 0) + 1;
+            }
+        }
+        $articlesParMois = [];
+        foreach ($articlesMoisMap as $m => $nb) $articlesParMois[] = ['mois' => $m, 'nb' => $nb];
+
+        // Stats Mois Commentaires
+        $commentairesMoisMap = [];
+        foreach ($commentaireRepo->findAll() as $c) {
+            $date = $c->getDateCommentaire();
+            if ($date) {
+                $m = $date->format('M Y');
+                $commentairesMoisMap[$m] = ($commentairesMoisMap[$m] ?? 0) + 1;
+            }
+        }
+        $commentairesParMois = [];
+        foreach ($commentairesMoisMap as $m => $nb) $commentairesParMois[] = ['mois' => $m, 'nb' => $nb];
+
+        // Stats Mois Likes
+        $likesMoisMap = [];
+        if ($likesRepo) {
+            foreach ($likesRepo->findAll() as $l) {
+                $date = method_exists($l, 'getDateLike') ? $l->getDateLike() : null;
+                if ($date) {
+                    $m = $date->format('M Y');
+                    $likesMoisMap[$m] = ($likesMoisMap[$m] ?? 0) + 1;
+                }
+            }
+        }
+        $likesParMois = [];
+        foreach ($likesMoisMap as $m => $nb) $likesParMois[] = ['mois' => $m, 'nb' => $nb];
 
         return $this->render('admin/articles.html.twig', [
             'articles'             => $articles,
@@ -424,6 +458,9 @@ class AdminController extends AbstractController
             'article_top'          => $articleTop,
             'search'               => $search,
             'articlesParCategorie' => $articlesParCategorie,
+            'articlesParMois'      => $articlesParMois,
+            'commentairesParMois'  => $commentairesParMois,
+            'likesParMois'         => $likesParMois,
         ]);
     }
 
