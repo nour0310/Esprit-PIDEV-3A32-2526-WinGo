@@ -394,11 +394,14 @@ public function isEnAttenteCommercant(): bool
         $genre = strtolower($this->genre ?? '');
 
         if (in_array($genre, ['femme', 'fille', 'f'])) {
-            return "https://api.dicebear.com/8.x/adventurer/svg?seed={$seed}&hair=long01,long02,long03,long04&backgroundColor=b6e3f4,ffd5dc";
+            // Options clairement féminines : cheveux longs, pas de barbe, couleurs douces
+            return "https://api.dicebear.com/8.x/avataaars/svg?seed={$seed}&top=longHair,longHairCurly,longHairStraight,longHairNotTooLong,longHairMiaWallace,longHairFrida,longHairStraight2&facialHairProbability=0&mouth=smile,twinkle&clothing=blazerShirt,blazerSweater,collarAndSweater,shirtScoopNeck,shirtVNeck&backgroundColor=ffd5dc,ffdfbf";
         } elseif (in_array($genre, ['homme', 'garcon', 'garçon', 'm'])) {
-            return "https://api.dicebear.com/8.x/adventurer/svg?seed={$seed}&hair=short01,short02,short03&backgroundColor=b6e3f4,d1d4f9";
+            // Options clairement masculines : cheveux courts, barbe possible, vêtements classiques
+            return "https://api.dicebear.com/8.x/avataaars/svg?seed={$seed}&top=shortHair,shortHairDreads01,shortHairShortCurly,shortHairShortFlat,shortHairShortRound,shortHairShortWaved,shortHairTheCaesarAndSidePart&facialHairProbability=80&facialHair=beardLight,beardMedium,beardMagestic,moustacheFancy,moustacheMagnum&mouth=serious,smile&clothing=blazerShirt,hoodie,shirtCrewNeck,graphicShirt&backgroundColor=b6e3f4,d1d4f9,c0aede";
         }
 
+        // 4. Fallback (Neutre/Mixte) si aucun genre n'est défini
         return "https://api.dicebear.com/8.x/avataaars/svg?seed={$seed}&backgroundColor=b6e3f4,c0aede,d1d4f9,ffd5dc";
     }
 
