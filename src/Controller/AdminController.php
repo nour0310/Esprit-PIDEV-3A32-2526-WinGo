@@ -366,10 +366,14 @@ class AdminController extends AbstractController
     // ─────────────────────────────────────────────
 
     #[Route('/articles', name: 'admin_articles')]
-    public function articles(ArticleRepository $repo): Response
+    public function articles(ArticleRepository $repo, \App\Repository\CommentaireRepository $commentaireRepo): Response
     {
+        $articles = $repo->findAll();
+        
         return $this->render('admin/articles.html.twig', [
-            'articles' => $repo->findAll(),
+            'articles'           => $articles,
+            'total_articles'     => count($articles),
+            'total_commentaires' => count($commentaireRepo->findAll()),
         ]);
     }
 

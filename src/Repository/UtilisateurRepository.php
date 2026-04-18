@@ -91,4 +91,30 @@ class UtilisateurRepository extends ServiceEntityRepository
             'clients' => $this->count(['type' => 'CLIENT']),
         ];
     }
+
+    /**
+     * Véfiie si l'utilisateur peut être supprimé sans casser l'intégrité métier
+     * (pas le dernier admin, et pas de commandes en cours d'acheminement).
+     */
+    public function canBeSafelyDeleted(Utilisateur $user): bool
+    {
+        // 1. Vérification du dernier administrateur
+        if (strtoupper($user->getType() ?? '') === 'ADMIN') {
+            $adminCount = $this->count(['type' => 'ADMIN']);
+            if ($adminCount <= 1) {
+                return false;
+            }
+        }
+
+        // 2. Vérification des commandes en cours (ni livrées ni annulées)
+        $conn = $this->getEntityManager()->getConnection();
+        $sql = "SELECT COUNT(*) FROM commande WHERE id_user = :userId AND status NOT IN ('livree', 'annulee')";
+        $ongoingOrdersCount = $conn->executeQuery($sql, ['userId' => $user->getId()])->fetchOne();
+
+        if ((int)$ongoingOrdersCount > 0) {
+            return false;
+        }
+
+        return true;
+    }
 }
