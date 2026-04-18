@@ -3,9 +3,49 @@
 {% block page_title %}Gestion des Utilisateurs{% endblock %}
 
 {% block content %}
+<!-- Stats Section -->
+<div class="row mb-4">
+    <div class="col-lg-3 col-md-6 mb-3">
+        <div class="stat_card">
+            <div class="stat_icon orange"><i class="fa fa-users"></i></div>
+            <div>
+                <div class="stat_num">{{ stats.total }}</div>
+                <div class="stat_label">Total Utilisateurs</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-3 col-md-6 mb-3">
+        <div class="stat_card">
+            <div class="stat_icon purple"><i class="fa fa-user-secret"></i></div>
+            <div>
+                <div class="stat_num">{{ stats.admins }}</div>
+                <div class="stat_label">Administrateurs</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-3 col-md-6 mb-3">
+        <div class="stat_card">
+            <div class="stat_icon blue"><i class="fa fa-store"></i></div>
+            <div>
+                <div class="stat_num">{{ stats.merchants }}</div>
+                <div class="stat_label">Commerçants</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-3 col-md-6 mb-3">
+        <div class="stat_card">
+            <div class="stat_icon green"><i class="fa fa-shield"></i></div>
+            <div>
+                <div class="stat_num">{{ stats.avg_reliability }}%</div>
+                <div class="stat_label">Fiabilité Moyenne</div>
+            </div>
+        </div>
+    </div>
+</div>
+
 <div class="data_card">
     <div class="data_card_header">
-        <div class="data_card_title"><i class="fa fa-users" style="color:#fa9e1b"></i> Liste des utilisateurs ({{ users|length }})</div>
+        <div class="data_card_title"><i class="fa fa-list" style="color:#fa9e1b"></i> Liste des utilisateurs ({{ users|length }})</div>
     </div>
     <table>
         <thead>

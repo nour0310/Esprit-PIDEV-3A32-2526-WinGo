@@ -136,4 +136,26 @@
         </div>
     </div>
 </div>
+
+<div class="row">
+    <!-- Stats d'Âge -->
+    <div class="col-12 mb-4">
+        <div class="data_card">
+            <div class="data_card_header">
+                <div class="data_card_title"><i class="fa fa-pie-chart" style="color:#fa9e1b"></i> Statistiques d'Âge des Utilisateurs</div>
+            </div>
+            <div style="padding: 20px;">
+                <div class="row">
+                    {% for tranche, count in stats_age %}
+                    <div class="col-md-2 col-sm-4 col-6 mb-3 text-center">
+                        <div style="font-size: 1.2rem; font-weight: bold; color: #31124b;">{{ tranche }}</div>
+                        <div style="font-size: 2rem; color: #fa9e1b; font-weight: bold;">{{ count }}</div>
+                        <div style="color: #666; font-size: 0.9rem;">({{ stats_age_percent[tranche] }}%)</div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock %}

@@ -165,12 +165,12 @@
                                             if (!response.ok) {
                                                 const text = await response.text();
                                                 console.error("Erreur serveur:", text);
-                                                throw new Error("Le serveur a rÃ©pondu avec une erreur (Code: " + response.status + ").");
+                                                throw new Error("Le serveur a répondu avec une erreur (Code: " + response.status + ").");
                                             }
 
                                             const result = await response.json();
                                             if (result.success) {
-                                                faceStatus.innerText = "Authentification rÃ©ussie ! Redirection...";
+                                                faceStatus.innerText = "Authentification réussie ! Redirection...";
                                                 window.location.href = result.redirect;
                                             } else {
                                                 faceStatus.innerText = "Erreur : " + result.error;
