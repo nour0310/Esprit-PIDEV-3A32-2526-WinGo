@@ -2,16 +2,12 @@
 
 namespace App\Controller;
 
-use App\Entity\Article;
 use App\Entity\Commande;
-use App\Entity\Commentaire;
 use App\Entity\Profil;
 use App\Entity\Utilisateur;
-use App\Form\ArticleType;
 use App\Form\UtilisateurType;
 use App\Repository\ArticleRepository;
 use App\Repository\CommandeRepository;
-use App\Repository\CommentaireRepository;
 use App\Repository\ProduitRepository;
 use App\Repository\ProfilRepository;
 use App\Repository\ReclamationRepository;
@@ -21,8 +17,6 @@ use App\Repository\TransportRepository;
 use App\Repository\UtilisateurRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\HttpFoundation\File\Exception\FileException;
-use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
@@ -34,6 +28,11 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 class AdminController extends AbstractController
 {
     private const ALLOWED_PHOTO_EXTENSIONS = ['jpg', 'jpeg', 'png', 'webp', 'gif'];
+
+    // ─────────────────────────────────────────────
+    //  DASHBOARD
+    // ─────────────────────────────────────────────
+
     #[Route('', name: 'admin_dashboard')]
     #[Route('/dashboard', name: 'admin_dashboard_page')]
     public function dashboard(
@@ -42,69 +41,56 @@ class AdminController extends AbstractController
         CommandeRepository $commandeRepo,
         ReservationRepository $reservationRepo,
         ReclamationRepository $reclamationRepo,
-        CommentaireRepository $commentRepo,
-        EntityManagerInterface $em
     ): Response {
-        // Statistiques gÃ©nÃ©rales
-        $totalArticles = count($articleRepo->findAll());
-        $totalUsers = count($userRepo->findAll());
-        $totalCommandes = count($commandeRepo->findAll());
-        $totalReservations = count($reservationRepo->findAll());
-        $totalReclamations = count($reclamationRepo->findAll());
-        $totalCommentaires = count($commentRepo->findAll());
-
-        // Statistiques dÃ©mographiques
-        $statsAge = $userRepo->getAgeStats();
-        $totalForPercent = array_sum($statsAge) ?: 1;
+        $allUsers = $userRepo->findAll();
+        
+        $statsAge = [
+            '< 18' => 0,
+            '18 - 25' => 0,
+            '26 - 40' => 0,
+            '41 - 60' => 0,
+            '61 - 80' => 0,
+            '> 80' => 0,
+            'N/A' => 0,
+        ];
+        
+        foreach ($allUsers as $u) {
+            $age = $u->getAge();
+            if ($age === null) {
+                $statsAge['N/A']++;
+            } elseif ($age < 18) {
+                $statsAge['< 18']++;
+            } elseif ($age >= 18 && $age <= 25) {
+                $statsAge['18 - 25']++;
+            } elseif ($age >= 26 && $age <= 40) {
+                $statsAge['26 - 40']++;
+            } elseif ($age >= 41 && $age <= 60) {
+                $statsAge['41 - 60']++;
+            } elseif ($age >= 61 && $age <= 80) {
+                $statsAge['61 - 80']++;
+            } else {
+                $statsAge['> 80']++;
+            }
+        }
+        
+        $totalAgeCount = count($allUsers);
+        $totalAgeFixed = $totalAgeCount > 0 ? $totalAgeCount : 1;
+        
         $statsAgePercent = [];
-        foreach ($statsAge as $key => $value) {
-            $statsAgePercent[$key] = round(($value / $totalForPercent) * 100, 1);
+        foreach ($statsAge as $key => $count) {
+            $statsAgePercent[$key] = round(($count / $totalAgeFixed) * 100);
         }
 
-        $counts = $userRepo->getCountsByRole();
-
         return $this->render('admin/dashboard.html.twig', [
-            'stats'               => $counts,
-            'total_users'         => $totalUsers,
-            'total_articles'      => $totalArticles,
-            'total_commandes'     => $totalCommandes,
-            'total_reservations'  => $totalReservations,
-            'total_reclamations'  => $totalReclamations,
-            'total_commentaires'  => $totalCommentaires,
+            'total_users'         => $totalAgeCount,
+            'total_articles'      => count($articleRepo->findAll()),
+            'total_commandes'     => count($commandeRepo->findAll()),
+            'total_reservations'  => count($reservationRepo->findAll()),
+            'total_reclamations'  => count($reclamationRepo->findAll()),
+            'recent_users'        => $userRepo->findBy([], ['id' => 'DESC'], 5),
+            'recent_reclamations' => $reclamationRepo->findBy([], ['id' => 'DESC'], 5),
             'stats_age'           => $statsAge,
             'stats_age_percent'   => $statsAgePercent,
-            'recent_users'        => $userRepo->findBy([], ['id' => 'DESC'], 5),
-            'recent_reclamations' => $reclamationRepo->findBy([], ['id' => 'DESC'], 5),
-        ]);
-    }
-
-    #[Route('/dashboard-modern', name: 'admin_dashboard_modern')]
-    public function dashboardModern(
-        UtilisateurRepository $userRepo,
-        ArticleRepository $articleRepo,
-        CommandeRepository $commandeRepo,
-        ReservationRepository $reservationRepo,
-        ReclamationRepository $reclamationRepo,
-        CommentaireRepository $commentRepo,
-        EntityManagerInterface $em
-    ): Response {
-        // Statistiques générales
-        $totalArticles = count($articleRepo->findAll());
-        $totalUsers = count($userRepo->findAll());
-        $totalCommandes = count($commandeRepo->findAll());
-        $totalReservations = count($reservationRepo->findAll());
-        $totalReclamations = count($reclamationRepo->findAll());
-        $totalCommentaires = count($commentRepo->findAll());
-
-        return $this->render('admin/dashboard_modern.html.twig', [
-            'total_users'         => $totalUsers,
-            'total_articles'      => $totalArticles,
-            'total_commandes'     => $totalCommandes,
-            'total_reservations'  => $totalReservations,
-            'total_reclamations'  => $totalReclamations,
-            'total_commentaires'  => $totalCommentaires,
-            'recent_users'        => $userRepo->findBy([], ['id' => 'DESC'], 5),
-            'recent_reclamations' => $reclamationRepo->findBy([], ['id' => 'DESC'], 5),
         ]);
     }
 
@@ -130,7 +116,7 @@ class AdminController extends AbstractController
 
         $users = $repo->searchAndSort($query, $sort, $direction);
 
-        // On injecte le score de fiabilitÃ© pour chaque utilisateur
+        // On injecte le score de fiabilité pour chaque utilisateur
         $totalReliability = 0;
         foreach ($users as $user) {
             $user->reliabilityScore = $repo->calculateReliabilityScore($user);
@@ -171,17 +157,17 @@ class AdminController extends AbstractController
 
         $photoFile = $request->files->get('photo');
         if (!$photoFile) {
-            $this->addFlash('error', 'Aucun fichier sÃ©lectionnÃ©.');
+            $this->addFlash('error', 'Aucun fichier sélectionné.');
             return $this->redirectToRoute('admin_users');
         }
 
-        // VÃ©rification des erreurs de tÃ©lÃ©chargement
+        // Vérification des erreurs de téléchargement (ex: fichier trop gros pour le serveur)
         if (!$photoFile->isValid()) {
             $errorMsg = match ($photoFile->getError()) {
                 UPLOAD_ERR_INI_SIZE  => 'Le fichier est trop volumineux pour le serveur (max. 2 Mo).',
-                UPLOAD_ERR_PARTIAL   => 'Le fichier n\'a Ã©tÃ© que partiellement tÃ©lÃ©chargÃ©.',
-                UPLOAD_ERR_NO_FILE   => 'Aucun fichier n\'a Ã©tÃ© tÃ©lÃ©chargÃ©.',
-                default              => 'Une erreur est survenue lors du tÃ©lÃ©chargement (' . $photoFile->getErrorMessage() . ').',
+                UPLOAD_ERR_PARTIAL   => 'Le fichier n\'a été que partiellement téléchargé.',
+                UPLOAD_ERR_NO_FILE   => 'Aucun fichier n\'a été téléchargé.',
+                default              => 'Une erreur est survenue lors du téléchargement (' . $photoFile->getErrorMessage() . ').',
             };
             $this->addFlash('error', $errorMsg);
             return $this->redirectToRoute('admin_users');
@@ -195,7 +181,7 @@ class AdminController extends AbstractController
 
         // Validation taille (max 2 Mo)
         if ($photoFile->getSize() > 2 * 1024 * 1024) {
-            $this->addFlash('error', 'La photo ne doit pas dÃ©passer 2 Mo.');
+            $this->addFlash('error', 'La photo ne doit pas dépasser 2 Mo.');
             return $this->redirectToRoute('admin_users');
         }
 
@@ -204,7 +190,7 @@ class AdminController extends AbstractController
             mkdir($uploadDir, 0755, true);
         }
 
-        // CrÃ©ation du profil si inexistant
+        // Création du profil si inexistant
         $profil = $profilRepo->findOneBy(['utilisateur' => $user]);
         if (!$profil) {
             $profil = new Profil();
@@ -226,7 +212,7 @@ class AdminController extends AbstractController
         $profil->setPhoto($filename);
 
         $em->flush();
-        $this->addFlash('success', 'Photo mise Ã  jour avec succÃ¨s.');
+        $this->addFlash('success', 'Photo mise à jour avec succès.');
 
         return $this->redirectToRoute('admin_users');
     }
@@ -255,7 +241,7 @@ class AdminController extends AbstractController
             }
             $profil->setPhoto(null);
             $em->flush();
-            $this->addFlash('success', 'Photo supprimÃ©e.');
+            $this->addFlash('success', 'Photo supprimée.');
         }
 
         return $this->redirectToRoute('admin_users');
@@ -284,7 +270,7 @@ class AdminController extends AbstractController
         $user->setType(strtoupper($newType));
         $em->flush();
 
-        $this->addFlash('success', sprintf('Le rÃ´le de %s a Ã©tÃ© mis Ã  jour.', $user->getFullName()));
+        $this->addFlash('success', sprintf('Le rôle de %s a été mis à jour.', $user->getFullName()));
 
         return $this->redirectToRoute('admin_users');
     }
@@ -306,13 +292,13 @@ class AdminController extends AbstractController
             $em->persist($user);
             $em->flush();
 
-            $this->addFlash('success', 'Utilisateur crÃ©Ã© avec succÃ¨s.');
+            $this->addFlash('success', 'Utilisateur créé avec succès.');
             return $this->redirectToRoute('admin_users');
         }
 
         return $this->render('admin/user_form.html.twig', [
             'user' => $user,
-            'form' => $form->createView(),
+            'form' => $form,
             'title' => 'Nouveau Utilisateur',
         ]);
     }
@@ -335,13 +321,13 @@ class AdminController extends AbstractController
 
             $em->flush();
 
-            $this->addFlash('success', 'Utilisateur mis Ã  jour avec succÃ¨s.');
+            $this->addFlash('success', 'Utilisateur mis à jour avec succès.');
             return $this->redirectToRoute('admin_users');
         }
 
         return $this->render('admin/user_form.html.twig', [
             'user' => $user,
-            'form' => $form->createView(),
+            'form' => $form,
             'title' => 'Modifier ' . $user->getFullName(),
         ]);
     }
@@ -351,9 +337,9 @@ class AdminController extends AbstractController
     {
         if ($this->isCsrfTokenValid('delete' . $user->getId(), $request->request->get('_token'))) {
             
-            // MÃ‰TIER AVANCÃ‰ : VÃ©rification avant suppression
+            // MÉTIER AVANCÉ : Vérification avant suppression
             if (!$repo->canBeSafelyDeleted($user)) {
-                $this->addFlash('error', 'Cet utilisateur ne peut pas Ãªtre supprimÃ© car il a des commandes en cours ou est le dernier administrateur.');
+                $this->addFlash('error', 'Cet utilisateur ne peut pas être supprimé car il a des commandes en cours ou est le dernier administrateur.');
                 return $this->redirectToRoute('admin_users');
             }
 
@@ -367,7 +353,7 @@ class AdminController extends AbstractController
 
             $em->remove($user);
             $em->flush();
-            $this->addFlash('success', 'Utilisateur supprimÃ©.');
+            $this->addFlash('success', 'Utilisateur supprimé.');
         } else {
             $this->addFlash('error', 'Token CSRF invalide.');
         }
@@ -375,323 +361,21 @@ class AdminController extends AbstractController
         return $this->redirectToRoute('admin_users');
     }
 
+    // ─────────────────────────────────────────────
+    //  ARTICLES
+    // ─────────────────────────────────────────────
+
     #[Route('/articles', name: 'admin_articles')]
-    public function articles(
-        ArticleRepository $repo,
-        CommentaireRepository $commentRepo,
-        Request $request,
-        EntityManagerInterface $em
-    ): Response {
-        $search = $request->query->get('search', '');
-        $connection = $em->getConnection();
-
-        if ($search) {
-            $query = $em->createQuery("
-                SELECT a 
-                FROM App\Entity\Article a 
-                WHERE a.titre LIKE :search 
-                OR a.contenu LIKE :search 
-                ORDER BY a.id DESC
-            ");
-            $query->setParameter('search', '%' . $search . '%');
-            $articles = $query->getResult();
-        } else {
-            $articles = $repo->findBy([], ['id' => 'DESC']);
-        }
-
-        $totalCommentaires = $commentRepo->count([]);
-
-        // Articles par mois (6 derniers mois) – SQL natif
-        $articlesParMois = $connection->executeQuery("
-            SELECT CONCAT(YEAR(a.date_publication), '-', LPAD(MONTH(a.date_publication), 2, '0')) as mois, COUNT(a.id) as nb
-            FROM article a
-            WHERE a.date_publication >= :date
-            GROUP BY mois
-            ORDER BY mois ASC
-        ", ['date' => (new \DateTime('-6 months'))->format('Y-m-d')])->fetchAllAssociative();
-
-        // Articles par catégorie – SQL natif
-        $articlesParCategorie = $connection->executeQuery("
-            SELECT a.categorie, COUNT(a.id) as nb
-            FROM article a
-            WHERE a.categorie IS NOT NULL AND a.categorie != ''
-            GROUP BY a.categorie
-        ")->fetchAllAssociative();
-
-        // Commentaires par mois (6 derniers mois) – SQL natif
-        $commentairesParMois = $connection->executeQuery("
-            SELECT CONCAT(YEAR(c.date_commentaire), '-', LPAD(MONTH(c.date_commentaire), 2, '0')) as mois, COUNT(c.id) as nb
-            FROM commentaire c
-            WHERE c.date_commentaire >= :date
-            GROUP BY mois
-            ORDER BY mois ASC
-        ", ['date' => (new \DateTime('-6 months'))->format('Y-m-d H:i:s')])->fetchAllAssociative();
-
-        // Likes par mois (6 derniers mois) – SQL natif
-        $likesParMois = $connection->executeQuery("
-            SELECT CONCAT(YEAR(l.date_like), '-', LPAD(MONTH(l.date_like), 2, '0')) as mois, COUNT(l.id) as nb
-            FROM likes l
-            WHERE l.date_like >= :date
-            GROUP BY mois
-            ORDER BY mois ASC
-        ", ['date' => (new \DateTime('-6 months'))->format('Y-m-d H:i:s')])->fetchAllAssociative();
-
-        // Statistiques par région - SQL natif
-        $regionStats = $connection->executeQuery("
-            SELECT a.region, COUNT(a.id) as count
-            FROM article a
-            WHERE a.region IS NOT NULL AND a.region != ''
-            GROUP BY a.region
-            ORDER BY count DESC
-        ")->fetchAllAssociative();
-
-        // Article avec le plus de commentaires
-        $articleMaxComs = null;
-        $maxComs = -1;
-        foreach ($articles as $a) {
-            $count = count($a->getCommentaires());
-            if ($count > $maxComs) {
-                $maxComs = $count;
-                $articleMaxComs = $a;
-            }
-        }
-
+    public function articles(ArticleRepository $repo): Response
+    {
         return $this->render('admin/articles.html.twig', [
-            'articles'             => $articles,
-            'total_articles'       => count($articles),
-            'total_commentaires'   => $totalCommentaires,
-            'article_top'          => $articleMaxComs,
-            'search'               => $search,
-            'region_stats'         => $regionStats,
-            'articlesParMois'      => $articlesParMois,
-            'articlesParCategorie' => $articlesParCategorie,
-            'commentairesParMois'  => $commentairesParMois,
-            'likesParMois'         => $likesParMois,
+            'articles' => $repo->findAll(),
         ]);
     }
 
-    #[Route('/articles-with-charts', name: 'admin_articles_with_charts')]
-    public function articlesWithCharts(
-        ArticleRepository $repo,
-        CommentaireRepository $commentRepo,
-        Request $request,
-        EntityManagerInterface $em
-    ): Response {
-        $search = $request->query->get('search', '');
-        $connection = $em->getConnection();
-
-        if ($search) {
-            $query = $em->createQuery("
-                SELECT a 
-                FROM App\Entity\Article a 
-                WHERE a.titre LIKE :search 
-                OR a.contenu LIKE :search 
-                ORDER BY a.id DESC
-            ");
-            $query->setParameter('search', '%' . $search . '%');
-            $articles = $query->getResult();
-        } else {
-            $articles = $repo->findBy([], ['id' => 'DESC']);
-        }
-
-        $totalCommentaires = $commentRepo->count([]);
-
-        // Articles par mois – SQL natif
-        $articlesParMois = $connection->executeQuery("
-            SELECT CONCAT(YEAR(a.date_publication), '-', LPAD(MONTH(a.date_publication), 2, '0')) as mois, COUNT(a.id) as nb
-            FROM article a
-            WHERE a.date_publication >= :date
-            GROUP BY mois
-            ORDER BY mois ASC
-        ", ['date' => (new \DateTime('-6 months'))->format('Y-m-d')])->fetchAllAssociative();
-
-        // Articles par catégorie – SQL natif
-        $articlesParCategorie = $connection->executeQuery("
-            SELECT a.categorie, COUNT(a.id) as nb
-            FROM article a
-            WHERE a.categorie IS NOT NULL AND a.categorie != ''
-            GROUP BY a.categorie
-        ")->fetchAllAssociative();
-
-        // Commentaires par mois – SQL natif
-        $commentairesParMois = $connection->executeQuery("
-            SELECT CONCAT(YEAR(c.date_commentaire), '-', LPAD(MONTH(c.date_commentaire), 2, '0')) as mois, COUNT(c.id) as nb
-            FROM commentaire c
-            WHERE c.date_commentaire >= :date
-            GROUP BY mois
-            ORDER BY mois ASC
-        ", ['date' => (new \DateTime('-6 months'))->format('Y-m-d H:i:s')])->fetchAllAssociative();
-
-        // Likes par mois – SQL natif
-        $likesParMois = $connection->executeQuery("
-            SELECT CONCAT(YEAR(l.date_like), '-', LPAD(MONTH(l.date_like), 2, '0')) as mois, COUNT(l.id) as nb
-            FROM likes l
-            WHERE l.date_like >= :date
-            GROUP BY mois
-            ORDER BY mois ASC
-        ", ['date' => (new \DateTime('-6 months'))->format('Y-m-d H:i:s')])->fetchAllAssociative();
-
-        // Article avec le plus de commentaires
-        $articleMaxComs = null;
-        $maxComs = -1;
-        foreach ($articles as $a) {
-            $count = count($a->getCommentaires());
-            if ($count > $maxComs) {
-                $maxComs = $count;
-                $articleMaxComs = $a;
-            }
-        }
-
-        return $this->render('admin/articles_with_charts.html.twig', [
-            'articles'             => $articles,
-            'total_articles'       => count($articles),
-            'total_commentaires'   => $totalCommentaires,
-            'article_top'          => $articleMaxComs,
-            'search'               => $search,
-            'articlesParMois'      => $articlesParMois,
-            'articlesParCategorie' => $articlesParCategorie,
-            'commentairesParMois'  => $commentairesParMois,
-            'likesParMois'         => $likesParMois,
-        ]);
-    }
-
-    #[Route('/article/{id}/delete', name: 'admin_article_delete', methods: ['POST'])]
-    public function deleteArticle(Request $request, Article $article, EntityManagerInterface $em): Response
-    {
-        // ... rest of the code remains the same ...
-        if ($this->isCsrfTokenValid('delete_admin' . $article->getId(), $request->request->get('_token'))) {
-            $em->remove($article);
-            $em->flush();
-            $this->addFlash('success', 'Article et ses commentaires supprimés avec succès.');
-        }
-        return $this->redirectToRoute('admin_articles');
-    }
-
-    #[Route('/article/{id}/commentaires', name: 'admin_article_commentaires')]
-    public function articleCommentaires(Article $article, \App\Service\ProfanityFilterService $profanityFilter): Response
-    {
-        $commentaires = $article->getCommentaires();
-
-        // Analyser chaque commentaire avec le bundle devtrope/profanity-filter
-        $badWordResults = [];
-        $badWordCount = 0;
-        foreach ($commentaires as $commentaire) {
-            $contenu = $commentaire->getContenu() ?? '';
-            $isProfane = $profanityFilter->containsProfanity($contenu);
-            $badWordResults[$commentaire->getId()] = [
-                'has_bad_words' => $isProfane,
-                'severity' => $isProfane ? 'danger' : 'clean',
-                'cleaned' => $isProfane ? $profanityFilter->clean($contenu) : $contenu,
-            ];
-            if ($isProfane) {
-                $badWordCount++;
-            }
-        }
-
-        return $this->render('admin/article_commentaires.html.twig', [
-            'article' => $article,
-            'commentaires' => $commentaires,
-            'badWordResults' => $badWordResults,
-            'badWordCount' => $badWordCount,
-        ]);
-    }
-
-    #[Route('/commentaire/{id}/delete-admin', name: 'admin_commentaire_delete', methods: ['POST'])]
-    public function deleteCommentaireAdmin(Request $request, Commentaire $commentaire, EntityManagerInterface $em): Response
-    {
-        $articleId = $commentaire->getArticle()->getId();
-        if ($this->isCsrfTokenValid('delete_comment_admin' . $commentaire->getId(), $request->request->get('_token'))) {
-            $em->remove($commentaire);
-            $em->flush();
-            $this->addFlash('success', 'Commentaire supprimé.');
-        }
-        return $this->redirectToRoute('admin_article_commentaires', ['id' => $articleId]);
-    }
-
-    #[Route('/article/{id}/show', name: 'admin_article_show', methods: ['GET'])]
-    public function showArticle(Article $article): Response
-    {
-        return $this->render('admin/article_show.html.twig', [
-            'article' => $article,
-        ]);
-    }
-
-    #[Route('/article/{id}/edit', name: 'admin_article_edit')]
-    public function editArticle(Request $request, Article $article, EntityManagerInterface $em): Response
-    {
-        $form = $this->createForm(ArticleType::class, $article);
-        $form->handleRequest($request);
-
-        if ($form->isSubmitted() && $form->isValid()) {
-            $imageFile = $form->get('image')->getData();
-            if (!$imageFile instanceof UploadedFile) {
-                $files = $request->files->get('article');
-                if (\is_array($files) && isset($files['image']) && $files['image'] instanceof UploadedFile) {
-                    $imageFile = $files['image'];
-                }
-            }
-            if ($imageFile instanceof UploadedFile && $imageFile->isValid()) {
-                $uploadDir = $this->getParameter('kernel.project_dir') . DIRECTORY_SEPARATOR . 'public' . DIRECTORY_SEPARATOR . 'uploads' . DIRECTORY_SEPARATOR . 'articles';
-                if (!is_dir($uploadDir)) {
-                    mkdir($uploadDir, 0777, true);
-                }
-                $previousImage = $article->getImage();
-                $originalName = $imageFile->getClientOriginalName();
-                $extension = pathinfo($originalName, PATHINFO_EXTENSION) ?: 'jpg';
-                $newFilename = uniqid('', true) . '.' . $extension;
-                $this->storeUploadedImage($imageFile, $uploadDir, $newFilename);
-                $this->removeStoredArticleImage($previousImage, $uploadDir);
-                $article->setImage($newFilename);
-            }
-            $em->flush();
-            $this->addFlash('success', 'Article modifié avec succès.');
-            return $this->redirectToRoute('admin_articles');
-        }
-
-        return $this->render('admin/article_edit.html.twig', [
-            'form' => $form->createView(),
-            'article' => $article,
-        ]);
-    }
-
-    private function storeUploadedImage(UploadedFile $imageFile, string $uploadDir, string $newFilename): void
-    {
-        $target = $uploadDir . DIRECTORY_SEPARATOR . $newFilename;
-        if ($imageFile->isValid()) {
-            $imageFile->move($uploadDir, $newFilename);
-            return;
-        }
-        if (\UPLOAD_ERR_OK !== $imageFile->getError()) {
-            throw new FileException($imageFile->getErrorMessage());
-        }
-        $tmp = $imageFile->getPathname();
-        if (!is_readable($tmp)) {
-            throw new FileException('Fichier uploadé illisible.');
-        }
-        if (!@copy($tmp, $target)) {
-            throw new FileException('Impossible d\'enregistrer l\'image.');
-        }
-        @chmod($target, 0666 & ~umask());
-    }
-
-    private function removeStoredArticleImage(?string $storedName, string $uploadDir): void
-    {
-        if (!\is_string($storedName) || $storedName === '') {
-            return;
-        }
-        $storedName = trim($storedName);
-        if (filter_var($storedName, FILTER_VALIDATE_URL) || str_starts_with($storedName, '//')) {
-            return;
-        }
-        $base = basename(str_replace('\\', '/', $storedName));
-        if ($base === '' || str_contains($base, '..')) {
-            return;
-        }
-        $path = $uploadDir . DIRECTORY_SEPARATOR . $base;
-        if (is_file($path) && is_readable($path)) {
-            @unlink($path);
-        }
-    }
+    // ─────────────────────────────────────────────
+    //  RÉCLAMATIONS
+    // ─────────────────────────────────────────────
 
     #[Route('/reclamations', name: 'admin_reclamations')]
     public function reclamations(ReclamationRepository $repo): Response
@@ -701,6 +385,10 @@ class AdminController extends AbstractController
         ]);
     }
 
+    // ─────────────────────────────────────────────
+    //  PRODUITS
+    // ─────────────────────────────────────────────
+
     #[Route('/produits', name: 'admin_produits')]
     public function produits(ProduitRepository $repo): Response
     {
@@ -709,21 +397,21 @@ class AdminController extends AbstractController
         ]);
     }
 
+    // ─────────────────────────────────────────────
+    //  RÉSERVATIONS
+    // ─────────────────────────────────────────────
+
     #[Route('/reservations', name: 'admin_reservations')]
-    public function reservations(ReservationRepository $repo, Request $request): Response
+    public function reservations(ReservationRepository $repo): Response
     {
-        $searchTerm = $request->query->get('search');
-        $sortBy = $request->query->get('sort');
-
-        $list = $repo->searchAndSortReservations($searchTerm, $sortBy);
-
         return $this->render('admin/reservations.html.twig', [
-            'list'          => $list,
-            'reservations'  => $list,
-            'searchTerm'    => $searchTerm,
-            'currentSort'   => $sortBy
+            'reservations' => $repo->findAll(),
         ]);
     }
+
+    // ─────────────────────────────────────────────
+    //  TRANSPORTS
+    // ─────────────────────────────────────────────
 
     #[Route('/transports', name: 'admin_transports')]
     public function transports(TransportRepository $repo): Response
@@ -733,6 +421,10 @@ class AdminController extends AbstractController
         ]);
     }
 
+    // ─────────────────────────────────────────────
+    //  SUGGESTIONS
+    // ─────────────────────────────────────────────
+
     #[Route('/suggestions', name: 'admin_suggestions')]
     public function suggestions(SuggestionRepository $repo): Response
     {
@@ -741,13 +433,18 @@ class AdminController extends AbstractController
         ]);
     }
 
+    // ─────────────────────────────────────────────
+    //  COMMANDES
+    // ─────────────────────────────────────────────
+
     #[Route('/commandes', name: 'admin_commandes')]
     public function commandes(CommandeRepository $repo, UtilisateurRepository $userRepo): Response
     {
         $commandes = $repo->findBy([], ['id' => 'DESC']);
+
         return $this->render('admin/commandes.html.twig', [
             'commandes' => $commandes,
-            'userRepo' => $userRepo,
+            'userRepo'  => $userRepo,
         ]);
     }
 
@@ -758,8 +455,8 @@ class AdminController extends AbstractController
 
         return $this->render('admin/commande_details.html.twig', [
             'commande' => $commande,
-            'items' => $items,
-            'client' => $userRepo->find($commande->getIdUser()),
+            'items'    => $items,
+            'client'   => $userRepo->find($commande->getIdUser()),
         ]);
     }
 
