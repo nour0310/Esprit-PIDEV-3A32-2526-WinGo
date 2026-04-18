@@ -686,7 +686,7 @@
                         {{ form_widget(commentForm.contenu, {'attr': {'class': 'wingo-input', 'rows': 4, 'id': 'new-comment-content'}}) }}
                         {% for error in commentForm.contenu.vars.errors %}
                             <div style="color: #ff4757; font-size: 0.9rem; font-weight: bold; margin-top: 8px; margin-bottom: 10px;">
-                                <i class="fas fa-exclamation-circle" style="margin-right: 5px;"></i> {{ error.message }}
+                                {{ error.message }}
                             </div>
                         {% endfor %}
 

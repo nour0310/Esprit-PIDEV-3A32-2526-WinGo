@@ -300,7 +300,7 @@ document.addEventListener('turbo:load', function () {
 								{{ form_widget(form.titre, {'attr': {'class': 'form-control wingo-input', 'placeholder': 'Donnez un titre captivant...'}}) }}
 								{% for error in form.titre.vars.errors %}
 									<div style="color: #ff4757; font-size: 0.9rem; font-weight: bold; margin-top: 8px;">
-										<i class="fas fa-exclamation-circle"></i> {{ error.message }}
+										{{ error.message }}
 									</div>
 								{% endfor %}
 							</div>
@@ -309,7 +309,7 @@ document.addEventListener('turbo:load', function () {
 								{{ form_widget(form.contenu) }}
 								{% for error in form.contenu.vars.errors %}
 									<div style="color: #ff4757; font-size: 0.9rem; font-weight: bold; margin-top: 8px;">
-										<i class="fas fa-exclamation-circle"></i> {{ error.message }}
+										{{ error.message }}
 									</div>
 								{% endfor %}
 							</div>
@@ -320,7 +320,7 @@ document.addEventListener('turbo:load', function () {
 										{{ form_widget(form.region, {'attr': {'class': 'wingo-input form-control'}}) }}
 										{% for error in form.region.vars.errors %}
 											<div style="color: #ff4757; font-size: 0.9rem; font-weight: bold; margin-top: 8px;">
-												<i class="fas fa-exclamation-circle"></i> {{ error.message }}
+												{{ error.message }}
 											</div>
 										{% endfor %}
 									</div>
@@ -331,7 +331,7 @@ document.addEventListener('turbo:load', function () {
 										{{ form_widget(form.categorie, {'attr': {'class': 'wingo-input form-control'}}) }}
 										{% for error in form.categorie.vars.errors %}
 											<div style="color: #ff4757; font-size: 0.9rem; font-weight: bold; margin-top: 8px;">
-												<i class="fas fa-exclamation-circle"></i> {{ error.message }}
+												{{ error.message }}
 											</div>
 										{% endfor %}
 									</div>
@@ -342,7 +342,7 @@ document.addEventListener('turbo:load', function () {
 								{{ form_widget(form.image, {'attr': {'class': 'form-control wingo-input'}}) }}
 								{% for error in form.image.vars.errors %}
 									<div style="color: #ff4757; font-size: 0.9rem; font-weight: bold; margin-top: 8px;">
-										<i class="fas fa-exclamation-circle"></i> {{ error.message }}
+										{{ error.message }}
 									</div>
 								{% endfor %}
 							</div>
