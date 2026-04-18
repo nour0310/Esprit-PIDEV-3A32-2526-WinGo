@@ -290,7 +290,7 @@ class SecurityController extends AbstractController
             $tokenStorage->setToken($token);
             $request->getSession()->set('_security_main', serialize($token));
         } catch (\Exception $e) {
-            return new JsonResponse(['error' => 'Erreur lors de la crÃ©ation de la session : ' . $e->getMessage()], 500);
+            return new JsonResponse(['error' => 'Erreur lors de la création de la session : ' . $e->getMessage()], 500);
         }
 
         return new JsonResponse([
