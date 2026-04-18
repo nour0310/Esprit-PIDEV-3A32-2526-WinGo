@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\Entity\Article;
 use App\Entity\Commande;
 use App\Entity\Profil;
 use App\Entity\Utilisateur;
