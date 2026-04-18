@@ -6,9 +6,10 @@ parameters:
     # - Valeur par défaut dans `.env`: APP_DOMAIN=127.0.0.1
     # - En partage (ngrok), override dans `.env.local`: APP_DOMAIN=xxxx.ngrok-free.dev
     app_domain: '%env(APP_DOMAIN)%'
+    app_scheme: '%env(APP_SCHEME)%'
 
-    # Contexte de routage (utile pour générer des URLs en CLI / emails).
-    router.request_context.host: '%env(APP_DOMAIN)%'
+    # Contexte de routage (forcé pour éviter localhost dans les partages)
+    router.request_context.host: 'overpower-neatly-democrat.ngrok-free.dev'
     router.request_context.scheme: '%env(APP_SCHEME)%'
 services:
     _defaults:
