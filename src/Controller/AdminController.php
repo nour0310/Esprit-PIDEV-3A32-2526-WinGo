@@ -482,8 +482,27 @@ class AdminController extends AbstractController
     #[Route('/article/{id}/commentaires', name: 'admin_article_commentaires')]
     public function articleCommentaires(Article $article): Response
     {
-        // S'il existe une vraie vue pour gérer les commentaires d'un article, redirigez-y.
-        // Sinon, on redirige vers la liste pour l'instant.
+        return $this->render('admin/article_commentaires.html.twig', [
+            'article' => $article
+        ]);
+    }
+
+    #[Route('/commentaire/{id}/delete', name: 'admin_commentaire_delete', methods: ['POST'])]
+    public function commentaireDelete(Request $request, \App\Entity\Commentaire $commentaire, EntityManagerInterface $em): Response
+    {
+        $articleId = $commentaire->getArticle() ? $commentaire->getArticle()->getId() : null;
+
+        if ($this->isCsrfTokenValid('delete_admin_comment' . $commentaire->getId(), $request->request->get('_token'))) {
+            $em->remove($commentaire);
+            $em->flush();
+            $this->addFlash('success', 'Commentaire supprimé.');
+        } else {
+            $this->addFlash('error', 'Token CSRF invalide.');
+        }
+
+        if ($articleId) {
+            return $this->redirectToRoute('admin_article_commentaires', ['id' => $articleId]);
+        }
         return $this->redirectToRoute('admin_articles');
     }
 
