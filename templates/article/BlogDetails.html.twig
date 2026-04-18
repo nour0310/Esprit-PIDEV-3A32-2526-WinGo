@@ -297,7 +297,7 @@
             color: #555;
             font-size: 0.95rem;
             line-height: 1.6;
-            padding-left: 55px;
+            padding-left: 5px;
         }
         .comment-form-container {
             background: #fff;
@@ -415,23 +415,9 @@
 
 {% macro comment_tree(comment, article, commentForm, app) %}
     {% set commAuthorName = comment.utilisateur ? comment.utilisateur.prenom ~ ' ' ~ comment.utilisateur.nom : 'Visiteur' %}
-    {% set u = comment.utilisateur %}
-    {% set initials = u ? u.initials : 'V' %}
-    {% set avatarUrl = u ? u.avatarUrl : 'https://api.dicebear.com/9.x/avataaars/svg?seed=visitor&backgroundColor=b6e3f4' %}
 
     <div class="comment-card" id="comment-card-{{ comment.id }}" style="border-left: {{ comment.parent ? '3px solid #fa9e1c' : '4px solid var(--primary-color)' }};">
         <div class="comment-header">
-            <div class="comment-avatar-wrap" style="position: relative; width: 40px; height: 40px; flex-shrink: 0; margin-right: 15px; {{ comment.parent ? 'width: 32px; height: 32px;' : '' }}">
-                {# Pastille de couleur (si l'image échoue) #}
-                <div class="comment-avatar" style="position: absolute; width: 100%; height: 100%; top: 0; left: 0; margin-right: 0; {{ comment.parent ? 'font-size: 0.8rem;' : '' }}">
-                    {{ initials }}
-                </div>
-                {# Image de l'avatar #}
-                <img src="{{ avatarUrl }}" 
-                     alt="Avatar" 
-                     style="position: relative; z-index: 2; width: 100%; height: 100%; border-radius: 50%; object-fit: cover; transition: opacity 0.3s;"
-                     onerror="this.style.opacity='0';">
-            </div>
             <div class="comment-author">{{ commAuthorName }}</div>
             <div class="comment-date">{{ comment.dateCommentaire ? comment.dateCommentaire|date('d/m/Y H:i') : '' }}</div>
             
@@ -459,7 +445,7 @@
             {{ comment.contenu|censor|raw }}
         </div>
 
-        <div class="comment-sentiment" id="sentiment-{{ comment.id }}" style="margin-left: 55px; margin-top: 5px;">
+        <div class="comment-sentiment" id="sentiment-{{ comment.id }}" style="margin-left: 5px; margin-top: 5px;">
             <span class="badge bg-secondary">⏳ Analyse...</span>
         </div>
         <script>
@@ -626,7 +612,7 @@
                 <h2 class="article-title">{{ article.titre|default('Titre de l\'article') }}</h2>
                 <div class="article-meta">
                     <span><i class="fas fa-calendar-alt"></i>{{ article.datePublication ? article.datePublication|date('d F Y') : 'Aujourd\'hui' }}</span>
-                    <span><i class="fas fa-user-circle"></i> {{ article.auteur ? article.auteur.fullName : 'Anonyme' }}</span>
+                    <span>{{ article.auteur ? article.auteur.fullName : 'Anonyme' }}</span>
                     <span><i class="fas fa-map-marker-alt"></i>{{ article.region|default('Non spécifiée') }}</span>
                 </div>
             </div>

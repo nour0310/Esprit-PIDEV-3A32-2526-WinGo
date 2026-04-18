@@ -405,13 +405,15 @@ public function isEnAttenteCommercant(): bool
         $genre = strtolower($this->genre ?? '');
 
         if (in_array($genre, ['femme', 'fille', 'f'])) {
-            return "https://api.dicebear.com/9.x/avataaars/svg?seed={$seed}&mouth=smile,twinkle&clothing=blazerShirt,collarAndSweater,shirtScoopNeck&backgroundColor=ffd5dc,ffdfbf";
+            // Style distinct pour les femmes (Micah)
+            return "https://api.dicebear.com/9.x/micah/svg?seed={$seed}&backgroundColor=ffd5dc,ffdfbf";
         } elseif (in_array($genre, ['homme', 'garcon', 'garçon', 'm'])) {
-            return "https://api.dicebear.com/9.x/avataaars/svg?seed={$seed}&mouth=serious,smile&clothing=blazerShirt,hoodie,shirtCrewNeck,graphicShirt&backgroundColor=b6e3f4,c0aede,d1d4f9";
+            // Style distinct pour les hommes (Avataaars)
+            return "https://api.dicebear.com/9.x/avataaars/svg?seed={$seed}&backgroundColor=b6e3f4,c0aede";
         }
 
-        // 4. Fallback (Mixte)
-        return "https://api.dicebear.com/9.x/avataaars/svg?seed={$seed}&backgroundColor=b6e3f4,c0aede,d1d4f9,ffd5dc";
+        // 4. Fallback (Mixte/Générique)
+        return "https://api.dicebear.com/9.x/fun-emoji/svg?seed={$seed}&backgroundColor=b6e3f4,c0aede,ffd5dc,ffdfbf";
     }
 
     public function getAgeCategory(): string

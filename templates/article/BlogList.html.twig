@@ -205,7 +205,6 @@
 							<div class="blog_post_meta">
 								<ul>
 									<li class="blog_post_meta_item">
-                                        <i class="fa fa-user-circle"></i>
                                         <a href="{{ path('app_article_show', {id: article.id, slug: article.titre|slug}) }}">
                                             {% if article.auteur %}{{ article.auteur.fullName }}{% else %}Anonyme{% endif %}
                                         </a>
