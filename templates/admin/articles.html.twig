@@ -163,23 +163,25 @@
 <div class="container-fluid">
     <h1>Gestion des Articles</h1>
 
-    {# Répartition par catégorie (A la place des gros graphiques) #}
-    <div class="data_card" style="margin-bottom: 30px;">
-        <div class="data_card_header">
-            <div class="data_card_title"><i class="fa fa-pie-chart" style="color:#fa9e1b"></i> Répartition par Catégorie</div>
-        </div>
-        <div style="padding: 20px 24px; display:flex; flex-wrap:wrap; gap:20px;">
-            {% for cat in articlesParCategorie %}
-            <div style="flex:1; min-width: 120px; text-align: center; border-right: 1px solid #eee;">
-                <div style="font-size:28px; font-weight:800; color:{{ cat.color }}; margin-bottom:5px;">{{ cat.count }}</div>
-                <div style="font-size:13px; color:#666; font-weight:600;">{{ cat.name }}</div>
-                <div style="width: 100%; background: #eee; height: 8px; border-radius: 4px; margin-top:10px;">
-                    <div style="width: {{ cat.percent }}%; background: {{ cat.color }}; height: 100%; border-radius: 4px;"></div>
-                </div>
+    {# Graphiques statistiques (allégés et modernisés) #}
+    <div class="stats-grid">
+        <div class="chart-card">
+            <div class="chart-title"><i class="fa fa-bar-chart" style="color:#8d4fff; margin-right:8px;"></i>Articles par mois</div>
+            <div class="chart-container">
+                <canvas id="articlesChart"></canvas>
             </div>
-            {% else %}
-            <div style="flex:1; text-align: center; color: #888; font-style: italic;">Aucune catégorie disponible.</div>
-            {% endfor %}
+        </div>
+        <div class="chart-card">
+            <div class="chart-title"><i class="fa fa-pie-chart" style="color:#fa9e1c; margin-right:8px;"></i>Articles par catégorie</div>
+            <div class="chart-container">
+                <canvas id="categoriesChart"></canvas>
+            </div>
+        </div>
+        <div class="chart-card">
+            <div class="chart-title"><i class="fa fa-line-chart" style="color:#10b981; margin-right:8px;"></i>Activité (Coms & Likes)</div>
+            <div class="chart-container">
+                <canvas id="evolutionChart"></canvas>
+            </div>
         </div>
     </div>
 
@@ -289,4 +291,108 @@
 {% endblock %}
 {% block javascripts %}
     {{ parent() }}
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Options globales "Légères"
+            Chart.defaults.font.family = "'Segoe UI', sans-serif";
+            Chart.defaults.color = '#888';
+            Chart.defaults.scale.grid.color = 'rgba(0, 0, 0, 0.04)';
+            
+            // Articles par mois (Barres arrondies)
+            new Chart(document.getElementById('articlesChart').getContext('2d'), {
+                type: 'bar',
+                data: {
+                    labels: [{% for item in articlesParMois %}'{{ item.mois }}',{% endfor %}],
+                    datasets: [{
+                        label: 'Articles',
+                        data: [{% for item in articlesParMois %}{{ item.nb }},{% endfor %}],
+                        backgroundColor: 'rgba(141, 79, 255, 0.7)',
+                        borderColor: '#8d4fff',
+                        borderWidth: 1,
+                        borderRadius: 12,
+                        barPercentage: 0.6
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        x: { grid: { display: false } },
+                        y: { beginAtZero: true, border: {display: false} }
+                    }
+                }
+            });
+
+            // Catégories (Doughnut léger)
+            new Chart(document.getElementById('categoriesChart').getContext('2d'), {
+                type: 'doughnut',
+                data: {
+                    labels: [{% for item in articlesParCategorie %}'{{ item.categorie }}',{% endfor %}],
+                    datasets: [{
+                        data: [{% for item in articlesParCategorie %}{{ item.nb }},{% endfor %}],
+                        backgroundColor: ['rgba(141, 79, 255, 0.8)', 'rgba(250, 158, 28, 0.8)', 'rgba(16, 185, 129, 0.8)', 'rgba(239, 68, 68, 0.8)', 'rgba(59, 130, 246, 0.8)', 'rgba(245, 158, 11, 0.8)'],
+                        borderWidth: 2,
+                        borderColor: '#fff',
+                        cutout: '70%'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { 
+                        legend: { position: 'bottom', labels: { boxWidth: 12, padding: 15, font: {size: 11} } } 
+                    }
+                }
+            });
+
+            // Évolution commentaires/likes (Lignes courbes et douces)
+            const commMap = { {% for item in commentairesParMois %}'{{ item.mois }}': {{ item.nb }},{% endfor %} };
+            const likeMap = { {% for item in likesParMois %}'{{ item.mois }}': {{ item.nb }},{% endfor %} };
+            const allMonths = [...new Set([...Object.keys(commMap), ...Object.keys(likeMap)])].sort();
+            
+            new Chart(document.getElementById('evolutionChart').getContext('2d'), {
+                type: 'line',
+                data: {
+                    labels: allMonths,
+                    datasets: [
+                        {
+                            label: 'Commentaires',
+                            data: allMonths.map(m => commMap[m] || 0),
+                            borderColor: '#8d4fff',
+                            backgroundColor: 'rgba(141, 79, 255, 0.1)',
+                            fill: true,
+                            tension: 0.4,
+                            pointRadius: 3,
+                            pointBackgroundColor: '#8d4fff',
+                            borderWidth: 2
+                        },
+                        {
+                            label: 'Likes',
+                            data: allMonths.map(m => likeMap[m] || 0),
+                            borderColor: '#fa9e1c',
+                            backgroundColor: 'rgba(250, 158, 28, 0.1)',
+                            fill: true,
+                            tension: 0.4,
+                            pointRadius: 3,
+                            pointBackgroundColor: '#fa9e1c',
+                            borderWidth: 2
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { 
+                        legend: { position: 'top', labels: { boxWidth: 10, usePointStyle: true, font: {size: 11} } } 
+                    },
+                    scales: {
+                        x: { grid: { display: false } },
+                        y: { beginAtZero: true, border: {display: false} }
+                    }
+                }
+            });
+        });
+    </script>
 {% endblock %}
