@@ -463,36 +463,58 @@ class ArticleController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+            /** @var UploadedFile|null $imageFile */
             $imageFile = $form->get('image')->getData();
-            if (!$imageFile instanceof UploadedFile) {
-                $files = $request->files->get('article');
-                if (\is_array($files) && isset($files['image']) && $files['image'] instanceof UploadedFile) {
-                    $imageFile = $files['image'];
+
+            if ($imageFile) {
+                // Vérification des erreurs d'upload
+                if (!$imageFile->isValid()) {
+                    $this->addFlash('error', 'Le fichier image est invalide : ' . $imageFile->getErrorMessage());
+                    return $this->redirectToRoute('app_article_edit', ['id' => $article->getId()]);
                 }
-            }
-            if ($imageFile instanceof UploadedFile && $imageFile->isValid()) {
+
+                // Vérification de la taille (max 5 Mo)
+                $maxSize = 5 * 1024 * 1024;
+                if ($imageFile->getSize() > $maxSize) {
+                    $this->addFlash('error', 'L\'image ne doit pas dépasser 5 Mo.');
+                    return $this->redirectToRoute('app_article_edit', ['id' => $article->getId()]);
+                }
+
+                // Vérification de l'extension
+                $allowedExtensions = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
+                $extension = strtolower($imageFile->getClientOriginalExtension());
+                if (!in_array($extension, $allowedExtensions, true)) {
+                    $this->addFlash('error', 'Format d\'image non supporté. Utilisez JPG, PNG, GIF ou WEBP.');
+                    return $this->redirectToRoute('app_article_edit', ['id' => $article->getId()]);
+                }
+
                 $uploadDir = $this->getParameter('kernel.project_dir') . DIRECTORY_SEPARATOR . 'public' . DIRECTORY_SEPARATOR . 'uploads' . DIRECTORY_SEPARATOR . 'articles';
-                if (!is_dir($uploadDir)) {
-                    mkdir($uploadDir, 0777, true);
+                if (!is_dir($uploadDir) && !mkdir($uploadDir, 0777, true) && !is_dir($uploadDir)) {
+                    $this->addFlash('error', 'Impossible de créer le dossier d\'upload.');
+                    return $this->redirectToRoute('app_article_edit', ['id' => $article->getId()]);
                 }
+
                 $previousImage = $article->getImage();
-                $originalName = $imageFile->getClientOriginalName();
-                $extension = pathinfo($originalName, PATHINFO_EXTENSION);
-                $extension = $extension ?: 'jpg';
                 $newFilename = uniqid('', true) . '.' . $extension;
-                $this->storeUploadedImage($imageFile, $uploadDir, $newFilename);
-                $this->removeStoredArticleImage($previousImage, $uploadDir);
+
+                try {
+                    $imageFile->move($uploadDir, $newFilename);
+                } catch (FileException $e) {
+                    $this->addFlash('error', 'Erreur lors de l\'enregistrement de l\'image : ' . $e->getMessage());
+                    return $this->redirectToRoute('app_article_edit', ['id' => $article->getId()]);
+                }
+
+                // Supprimer l'ancienne image si elle existe
+                if ($previousImage && file_exists($uploadDir . DIRECTORY_SEPARATOR . $previousImage)) {
+                    @unlink($uploadDir . DIRECTORY_SEPARATOR . $previousImage);
+                }
+
                 $article->setImage($newFilename);
             }
-            $em->persist($article);
+
             $em->flush();
+            $this->addFlash('success', 'Article mis à jour avec succès.');
             return $this->redirectToRoute('blog');
-        }
-        if ($form->isSubmitted() && !$form->isValid()) {
-            return $this->render('article/EditBlog.html.twig', [
-                'form' => $form->createView(),
-                'article' => $article,
-            ], new Response(null, 422));
         }
 
         return $this->render('article/EditBlog.html.twig', [
