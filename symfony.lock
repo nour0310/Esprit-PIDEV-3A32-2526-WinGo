@@ -38,6 +38,9 @@
     "ehyiah/ux-quill": {
         "version": "3.6.0"
     },
+    "endroid/qr-code-bundle": {
+        "version": "6.1.0"
+    },
     "knplabs/knp-paginator-bundle": {
         "version": "v6.10.0"
     },
@@ -168,6 +171,18 @@
             "version": "1.0",
             "ref": "fadbfe33303a76e25cb63401050439aa9b1a9c7f"
         }
+    },
+    "symfony/mercure-bundle": {
+        "version": "0.4",
+        "recipe": {
+            "repo": "github.com/symfony/recipes",
+            "branch": "main",
+            "version": "0.4",
+            "ref": "b141b8c8f13bc8c31d718a5488039b712c0d3592"
+        },
+        "files": [
+            "./config/packages/mercure.yaml"
+        ]
     },
     "symfony/messenger": {
         "version": "6.4",

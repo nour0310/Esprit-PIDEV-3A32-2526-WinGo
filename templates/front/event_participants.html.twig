@@ -1,0 +1,52 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Participants - {{ event.title }}{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>👥 Participants for "{{ event.title }}"</h1>
+        <a href="{{ path('event_show_front', {id: event.id_event}) }}" class="btn btn-secondary">
+            ← Back to event
+        </a>
+    </div>
+
+    <div class="row">
+        {% if participants is empty %}
+            <div class="col-12">
+                <div class="alert alert-info">No participants yet. Be the first to register!</div>
+            </div>
+        {% else %}
+            {% for participant in participants %}
+                <div class="col-md-6 col-lg-4 mb-4">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <h5 class="card-title">
+                                {{ participant.prenom ?? participant.firstName ?? '' }} 
+                                {{ participant.nom ?? participant.lastName ?? '' }}
+                            </h5>
+                            <p class="card-text text-muted">
+                                <i class="fa fa-envelope"></i> {{ participant.email }}
+                            </p>
+                            {% if participant.id != app.user.id %}
+                                <a href="{{ path('event_chat', {id: event.id_event}) }}" class="btn btn-success btn-sm">
+                                    <i class="fa fa-group"></i> Join Group Chat
+                                </a>
+                            {% else %}
+                                <span class="badge bg-secondary">You</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        {% endif %}
+    </div>
+    
+    <!-- Also add a direct link to the chat at the bottom -->
+    <div class="text-center mt-4">
+        <a href="{{ path('event_chat', {id: event.id_event}) }}" class="btn btn-primary btn-lg">
+            <i class="fa fa-comments"></i> Go to Group Chat
+        </a>
+    </div>
+</div>
+{% endblock %}

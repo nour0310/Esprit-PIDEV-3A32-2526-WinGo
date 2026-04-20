@@ -1,0 +1,99 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}My Conversations{% endblock %}
+
+{% block stylesheets %}
+    <style>
+        .inbox-container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .conversation-item {
+            transition: all 0.2s;
+            border-left: 4px solid transparent;
+        }
+        .conversation-item:hover {
+            background-color: #f8f9fa;
+            border-left-color: #fa9e1b;
+            transform: translateX(5px);
+        }
+        .conversation-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #fa9e1b, #8d4fff);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 18px;
+        }
+        .last-message {
+            font-size: 13px;
+            color: #6c757d;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 300px;
+        }
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            background: #f8f9fa;
+            border-radius: 16px;
+        }
+        .empty-state i {
+            font-size: 64px;
+            color: #dee2e6;
+            margin-bottom: 20px;
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="inbox-container">
+        <h1 class="mb-4"><i class="fa fa-envelope"></i> My Conversations</h1>
+        
+        {% if events is empty %}
+            <div class="empty-state">
+                <i class="fa fa-comments"></i>
+                <h3>No conversations yet</h3>
+                <p>When you join an event, the group chat will appear here.</p>
+                <a href="{{ path('event_front') }}" class="btn btn-primary mt-3">
+                    <i class="fa fa-calendar"></i> Browse Events
+                </a>
+            </div>
+        {% else %}
+            <div class="list-group">
+                {% for item in events %}
+                    <a href="{{ path('event_chat', {id: item.event.id_event}) }}" class="list-group-item list-group-item-action conversation-item">
+                        <div class="d-flex align-items-center">
+                            <div class="conversation-avatar me-3">
+                                <i class="fa fa-group"></i>
+                            </div>
+                            <div class="flex-grow-1">
+                                <h5 class="mb-1">{{ item.event.title }}</h5>
+                                <div class="last-message">
+                                    {% if item.last_message %}
+                                        <i class="fa fa-comment"></i> {{ item.last_message|slice(0, 50) }}
+                                    {% else %}
+                                        <i class="fa fa-comment-o"></i> No messages yet
+                                    {% endif %}
+                                </div>
+                                <small class="text-muted">
+                                    {{ item.event.date_event|date('d/m/Y') }} at {{ item.event.start_time }}
+                                </small>
+                            </div>
+                            <div>
+                                <i class="fa fa-chevron-right text-muted"></i>
+                            </div>
+                        </div>
+                    </a>
+                {% endfor %}
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

@@ -31,7 +31,7 @@ class Participation
     private string $statut = 'pending';
 
     #[ORM\Column(type: "string", length: 100)]
-    #[Assert\NotBlank(message: "Last name is ")]
+    #[Assert\NotBlank(message: "Last name is required")]
     #[Assert\Length(min: 2, minMessage: "Last name must have at least {{ limit }} characters")]
     private string $nom_participant = '';
 
@@ -54,8 +54,21 @@ class Participation
     #[Assert\Positive(message: "Number of seats must be positive")]
     private int $nombre_places = 0;
 
+    #[ORM\Column(type: "string", length: 255, unique: true, nullable: true)]
+    private ?string $token = null;
+
+    #[ORM\Column(type: "boolean", options: ["default" => false])]
+    private bool $is_used = false;
+
+    // NEW: price fields
+    #[ORM\Column(type: "float", nullable: true)]
+    private ?float $unit_price = null;
+
+    #[ORM\Column(type: "float", nullable: true)]
+    private ?float $total_price = null;
+
     // ──────────────────────────────────────────────
-    // Getters / Setters (camelCase – utilisés par Symfony)
+    // Getters / Setters (camelCase)
     // ──────────────────────────────────────────────
     public function getIdParticipation(): ?int { return $this->id_participation; }
     public function setIdParticipation(?int $id): self { $this->id_participation = $id; return $this; }
@@ -87,8 +100,20 @@ class Participation
     public function getNombrePlaces(): int { return $this->nombre_places; }
     public function setNombrePlaces(int $nb): self { $this->nombre_places = $nb; return $this; }
 
+    public function getToken(): ?string { return $this->token; }
+    public function setToken(?string $token): self { $this->token = $token; return $this; }
+
+    public function getIsUsed(): bool { return $this->is_used; }
+    public function setIsUsed(bool $used): self { $this->is_used = $used; return $this; }
+
+    public function getUnitPrice(): ?float { return $this->unit_price; }
+    public function setUnitPrice(?float $price): self { $this->unit_price = $price; return $this; }
+
+    public function getTotalPrice(): ?float { return $this->total_price; }
+    public function setTotalPrice(?float $price): self { $this->total_price = $price; return $this; }
+
     // ──────────────────────────────────────────────
-    // Aliases underscore (pour compatibilité avec l'existant)
+    // Aliases underscore (for legacy templates)
     // ──────────────────────────────────────────────
     public function getId_participation(): ?int { return $this->id_participation; }
     public function setId_participation($value): self { $this->id_participation = $value; return $this; }
@@ -113,4 +138,10 @@ class Participation
 
     public function getNombre_places(): int { return $this->nombre_places; }
     public function setNombre_places($value): self { $this->nombre_places = $value; return $this; }
+
+    public function getUnit_price(): ?float { return $this->unit_price; }
+    public function setUnit_price($value): self { $this->unit_price = $value; return $this; }
+
+    public function getTotal_price(): ?float { return $this->total_price; }
+    public function setTotal_price($value): self { $this->total_price = $value; return $this; }
 }

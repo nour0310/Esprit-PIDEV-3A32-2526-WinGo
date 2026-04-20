@@ -1,0 +1,84 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Chat with {{ other_user_name }}{% endblock %}
+
+{% block stylesheets %}
+    <link href="https://cdn.jsdelivr.net/npm/stream-chat-css@v3/dist/css/index.css" rel="stylesheet">
+    <style>
+        #chat-container {
+            height: 600px;
+            margin-top: 20px;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        }
+        .chat-header {
+            background: linear-gradient(135deg, #fa9e1b, #8d4fff);
+            padding: 15px 20px;
+            border-radius: 12px 12px 0 0;
+            color: white;
+        }
+        .chat-header h3 {
+            margin: 0;
+            font-family: 'Playfair Display', serif;
+        }
+        .chat-header p {
+            margin: 5px 0 0;
+            opacity: 0.9;
+            font-size: 13px;
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="chat-header">
+        <h3><i class="fa fa-comments"></i> Chat with {{ other_user_name }}</h3>
+        <p>Real-time conversation • Messages are end-to-end encrypted</p>
+    </div>
+    <div id="chat-container"></div>
+    <div class="mt-3 text-center">
+        <a href="{{ path('chat_inbox') }}" class="btn btn-outline-secondary">
+            <i class="fa fa-arrow-left"></i> Back to conversations
+        </a>
+    </div>
+</div>
+{% endblock %}
+
+{% block javascripts %}
+    <script src="https://cdn.jsdelivr.net/npm/stream-chat@8.23.0/dist/index.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/stream-chat-react@v10/dist/index.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/react@18.2.0/umd/react.development.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/react-dom@18.2.0/umd/react-dom.development.js"></script>
+    <script>
+        const apiKey = "{{ api_key }}";
+        const userId = "{{ app.user.id }}";
+        const userToken = "{{ user_token }}";
+        const channelType = "{{ channel_type }}";
+        const channelId = "{{ channel_id }}";
+        const otherUserName = "{{ other_user_name }}";
+
+        (async function() {
+            const { StreamChat } = window;
+            const { Chat, Channel, ChannelHeader, MessageList, MessageInput, Thread } = window.StreamChatReact;
+
+            const client = StreamChat.getInstance(apiKey);
+            await client.connectUser({ id: userId, name: "{{ app.user.userIdentifier }}" }, userToken);
+
+            const channel = client.channel(channelType, channelId);
+            await channel.watch();
+
+            const root = ReactDOM.createRoot(document.getElementById('chat-container'));
+            root.render(
+                React.createElement(Chat, { client, theme: 'messaging light' },
+                    React.createElement(Channel, { channel },
+                        React.createElement(ChannelHeader, null),
+                        React.createElement(MessageList, null),
+                        React.createElement(MessageInput, null),
+                        React.createElement(Thread, null)
+                    )
+                )
+            );
+        })();
+    </script>
+{% endblock %}

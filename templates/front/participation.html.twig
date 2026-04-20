@@ -1,176 +1,193 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Participer à l'événement — WinGo{% endblock %}
+{% block title %}Inscription à {{ event.title }} - WinGo{% endblock %}
 
 {% block stylesheets %}
-<link rel="stylesheet" type="text/css" href="{{ asset('styles/main_styles.css') }}">
-<link rel="stylesheet" type="text/css" href="{{ asset('styles/responsive.css') }}">
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-<style>
-    :root {
-        --form-primary: #8d4fff;
-        --form-primary-light: rgba(141, 79, 255, 0.15);
-        --form-accent: #fa9e1c;
-        --form-gray: #f7f9fc;
-    }
-    body { background-color: #f9f9fc; }
-    .form-card {
-        background: #fff;
-        border-radius: 24px;
-        box-shadow: 0 20px 50px rgba(0,0,0,0.06);
-        overflow: hidden;
-        margin-top: 40px;
-        position: relative;
-        z-index: 10;
-    }
-    .form-header {
-        background: linear-gradient(135deg, var(--form-primary) 0%, var(--form-accent) 100%);
-        padding: 50px 30px;
-        text-align: center;
-        color: white;
-    }
-    .form-header h3 {
-        font-family: 'Playfair Display', serif;
-        font-size: 2.4rem;
-        font-weight: 700;
-        margin: 0;
-    }
-    .form-body { padding: 50px 60px; }
-    .form-group-custom { margin-bottom: 25px; }
-    .form-label {
-        font-weight: 600;
-        color: #333;
-        margin-bottom: 12px;
-        display: block;
-    }
-    .wingo-input {
-        background-color: var(--form-gray);
-        border: 2px solid transparent !important;
-        border-radius: 16px !important;
-        padding: 16px 20px !important;
-        width: 100%;
-        transition: all 0.3s ease;
-    }
-    .wingo-input:focus {
-        background-color: #fff;
-        border-color: var(--form-primary) !important;
-        box-shadow: 0 8px 25px var(--form-primary-light) !important;
-    }
-    .submit-btn {
-        background: linear-gradient(135deg, var(--form-primary) 0%, var(--form-accent) 100%);
-        color: #fff;
-        border: none;
-        padding: 16px 50px;
-        font-size: 1.1rem;
-        font-weight: 600;
-        border-radius: 50px;
-        cursor: pointer;
-        transition: all 0.3s ease;
-        text-decoration: none;
-        display: inline-block;
-    }
-    .form-error-message, .invalid-feedback, ul li {
-        color: #dc3545 !important;
-        font-size: 0.85rem;
-        margin-top: 5px;
-        list-style: none;
-        font-weight: 500;
-    }
-    .alert-danger {
-        background-color: #f8d7da;
-        color: #721c24;
-        padding: 15px;
-        border-radius: 12px;
-        margin-bottom: 20px;
-        border: 1px solid #f5c6cb;
-    }
-    .alert-success {
-        background-color: #d4edda;
-        color: #155724;
-        padding: 15px;
-        border-radius: 12px;
-        margin-bottom: 20px;
-        border: 1px solid #c3e6cb;
-    }
-</style>
+    <style>
+        .form-container {
+            max-width: 600px;
+            margin: 80px auto;
+            background: white;
+            border-radius: 24px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.08);
+            padding: 40px;
+        }
+        .form-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 28px;
+            margin-bottom: 8px;
+        }
+        .event-name {
+            color: #fa9e1b;
+            font-weight: 600;
+            margin-bottom: 24px;
+        }
+        .info-readonly {
+            background-color: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 12px;
+            padding: 12px 16px;
+            margin-bottom: 16px;
+        }
+        .info-readonly label {
+            font-size: 11px;
+            text-transform: uppercase;
+            font-weight: 700;
+            color: #6c757d;
+            display: block;
+            margin-bottom: 4px;
+        }
+        .info-readonly .value {
+            font-weight: 500;
+            color: #1a1a2e;
+        }
+        .price-preview {
+            background: #f0f4ff;
+            border-radius: 12px;
+            padding: 15px 20px;
+            margin: 20px 0;
+            text-align: center;
+            border-left: 4px solid #fa9e1b;
+        }
+        .price-preview .total-price {
+            font-size: 28px;
+            font-weight: 800;
+            color: #1a1a2e;
+            font-family: 'Playfair Display', serif;
+        }
+        .price-preview .unit-price {
+            font-size: 14px;
+            color: #6c757d;
+        }
+        .discount-badge {
+            background: #e74c3c;
+            color: white;
+            padding: 2px 8px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: bold;
+            margin-left: 10px;
+        }
+        .alert-info {
+            background: #e7f3ff;
+            border: 1px solid #b8daff;
+            color: #004085;
+            border-radius: 12px;
+            padding: 12px 16px;
+            font-size: 13px;
+        }
+    </style>
 {% endblock %}
 
 {% block content %}
-<div class="home" style="background-image: url('{{ asset('images/Photography by Ridha Gharbi.jpg') }}'); background-size: cover; background-position: center; height: 350px; position: relative;">
-    <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5);"></div>
-    <div style="position: absolute; top: 50%; width: 100%; text-align: center; transform: translateY(-50%);">
-        <h1 style="color: white; font-size: 3.5rem; font-family: 'Playfair Display', serif;">RESERVATION</h1>
-    </div>
-</div>
+<div class="container">
+    <div class="form-container">
+        <h1 class="form-title">✨ Participez à l'événement</h1>
+        <div class="event-name">{{ event.title }}</div>
 
-<div class="container" style="padding-bottom: 80px;">
-    <div class="row justify-content-center">
-        <div class="col-lg-8">
-            <div class="form-card">
-                {% if mode == 'show' %}
-                    <div class="form-header">
-                        <h3>Merci pour votre inscription !</h3>
-                        <p>Votre demande pour <strong>{{ event.title }}</strong> est bien reçue.</p>
-                    </div>
-                    <div class="form-body text-center">
-                        <p>Un email de confirmation sera envoyé à : <strong>{{ participation.emailParticipant }}</strong></p>
-                        <a href="{{ path('event_front') }}" class="submit-btn">Retour aux événements</a>
-                    </div>
-                {% else %}
-                    <div class="form-header">
-                        <h3>Rejoignez l'aventure</h3>
-                        <p>Inscrivez-vous à l'événement : {{ event.title }}</p>
-                    </div>
-                    <div class="form-body">
-                        {% for message in app.flashes('error') %}
-                            <div class="alert-danger">{{ message }}</div>
-                        {% endfor %}
-                        {% for message in app.flashes('success') %}
-                            <div class="alert-success">{{ message }}</div>
-                        {% endfor %}
+        {% for message in app.flashes('error') %}
+            <div class="alert alert-danger">{{ message }}</div>
+        {% endfor %}
 
-                        <form method="post" novalidate>
-                            <div class="row">
-                                <div class="col-md-6 form-group-custom">
-                                    <label class="form-label">Nom *</label>
-                                    <input type="text" name="nom_participant" class="wingo-input" placeholder="Votre nom" required>
-                                </div>
-                                <div class="col-md-6 form-group-custom">
-                                    <label class="form-label">Prénom *</label>
-                                    <input type="text" name="prenom_participant" class="wingo-input" placeholder="Votre prénom" required>
-                                </div>
-                            </div>
-                            <div class="form-group-custom">
-                                <label class="form-label">Email *</label>
-                                <input type="email" name="email_participant" class="wingo-input" placeholder="exemple@mail.com" required>
-                            </div>
-                            <div class="row">
-                                <div class="col-md-6 form-group-custom">
-                                    <label class="form-label">Téléphone *</label>
-                                    <input type="tel" name="telephone" class="wingo-input" placeholder="+216 XX XXX XXX" required>
-                                </div>
-                                <div class="col-md-6 form-group-custom">
-                                    <label class="form-label">Nombre de places *</label>
-                                    <input type="number" name="nombre_places" class="wingo-input" value="1" min="1" max="{{ event.available_places }}" required>
-                                    <small style="color: #666;">Maximum disponible : {{ event.available_places }}</small>
-                                </div>
-                            </div>
-                            <div class="form-group-custom">
-                                <label class="form-label">Statut</label>
-                                <select name="statut" class="wingo-input">
-                                    <option value="pending">En attente</option>
-                                    <option value="confirmed">Confirmé</option>
-                                </select>
-                            </div>
-                            <div class="text-center mt-4">
-                                <button type="submit" class="submit-btn">Confirmer ma place</button>
-                            </div>
-                        </form>
-                    </div>
-                {% endif %}
+        <form method="post" id="participationForm" novalidate>
+            <div class="info-readonly">
+                <label>Nom</label>
+                <div class="value">{{ user.nom }}</div>
+                <input type="hidden" name="nom_participant" value="{{ user.nom }}">
             </div>
-        </div>
+            <div class="info-readonly">
+                <label>Prénom</label>
+                <div class="value">{{ user.prenom }}</div>
+                <input type="hidden" name="prenom_participant" value="{{ user.prenom }}">
+            </div>
+            <div class="info-readonly">
+                <label>Email</label>
+                <div class="value">{{ user.email }}</div>
+                <input type="hidden" name="email_participant" value="{{ user.email }}">
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">📞 Téléphone *</label>
+                <input type="tel" name="telephone" class="form-control" placeholder="+216 XX XXX XXX" required>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">🎟️ Nombre de places (max {{ event.available_places }})</label>
+                <input type="number" name="nombre_places" id="nombre_places" class="form-control" 
+                       min="1" max="{{ event.available_places }}" value="1" required>
+                <small class="text-muted">Places encore disponibles : {{ event.available_places }}</small>
+            </div>
+
+            {# Affichage dynamique du prix total avec réduction #}
+            {% set unitPrice = discounted_price is defined ? discounted_price : event.price %}
+            <div class="price-preview">
+                <div class="unit-price">
+                    {% if original_price is defined and discount_active and original_price > 0 %}
+                        <span style="text-decoration: line-through;">{{ original_price|number_format(2) }} €</span>
+                        <span class="discount-badge">-20%</span>
+                    {% endif %}
+                    <br>
+                    <strong>Prix unitaire :</strong> 
+                    {% if unitPrice > 0 %}
+                        {{ unitPrice|number_format(2) }} €
+                    {% else %}
+                        Gratuit
+                    {% endif %}
+                </div>
+                <div class="total-price" id="totalPriceDisplay">
+                    {% if unitPrice > 0 %}
+                        {{ unitPrice|number_format(2) }} €
+                    {% else %}
+                        Gratuit
+                    {% endif %}
+                </div>
+                <div class="unit-price" id="priceDetails">
+                    {% if unitPrice > 0 %}
+                        pour 1 place
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="alert alert-info">
+                <i class="fa fa-info-circle"></i> En cliquant sur "Confirmer", vous acceptez les conditions générales.
+            </div>
+
+            <div class="d-flex justify-content-between mt-4">
+                <a href="{{ path('event_front') }}" class="btn btn-outline-secondary">← Retour aux événements</a>
+                <button type="submit" class="btn btn-primary">Confirmer mon inscription</button>
+            </div>
+        </form>
     </div>
 </div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const placesInput = document.getElementById('nombre_places');
+        const totalDisplay = document.getElementById('totalPriceDisplay');
+        const priceDetails = document.getElementById('priceDetails');
+        // Utiliser le prix réduit (défini dans discounted_price)
+        const unitPrice = {{ discounted_price is defined ? discounted_price : event.price }};
+        const isFree = unitPrice == 0;
+
+        function updateTotal() {
+            let places = parseInt(placesInput.value) || 0;
+            if (places < 1) places = 1;
+            const maxPlaces = parseInt(placesInput.getAttribute('max')) || 1;
+            if (places > maxPlaces) places = maxPlaces;
+            placesInput.value = places;
+
+            if (isFree) {
+                totalDisplay.innerText = 'Gratuit';
+                priceDetails.innerText = '';
+            } else {
+                const total = unitPrice * places;
+                totalDisplay.innerText = total.toFixed(2) + ' €';
+                priceDetails.innerText = 'pour ' + places + ' place' + (places > 1 ? 's' : '');
+            }
+        }
+
+        placesInput.addEventListener('input', updateTotal);
+        updateTotal(); // initial call
+    });
+</script>
 {% endblock %}

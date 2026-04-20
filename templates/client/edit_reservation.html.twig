@@ -1,0 +1,61 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Modifier ma réservation - {{ event.title }}{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow-sm border-0 rounded-4">
+                <div class="card-body p-4">
+                    <h2 class="mb-3">✏️ Modifier ma réservation</h2>
+                    <p class="text-muted">Événement : <strong>{{ event.title }}</strong><br>
+                    Date : {{ event.date_event|date('d/m/Y') }} à {{ event.start_time }}</p>
+
+                    {# Affichage des messages flash #}
+                    {% for message in app.flashes('error') %}
+                        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                            {{ message }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    {% endfor %}
+                    {% for message in app.flashes('success') %}
+                        <div class="alert alert-success">{{ message }}</div>
+                    {% endfor %}
+
+                    {# Avertissement si moins de 7 jours avant l'événement #}
+                    {% if isWithin7Days is defined and isWithin7Days %}
+                        <div class="alert alert-warning">
+                            <i class="fa fa-exclamation-triangle"></i>
+                            <strong>Attention :</strong> L’événement a lieu dans moins de 7 jours.<br>
+                            Vous ne pouvez <strong>pas réduire</strong> le nombre de places – vous pouvez uniquement l’augmenter (sous réserve de disponibilité) ou le conserver identique.
+                        </div>
+                    {% endif %}
+
+                    <form method="post">
+                        <div class="mb-3">
+                            <label class="form-label">Nombre de places actuel :</label>
+                            <div class="fw-bold mb-2">{{ participation.nombrePlaces }}</div>
+                            <label class="form-label">Nouveau nombre de places :</label>
+                            <input type="number" name="nombre_places" class="form-control" 
+                                   value="{{ participation.nombrePlaces }}" 
+                                   min="{% if isWithin7Days is defined and isWithin7Days %}{{ participation.nombrePlaces }}{% else %}1{% endif %}" 
+                                   max="{{ event.capacity - (event.capacity - event.available_places) + participation.nombrePlaces }}"
+                                   {% if isWithin7Days is defined and isWithin7Days %}onchange="if(this.value < {{ participation.nombrePlaces }}) { alert('Vous ne pouvez pas réduire le nombre de places à moins de 7 jours de l\'événement.'); this.value = {{ participation.nombrePlaces }}; }"{% endif %}>
+                            <small class="text-muted">
+                                Places disponibles actuellement : {{ event.available_places }}<br>
+                                (Vous pouvez augmenter jusqu'à {{ event.available_places + participation.nombrePlaces }} places au total)
+                            </small>
+                        </div>
+
+                        <div class="d-flex justify-content-between mt-4">
+                            <a href="{{ path('client_event_reservations') }}" class="btn btn-outline-secondary">Annuler</a>
+                            <button type="submit" class="btn btn-primary">Enregistrer</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

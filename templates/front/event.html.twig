@@ -248,11 +248,13 @@
     .fe_status.cancelled { background: rgba(231,76,60,0.12); color: var(--danger); }
     .fe_status.soldout { background: rgba(49,18,75,0.1); color: var(--deep); }
     .fe_status.pending { background: rgba(250,158,27,0.12); color: #c47a00; }
+    .fe_status.passed { background: rgba(108,117,125,0.1); color: #6c757d; }
 
     .fe_card_cta {
         margin-top: auto;
         display: flex;
         gap: 10px;
+        flex-wrap: wrap;
     }
     .btn_front {
         display: inline-flex;
@@ -277,6 +279,11 @@
         flex: 1;
     }
     .btn_primary_front:hover { opacity: 0.88; transform: scale(1.02); color: #fff !important; }
+    .btn_chat_front {
+        background: linear-gradient(135deg, #27ae60, #2ecc71);
+        color: #fff !important;
+    }
+    .btn_chat_front:hover { opacity: 0.88; transform: scale(1.02); color: #fff !important; }
     .btn_ghost_front {
         background: transparent;
         border: 2px solid #e4e4e4;
@@ -430,12 +437,7 @@
         box-shadow: 0 14px 40px rgba(49,18,75,0.5);
         color: #fff !important;
     }
-    .admin_back_btn .dot {
-        width: 8px; height: 8px;
-        background: var(--gold);
-        border-radius: 50%;
-        animation: pulse_dot 1.8s ease-in-out infinite;
-    }
+  
     @keyframes pulse_dot {
         0%, 100% { opacity: 1; transform: scale(1); }
         50% { opacity: 0.5; transform: scale(0.7); }
@@ -474,6 +476,69 @@
         transform: translateY(-2px);
         color: #fff;
     }
+    .discount-badge {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        background: #e74c3c;
+        color: white;
+        padding: 3px 8px;
+        border-radius: 20px;
+        font-size: 10px;
+        font-weight: bold;
+        z-index: 2;
+    }
+    .feedback-link {
+        margin-top: 12px;
+        text-align: center;
+    }
+    .feedback-link a {
+        display: inline-block;
+        width: 100%;
+        text-align: center;
+        padding: 8px;
+        background: #f0f4ff;
+        border-radius: 8px;
+        font-size: 12px;
+        font-weight: 600;
+        color: var(--violet);
+        text-decoration: none;
+        transition: all 0.2s;
+    }
+    .feedback-link a:hover {
+        background: var(--violet);
+        color: white;
+    }
+    .feedback-message {
+        margin-top: 12px;
+        font-size: 12px;
+        text-align: center;
+        padding: 6px;
+        border-radius: 8px;
+        background: #e8f5e9;
+        color: #2e7d32;
+    }
+    .feedback-disabled {
+        margin-top: 12px;
+        font-size: 11px;
+        text-align: center;
+        color: #9e9e9e;
+    }
+    .chat-badge {
+        position: absolute;
+        bottom: 16px;
+        left: 16px;
+        background: linear-gradient(135deg, #27ae60, #2ecc71);
+        color: white;
+        padding: 5px 12px;
+        border-radius: 20px;
+        font-size: 10px;
+        font-weight: bold;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        z-index: 2;
+    }
 </style>
 {% endblock %}
 
@@ -489,28 +554,53 @@
 </div>
 
 <div class="filter_bar">
-    <button class="filter_pill active" onclick="filterEvents('all', this)">All</button>
-    <button class="filter_pill" onclick="filterEvents('Conference', this)">Conference</button>
-    <button class="filter_pill" onclick="filterEvents('Concert', this)">Concert</button>
-    <button class="filter_pill" onclick="filterEvents('Festival', this)">Festival</button>
-    <button class="filter_pill" onclick="filterEvents('Sport', this)">Sport</button>
-    <input class="filter_search" type="text" placeholder="🔍 Search events..." oninput="searchEvents(this.value)">
+    <form method="get" action="{{ path('event_front') }}" id="filterForm" style="display: flex; gap: 12px; align-items: center; flex-wrap: wrap; width: 100%;">
+        <select name="type" class="filter_pill" style="background: none; cursor: pointer;" onchange="this.form.submit()">
+            <option value="all" {{ current_type == 'all' ? 'selected' : '' }}>All</option>
+            <option value="Conference" {{ current_type == 'Conference' ? 'selected' : '' }}>Conference</option>
+            <option value="Concert" {{ current_type == 'Concert' ? 'selected' : '' }}>Concert</option>
+            <option value="Festival" {{ current_type == 'Festival' ? 'selected' : '' }}>Festival</option>
+            <option value="Sport" {{ current_type == 'Sport' ? 'selected' : '' }}>Sport</option>
+        </select>
+
+        <input type="text" name="search" class="filter_search" placeholder="🔍 Search events..." value="{{ current_search }}">
+
+        <select name="sort" class="filter_pill" style="background: none;" onchange="this.form.submit()">
+            <option value="date_asc" {{ current_sort == 'date_asc' ? 'selected' : '' }}>Date ↑</option>
+            <option value="date_desc" {{ current_sort == 'date_desc' ? 'selected' : '' }}>Date ↓</option>
+            <option value="price_asc" {{ current_sort == 'price_asc' ? 'selected' : '' }}>Price ↑</option>
+            <option value="price_desc" {{ current_sort == 'price_desc' ? 'selected' : '' }}>Price ↓</option>
+            <option value="title_asc" {{ current_sort == 'title_asc' ? 'selected' : '' }}>Title A→Z</option>
+        </select>
+
+        <button type="submit" class="filter_pill" style="background: var(--gold); color: white; border: none;">Apply</button>
+        <a href="{{ path('event_front') }}" class="filter_pill">Reset</a>
+
+        {% if is_granted('ROLE_USER') %}
+        <a href="{{ path('client_event_reservations') }}" class="btn_front btn_primary_front" style="background: linear-gradient(135deg, #8d4fff, #fa9e1b); margin-left: auto;">
+            <i class="fa fa-ticket"></i> Mes réservations
+        </a>
+        <a href="{{ path('chat_inbox') }}" class="btn_front" style="background: linear-gradient(135deg, #27ae60, #2ecc71); color: white; margin-left: 10px;">
+            <i class="fa fa-comments"></i> Messages
+        </a>
+        {% endif %}
+    </form>
 </div>
 
 <section class="events_front_section">
     <div class="container">
         <div class="section_heading">
             <h2>Upcoming Events</h2>
-            <p>{{ events|length }} event{{ events|length != 1 ? 's' : '' }} available right now</p>
+            <p>{{ events|length }} event{{ events|length != 1 ? 's' : '' }} found</p>
             <div class="section_divider"></div>
         </div>
 
         <div class="events_grid" id="eventsGrid">
             {% if events is empty %}
                 <div class="front_empty">
-                    <div class="front_empty_icon">🎪</div>
-                    <h3>No events yet</h3>
-                    <p>Check back soon — exciting events are on the way!</p>
+                    <div class="front_empty_icon">🔍</div>
+                    <h3>No events match</h3>
+                    <p>Try different keywords or filters.</p>
                 </div>
             {% else %}
                 {% for event in events %}
@@ -518,20 +608,32 @@
                 {% set pct = event.capacity > 0 ? ((filled / event.capacity) * 100)|round : 0 %}
                 {% set isFull = event.available_places <= 0 %}
                 {% set seasonEmoji = {'Summer': '☀️', 'Winter': '❄️', 'Spring': '🌸', 'Autumn': '🍂', 'Fall': '🍂'}[event.season] ?? '🌍' %}
+                {% set alreadyRegistered = event.id_event in registered_event_ids %}
 
-                <div class="fe_card"
-                     data-type="{{ event.event_type|lower }}"
-                     data-title="{{ event.title|lower }}"
-                     data-event-id="{{ event.id_event }}">
+                <div class="fe_card" data-event-id="{{ event.id_event }}">
                     <div class="fe_card_thumb">
                         {% if event.image_event %}
                             <img src="{{ asset('images/' ~ event.image_event) }}" alt="{{ event.title }}" onerror="this.style.display='none'">
                         {% endif %}
                         <div class="fe_card_type">{{ event.event_type }}</div>
                         <div class="fe_card_season_dot">{{ seasonEmoji }}</div>
+                        {% if event.discountActive and event.price > 0 %}
+                            <div class="discount-badge">-20%</div>
+                        {% endif %}
                         <div class="fe_card_price_tag {{ event.price == 0 ? 'free' : '' }}">
-                            {{ event.price == 0 ? 'Free' : '$' ~ event.price }}
+                            {% if event.discountActive and event.price > 0 %}
+                                <span style="text-decoration: line-through; font-size: 0.7em;">${{ event.price }}</span>
+                                <span style="color: #fa9e1b;">${{ event.discountedPrice|number_format(2) }}</span>
+                                <span style="display: block; font-size: 10px;">-20% promo</span>
+                            {% else %}
+                                {{ event.price == 0 ? 'Free' : '$' ~ event.price }}
+                            {% endif %}
                         </div>
+                        {% if alreadyRegistered and not event.isPassed %}
+                            <div class="chat-badge">
+                                <i class="fa fa-comments"></i> Chat Available
+                            </div>
+                        {% endif %}
                         {% if isFull %}
                             <div class="sold_out_overlay"><div class="sold_out_badge">Sold Out</div></div>
                         {% endif %}
@@ -542,10 +644,25 @@
                             <div class="fe_info_row"><i class="fa fa-calendar icon"></i> {{ event.date_event|date('D, M d Y') }} · {{ event.start_time }}</div>
                             <div class="fe_info_row"><i class="fa fa-map-marker icon"></i> {{ event.location }}</div>
                             <div class="fe_info_row"><i class="fa fa-leaf icon"></i> {{ event.season }} season</div>
+                            <div class="fe_info_row">
+                                <i class="fa fa-sun-o icon"></i>
+                                {% if event.weatherData is defined and event.weatherData.error is not defined %}
+                                    {{ event.weatherData.temp }}°C, {{ event.weatherData.description }}
+                                    {% if event.weatherData.icon %}
+                                        <img src="https://openweathermap.org/img/wn/{{ event.weatherData.icon }}.png" alt="weather icon" style="width: 20px; height: 20px; margin-left: 5px;">
+                                    {% endif %}
+                                {% else %}
+                                    <span class="text-muted small">Weather unavailable</span>
+                                {% endif %}
+                            </div>
                         </div>
-                        <span class="fe_status {{ isFull ? 'soldout' : event.status|lower }}">
-                            {{ isFull ? 'Sold Out' : event.status }}
-                        </span>
+                        {% if event.isPassed %}
+                            <span class="fe_status passed">Passed</span>
+                        {% else %}
+                            <span class="fe_status {{ isFull ? 'soldout' : event.status|lower }}">
+                                {{ isFull ? 'Sold Out' : event.status }}
+                            </span>
+                        {% endif %}
                         <div class="fe_cap_wrap">
                             <div class="fe_cap_header">
                                 <span>{{ event.available_places }} seats left</span>
@@ -555,8 +672,47 @@
                                 <div class="fe_cap_fill {{ isFull ? 'full' : '' }}" style="width:{{ pct }}%;"></div>
                             </div>
                         </div>
+
+                        {# ========== FEEDBACK SECTION (for past events) ========== #}
+                        {% if event.isPassed %}
+                            <div class="feedback-link">
+                                {% if alreadyRegistered %}
+                                    {% set userFeedbackGiven = false %}
+                                    {% for fb in event.feedbacks %}
+                                        {% if fb.userId == app.user.id %}
+                                            {% set userFeedbackGiven = true %}
+                                        {% endif %}
+                                    {% endfor %}
+                                    {% if not userFeedbackGiven %}
+                                        <a href="{{ path('event_show_front', {id: event.id_event}) }}" class="btn-feedback">
+                                            📝 Leave feedback
+                                        </a>
+                                    {% else %}
+                                        <div class="feedback-message">
+                                            ✅ You already left feedback
+                                        </div>
+                                    {% endif %}
+                                {% else %}
+                                    <div class="feedback-disabled">
+                                        🔒 Only participants can leave feedback
+                                    </div>
+                                {% endif %}
+                            </div>
+                        {% endif %}
+
                         <div class="fe_card_cta">
-                            {% if is_granted('ROLE_USER') %}
+                            {% if event.isPassed %}
+                                <span class="btn_front btn_primary_front" style="background: #6c757d; cursor: default; opacity: 0.7;">
+                                    <i class="fa fa-calendar-times"></i> Past event
+                                </span>
+                            {% elseif alreadyRegistered %}
+                                <span class="btn_front btn_primary_front" style="background: #6c757d; cursor: default; opacity: 0.7;">
+                                    <i class="fa fa-check-circle"></i> Already registered
+                                </span>
+                                <a href="{{ path('event_participants', {id: event.id_event}) }}" class="btn_front btn_chat_front">
+                                    <i class="fa fa-comments"></i> Chat
+                                </a>
+                            {% elseif is_granted('ROLE_USER') %}
                                 <a href="{{ path('participation_front_new', {'id_event': event.id_event}) }}"
                                    class="btn_front btn_primary_front"
                                    {{ isFull ? 'disabled style=opacity:0.5;cursor:not-allowed;pointer-events:none;' : '' }}>
@@ -589,6 +745,118 @@
     </div>
 </section>
 
+{# Section des événements recommandés #}
+{% if recommended_events|length > 0 %}
+<section class="recommended-section mt-5 pt-4">
+    <div class="container">
+        <div class="section_heading">
+            <h2>🌟 Recommandé pour vous</h2>
+            <div class="section_divider"></div>
+        </div>
+        <div class="events_grid">
+            {% for event in recommended_events %}
+                {% set alreadyRegistered = event.id_event in registered_event_ids %}
+                <div class="fe_card" data-event-id="{{ event.id_event }}">
+                    <div class="fe_card_thumb">
+                        {% if event.image_event %}
+                            <img src="{{ asset('images/' ~ event.image_event) }}" alt="{{ event.title }}" onerror="this.style.display='none'">
+                        {% endif %}
+                        <div class="fe_card_type">{{ event.event_type }}</div>
+                        <div class="fe_card_season_dot">{{ {'Summer': '☀️', 'Winter': '❄️', 'Spring': '🌸', 'Autumn': '🍂', 'Fall': '🍂'}[event.season] ?? '🌍' }}</div>
+                        {% if event.discountActive and event.price > 0 %}
+                            <div class="discount-badge">-20%</div>
+                        {% endif %}
+                        <div class="fe_card_price_tag {{ event.price == 0 ? 'free' : '' }}">
+                            {% if event.discountActive and event.price > 0 %}
+                                <span style="text-decoration: line-through; font-size: 0.7em;">${{ event.price }}</span>
+                                <span style="color: #fa9e1b;">${{ event.discountedPrice|number_format(2) }}</span>
+                                <span style="display: block; font-size: 10px;">-20% promo</span>
+                            {% else %}
+                                {{ event.price == 0 ? 'Free' : '$' ~ event.price }}
+                            {% endif %}
+                        </div>
+                        {% if alreadyRegistered and not event.isPassed %}
+                            <div class="chat-badge">
+                                <i class="fa fa-comments"></i> Chat Available
+                            </div>
+                        {% endif %}
+                        {% if event.available_places <= 0 %}
+                            <div class="sold_out_overlay"><div class="sold_out_badge">Sold Out</div></div>
+                        {% endif %}
+                    </div>
+                    <div class="fe_card_body">
+                        <div class="fe_card_title">{{ event.title }}</div>
+                        <div class="fe_card_info">
+                            <div class="fe_info_row"><i class="fa fa-calendar icon"></i> {{ event.date_event|date('D, M d Y') }} · {{ event.start_time }}</div>
+                            <div class="fe_info_row"><i class="fa fa-map-marker icon"></i> {{ event.location }}</div>
+                            <div class="fe_info_row"><i class="fa fa-leaf icon"></i> {{ event.season }} season</div>
+                            <div class="fe_info_row">
+                                <i class="fa fa-sun-o icon"></i>
+                                {% if event.weatherData is defined and event.weatherData.error is not defined %}
+                                    {{ event.weatherData.temp }}°C, {{ event.weatherData.description }}
+                                    {% if event.weatherData.icon %}
+                                        <img src="https://openweathermap.org/img/wn/{{ event.weatherData.icon }}.png" alt="weather icon" style="width: 20px; height: 20px; margin-left: 5px;">
+                                    {% endif %}
+                                {% else %}
+                                    <span class="text-muted small">Weather unavailable</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                        {% if event.isPassed %}
+                            <span class="fe_status passed">Passed</span>
+                        {% else %}
+                            <span class="fe_status {{ event.available_places <= 0 ? 'soldout' : event.status|lower }}">
+                                {{ event.available_places <= 0 ? 'Sold Out' : event.status }}
+                            </span>
+                        {% endif %}
+                        <div class="fe_cap_wrap">
+                            <div class="fe_cap_header">
+                                <span>{{ event.available_places }} seats left</span>
+                                <span>{{ ((event.capacity - event.available_places) / event.capacity * 100)|round }}% filled</span>
+                            </div>
+                            <div class="fe_cap_bg">
+                                <div class="fe_cap_fill {{ event.available_places <= 0 ? 'full' : '' }}" style="width:{{ ((event.capacity - event.available_places) / event.capacity * 100)|round }}%;"></div>
+                            </div>
+                        </div>
+                        <div class="fe_card_cta">
+                            {% if event.isPassed %}
+                                <span class="btn_front btn_primary_front" style="background: #6c757d; cursor: default; opacity: 0.7;">
+                                    <i class="fa fa-calendar-times"></i> Past event
+                                </span>
+                            {% elseif alreadyRegistered %}
+                                <span class="btn_front btn_primary_front" style="background: #6c757d; cursor: default; opacity: 0.7;">
+                                    <i class="fa fa-check-circle"></i> Already registered
+                                </span>
+                                <a href="{{ path('event_participants', {id: event.id_event}) }}" class="btn_front btn_chat_front">
+                                    <i class="fa fa-comments"></i> Chat
+                                </a>
+                            {% elseif is_granted('ROLE_USER') %}
+                                <a href="{{ path('participation_front_new', {'id_event': event.id_event}) }}"
+                                   class="btn_front btn_primary_front"
+                                   {{ event.available_places <= 0 ? 'disabled style=opacity:0.5;cursor:not-allowed;pointer-events:none;' : '' }}>
+                                    <i class="fa fa-ticket"></i> {{ event.available_places <= 0 ? 'Sold Out' : 'Register' }}
+                                </a>
+                            {% else %}
+                                <a href="{{ path('app_login') }}?redirect={{ path('event_front') }}" class="btn_front btn_primary_front">
+                                    <i class="fa fa-lock"></i> Login to Register
+                                </a>
+                            {% endif %}
+                            <button class="btn_front btn_ghost_front" onclick="openDetail({{ event.id_event }})">
+                                <i class="fa fa-info"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endif %}
+
+<div class="d-flex justify-content-center mt-5">
+    {{ knp_pagination_render(pagination) }}
+</div>
+
 <div class="fe_modal_overlay" id="detailOverlay" onclick="if(event.target===this)closeDetail()">
     <div class="fe_modal" id="detailModal">
         <div class="fe_modal_image" id="detailImage">
@@ -620,40 +888,60 @@
             title: {{ event.title|json_encode|raw }},
             description: {{ event.description|json_encode|raw }},
             type: {{ event.event_type|json_encode|raw }},
-            date: {{ event.date_event|date('D, M d Y')|json_encode|raw }},
+            date: {{ event.date_event|date('Y-m-d')|json_encode|raw }},
             time: {{ event.start_time|json_encode|raw }},
             location: {{ event.location|json_encode|raw }},
             season: {{ event.season|json_encode|raw }},
             capacity: {{ event.capacity }},
             available: {{ event.available_places }},
             status: {{ event.status|json_encode|raw }},
-            price: {{ event.price }},
+            price: {{ event.discountActive and event.price > 0 ? event.discountedPrice : event.price }},
+            originalPrice: {{ event.price }},
+            discountActive: {{ event.discountActive ? 'true' : 'false' }},
             image: {{ event.image_event ? (asset('images/' ~ event.image_event))|json_encode|raw : 'null' }},
-            registerUrl: {{ path('participation_front_new', {id_event: event.id_event})|json_encode|raw }}
+            registerUrl: {{ path('participation_front_new', {id_event: event.id_event})|json_encode|raw }},
+            isPassed: {{ event.isPassed ? 'true' : 'false' }}
         }{% if not loop.last %},{% endif %}
         {% endfor %}
     };
 
-    function filterEvents(type, btn) {
-        document.querySelectorAll('.filter_pill').forEach(p => p.classList.remove('active'));
-        btn.classList.add('active');
-        document.querySelectorAll('.fe_card').forEach(card => {
-            const match = type === 'all' || card.dataset.type.includes(type.toLowerCase());
-            card.style.display = match ? '' : 'none';
-        });
-    }
-    function searchEvents(q) {
-        q = q.toLowerCase();
-        document.querySelectorAll('.fe_card').forEach(card => {
-            card.style.display = card.dataset.title.includes(q) ? '' : 'none';
-        });
-    }
+    {% if recommended_events is defined %}
+        {% for event in recommended_events %}
+        EVENTS_DATA[{{ event.id_event }}] = {
+            title: {{ event.title|json_encode|raw }},
+            description: {{ event.description|json_encode|raw }},
+            type: {{ event.event_type|json_encode|raw }},
+            date: {{ event.date_event|date('Y-m-d')|json_encode|raw }},
+            time: {{ event.start_time|json_encode|raw }},
+            location: {{ event.location|json_encode|raw }},
+            season: {{ event.season|json_encode|raw }},
+            capacity: {{ event.capacity }},
+            available: {{ event.available_places }},
+            status: {{ event.status|json_encode|raw }},
+            price: {{ event.discountActive and event.price > 0 ? event.discountedPrice : event.price }},
+            originalPrice: {{ event.price }},
+            discountActive: {{ event.discountActive ? 'true' : 'false' }},
+            image: {{ event.image_event ? (asset('images/' ~ event.image_event))|json_encode|raw : 'null' }},
+            registerUrl: {{ path('participation_front_new', {id_event: event.id_event})|json_encode|raw }},
+            isPassed: {{ event.isPassed ? 'true' : 'false' }}
+        };
+        {% endfor %}
+    {% endif %}
+
+    const REGISTERED_IDS = {{ registered_event_ids|json_encode|raw }};
+
     function openDetail(id) {
         const e = EVENTS_DATA[id];
         if (!e) return;
         document.getElementById('detailType').textContent = e.type + ' · ' + e.season;
         document.getElementById('detailTitle').textContent = e.title;
-        document.getElementById('detailPrice').innerHTML = e.price === 0 ? '<span style="color:var(--success)">Free Entry</span>' : '$' + e.price + ' <small>per seat</small>';
+        let priceHtml = '';
+        if (e.discountActive && e.originalPrice > 0) {
+            priceHtml = `<span style="text-decoration: line-through; font-size: 0.7em;">$${e.originalPrice}</span> <span style="color: #fa9e1b;">$${e.price}</span> <span style="display: block; font-size: 10px;">-20% promo</span>`;
+        } else {
+            priceHtml = e.price === 0 ? '<span style="color:var(--success)">Free Entry</span>' : '$' + e.price + ' <small>per seat</small>';
+        }
+        document.getElementById('detailPrice').innerHTML = priceHtml;
         document.getElementById('detailDesc').textContent = e.description;
         document.getElementById('detailImg').src = e.image || '';
         document.getElementById('detailImg').style.display = e.image ? 'block' : 'none';
@@ -663,20 +951,36 @@
             <div class="fe_modal_stat"><div class="label">Capacity</div><div class="value">${e.available} / ${e.capacity} available</div></div>
             <div class="fe_modal_stat"><div class="label">Status</div><div class="value">${e.status}</div></div>
         `;
+        
+        const alreadyRegistered = REGISTERED_IDS.includes(id);
         {% if is_granted('ROLE_USER') %}
-        document.getElementById('detailFooter').innerHTML = `
-            <a href="${e.registerUrl}" class="btn_front btn_primary_front" ${e.available<=0?'disabled style=opacity:0.5;pointer-events:none;':''}><i class="fa fa-ticket"></i> ${e.available<=0?'Sold Out':'Register Now'}</a>
-            <button class="btn_front btn_ghost_front" onclick="closeDetail()">Close</button>
-        `;
+            if (e.isPassed) {
+                document.getElementById('detailFooter').innerHTML = `
+                    <span class="btn_front btn_primary_front" style="background: #6c757d; cursor: default;">📅 Past event</span>
+                    <button class="btn_front btn_ghost_front" onclick="closeDetail()">Close</button>
+                `;
+            } else if (alreadyRegistered) {
+                document.getElementById('detailFooter').innerHTML = `
+                    <span class="btn_front btn_primary_front" style="background: #6c757d; cursor: default;">✓ Already registered</span>
+                    <button class="btn_front btn_ghost_front" onclick="closeDetail()">Close</button>
+                `;
+            } else {
+                document.getElementById('detailFooter').innerHTML = `
+                    <a href="${e.registerUrl}" class="btn_front btn_primary_front" ${e.available<=0?'disabled style=opacity:0.5;pointer-events:none;':''}><i class="fa fa-ticket"></i> ${e.available<=0?'Sold Out':'Register Now'}</a>
+                    <button class="btn_front btn_ghost_front" onclick="closeDetail()">Close</button>
+                `;
+            }
         {% else %}
-        document.getElementById('detailFooter').innerHTML = `
-            <a href="{{ path('app_login') }}?redirect={{ path('event_front') }}" class="btn_front btn_primary_front"><i class="fa fa-lock"></i> Login to Register</a>
-            <button class="btn_front btn_ghost_front" onclick="closeDetail()">Close</button>
-        `;
+            document.getElementById('detailFooter').innerHTML = `
+                <a href="{{ path('app_login') }}?redirect={{ path('event_front') }}" class="btn_front btn_primary_front"><i class="fa fa-lock"></i> Login to Register</a>
+                <button class="btn_front btn_ghost_front" onclick="closeDetail()">Close</button>
+            `;
         {% endif %}
+        
         document.getElementById('detailOverlay').classList.add('open');
         document.body.style.overflow = 'hidden';
     }
+    
     function closeDetail() {
         document.getElementById('detailOverlay').classList.remove('open');
         document.body.style.overflow = '';

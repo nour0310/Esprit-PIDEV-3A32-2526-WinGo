@@ -156,26 +156,6 @@ select.fi {
 }
 .fg_row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
 .fg_row3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
-.img_upload_zone {
-    border: 2px dashed #d0cae8;
-    border-radius: 12px;
-    padding: 28px 20px;
-    text-align: center;
-    cursor: pointer;
-    transition: all 200ms;
-    background: #faf8ff;
-    position: relative;
-}
-.img_upload_zone:hover {
-    border-color: var(--violet);
-    background: rgba(124,58,237,0.04);
-}
-.img_upload_zone input[type="file"] {
-    position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%;
-}
-.img_upload_icon { font-size: 36px; margin-bottom: 10px; }
-.img_upload_text { font-size: 14px; font-weight: 600; color: var(--deep); margin-bottom: 4px; }
-.img_upload_sub { font-size: 12px; color: var(--grey); }
 .img_preview_wrap {
     display: none; position: relative;
     border-radius: 10px; overflow: hidden; height: 160px;
@@ -324,31 +304,40 @@ select.fi {
     <div class="tbl_card">
         <div class="tbl_head">
             <h3><i class="fa fa-ticket"></i> All Events</h3>
-            <div style="display: flex; gap: 12px; flex-wrap: wrap;">
-                <div class="search_wrap">
-                    <i class="fa fa-search search_ico"></i>
-                    <input class="search_input" type="text" id="searchInput" placeholder="Search events...">
-                </div>
-                <div class="filter_pills">
-                    <button class="filter_pill active" onclick="doFilter('all', this)">All</button>
-                    <button class="filter_pill" onclick="doFilter('active', this)">Active</button>
-                    <button class="filter_pill" onclick="doFilter('pending', this)">Pending</button>
-                    <button class="filter_pill" onclick="doFilter('cancelled', this)">Cancelled</button>
-                </div>
+            <form method="get" action="{{ path('event_index') }}" style="display: flex; gap: 12px; flex-wrap: wrap; align-items: center;">
+                <input type="text" name="search" class="search_input" placeholder="Search by title or location..." value="{{ current_search }}" style="width: 200px;">
+                
+                <select name="status" class="filter_pill" style="background: none;">
+                    <option value="all" {{ current_status == 'all' ? 'selected' : '' }}>All statuses</option>
+                    <option value="active" {{ current_status == 'active' ? 'selected' : '' }}>Active</option>
+                    <option value="pending" {{ current_status == 'pending' ? 'selected' : '' }}>Pending</option>
+                    <option value="cancelled" {{ current_status == 'cancelled' ? 'selected' : '' }}>Cancelled</option>
+                </select>
+
+                <select name="sort" class="filter_pill" style="background: none;">
+                    <option value="id_desc" {{ current_sort == 'id_desc' ? 'selected' : '' }}>Newest first</option>
+                    <option value="title_asc" {{ current_sort == 'title_asc' ? 'selected' : '' }}>Title A→Z</option>
+                    <option value="title_desc" {{ current_sort == 'title_desc' ? 'selected' : '' }}>Title Z→A</option>
+                    <option value="date_asc" {{ current_sort == 'date_asc' ? 'selected' : '' }}>Date ↑</option>
+                    <option value="date_desc" {{ current_sort == 'date_desc' ? 'selected' : '' }}>Date ↓</option>
+                </select>
+
+                <button type="submit" class="btn btn-primary" style="height:36px;">Filter</button>
+                <a href="{{ path('event_index') }}" class="btn btn-outline" style="height:36px;">Reset</a>
                 <a href="{{ path('event_new') }}" class="btn btn-primary" style="height:36px;">
                     <i class="fa fa-plus"></i> New Event
                 </a>
-            </div>
+            </form>
         </div>
 
         {% if events is empty %}
             <div style="text-align: center; padding: 70px 30px;">
                 <i class="fa fa-calendar-o" style="font-size: 52px; color: #ddd;"></i>
-                <p style="margin-top: 16px; color: var(--grey);">No events yet. <a href="{{ path('event_new') }}" style="color:var(--gold);">Create your first event →</a></p>
+                <p style="margin-top: 16px; color: var(--grey);">No events found.</p>
             </div>
         {% else %}
             <div style="overflow-x:auto;">
-                <table class="adm_table" id="eventsTable">
+                <table class="adm_table">
                     <thead>
                         <tr>
                             <th>Event</th>
@@ -360,11 +349,10 @@ select.fi {
                             <th>Actions</th>
                         </tr>
                     </thead>
-                    <tbody id="eventsBody">
+                    <tbody>
                         {% for e in events %}
                         {% set booked_e = e.capacity - e.available_places %}
-                        {% set pct_e = e.capacity > 0 ? ((booked_e / e.capacity * 100)|round) : 0 %}
-                        <tr data-name="{{ e.title|lower }}" data-status="{{ e.status|lower }}">
+                        <tr>
                             <td>
                                 <div class="ev_name_cell">
                                     <div class="ev_thumb">
@@ -401,9 +389,6 @@ select.fi {
                             </td>
                         </tr>
                         {% endfor %}
-                        <tr class="no_results" id="noResults" style="display:none;">
-                            <td colspan="7" style="text-align:center; padding:40px; color:var(--grey);"><i class="fa fa-search"></i> No events match your search</td>
-                        </tr>
                     </tbody>
                 </table>
             </div>
@@ -504,21 +489,25 @@ select.fi {
                 </div>
             </div>
 
-            <div class="form_sect">Event Image</div>
+            {# ========== AI IMAGE GENERATION ========== #}
+            <div class="form_sect">Event Image – AI Generation</div>
             <div class="fg">
-                <div class="img_preview_wrap" id="imgPreview" style="{{ mode == 'edit' and event.image_event ? 'display:block' : 'display:none' }}">
-                    <img id="imgPreviewEl" src="{{ mode == 'edit' and event.image_event ? asset('images/' ~ event.image_event) : '' }}" alt="Preview">
-                    <button type="button" class="remove_img" onclick="clearImage()">✕</button>
+                <label class="fl">Describe the image you want (prompt)</label>
+                <textarea id="aiPrompt" class="fi" rows="2" placeholder="e.g. A futuristic conference hall with purple neon lights, digital art style">{{ mode == 'edit' ? event.title : '' }}</textarea>
+                <div class="mt-2 mb-3">
+                    <button type="button" id="generateImageBtn" class="btn btn-primary" style="height:40px;">
+                        <i class="fa fa-magic"></i> Generate Image with AI
+                    </button>
+                    <span id="genLoader" style="display:none; margin-left:12px;"><i class="fa fa-spinner fa-spin"></i> Generating...</span>
                 </div>
 
-                <div class="img_upload_zone" id="uploadZone" style="{{ mode == 'edit' and event.image_event ? 'display:none' : 'display:block' }}">
-                    <input type="file" name="image_file" id="imageFileInput" accept="image/jpeg,image/png,image/webp,image/gif" onchange="handleFileSelect(this)">
-                    <div class="img_upload_icon">🖼️</div>
-                    <div class="img_upload_text">Click or drag & drop your image</div>
-                    <div class="img_upload_sub">JPG, PNG, WebP — max 5MB</div>
+                <div id="aiPreviewContainer" class="img_preview_wrap" style="{{ mode == 'edit' and event.image_event ? 'display:block' : 'display:none' }}">
+                    <img id="aiPreviewImg" src="{{ mode == 'edit' and event.image_event ? asset('images/' ~ event.image_event) : '' }}" alt="AI Preview">
+                    <button type="button" id="clearAiImage" class="remove_img">✕</button>
                 </div>
 
                 <input type="hidden" name="image_event" id="imageFilenameInput" value="{{ mode == 'edit' ? event.image_event : '' }}">
+                <div id="aiError" class="alert alert-danger mt-2" style="display:none;"></div>
             </div>
 
             <div class="form_sect">Status</div>
@@ -602,6 +591,37 @@ select.fi {
                     <div class="side_row"><span>Fill rate</span><span><strong>{{ pct }}%</strong></span></div>
                 </div>
             </div>
+
+            <div class="side_card mt-3">
+                <div class="side_head"><i class="fa fa-comments"></i> Feedbacks</div>
+                <div class="side_body">
+                    {% if event.feedbacks|length > 0 %}
+                        {% for fb in event.feedbacks %}
+                            <div class="side_row">
+                                <span><strong>{{ fb.participantName }}</strong></span>
+                                <span>
+                                    {% if fb.feeling == 'like' %}👍
+                                    {% elseif fb.feeling == 'love' %}❤️
+                                    {% elseif fb.feeling == 'haha' %}😂
+                                    {% elseif fb.feeling == 'wow' %}😮
+                                    {% elseif fb.feeling == 'sad' %}😢
+                                    {% elseif fb.feeling == 'angry' %}😡
+                                    {% endif %}
+                                </span>
+                            </div>
+                            <div class="side_row">
+                                <span class="text-muted">{{ fb.comment|default('No comment') }}</span>
+                            </div>
+                            <div class="side_row">
+                                <span class="small">{{ fb.createdAt }}</span>
+                            </div>
+                            {% if not loop.last %}<hr>{% endif %}
+                        {% endfor %}
+                    {% else %}
+                        <div class="text-muted">No feedback yet.</div>
+                    {% endif %}
+                </div>
+            </div>
         </div>
     </div>
 
@@ -622,30 +642,6 @@ select.fi {
 </div>
 
 <script>
-let currentFilter = 'all';
-function applyFilters() {
-    const q = (document.getElementById('searchInput') ? document.getElementById('searchInput').value : '').toLowerCase().trim();
-    const rows = document.querySelectorAll('#eventsBody tr[data-name]');
-    let visible = 0;
-    rows.forEach(r => {
-        const matchSearch = r.dataset.name.includes(q);
-        const matchStatus = currentFilter === 'all' || r.dataset.status === currentFilter;
-        const show = matchSearch && matchStatus;
-        r.style.display = show ? '' : 'none';
-        if (show) visible++;
-    });
-    const nr = document.getElementById('noResults');
-    if (nr) nr.style.display = visible === 0 ? 'table-row' : 'none';
-}
-function doFilter(status, btn) {
-    currentFilter = status;
-    document.querySelectorAll('.filter_pill').forEach(p => p.classList.remove('active'));
-    btn.classList.add('active');
-    applyFilters();
-}
-if (document.getElementById('searchInput')) {
-    document.getElementById('searchInput').addEventListener('input', applyFilters);
-}
 function confirmDelete(url, name) {
     document.getElementById('delMsg').textContent = 'Delete "' + name + '"? All participations will also be removed. This cannot be undone.';
     document.getElementById('delConfirmBtn').href = url;
@@ -655,22 +651,63 @@ function closeDelete() { document.getElementById('delOverlay').classList.remove(
 if (document.getElementById('delOverlay')) {
     document.getElementById('delOverlay').addEventListener('click', function(e) { if (e.target === this) closeDelete(); });
 }
-function handleFileSelect(input) {
-    const file = input.files[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = function(e) {
-        document.getElementById('imgPreviewEl').src = e.target.result;
-        document.getElementById('imgPreview').style.display = 'block';
-        document.getElementById('uploadZone').style.display = 'none';
-    };
-    reader.readAsDataURL(file);
-}
-function clearImage() {
-    document.getElementById('imgPreview').style.display = 'none';
-    document.getElementById('uploadZone').style.display = 'block';
-    document.getElementById('imageFileInput').value = '';
-    document.getElementById('imgPreviewEl').src = '';
-}
+
+// AI Image Generation
+document.addEventListener('DOMContentLoaded', function() {
+    const genBtn = document.getElementById('generateImageBtn');
+    const promptField = document.getElementById('aiPrompt');
+    const previewContainer = document.getElementById('aiPreviewContainer');
+    const previewImg = document.getElementById('aiPreviewImg');
+    const filenameInput = document.getElementById('imageFilenameInput');
+    const loader = document.getElementById('genLoader');
+    const errorDiv = document.getElementById('aiError');
+    const clearBtn = document.getElementById('clearAiImage');
+
+    if (genBtn) {
+        genBtn.addEventListener('click', async () => {
+            const prompt = promptField.value.trim();
+            if (!prompt) {
+                errorDiv.innerText = 'Please enter an image description.';
+                errorDiv.style.display = 'block';
+                return;
+            }
+            errorDiv.style.display = 'none';
+            genBtn.disabled = true;
+            loader.style.display = 'inline-block';
+
+            try {
+                const formData = new FormData();
+                formData.append('prompt', prompt);
+                const response = await fetch('{{ path('event_generate_image') }}', {
+                    method: 'POST',
+                    body: formData
+                });
+                const data = await response.json();
+                if (data.success) {
+                    previewImg.src = '/images/' + data.filename;
+                    previewContainer.style.display = 'block';
+                    filenameInput.value = data.filename;
+                } else {
+                    errorDiv.innerText = data.error || 'Generation failed.';
+                    errorDiv.style.display = 'block';
+                }
+            } catch (err) {
+                errorDiv.innerText = 'Network error: ' + err.message;
+                errorDiv.style.display = 'block';
+            } finally {
+                genBtn.disabled = false;
+                loader.style.display = 'none';
+            }
+        });
+    }
+
+    if (clearBtn) {
+        clearBtn.addEventListener('click', () => {
+            previewContainer.style.display = 'none';
+            previewImg.src = '';
+            filenameInput.value = '';
+        });
+    }
+});
 </script>
 {% endblock %}

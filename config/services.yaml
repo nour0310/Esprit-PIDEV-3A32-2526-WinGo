@@ -2,6 +2,8 @@ parameters:
     images_directory: '%kernel.project_dir%/public/images'
     gemini_api_key: '%env(GEMINI_API_KEY)%'
     giphy_api_key: '%env(GIPHY_API_KEY)%'
+    stream_api_key: '%env(STREAM_API_KEY)%'
+    stream_api_secret: '%env(STREAM_API_SECRET)%'
     # Utilisé pour l’affichage (Twig) et éventuellement pour générer des URLs absolues.
     # - Valeur par défaut dans `.env`: APP_DOMAIN=127.0.0.1
     # - En partage (ngrok), override dans `.env.local`: APP_DOMAIN=xxxx.ngrok-free.dev
