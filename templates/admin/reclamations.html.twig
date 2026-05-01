@@ -1,0 +1,43 @@
+{% extends 'admin/base_admin.html.twig' %}
+{% block title %}Réclamations - Admin WinGo{% endblock %}
+{% block page_title %}Gestion des Réclamations{% endblock %}
+
+{% block content %}
+<div class="data_card">
+    <div class="data_card_header">
+        <div class="data_card_title"><i class="fa fa-exclamation-circle" style="color:#fa9e1b"></i> Réclamations ({{ reclamations|length }})</div>
+    </div>
+    <table>
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>Utilisateur</th>
+                <th>Type</th>
+                <th>Sujet</th>
+                <th>Priorité</th>
+                <th>Statut</th>
+                <th>Date</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for rec in reclamations %}
+            <tr>
+                <td>{{ rec.id }}</td>
+                <td>User #{{ rec.idUser }}</td>
+                <td>{{ rec.typeReclamation ?? '-' }}</td>
+                <td>{{ rec.sujet ?? '-' }}</td>
+                <td>{{ rec.priorite ?? '-' }}</td>
+                <td>
+                    <span class="badge_status {% if rec.statut == 'Résolue' %}badge_done{% else %}badge_pending{% endif %}">
+                        {{ rec.statut }}
+                    </span>
+                </td>
+                <td>{{ rec.dateReclamation ? rec.dateReclamation|date('d/m/Y') : '-' }}</td>
+            </tr>
+            {% else %}
+            <tr><td colspan="7" style="text-align:center;color:#aaa;padding:40px;">Aucune réclamation</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

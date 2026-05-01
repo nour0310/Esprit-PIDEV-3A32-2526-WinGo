@@ -1,0 +1,78 @@
+{% extends 'admin/base_admin.html.twig' %}
+
+{% block title %}Gestion des participations - {{ event.title }}{% endblock %}
+
+{% block content %}
+<div class="admin-container">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1><i class="fa fa-users"></i> Participations - {{ event.title }}</h1>
+        <a href="{{ path('event_index') }}" class="btn btn-secondary">← Retour aux événements</a>
+    </div>
+
+    {% if mode == 'list' %}
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <h5 class="card-title">Liste des inscriptions ({{ participations|length }})</h5>
+                <div class="table-responsive mt-3">
+                    <table class="table table-hover">
+                        <thead class="table-light">
+                            <tr>
+                                <th>ID</th>
+                                <th>Participant</th>
+                                <th>Email</th>
+                                <th>Téléphone</th>
+                                <th>Places</th>
+                                <th>Date réservation</th>
+                                <th>Statut</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for p in participations %}
+                                <tr>
+                                    <td>{{ p.idParticipation }}</td>
+                                    <td>{{ p.prenomParticipant }} {{ p.nomParticipant }}</td>
+                                    <td>{{ p.emailParticipant }}</td>
+                                    <td>{{ p.telephone }}</td>
+                                    <td>{{ p.nombrePlaces }}</td>
+                                    <td>{{ p.dateParticipation|date('d/m/Y H:i') }}</td>
+                                    <td><span class="badge bg-success">{{ p.statut }}</span></td>
+                                    <td>
+                                        <a href="{{ path('participation_show', {id_event: event.id_event, id_participation: p.idParticipation}) }}" class="btn btn-sm btn-info">Voir</a>
+                                    </td>
+                                </tr>
+                            {% else %}
+                                <tr><td colspan="8" class="text-center">Aucune inscription.</td></tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+    {% elseif mode == 'show' %}
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <h5 class="card-title">Détail de la réservation #{{ participation.idParticipation }}</h5>
+                <hr>
+                <div class="row">
+                    <div class="col-md-6">
+                        <p><strong>Nom complet :</strong> {{ participation.prenomParticipant }} {{ participation.nomParticipant }}</p>
+                        <p><strong>Email :</strong> {{ participation.emailParticipant }}</p>
+                        <p><strong>Téléphone :</strong> {{ participation.telephone }}</p>
+                    </div>
+                    <div class="col-md-6">
+                        <p><strong>Nombre de places :</strong> {{ participation.nombrePlaces }}</p>
+                        <p><strong>Date de réservation :</strong> {{ participation.dateParticipation|date('d/m/Y H:i') }}</p>
+                        <p><strong>Statut :</strong> <span class="badge bg-success">{{ participation.statut }}</span></p>
+                        <p><strong>Événement :</strong> {{ event.title }} ({{ event.date_event|date('d/m/Y') }})</p>
+                    </div>
+                </div>
+                <div class="mt-3">
+                    <a href="{{ path('participation_index', {id_event: event.id_event}) }}" class="btn btn-secondary">Retour à la liste</a>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

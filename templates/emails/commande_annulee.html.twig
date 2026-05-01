@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Commande annulée - WinGo</title>
+</head>
+<body style="margin:0;padding:0;background-color:#f0f2f8;font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;">
+
+    <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:#f0f2f8;padding:40px 0;">
+        <tr>
+            <td align="center">
+                <table width="600" cellpadding="0" cellspacing="0" border="0" style="max-width:600px;width:100%;">
+
+                    <!-- HEADER dégradé orange → violet -->
+                    <tr>
+                        <td style="background:linear-gradient(135deg,#fa9e1b 0%,#8d4fff 100%);border-radius:18px 18px 0 0;">
+                            <table width="100%" cellpadding="0" cellspacing="0" border="0">
+                                <tr>
+                                    <td style="padding:32px 40px 0;text-align:center;">
+                                        <span style="font-size:32px;font-weight:900;color:#ffffff;letter-spacing:4px;text-transform:uppercase;font-style:italic;">WinGo</span>
+                                        <br>
+                                        <span style="font-size:11px;color:rgba(255,255,255,0.7);letter-spacing:3px;text-transform:uppercase;display:block;margin-top:4px;">Marketplace &amp; Livraison</span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td style="padding-top:22px;line-height:0;font-size:0;">
+                                        <svg viewBox="0 0 600 38" xmlns="http://www.w3.org/2000/svg" style="display:block;width:100%;">
+                                            <path d="M0,18 C150,38 450,0 600,18 L600,38 L0,38 Z" fill="#ffffff"/>
+                                        </svg>
+                                    </td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+
+                    <!-- ICÔNE -->
+                    <tr>
+                        <td style="background:#ffffff;padding:28px 40px 0;text-align:center;">
+                            <div style="display:inline-block;width:78px;height:78px;border-radius:50%;background:linear-gradient(135deg,#ff4d6d,#e53935);line-height:78px;text-align:center;font-size:34px;box-shadow:0 8px 24px rgba(255,77,109,0.3);">
+                                &#10060;
+                            </div>
+                            <br><br>
+                            <span style="font-size:21px;font-weight:800;color:#1f2235;">Votre commande a été annulée</span>
+                            <br>
+                            <span style="font-size:13px;color:#8d9bb5;margin-top:6px;display:block;">Nous nous excusons pour la gêne occasionnée.</span>
+                        </td>
+                    </tr>
+
+                    <!-- LIGNE DÉCORATIVE -->
+                    <tr>
+                        <td style="background:#ffffff;padding:20px 40px 0;">
+                            <div style="height:3px;background:linear-gradient(90deg,#fa9e1b,#8d4fff);border-radius:99px;"></div>
+                        </td>
+                    </tr>
+
+                    <!-- BODY -->
+                    <tr>
+                        <td style="background:#ffffff;padding:24px 40px 32px;">
+                            <p style="font-size:15px;color:#444;margin:0 0 14px;line-height:1.7;">
+                                Bonjour <strong style="color:#fa9e1b;">{{ client.fullName }}</strong>,
+                            </p>
+                            <p style="font-size:14px;color:#6d748b;margin:0 0 26px;line-height:1.8;">
+                                Nous sommes désolés de vous informer que votre commande
+                                <strong style="color:#1f2235;">#{{ commande.id }}</strong>
+                                a été <strong style="color:#e53935;">annulée</strong> par notre équipe.
+                            </p>
+
+                            <!-- RÉCAP -->
+                            <table width="100%" cellpadding="0" cellspacing="0" border="0"
+                                   style="border-radius:14px;overflow:hidden;border:1px solid #ebebf5;margin-bottom:20px;">
+                                <tr>
+                                    <td colspan="2" style="background:linear-gradient(135deg,#fa9e1b,#8d4fff);padding:12px 20px;">
+                                        <span style="font-size:11px;font-weight:800;color:#fff;text-transform:uppercase;letter-spacing:2px;">Détails de la commande</span>
+                                    </td>
+                                </tr>
+                                <tr style="background:#fafbff;">
+                                    <td style="padding:13px 20px;font-size:13px;color:#8d9bb5;border-bottom:1px solid #ebebf5;">Numéro de commande</td>
+                                    <td align="right" style="padding:13px 20px;font-size:13px;font-weight:800;color:#1f2235;border-bottom:1px solid #ebebf5;">#{{ commande.id }}</td>
+                                </tr>
+                                <tr style="background:#ffffff;">
+                                    <td style="padding:13px 20px;font-size:13px;color:#8d9bb5;border-bottom:1px solid #ebebf5;">Date</td>
+                                    <td align="right" style="padding:13px 20px;font-size:13px;color:#6d748b;border-bottom:1px solid #ebebf5;">
+                                        {{ commande.dateCommande ? commande.dateCommande|date('d/m/Y') : '-' }}
+                                    </td>
+                                </tr>
+                                <tr style="background:#fafbff;">
+                                    <td style="padding:13px 20px;font-size:13px;color:#8d9bb5;border-bottom:1px solid #ebebf5;">Montant</td>
+                                    <td align="right" style="padding:13px 20px;font-size:13px;font-weight:700;color:#1f2235;border-bottom:1px solid #ebebf5;">{{ commande.total }} TND</td>
+                                </tr>
+                                <tr style="background:#ffffff;">
+                                    <td style="padding:13px 20px;font-size:13px;color:#8d9bb5;">Statut</td>
+                                    <td align="right" style="padding:13px 20px;">
+                                        <span style="background:#fdecea;color:#c62828;font-size:11px;font-weight:800;padding:4px 12px;border-radius:99px;text-transform:uppercase;letter-spacing:1px;">Annulée &#10007;</span>
+                                    </td>
+                                </tr>
+                            </table>
+
+                            <!-- CAUSE D'ANNULATION — accent violet -->
+                            <table width="100%" cellpadding="0" cellspacing="0" border="0"
+                                   style="background:linear-gradient(135deg,rgba(141,79,255,0.07),rgba(250,158,27,0.04));border:1px solid rgba(141,79,255,0.2);border-radius:12px;margin-bottom:20px;">
+                                <tr>
+                                    <td style="padding:16px 20px;">
+                                        <p style="margin:0 0 6px;font-size:11px;font-weight:800;color:#8d4fff;text-transform:uppercase;letter-spacing:2px;">Motif d'annulation</p>
+                                        <p style="margin:0;font-size:14px;color:#444;line-height:1.6;font-weight:500;">
+                                            {{ cause }}
+                                        </p>
+                                    </td>
+                                </tr>
+                            </table>
+
+                            <!-- NOTE CONTACT -->
+                            <table width="100%" cellpadding="0" cellspacing="0" border="0"
+                                   style="background:linear-gradient(135deg,rgba(250,158,27,0.06),rgba(141,79,255,0.04));border-left:4px solid #fa9e1b;border-radius:0 10px 10px 0;">
+                                <tr>
+                                    <td style="padding:14px 18px;">
+                                        <p style="margin:0;font-size:13px;color:#6d748b;line-height:1.7;">
+                                            &#128172; <strong style="color:#1f2235;">Besoin d'aide ou de plus d'informations ?</strong><br>
+                                            Notre équipe reste disponible via l'application WinGo. Nous ferons notre maximum pour vous aider.
+                                        </p>
+                                    </td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+
+                    <!-- FOOTER -->
+                    <tr>
+                        <td style="background:#1f2235;border-radius:0 0 18px 18px;padding:26px 40px;text-align:center;">
+                            <p style="margin:0 0 4px;font-size:20px;font-weight:900;letter-spacing:3px;font-style:italic;">
+                                <span style="color:#fa9e1b;">Win</span><span style="color:#8d4fff;">Go</span>
+                            </p>
+                            <p style="margin:0 0 14px;font-size:11px;color:rgba(255,255,255,0.4);letter-spacing:1.5px;text-transform:uppercase;">Marketplace &amp; Livraison Tunisie</p>
+                            <p style="margin:0;font-size:11px;color:rgba(255,255,255,0.28);line-height:1.8;">
+                                Cet email a été envoyé automatiquement, merci de ne pas y répondre.<br>
+                                &#169; {{ "now"|date("Y") }} WinGo. Tous droits réservés.
+                            </p>
+                        </td>
+                    </tr>
+
+                </table>
+            </td>
+        </tr>
+    </table>
+
+</body>
+</html>

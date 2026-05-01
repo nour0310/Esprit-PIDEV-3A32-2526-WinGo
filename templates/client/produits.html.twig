@@ -1,0 +1,944 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Produits - WinGo{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <style>
+        .client_products_section {
+            padding: 190px 0 110px 0;
+            background:
+                radial-gradient(circle at top left, rgba(141,79,255,0.10), transparent 28%),
+                radial-gradient(circle at top right, rgba(250,158,27,0.10), transparent 28%),
+                linear-gradient(180deg, #eef3f8 0%, #f7f9fc 100%);
+            min-height: 100vh;
+        }
+
+        .products_hero_box_wow {
+            position: relative;
+            overflow: hidden;
+            border-radius: 34px;
+            padding: 60px 40px;
+            margin-bottom: 35px;
+            background: linear-gradient(135deg, rgba(255,255,255,0.88), rgba(255,255,255,0.68));
+            backdrop-filter: blur(18px);
+            -webkit-backdrop-filter: blur(18px);
+            box-shadow: 0 20px 60px rgba(26, 35, 80, 0.10);
+            border: 1px solid rgba(255,255,255,0.45);
+            text-align: center;
+        }
+
+        .hero_glow {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(10px);
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        .hero_glow_1 {
+            width: 280px;
+            height: 280px;
+            top: -80px;
+            left: -70px;
+            background: radial-gradient(circle, rgba(250,158,27,0.22), transparent 70%);
+        }
+
+        .hero_glow_2 {
+            width: 320px;
+            height: 320px;
+            right: -100px;
+            bottom: -120px;
+            background: radial-gradient(circle, rgba(141,79,255,0.18), transparent 70%);
+        }
+
+        .products_hero_sub,
+        .products_hero_title_wrap,
+        .products_hero_text,
+        .products_top_stats,
+        .products_hero_actions {
+            position: relative;
+            z-index: 2;
+        }
+
+        .products_hero_sub {
+            display: inline-block;
+            padding: 8px 18px;
+            border-radius: 999px;
+            font-size: 13px;
+            font-weight: 700;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            color: #fff;
+            background: linear-gradient(135deg, #fa9e1b, #8d4fff);
+            margin-bottom: 18px;
+        }
+
+        .products_hero_title_wrap {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 18px;
+            flex-wrap: wrap;
+            margin-bottom: 12px;
+        }
+
+        .products_hero_title {
+            font-size: 58px;
+            font-weight: 900;
+            line-height: 1;
+            margin: 0;
+            background: linear-gradient(135deg, #1d2140 10%, #8d4fff 58%, #fa9e1b 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .products_hero_badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 18px;
+            border-radius: 999px;
+            background: rgba(255,255,255,0.72);
+            color: #6b49d8;
+            font-size: 13px;
+            font-weight: 800;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+            border: 1px solid rgba(255,255,255,0.65);
+        }
+
+        .products_hero_text {
+            font-size: 18px;
+            color: #71758a;
+            max-width: 780px;
+            margin: 0 auto 30px auto;
+            line-height: 1.8;
+        }
+
+        .products_top_stats {
+            display: flex;
+            justify-content: center;
+            gap: 18px;
+            flex-wrap: wrap;
+        }
+
+        .wow_stat_card {
+            min-width: 170px;
+            padding: 18px 22px;
+            border-radius: 22px;
+            background: rgba(255,255,255,0.72);
+            box-shadow: 0 12px 30px rgba(0,0,0,0.05);
+            border: 1px solid rgba(255,255,255,0.55);
+        }
+
+        .products_stat_icon {
+            width: 48px;
+            height: 48px;
+            margin: 0 auto 12px auto;
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            font-size: 19px;
+            background: linear-gradient(135deg, #fa9e1b, #8d4fff);
+        }
+
+        .products_stat_num {
+            font-size: 24px;
+            font-weight: 900;
+            margin-bottom: 3px;
+            background: linear-gradient(135deg, #fa9e1b, #8d4fff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .products_stat_label {
+            font-size: 13px;
+            color: #777;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.6px;
+        }
+
+        @keyframes pulse_jeu {
+            0%, 100% { box-shadow: 0 16px 35px rgba(141,79,255,0.20), 0 0 0 0 rgba(250,158,27,0.5); }
+            50%       { box-shadow: 0 16px 35px rgba(141,79,255,0.20), 0 0 0 10px rgba(250,158,27,0); }
+        }
+
+        .products_hero_actions {
+            margin-top: 32px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+
+        .products_hero_btn_main {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            padding: 15px 28px;
+            border-radius: 999px;
+            background: linear-gradient(135deg, #fa9e1b, #8d4fff);
+            color: #fff !important;
+            font-size: 14px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.6px;
+            text-decoration: none !important;
+            box-shadow: 0 16px 35px rgba(141,79,255,0.20);
+            transition: all 0.3s ease;
+        }
+
+        .products_hero_note {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 14px 18px;
+            border-radius: 999px;
+            background: rgba(255,255,255,0.68);
+            color: #73738b;
+            font-size: 13px;
+            font-weight: 700;
+            border: 1px solid rgba(255,255,255,0.55);
+        }
+
+        .filters_box {
+            background: #fff;
+            border-radius: 26px;
+            padding: 24px;
+            box-shadow: 0 16px 38px rgba(25, 30, 70, 0.08);
+            margin-bottom: 35px;
+        }
+
+        .filters_title {
+            font-size: 22px;
+            font-weight: 800;
+            color: #1f2235;
+            margin-bottom: 18px;
+        }
+
+        .filters_form {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr) auto;
+            gap: 16px;
+            align-items: end;
+        }
+
+        .filter_group label {
+            display: block;
+            font-size: 13px;
+            font-weight: 700;
+            color: #707791;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.4px;
+        }
+
+        .filter_group input,
+        .filter_group select {
+            width: 100%;
+            height: 50px;
+            border: 1px solid #e3e7f0;
+            border-radius: 14px;
+            padding: 0 16px;
+            background: #f9fbff;
+            font-size: 14px;
+            color: #1f2235;
+            outline: none;
+        }
+
+        .filter_group input:focus,
+        .filter_group select:focus {
+            border-color: #8d4fff;
+        }
+
+        .filter_actions {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .filter_btn,
+        .reset_btn {
+            height: 50px;
+            padding: 0 20px;
+            border: none;
+            border-radius: 14px;
+            font-size: 14px;
+            font-weight: 800;
+            text-decoration: none !important;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .filter_btn {
+            color: #fff;
+            background: linear-gradient(135deg, #fa9e1b, #8d4fff);
+        }
+
+        .reset_btn {
+            color: #5f6785 !important;
+            background: #eef2f8;
+        }
+
+        .products_grid {
+            margin-top: 10px;
+        }
+
+        .product-card {
+            position: relative;
+            height: 460px;
+            border-radius: 28px;
+            overflow: hidden;
+            background: #ffffff;
+            box-shadow: 0 16px 38px rgba(25, 30, 70, 0.10);
+            transition: transform .35s ease, box-shadow .35s ease;
+        }
+
+        .product-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 24px 55px rgba(25, 30, 70, 0.16);
+        }
+
+        .product-card-image {
+            position: absolute;
+            inset: 0;
+            z-index: 1;
+            background: linear-gradient(135deg, #5d7cf3, #8d4fff);
+        }
+
+        .product-card-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .product-card-image::after {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(to top, rgba(15,15,25,0.28), rgba(15,15,25,0.04));
+        }
+
+        .product-card-placeholder {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: rgba(255,255,255,0.80);
+            font-size: 58px;
+        }
+
+        .product-card-category {
+            position: absolute;
+            top: 18px;
+            left: 18px;
+            z-index: 4;
+            padding: 9px 16px;
+            border-radius: 999px;
+            background: linear-gradient(135deg, #fa9e1b, #ff7b54);
+            color: #fff;
+            font-size: 12px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.6px;
+        }
+
+        .product-card-stock {
+            position: absolute;
+            right: 18px;
+            top: 18px;
+            z-index: 4;
+            padding: 9px 14px;
+            border-radius: 999px;
+            font-size: 12px;
+            font-weight: 800;
+            color: #fff;
+            background: linear-gradient(135deg, #43a047, #66bb6a);
+        }
+
+        .product-card-stock.stock-low {
+            background: linear-gradient(135deg, #e53935, #ff6b6b);
+            animation: clignoter 1s ease-in-out infinite;
+        }
+
+        .product-card-stock.stock-rupture {
+            background: #333;
+            opacity: 0.85;
+        }
+
+        @keyframes clignoter {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50%       { opacity: 0.6; transform: scale(0.95); }
+        }
+
+        .product-card-summary {
+            position: absolute;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            padding: 18px 22px 16px 22px;
+            z-index: 3;
+            background: linear-gradient(to top, rgba(255,255,255,0.99), rgba(255,255,255,0.92));
+            transition: opacity .28s ease, transform .28s ease;
+        }
+
+        .product-card-title {
+            font-size: 22px;
+            font-weight: 900;
+            color: #1f2235;
+            margin-bottom: 4px;
+            line-height: 1.1;
+        }
+
+        /* ── Prix affiché dynamiquement ── */
+        .product-card-price {
+            font-size: 24px;
+            font-weight: 900;
+            background: linear-gradient(135deg, #fa9e1b, #8d4fff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 4px;
+            min-height: 32px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: opacity .2s;
+        }
+
+        .product-card-price.loading {
+            opacity: .45;
+        }
+
+        /* Spinner par carte */
+        .prix-spinner {
+            display: none;
+            width: 16px;
+            height: 16px;
+            border: 2px solid #8d4fff;
+            border-top-color: transparent;
+            border-radius: 50%;
+            animation: wingo-spin .65s linear infinite;
+            flex-shrink: 0;
+        }
+
+        .prix-spinner.show {
+            display: inline-block;
+        }
+
+        @keyframes wingo-spin { to { transform: rotate(360deg); } }
+
+        /* ── Switcher global de devises (dans filters_box) ── */
+        .currency-global-bar {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding-top: 18px;
+            margin-top: 18px;
+            border-top: 1px solid #eef0f6;
+            flex-wrap: wrap;
+        }
+
+        .currency-global-bar .currency-label {
+            font-size: 13px;
+            font-weight: 700;
+            color: #707791;
+            text-transform: uppercase;
+            letter-spacing: 0.4px;
+            white-space: nowrap;
+        }
+
+        .currency-global-bar .btn-devise {
+            padding: 8px 18px;
+            border: 1.5px solid #e3e7f0;
+            border-radius: 999px;
+            background: #f9fbff;
+            color: #707791;
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+            letter-spacing: 0.3px;
+            transition: all .18s ease;
+            line-height: 1.6;
+        }
+
+        .currency-global-bar .btn-devise:hover {
+            border-color: #8d4fff;
+            color: #8d4fff;
+            background: #f3eeff;
+        }
+
+        .currency-global-bar .btn-devise.active {
+            background: linear-gradient(135deg, #fa9e1b, #8d4fff);
+            border-color: transparent;
+            color: #fff;
+            box-shadow: 0 3px 10px rgba(141,79,255,0.30);
+        }
+
+        /* Spinner global */
+        .currency-global-spinner {
+            display: none;
+            width: 18px;
+            height: 18px;
+            border: 2px solid #8d4fff;
+            border-top-color: transparent;
+            border-radius: 50%;
+            animation: wingo-spin .65s linear infinite;
+        }
+
+        .currency-global-spinner.show {
+            display: inline-block;
+        }
+
+        .product-card-region {
+            color: #7b8095;
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .product-card-date {
+            color: #9398ac;
+            font-size: 12px;
+            font-weight: 600;
+            margin-top: 2px;
+        }
+
+        .product-card-overlay {
+            position: absolute;
+            inset: 0;
+            z-index: 6;
+            background: rgba(25, 18, 45, 0.45);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transition: opacity .30s ease;
+        }
+
+        .product-card:hover .product-card-overlay {
+            opacity: 1;
+        }
+
+        .product-card:hover .product-card-summary {
+            opacity: .15;
+            transform: scale(.98);
+        }
+
+        .product-card-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            padding: 14px 24px;
+            border-radius: 999px;
+            background: linear-gradient(135deg, #fa9e1b, #8d4fff);
+            color: #fff !important;
+            text-decoration: none !important;
+            font-size: 14px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.6px;
+            box-shadow: 0 10px 25px rgba(141,79,255,0.22);
+            transform: translateY(10px) scale(.95);
+            transition: transform .30s ease, opacity .30s ease;
+        }
+
+        .product-card:hover .product-card-btn {
+            transform: translateY(0) scale(1);
+        }
+
+        .client_empty_state {
+            text-align: center;
+            padding: 70px 20px;
+            border-radius: 24px;
+            background: rgba(255,255,255,0.9);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.08);
+            color: #888;
+            font-size: 18px;
+        }
+
+        .pagination_wrap {
+            margin-top: 35px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .pagination {
+            gap: 8px;
+        }
+
+        .pagination .page-link {
+            border: none;
+            border-radius: 12px;
+            color: #5f6785;
+            padding: 10px 16px;
+            font-weight: 700;
+            box-shadow: 0 6px 16px rgba(25, 30, 70, 0.08);
+        }
+
+        .pagination .active .page-link {
+            background: linear-gradient(135deg, #fa9e1b, #8d4fff);
+            color: #fff;
+        }
+
+        @media (max-width: 991px) {
+            .client_products_section { padding-top: 160px; }
+            .products_hero_box_wow   { padding: 45px 22px; }
+            .products_hero_title     { font-size: 42px; }
+            .products_hero_text      { font-size: 16px; }
+            .wow_stat_card           { min-width: 140px; }
+            .filters_form            { grid-template-columns: 1fr; }
+            .product-card            { height: 460px; }
+            .product-card-overlay    { opacity: 1; background: rgba(25, 18, 45, 0.28); }
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+    <div class="client_products_section">
+        <div class="container">
+
+            {# ── Hero ──────────────────────────────────────────────── #}
+            <div class="products_hero_box_wow">
+                <div class="hero_glow hero_glow_1"></div>
+                <div class="hero_glow hero_glow_2"></div>
+
+                <div class="products_hero_sub">Collection Signature</div>
+
+                <div class="products_hero_title_wrap">
+                    <h1 class="products_hero_title">Boutique WinGo</h1>
+                    <div class="products_hero_badge">
+                        <i class="fa fa-diamond"></i> Sélection Premium
+                    </div>
+                </div>
+
+                <p class="products_hero_text">
+                    Bonjour, <strong>{{ app.user.fullName }}</strong>.
+                    Cliquez sur une devise pour convertir le prix de chaque produit.
+                </p>
+
+                <div class="products_top_stats">
+                    <div class="wow_stat_card">
+                        <div class="products_stat_icon"><i class="fa fa-shopping-bag"></i></div>
+                        <div class="products_stat_num">{{ produits.getTotalItemCount }}</div>
+                        <div class="products_stat_label">Produits</div>
+                    </div>
+                    <div class="wow_stat_card">
+                        <div class="products_stat_icon"><i class="fa fa-calendar"></i></div>
+                        <div class="products_stat_num">{{ (selectedSort|default('')) == 'recent' ? 'Récent' : 'Liste' }}</div>
+                        <div class="products_stat_label">Tri actif</div>
+                    </div>
+                    <div class="wow_stat_card">
+                        <div class="products_stat_icon"><i class="fa fa-layer-group"></i></div>
+                        <div class="products_stat_num">{{ produits|length }}</div>
+                        <div class="products_stat_label">Cette page</div>
+                    </div>
+                </div>
+
+                <div class="products_hero_actions">
+                    <a href="#products-grid" class="products_hero_btn_main">
+                        Voir les produits <i class="fa fa-arrow-right"></i>
+                    </a>
+                    <a href="{{ path('app_panier') }}" class="products_hero_btn_main" style="background: linear-gradient(135deg, #5d7cf3, #8d4fff);">
+                        Voir panier <i class="fa fa-shopping-cart"></i>
+                    </a>
+
+                    {% if app.user.type == 'COMMERCANT' %}
+                        <a href="{{ path('produit_add') }}" class="products_hero_btn_main" style="background: linear-gradient(135deg, #ff9800, #ff5e62);">
+                            Ajouter produit <i class="fa fa-plus"></i>
+                        </a>
+                        <a href="{{ path('merchant_dashboard') }}" class="products_hero_btn_main" style="background: linear-gradient(135deg, #11998e, #38ef7d);">
+                            Dashboard commerçant <i class="fa fa-dashboard"></i>
+                        </a>
+                    {% elseif app.user.type == 'EN_ATTENTE_COMMERCANT' %}
+                        <div class="products_hero_note">
+                            <i class="fa fa-clock-o"></i> Demande en attente
+                        </div>
+                    {% else %}
+                        <a href="{{ path('devenir_commercant') }}" class="products_hero_btn_main" style="background: linear-gradient(135deg, #16a085, #2ecc71);">
+                            Devenir commerçant <i class="fa fa-briefcase"></i>
+                        </a>
+                    {% endif %}
+
+                    <a href="{{ path('jeu_index') }}" class="products_hero_btn_main"
+                       style="background: linear-gradient(135deg, #fa9e1b, #8d4fff); animation: pulse_jeu 2s infinite;">
+                        🎮 Tente ta chance <i class="fa fa-star"></i>
+                    </a>
+
+                    <div class="products_hero_note">
+                        <i class="fa fa-diamond"></i> Espace client
+                    </div>
+                </div>
+            </div>
+
+            {# ── Filtres + switcher global ─────────────────────────── #}
+            <div class="filters_box">
+                <h2 class="filters_title">Recherche, filtres et tri des produits</h2>
+
+                <form method="get" action="{{ path('client_produits') }}" class="filters_form">
+                    <div class="filter_group">
+                        <label for="q">Recherche</label>
+                        <input type="text" id="q" name="q"
+                               placeholder="Nom du produit..."
+                               value="{{ searchTerm|default('') }}">
+                    </div>
+
+                    <div class="filter_group">
+                        <label for="categorie">Catégorie</label>
+                        <select id="categorie" name="categorie">
+                            <option value="">Toutes les catégories</option>
+                            <option value="Artisanat"   {{ (selectedCategorie|default('')) == 'Artisanat'   ? 'selected' : '' }}>Artisanat</option>
+                            <option value="Gastronomie" {{ (selectedCategorie|default('')) == 'Gastronomie' ? 'selected' : '' }}>Gastronomie</option>
+                            <option value="Textile"     {{ (selectedCategorie|default('')) == 'Textile'     ? 'selected' : '' }}>Textile</option>
+                            <option value="Bijoux"      {{ (selectedCategorie|default('')) == 'Bijoux'      ? 'selected' : '' }}>Bijoux</option>
+                            <option value="Art"         {{ (selectedCategorie|default('')) == 'Art'         ? 'selected' : '' }}>Art</option>
+                            <option value="Souvenirs"   {{ (selectedCategorie|default('')) == 'Souvenirs'   ? 'selected' : '' }}>Souvenirs</option>
+                        </select>
+                    </div>
+
+                    <div class="filter_group">
+                        <label for="region">Région</label>
+                        <select id="region" name="region">
+                            <option value="">Toutes les régions</option>
+                            <option value="Tunis"       {{ (selectedRegion|default('')) == 'Tunis'       ? 'selected' : '' }}>Tunis</option>
+                            <option value="Ariana"      {{ (selectedRegion|default('')) == 'Ariana'      ? 'selected' : '' }}>Ariana</option>
+                            <option value="Ben Arous"   {{ (selectedRegion|default('')) == 'Ben Arous'   ? 'selected' : '' }}>Ben Arous</option>
+                            <option value="Manouba"     {{ (selectedRegion|default('')) == 'Manouba'     ? 'selected' : '' }}>Manouba</option>
+                            <option value="Nabeul"      {{ (selectedRegion|default('')) == 'Nabeul'      ? 'selected' : '' }}>Nabeul</option>
+                            <option value="Zaghouan"    {{ (selectedRegion|default('')) == 'Zaghouan'    ? 'selected' : '' }}>Zaghouan</option>
+                            <option value="Bizerte"     {{ (selectedRegion|default('')) == 'Bizerte'     ? 'selected' : '' }}>Bizerte</option>
+                            <option value="Béja"        {{ (selectedRegion|default('')) == 'Béja'        ? 'selected' : '' }}>Béja</option>
+                            <option value="Jendouba"    {{ (selectedRegion|default('')) == 'Jendouba'    ? 'selected' : '' }}>Jendouba</option>
+                            <option value="Le Kef"      {{ (selectedRegion|default('')) == 'Le Kef'      ? 'selected' : '' }}>Le Kef</option>
+                            <option value="Siliana"     {{ (selectedRegion|default('')) == 'Siliana'     ? 'selected' : '' }}>Siliana</option>
+                            <option value="Sousse"      {{ (selectedRegion|default('')) == 'Sousse'      ? 'selected' : '' }}>Sousse</option>
+                            <option value="Monastir"    {{ (selectedRegion|default('')) == 'Monastir'    ? 'selected' : '' }}>Monastir</option>
+                            <option value="Mahdia"      {{ (selectedRegion|default('')) == 'Mahdia'      ? 'selected' : '' }}>Mahdia</option>
+                            <option value="Sfax"        {{ (selectedRegion|default('')) == 'Sfax'        ? 'selected' : '' }}>Sfax</option>
+                            <option value="Kairouan"    {{ (selectedRegion|default('')) == 'Kairouan'    ? 'selected' : '' }}>Kairouan</option>
+                            <option value="Kasserine"   {{ (selectedRegion|default('')) == 'Kasserine'   ? 'selected' : '' }}>Kasserine</option>
+                            <option value="Sidi Bouzid" {{ (selectedRegion|default('')) == 'Sidi Bouzid' ? 'selected' : '' }}>Sidi Bouzid</option>
+                            <option value="Gabès"       {{ (selectedRegion|default('')) == 'Gabès'       ? 'selected' : '' }}>Gabès</option>
+                            <option value="Médenine"    {{ (selectedRegion|default('')) == 'Médenine'    ? 'selected' : '' }}>Médenine</option>
+                            <option value="Tataouine"   {{ (selectedRegion|default('')) == 'Tataouine'   ? 'selected' : '' }}>Tataouine</option>
+                            <option value="Gafsa"       {{ (selectedRegion|default('')) == 'Gafsa'       ? 'selected' : '' }}>Gafsa</option>
+                            <option value="Tozeur"      {{ (selectedRegion|default('')) == 'Tozeur'      ? 'selected' : '' }}>Tozeur</option>
+                            <option value="Kébili"      {{ (selectedRegion|default('')) == 'Kébili'      ? 'selected' : '' }}>Kébili</option>
+                        </select>
+                    </div>
+
+                    <div class="filter_group">
+                        <label for="sort">Tri</label>
+                        <select id="sort" name="sort">
+                            <option value="">Par défaut</option>
+                            <option value="recent" {{ (selectedSort|default('')) == 'recent' ? 'selected' : '' }}>Date ajout récente</option>
+                            <option value="ancien" {{ (selectedSort|default('')) == 'ancien' ? 'selected' : '' }}>Date ajout ancienne</option>
+                        </select>
+                    </div>
+
+                    <div class="filter_actions">
+                        <button type="submit" class="filter_btn">Appliquer</button>
+                        <a href="{{ path('client_produits') }}" class="reset_btn">Réinitialiser</a>
+                    </div>
+                </form>
+
+                {#
+                    ── Switcher global de devises ──────────────────────
+                    Placé ici (hors carte produit) pour être toujours
+                    cliquable, sans conflit avec l'overlay au survol.
+                    data-convert-url : URL générée par Symfony path(),
+                    jamais écrite en dur dans le JS.
+                #}
+                <div class="currency-global-bar"
+data-convert-url="{{ path('api_currency_convert', {id: 0, currency: 'TND'}) }}"
+                    <span class="currency-label">
+                        <i class="fa fa-exchange"></i> Devise :
+                    </span>
+                    {% for code, info in currencies %}
+                        <button
+                            class="btn-devise {% if code == 'TND' %}active{% endif %}"
+                            data-currency="{{ code }}"
+                            onclick="convertTousLesPrix('{{ code }}', this)"
+                            title="{{ info.label }}"
+                            type="button"
+                        >
+                            {{ info.flag }} {{ code }}
+                        </button>
+                    {% endfor %}
+                    <span class="currency-global-spinner" id="global-spinner"></span>
+                </div>
+
+            </div>
+
+            {% if searchTerm is defined and searchTerm %}
+                <div style="margin-bottom: 25px; text-align: center;">
+                    <h3>Résultat de recherche : "{{ searchTerm }}"</h3>
+                </div>
+            {% endif %}
+
+            {# ── Grille produits ───────────────────────────────────── #}
+            <div class="row products_grid" id="products-grid">
+                {% for p in produits %}
+                    <div class="col-lg-4 col-md-6 mb-4">
+                        <div class="product-card">
+
+                            {# Image #}
+                            <div class="product-card-image">
+                                {% if p.image %}
+                                    <img src="{{ asset('images/' ~ p.image) }}" alt="{{ p.nom }}">
+                                {% else %}
+                                    <div class="product-card-placeholder"><i class="fa fa-shopping-bag"></i></div>
+                                {% endif %}
+                            </div>
+
+                            {# Badge catégorie #}
+                            {% if p.categorie %}
+                                <span class="product-card-category">{{ p.categorie }}</span>
+                            {% endif %}
+
+                            {# Badge stock — vert normal, rouge clignotant si <= 5, rupture si 0 #}
+                            {% if p.stock == 0 %}
+                                <span class="product-card-stock stock-rupture">Rupture</span>
+                            {% elseif p.stock <= 5 %}
+                                <span class="product-card-stock stock-low">⚠ Plus que {{ p.stock }} !</span>
+                            {% else %}
+                                <span class="product-card-stock">En stock {{ p.stock }}</span>
+                            {% endif %}
+
+                            {# Summary (visible par défaut, masqué au hover) #}
+                            <div class="product-card-summary">
+
+                                <div class="product-card-title">{{ p.nom }}</div>
+
+                                {# Prix — mis à jour dynamiquement par le switcher global #}
+                                <div class="product-card-price" id="prix-{{ p.id }}">
+                                    <span id="prix-val-{{ p.id }}">
+                                        {{ p.prix|number_format(2, '.', ' ') }} TND
+                                    </span>
+                                    <span class="prix-spinner" id="spinner-{{ p.id }}"></span>
+                                </div>
+
+                                {% if p.region %}
+                                    <div class="product-card-region">
+                                        <i class="fa fa-map-marker"></i> {{ p.region }}
+                                    </div>
+                                {% endif %}
+
+                                {% if p.dateAjout %}
+                                    <div class="product-card-date">
+                                        <i class="fa fa-calendar"></i> {{ p.dateAjout|date('d/m/Y') }}
+                                    </div>
+                                {% endif %}
+
+                            </div>
+
+                            {# Overlay survol → bouton détail #}
+                            <div class="product-card-overlay">
+                                <a href="{{ path('produit_details', {'id': p.id}) }}" class="product-card-btn">
+                                    Explorer <i class="fa fa-arrow-right"></i>
+                                </a>
+                            </div>
+
+                        </div>
+                    </div>
+                {% else %}
+                    <div class="col-12">
+                        <div class="client_empty_state">
+                            <i class="fa fa-shopping-bag"></i><br><br>
+                            Aucun produit trouvé avec les filtres choisis.
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+
+            <div class="pagination_wrap">
+                {{ knp_pagination_render(produits) }}
+            </div>
+
+        </div>
+    </div>
+{% endblock %}
+
+{% block javascripts %}
+{{ parent() }}
+<script>
+    /**
+     * Convertit TOUS les prix de la page vers la devise choisie.
+     * ✅ Les IDs sont lus depuis le DOM (pas depuis Twig).
+     * ✅ L'URL est lue depuis data-convert-url (Symfony path(), pas hardcodée).
+     *
+     * @param {string}      currency - Code devise (TND, USD, EUR, SAR)
+     * @param {HTMLElement} btn      - Bouton global cliqué
+     */
+    async function convertTousLesPrix(currency, btn) {
+        // Marquer le bouton actif
+        document.querySelectorAll('.currency-global-bar .btn-devise')
+                .forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+
+        // Spinner global
+        const globalSpinner = document.getElementById('global-spinner');
+        globalSpinner.classList.add('show');
+
+        // ✅ IDs lus depuis le DOM, pas depuis une variable Twig
+        const produitIds = Array.from(
+            document.querySelectorAll('[id^="prix-val-"]')
+        ).map(el => el.id.replace('prix-val-', ''));
+
+        // Lancer toutes les conversions en parallèle
+        await Promise.all(produitIds.map(id => convertPrix(id, currency)));
+
+        globalSpinner.classList.remove('show');
+    }
+
+    /**
+     * Convertit le prix d'UN produit via l'API Symfony.
+     * ✅ URL construite depuis data-convert-url (généré par path()), jamais hardcodée.
+     *
+     * @param {string} produitId - ID du produit
+     * @param {string} currency  - Code devise (TND, USD, EUR, SAR)
+     */
+    async function convertPrix(produitId, currency) {
+        const valEl     = document.getElementById('prix-val-' + produitId);
+        const spinnerEl = document.getElementById('spinner-'  + produitId);
+        const prixEl    = document.getElementById('prix-'     + produitId);
+
+        if (!valEl || !prixEl) return;
+
+        prixEl.classList.add('loading');
+        spinnerEl.classList.add('show');
+        valEl.textContent = '...';
+
+        try {
+            // ✅ URL lue depuis data-convert-url (Symfony path()), jamais écrite en dur
+            const urlTemplate = document.querySelector('.currency-global-bar').dataset.convertUrl;
+            const url = urlTemplate
+                .replace('/0/',  '/' + produitId + '/')
+    .replace('/TND', '/' + currency);
+
+            const response = await fetch(url, {
+                headers: { 'Accept': 'application/json' }
+            });
+
+            const data = await response.json();
+
+            if (!response.ok || !data.success) {
+                throw new Error(data.message ?? 'Erreur inconnue');
+            }
+
+            valEl.textContent = data.prix_converti.toFixed(2) + ' ' + data.symbole;
+
+        } catch (error) {
+            valEl.textContent = '⚠ Erreur';
+            console.error('[WinGo Currency]', error.message);
+        } finally {
+            prixEl.classList.remove('loading');
+            spinnerEl.classList.remove('show');
+        }
+    }
+</script>
+{% endblock %}

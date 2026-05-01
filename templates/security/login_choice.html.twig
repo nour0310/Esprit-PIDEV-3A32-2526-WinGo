@@ -1,0 +1,201 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Sélection de l'Espace - WinGo{% endblock %}
+
+{% block stylesheets %}
+<style>
+    .choice_section {
+        min-height: 100vh;
+        background: radial-gradient(circle at 10% 20%, rgba(26, 26, 46, 1) 0%, rgba(15, 52, 96, 1) 90.2%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 120px 20px 60px;
+        position: relative;
+        overflow: hidden;
+    }
+
+    /* Floating blobs for premium background effect */
+    .blob {
+        position: absolute;
+        width: 400px;
+        height: 400px;
+        background: linear-gradient(135deg, rgba(141, 79, 255, 0.2), rgba(250, 158, 27, 0.2));
+        border-radius: 50%;
+        filter: blur(80px);
+        z-index: 1;
+        animation: float 20s infinite alternate;
+    }
+    .blob_1 { top: -10%; left: -10%; }
+    .blob_2 { bottom: -10%; right: -10%; animation-delay: -10s; }
+
+    @keyframes float {
+        0% { transform: translate(0, 0) scale(1); }
+        100% { transform: translate(50px, 50px) scale(1.1); }
+    }
+
+    .choice_container {
+        position: relative;
+        z-index: 10;
+        width: 100%;
+        max-width: 1200px;
+        text-align: center;
+    }
+
+    .choice_header { margin-bottom: 60px; }
+    .choice_title { 
+        font-size: 48px; 
+        font-weight: 900; 
+        color: #fff; 
+        margin-bottom: 15px;
+        letter-spacing: -1px;
+    }
+    .choice_subtitle { 
+        font-size: 18px; 
+        color: rgba(255, 255, 255, 0.7); 
+        max-width: 600px; 
+        margin: 0 auto;
+    }
+
+    .choice_grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+        gap: 30px;
+        margin-top: 50px;
+    }
+
+    .choice_card {
+        background: rgba(255, 255, 255, 0.05);
+        backdrop-filter: blur(20px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 30px;
+        padding: 50px 35px;
+        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-decoration: none !important;
+        color: #fff !important;
+    }
+
+    .choice_card:hover {
+        transform: translateY(-15px);
+        background: rgba(255, 255, 255, 0.08);
+        border-color: rgba(255, 255, 255, 0.3);
+        box-shadow: 0 25px 50px rgba(0,0,0,0.3);
+    }
+
+    .avatar_wrapper {
+        width: 110px;
+        height: 110px;
+        background: #fff;
+        border-radius: 50%;
+        padding: 5px;
+        margin-bottom: 25px;
+        box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+        position: relative;
+    }
+
+    .avatar_wrapper img { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; }
+
+    .role_badge {
+        position: absolute;
+        bottom: 0;
+        right: 0;
+        width: 32px;
+        height: 32px;
+        background: #fa9e1b;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border: 3px solid #fff;
+        font-size: 14px;
+        color: #fff;
+    }
+
+    .card_title { font-size: 24px; font-weight: 800; margin-bottom: 12px; }
+    .card_desc { font-size: 14px; color: rgba(255, 255, 255, 0.6); line-height: 1.6; margin-bottom: 30px; }
+
+    .btn_action {
+        width: 100%;
+        padding: 14px 0;
+        border-radius: 15px;
+        font-weight: 700;
+        font-size: 14px;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        transition: all 0.3s;
+        text-align: center;
+        background: linear-gradient(135deg, #fa9e1b, #8d4fff);
+        color: #fff;
+        border: none;
+    }
+
+    .choice_card:hover .btn_action { transform: scale(1.02); filter: brightness(1.1); }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="choice_section">
+    <div class="blob blob_1"></div>
+    <div class="blob blob_2"></div>
+
+    <div class="choice_container">
+        <div class="choice_header">
+            <h1 class="choice_title">Ravi de vous revoir, {{ app.user.prenom }} !</h1>
+            <p class="choice_subtitle">Quelle partie de l'expérience WinGo souhaitez-vous explorer aujourd'hui ?</p>
+        </div>
+
+        <div class="choice_grid">
+            <!-- FRONT OFFICE -->
+            <a href="{{ path('home') }}" class="choice_card">
+                <div class="avatar_wrapper">
+                    <img src="https://api.dicebear.com/8.x/avataaars/svg?seed={{ app.user.email }}&mood=happy" alt="Client">
+                    <div class="role_badge" style="background: #2ecc71;"><i class="fa fa-shopping-cart"></i></div>
+                </div>
+                <h2 class="card_title">Espace Client</h2>
+                <p class="card_desc">Découvrez nos services, réservez vos activités et profitez des offres exclusives WinGo.</p>
+                <div class="btn_action">Explorer le site</div>
+            </a>
+
+            <!-- BACK OFFICE (ADMIN) -->
+            {% if is_granted('ROLE_ADMIN') %}
+                <a href="{{ path('admin_dashboard') }}" class="choice_card">
+                    <div class="avatar_wrapper">
+                        <img src="https://api.dicebear.com/8.x/avataaars/svg?seed=admin-{{ app.user.email }}&accessories=eyepatch" alt="Admin">
+                        <div class="role_badge" style="background: #e74c3c;"><i class="fa fa-shield"></i></div>
+                    </div>
+                    <h2 class="card_title">Administration</h2>
+                    <p class="card_desc">Gérez les comptes clients, supervisez les transactions et contrôlez toute la plateforme.</p>
+                    <div class="btn_action" style="background: linear-gradient(135deg, #1a1a2e, #0f3460);">Administrer</div>
+                </a>
+            {% endif %}
+
+            <!-- MERCHANT SPACE -->
+            {% if is_granted('ROLE_COMMERCANT') %}
+                <a href="{{ path('merchant_dashboard') }}" class="choice_card">
+                    <div class="avatar_wrapper">
+                        <img src="https://api.dicebear.com/8.x/avataaars/svg?seed=merchant-{{ app.user.email }}&top=hat" alt="Merchant">
+                        <div class="role_badge" style="background: #3498db;"><i class="fa fa-briefcase"></i></div>
+                    </div>
+                    <h2 class="card_title">Ma Boutique</h2>
+                    <p class="card_desc">Suivez vos ventes, gérez vos produits et communiquez avec vos clients en temps réel.</p>
+                    <div class="btn_action" style="background: linear-gradient(135deg, #fa9e1b, #f39c12);">Gérer ma boutique</div>
+                </a>
+            {% endif %}
+
+            <!-- PROFILE -->
+            <a href="{{ path('app_profile') }}" class="choice_card">
+                <div class="avatar_wrapper">
+                    <img src="{{ app.user.avatarUrl }}" alt="Mon Profil">
+                    <div class="role_badge" style="background: #9b59b6;"><i class="fa fa-user"></i></div>
+                </div>
+                <h2 class="card_title">Mon Profil</h2>
+                <p class="card_desc">Mettez à jour vos informations, changez votre photo et gérez vos paramètres de sécurité.</p>
+                <div class="btn_action" style="background: rgba(255,255,255,0.1); border: 2px solid rgba(255,255,255,0.2);">Mon Compte</div>
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,104 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ event.title }} - Details{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row">
+        <div class="col-md-8">
+            <h1>{{ event.title }}</h1>
+            <p>{{ event.description }}</p>
+            <p><i class="fa fa-calendar"></i> {{ event.date_event|date('d/m/Y') }} at {{ event.start_time }}</p>
+            <p><i class="fa fa-map-marker"></i> {{ event.location }}</p>
+            <p><i class="fa fa-tag"></i> {{ event.event_type }} · {{ event.season }}</p>
+            <p><strong>Price:</strong> {{ event.price == 0 ? 'Free' : '$' ~ event.price }}</p>
+            <p><strong>Seats left:</strong> {{ event.available_places }}</p>
+            
+            <div class="mt-3">
+                <a href="{{ path('event_front') }}" class="btn btn-secondary">← Back to events</a>
+                
+                {# Chat button for participants #}
+              {% if userParticipated and not event.isPassed %}
+    <a href="{{ path('event_chat', {id: event.id_event}) }}" class="btn btn-success mt-3">
+        <i class="fa fa-comments"></i> Join Group Chat
+    </a>
+{% endif %}
+            </div>
+        </div>
+    </div>
+
+    {# ========== DEBUG INFO (optional - remove in production) ========== #}
+    <div class="alert alert-info mt-3">
+        <strong>🔍 Debug Info:</strong><br>
+        Event date: {{ event.date_event|date('Y-m-d') }}<br>
+        Today: {{ "now"|date('Y-m-d') }}<br>
+        Is past? {{ event.date_event < date() ? '✅ YES' : '❌ NO' }}<br>
+        Feedbacks count: {{ event.feedbacks|length }}<br>
+        Raw feedbacks data: <pre>{{ event.feedbacks|json_encode(constant('JSON_PRETTY_PRINT')) }}</pre>
+    </div>
+
+    <hr>
+    <h3>💬 All feedbacks</h3>
+
+    {% if event.feedbacks|length > 0 %}
+        <div class="list-group mb-4">
+            {% for fb in event.feedbacks %}
+                <div class="list-group-item">
+                    <strong>{{ fb.participantName }}</strong>
+                    <span class="float-end">
+                        {% if fb.feeling == 'like' %}👍
+                        {% elseif fb.feeling == 'love' %}❤️
+                        {% elseif fb.feeling == 'haha' %}😂
+                        {% elseif fb.feeling == 'wow' %}😮
+                        {% elseif fb.feeling == 'sad' %}😢
+                        {% elseif fb.feeling == 'angry' %}😡
+                        {% endif %}
+                    </span>
+                    <br><small>{{ fb.comment|default('No comment') }}</small>
+                    <br><small class="text-muted">{{ fb.createdAt }}</small>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <p>No feedback yet. Be the first!</p>
+    {% endif %}
+
+    {# Feedback form – only for participants of past events who haven't yet submitted #}
+    {% set now = date() %}
+    {% if event.date_event < now %}
+        <div class="alert alert-secondary mt-3">
+            <strong>Form debug:</strong> userParticipated = {{ userParticipated ? 'true' : 'false' }}, alreadyLeft = {{ alreadyLeft ? 'true' : 'false' }}
+        </div>
+        {% if userParticipated and not alreadyLeft %}
+            <div class="card mt-4">
+                <div class="card-body">
+                    <h5>Leave your feedback</h5>
+                    <form method="post" action="{{ path('submit_feedback', {id: event.id_event}) }}">
+                        <div class="mb-2">
+                            <label class="form-label">How was your experience?</label>
+                            <select name="feeling" class="form-select" required>
+                                <option value="like">👍 Liked</option>
+                                <option value="love">❤️ Loved</option>
+                                <option value="haha">😂 Funny</option>
+                                <option value="wow">😮 Amazing</option>
+                                <option value="sad">😢 Disappointed</option>
+                                <option value="angry">😡 Angry</option>
+                            </select>
+                        </div>
+                        <div class="mb-2">
+                            <textarea name="comment" class="form-control" rows="2" placeholder="Your comment (optional)"></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Submit feedback</button>
+                    </form>
+                </div>
+            </div>
+        {% elseif alreadyLeft %}
+            <div class="alert alert-success mt-3">✅ You already left feedback. Thank you!</div>
+        {% elseif not userParticipated %}
+            <div class="alert alert-info mt-3">Only participants can leave feedback.</div>
+        {% endif %}
+    {% else %}
+        <div class="alert alert-secondary mt-4">📅 Feedback will be available after the event date.</div>
+    {% endif %}
+</div>
+{% endblock %}

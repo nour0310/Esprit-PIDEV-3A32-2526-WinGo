@@ -1,0 +1,107 @@
+{% extends 'admin/base_admin.html.twig' %}
+{% block title %}Commandes - Admin WinGo{% endblock %}
+{% block page_title %}Gestion des Commandes{% endblock %}
+
+{% block content %}
+<div class="data_card">
+    <div class="data_card_header">
+        <div class="data_card_title">
+            <i class="fa fa-shopping-cart" style="color:#fa9e1b"></i>
+            Commandes
+        </div>
+    </div>
+
+    {% for message in app.flashes('success') %}
+        <div style="margin:20px 24px 0;background:#eefaf0;border:1px solid #cdebd3;color:#2e7d32;padding:14px 18px;border-radius:16px;font-weight:600;">
+            {{ message }}
+        </div>
+    {% endfor %}
+
+    {% for message in app.flashes('warning') %}
+        <div style="margin:20px 24px 0;background:#fff8e1;border:1px solid #ffe082;color:#f57f17;padding:14px 18px;border-radius:16px;font-weight:600;">
+            {{ message }}
+        </div>
+    {% endfor %}
+
+    {% for message in app.flashes('error') %}
+        <div style="margin:20px 24px 0;background:#fdecea;border:1px solid #f5c6cb;color:#b71c1c;padding:14px 18px;border-radius:16px;font-weight:600;">
+            {{ message }}
+        </div>
+    {% endfor %}
+
+    <table>
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>Client</th>
+                <th>Total</th>
+                <th>Statut</th>
+                <th>Date</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for c in commandes %}
+                {# FIX : les clients sont résolus dans le contrôleur, pas ici #}
+                {% set client = clients[c.id] ?? null %}
+                <tr>
+                    <td>{{ c.id }}</td>
+                    <td>
+                        {% if client %}
+                            <strong>{{ client.fullName }}</strong><br>
+                            <small>{{ client.email }}</small>
+                        {% else %}
+                            Utilisateur #{{ c.idUser }}
+                        {% endif %}
+                    </td>
+                    <td>{{ c.total }} TND</td>
+                    <td>
+                        <span class="badge_status
+                            {% if c.status == 'livree' %}
+                                badge_done
+                            {% elseif c.status == 'annulee' %}
+                                badge_pending
+                            {% else %}
+                                badge_admin
+                            {% endif %}
+                        ">
+                            {{ c.status }}
+                        </span>
+                    </td>
+                    <td>{{ c.dateCommande ? c.dateCommande|date('d/m/Y H:i') : '-' }}</td>
+                    <td style="display:flex; gap:8px; flex-wrap:wrap;">
+                        <a href="{{ path('admin_commande_details', {'id': c.id}) }}" class="topbar_btn" style="padding:8px 14px;">
+                            Voir
+                        </a>
+
+                        {% if c.status == 'en_cours' %}
+                            {# FIX : ajout du token CSRF sur le formulaire "Livrer" #}
+                            <form method="post" action="{{ path('admin_commande_livrer', {'id': c.id}) }}">
+                                <input type="hidden" name="_token" value="{{ csrf_token('livrer_commande_' ~ c.id) }}">
+                                <button type="submit" class="topbar_btn" style="padding:8px 14px; border:none;">
+                                    Livrer
+                                </button>
+                            </form>
+
+                            {{ form_start(annulationForms[c.id], {
+                                attr: {
+                                    style: 'display:flex; gap:8px; flex-wrap:wrap; align-items:center; margin:0;'
+                                }
+                            }) }}
+                                <div style="min-width:240px;">
+                                    {{ form_widget(annulationForms[c.id].cause_annulation) }}
+                                </div>
+                                {{ form_widget(annulationForms[c.id].submit) }}
+                            {{ form_end(annulationForms[c.id]) }}
+                        {% endif %}
+                    </td>
+                </tr>
+            {% else %}
+                <tr>
+                    <td colspan="6" style="text-align:center;color:#aaa;padding:40px;">Aucune commande</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

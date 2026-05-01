@@ -1,0 +1,331 @@
+{% extends 'admin/base_admin.html.twig' %}
+
+{% block title %}Utilisateurs | WinGo Soft{% endblock %}
+{% block page_title %}Gestion des Utilisateurs{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --cute-purple: #f3e8ff;
+            --cute-purple-text: #7e22ce;
+            --cute-mint: #ecfdf5;
+            --cute-mint-text: #059669;
+            --cute-blue: #eff6ff;
+            --cute-blue-text: #1d4ed8;
+            --cute-rose: #fff1f2;
+            --cute-rose-text: #be123c;
+            --soft-white: #ffffff;
+            --bg-soft: #fbfbfe;
+            --radius: 30px;
+        }
+
+        body {
+            background-color: var(--bg-soft);
+            font-family: 'Nunito', sans-serif;
+            color: #4b5563;
+        }
+
+        /* --- Bubble Stats --- */
+        .bubble_grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 25px;
+            margin-bottom: 35px;
+        }
+
+        .bubble_card {
+            background: var(--soft-white);
+            padding: 25px;
+            border-radius: var(--radius);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.03);
+            text-align: center;
+            border: 4px solid transparent;
+            transition: all 0.3s ease;
+        }
+
+        .bubble_card:hover {
+            transform: translateY(-8px);
+            border-color: var(--cute-purple);
+        }
+
+        .bubble_icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            margin: 0 auto 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+        }
+
+        .b_total { background: var(--cute-blue); color: var(--cute-blue-text); }
+        .b_admin { background: var(--cute-purple); color: var(--cute-purple-text); }
+        .b_rel { background: var(--cute-mint); color: var(--cute-mint-text); }
+
+        .stat_big { font-size: 28px; font-weight: 800; margin-bottom: 5px; }
+        .stat_small { font-size: 14px; color: #9ca3af; font-weight: 600; }
+
+        /* --- Soft Control Center --- */
+        .soft_controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .search_capsule {
+            background: #fff;
+            padding: 10px 20px;
+            border-radius: 50px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.02);
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            flex-grow: 1;
+            max-width: 450px;
+            border: 2px solid #f1f5f9;
+        }
+
+        .search_capsule input {
+            border: none;
+            outline: none;
+            width: 100%;
+            font-size: 15px;
+            font-weight: 600;
+            color: #4b5563;
+        }
+
+        .btn_round {
+            padding: 12px 25px;
+            border-radius: 50px;
+            font-weight: 700;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: none;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            text-decoration: none;
+        }
+
+        .btn_add_soft { background: #8b5cf6; color: #fff; box-shadow: 0 10px 20px rgba(139, 92, 246, 0.2); }
+        .btn_add_soft:hover { transform: scale(1.05); background: #7c3aed; }
+
+        .btn_reset_soft { background: #f1f5f9; color: #64748b; }
+        .btn_reset_soft:hover { background: #e2e8f0; }
+
+        /* --- Cute List --- */
+        .user_capsule {
+            background: #fff;
+            margin-bottom: 20px;
+            padding: 20px 30px;
+            border-radius: var(--radius);
+            display: grid;
+            grid-template-columns: 70px 2fr 1.5fr 1fr 1fr 100px;
+            align-items: center;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.02);
+            border: 2px solid transparent;
+            transition: all 0.3s;
+        }
+
+        .user_capsule:hover {
+            transform: translateX(10px);
+            border-color: var(--cute-purple);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.05);
+        }
+
+        .profile_circle {
+            width: 55px;
+            height: 55px;
+            border-radius: 50%;
+            background: var(--cute-purple);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--cute-purple-text);
+            font-weight: 800;
+            font-size: 20px;
+            border: 3px solid #fff;
+            box-shadow: 0 5px 10px rgba(0,0,0,0.05);
+            overflow: hidden;
+        }
+
+        .profile_circle img { width: 100%; height: 100%; object-fit: cover; }
+
+        .name_tag h4 { margin: 0; font-size: 17px; font-weight: 800; color: #1f2937; }
+        .name_tag span { font-size: 13px; color: #9ca3af; font-weight: 600; }
+
+        .type_pill {
+            padding: 6px 15px;
+            border-radius: 50px;
+            font-size: 12px;
+            font-weight: 800;
+            display: inline-block;
+        }
+
+        .tp_admin { background: var(--cute-rose); color: var(--cute-rose-text); }
+        .tp_merchant { background: #fffbeb; color: #d97706; }
+        .tp_client { background: var(--cute-mint); color: var(--cute-mint-text); }
+
+        .rel_dots {
+            display: flex;
+            gap: 4px;
+            margin-top: 5px;
+        }
+
+        .dot { width: 8px; height: 8px; border-radius: 50%; background: #e5e7eb; }
+        .dot_active { background: #8b5cf6; }
+
+        .capsule_actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+        }
+
+        .soft_icon_btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            transition: all 0.2s;
+            border: none;
+            cursor: pointer;
+            text-decoration: none;
+        }
+
+        .soft_icon_btn:hover { transform: scale(1.2) rotate(5deg); }
+
+        .si_edit { background: var(--cute-blue); color: var(--cute-blue-text); }
+        .si_del { background: var(--cute-rose); color: var(--cute-rose-text); }
+
+        .header_label {
+            font-size: 11px;
+            font-weight: 800;
+            color: #9ca3af;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            padding: 0 35px 15px;
+        }
+
+        .sort_soft { color: inherit; text-decoration: none; display: flex; align-items: center; gap: 5px; }
+
+    </style>
+{% endblock %}
+
+{% block content %}
+    <!-- Bubble Stats -->
+    <div class="bubble_grid">
+        <div class="bubble_card">
+            <div class="bubble_icon b_total"><i class="fa fa-smile"></i></div>
+            <div class="stat_big">{{ stats.total }}</div>
+            <div class="stat_small">Utilisateurs au total</div>
+        </div>
+        <div class="bubble_card">
+            <div class="bubble_icon b_admin"><i class="fa fa-star"></i></div>
+            <div class="stat_big">{{ stats.admins }}</div>
+            <div class="stat_small">Admins géniaux</div>
+        </div>
+        <div class="bubble_card">
+            <div class="bubble_icon b_rel"><i class="fa fa-heart"></i></div>
+            <div class="stat_big">{{ stats.avg_reliability }}%</div>
+            <div class="stat_small">Bonne Fiabilité</div>
+        </div>
+    </div>
+
+    <!-- Soft Controls -->
+    <div class="soft_controls">
+        <form method="get" action="{{ path('admin_users') }}" class="search_capsule">
+            <i class="fa fa-search" style="color: #8b5cf6;"></i>
+            <input type="text" name="q" id="search_nom" value="{{ q }}" placeholder="Rechercher par nom...">
+            <input type="hidden" name="sort" value="{{ current_sort }}">
+            <input type="hidden" name="direction" value="{{ current_direction }}">
+        </form>
+
+        <div style="display: flex; gap: 15px;">
+            {% if q or current_sort != 'id' %}
+                <a href="{{ path('admin_users') }}" class="btn_round btn_reset_soft">
+                    <i class="fa fa-magic"></i> Reset
+                </a>
+            {% endif %}
+            <a href="{{ path('admin_user_new') }}" class="btn_round btn_add_soft">
+                <i class="fa fa-plus"></i> Nouvel Utilisateur
+            </a>
+        </div>
+    </div>
+
+    <!-- List Headers -->
+    <div style="display: grid; grid-template-columns: 70px 2fr 1.5fr 1fr 1fr 100px;" class="header_label">
+        <div>PHOTO</div>
+        <div><a href="{{ path('admin_users', {q: q, sort: 'nom', direction: current_sort == 'nom' and current_direction == 'ASC' ? 'DESC' : 'ASC'}) }}" class="sort_soft">NOM {% if current_sort == 'nom' %}<i class="fa fa-chevron-{{ current_direction == 'ASC' ? 'up' : 'down' }}"></i>{% endif %}</a></div>
+        <div><a href="{{ path('admin_users', {q: q, sort: 'email', direction: current_sort == 'email' and current_direction == 'ASC' ? 'DESC' : 'ASC'}) }}" class="sort_soft">CONTACT {% if current_sort == 'email' %}<i class="fa fa-chevron-{{ current_direction == 'ASC' ? 'up' : 'down' }}"></i>{% endif %}</a></div>
+        <div><a href="{{ path('admin_users', {q: q, sort: 'age', direction: current_sort == 'age' and current_direction == 'ASC' ? 'DESC' : 'ASC'}) }}" class="sort_soft">ÂGE {% if current_sort == 'age' %}<i class="fa fa-chevron-{{ current_direction == 'ASC' ? 'up' : 'down' }}"></i>{% else %}<i class="fa fa-sort" style="opacity:0.3;"></i>{% endif %}</a></div>
+        <div>STATUT</div>
+        <div style="text-align: right;">AIDE</div>
+    </div>
+
+    {% for user in users %}
+        <div class="user_capsule">
+            <div class="profile_circle" style="position: relative; background: linear-gradient(135deg, #8d4fff, #fa9e1c); color: #fff;">
+                <span style="position: absolute; z-index: 1;">{{ user.initials }}</span>
+                <img src="{{ user.avatarUrl }}" 
+                     alt="{{ user.initials }}" 
+                     style="position: relative; z-index: 2; width: 100%; height: 100%; object-fit: cover; transition: opacity 0.3s;"
+                     onerror="this.style.opacity='0';">
+            </div>
+
+            <div class="name_tag">
+                <h4>{{ user.fullName }}</h4>
+                <span>{{ user.ageCategory }}</span>
+            </div>
+
+            <div class="name_tag">
+                <h4 style="font-size: 14px; font-weight: 600;">{{ user.email }}</h4>
+                <span>{{ user.telephone ?? '---' }}</span>
+            </div>
+
+            <div class="stat_big" style="font-size: 18px; color: #8b5cf6;">
+                {{ user.age ?? '?' }} <small style="font-size: 10px; font-weight: 800;">ans</small>
+            </div>
+
+            <div>
+                <span class="type_pill tp_{{ user.isAdmin ? 'admin' : (user.isCommercant ? 'merchant' : 'client') }}">
+                    {{ user.typeLabel }}
+                </span>
+                <div class="rel_dots">
+                    {% set score = user.reliabilityScore ?? 100 %}
+                    {% for i in 1..5 %}
+                        <div class="dot {{ (score / 20) >= i ? 'dot_active' : '' }}"></div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <div class="capsule_actions">
+                <a href="{{ path('admin_user_edit', {id: user.id}) }}" class="soft_icon_btn si_edit" title="Modifier">
+                    <i class="fa fa-edit"></i>
+                </a>
+                
+                <form method="post" action="{{ path('admin_user_delete', {id: user.id}) }}" onsubmit="return confirm('Supprimer ce compte ?');" style="display: inline-block;">
+                    <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ user.id) }}">
+                    <button class="soft_icon_btn si_del" title="Effacer">
+                        <i class="fa fa-trash"></i>
+                    </button>
+                </form>
+            </div>
+        </div>
+    {% else %}
+        <div style="text-align: center; padding: 60px; background: #fff; border-radius: var(--radius); border: 4px dashed #f1f5f9;">
+            <i class="fa fa-cloud" style="font-size: 50px; color: #cbd5e1; margin-bottom: 20px;"></i>
+            <p style="font-weight: 700; color: #94a3b8;">Personne ici pour le moment...</p>
+        </div>
+    {% endfor %}
+
+{% endblock %}

@@ -1,0 +1,105 @@
+{% extends 'base.html.twig' %}
+{% block title %}Modifier mon Profil - WinGo{% endblock %}
+
+{% block stylesheets %}
+<link rel="stylesheet" type="text/css" href="{{ asset('styles/main_styles.css') }}">
+<style>
+    .profile_section { min-height: 80vh; padding-top: 200px; padding-bottom: 60px; background: #f8f9fa; }
+    .profile_card { background: #fff; border-radius: 20px; box-shadow: 0 8px 30px rgba(0,0,0,0.08); overflow: hidden; }
+    .profile_header { background: linear-gradient(135deg, #1a1a2e 0%, #0f3460 100%); padding: 30px 40px; color: #fff; display: flex; align-items: center; gap: 16px; }
+    .profile_header_title { font-size: 22px; font-weight: 700; }
+    .profile_body { padding: 36px; }
+    .form_grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+    .form_group { display: flex; flex-direction: column; gap: 6px; }
+    .form_group.full { grid-column: 1 / -1; }
+    .form_label { font-size: 13px; font-weight: 600; color: #555; }
+    .form_input { padding: 13px 16px; border: 2px solid #e8e8e8; border-radius: 10px; font-size: 15px; transition: all 0.3s; outline: none; }
+    .form_input:focus { border-color: #fa9e1b; box-shadow: 0 0 0 3px rgba(250,158,27,0.1); }
+    textarea.form_input { resize: vertical; min-height: 100px; }
+    .current_photo_wrap { display: flex; align-items: center; gap: 14px; }
+    .current_photo_preview,
+    .current_photo_fallback {
+        width: 72px;
+        height: 72px;
+        border-radius: 50%;
+        overflow: hidden;
+        flex-shrink: 0;
+    }
+    .current_photo_preview { object-fit: cover; border: 2px solid #ececec; }
+    .current_photo_fallback {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        background: linear-gradient(135deg, #fa9e1b, #8d4fff);
+        color: #fff;
+        font-size: 24px;
+        font-weight: 700;
+    }
+    .form_actions { display: flex; gap: 12px; margin-top: 28px; }
+    .btn_primary { background: linear-gradient(135deg, #fa9e1b, #8d4fff); color: #fff; padding: 13px 28px; border-radius: 10px; text-decoration: none; font-weight: 600; font-size: 15px; border: none; cursor: pointer; }
+    .btn_cancel { background: #f5f5f5; color: #555; padding: 13px 28px; border-radius: 10px; text-decoration: none; font-weight: 600; font-size: 15px; border: none; cursor: pointer; }
+    @media (max-width: 600px) { .form_grid { grid-template-columns: 1fr; } .form_group.full { grid-column: 1; } }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="profile_section">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <div class="profile_card">
+                    <div class="profile_header">
+                        <a href="{{ path('app_profile') }}" style="color:rgba(255,255,255,0.7);font-size:20px;text-decoration:none;"><i class="fa fa-arrow-left"></i></a>
+                        <div class="profile_header_title">Modifier mon profil</div>
+                    </div>
+                    <div class="profile_body">
+                        <form method="post" action="{{ path('app_profile_edit') }}" enctype="multipart/form-data">
+                            <div class="form_grid">
+                                <div class="form_group full">
+                                    <label class="form_label">Photo actuelle</label>
+                                    <div class="current_photo_wrap">
+                                        {% if profil and profil.photo %}
+                                            <img src="{{ asset('uploads/photos/' ~ profil.photo) }}" alt="Photo de {{ user.fullName }}" class="current_photo_preview">
+                                        {% else %}
+                                            <div class="current_photo_fallback">{{ user.prenom|first|upper }}</div>
+                                        {% endif %}
+                                        <div style="color:#777;font-size:13px;">Ajoute une image JPG, PNG, WEBP ou GIF de 2 Mo maximum.</div>
+                                    </div>
+                                </div>
+                                <div class="form_group">
+                                    <label class="form_label">Prenom *</label>
+                                    <input class="form_input" type="text" name="prenom" value="{{ user.prenom }}" required>
+                                </div>
+                                <div class="form_group">
+                                    <label class="form_label">Nom *</label>
+                                    <input class="form_input" type="text" name="nom" value="{{ user.nom }}" required>
+                                </div>
+                                <div class="form_group">
+                                    <label class="form_label">Telephone</label>
+                                    <input class="form_input" type="number" name="telephone" value="{{ user.telephone }}">
+                                </div>
+                                <div class="form_group">
+                                    <label class="form_label">Age</label>
+                                    <input class="form_input" type="number" name="age" value="{{ user.age }}" min="1" max="120">
+                                </div>
+                                <div class="form_group full">
+                                    <label class="form_label">Bio</label>
+                                    <textarea class="form_input" name="bio">{{ profil ? profil.bio : '' }}</textarea>
+                                </div>
+                                <div class="form_group full">
+                                    <label class="form_label">Nouvelle photo</label>
+                                    <input class="form_input" type="file" name="photo" accept="image/jpeg,image/png,image/webp,image/gif">
+                                </div>
+                            </div>
+                            <div class="form_actions">
+                                <button type="submit" class="btn_primary"><i class="fa fa-save"></i> Enregistrer</button>
+                                <a href="{{ path('app_profile') }}" class="btn_cancel">Annuler</a>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,7 @@
+# config/packages/rate_limit.yaml
+rate_limit:
+    rate_limits:
+        # Limitation pour les commentaires
+        comment_submit:
+            limit: 5          # Nombre maximal de commentaires
+            period: 60        # Période en secondes (60 = 1 minute)

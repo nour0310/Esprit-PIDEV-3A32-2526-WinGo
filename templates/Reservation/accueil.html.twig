@@ -1,0 +1,141 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Explorez la Tunisie — WinGo{% endblock %}
+
+{% block stylesheets %}
+<link rel="stylesheet" type="text/css" href="{{ asset('styles/main_styles.css') }}">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+<style>
+    /* Unified Scroll & Card Styles */
+    .modern-scroll-wrapper {
+        display: flex;
+        overflow-x: auto;
+        gap: 25px;
+        padding: 20px 5px 40px 5px;
+        scroll-behavior: smooth;
+        scrollbar-width: none;
+    }
+    .modern-scroll-wrapper::-webkit-scrollbar { display: none; }
+
+    .modern-destination-card {
+        min-width: 280px;
+        background: #fff;
+        border-radius: 24px;
+        overflow: hidden;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+        transition: all 0.3s ease;
+        border: 1px solid rgba(0,0,0,0.02);
+    }
+
+    .modern-destination-card:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 15px 35px rgba(250, 158, 27, 0.15);
+    }
+
+    .state-image {
+        height: 180px;
+        width: 100%;
+        object-fit: cover;
+    }
+
+    .state-content { padding: 20px; }
+
+    .btn-like {
+        background: rgba(231, 76, 60, 0.1);
+        border: none;
+        color: #e74c3c;
+        padding: 6px 15px;
+        border-radius: 20px;
+        font-weight: bold;
+        transition: 0.2s;
+    }
+    .btn-like:hover { background: #e74c3c; color: #fff; }
+</style>
+
+<div class="container-fluid px-5">
+    
+    {# --- SECTION 1: STATES OF TUNISIA --- #}
+    <div class="mt-5">
+        <h2 class="font-weight-bold"><i class="fas fa-map-marker-alt text-orange mr-2"></i>Explorer les Gouvernorats</h2>
+        <div class="modern-scroll-wrapper">
+            {% for state in states %}
+                <div class="modern-destination-card">
+                    <img src="{{ asset('images/' ~ state.image) }}" class="state-image" onerror="this.src='{{ asset('images/sidibou.jpg') }}'">
+                    <div class="state-content">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <h4 class="font-weight-bold m-0">{{ state.name }}</h4>
+                            <span class="badge badge-warning">{{ state.season }}</span>
+                        </div>
+                        <p class="text-muted small">{{ state.desc }}</p>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="text-orange small font-weight-bold">{{ state.type }}</span>
+                            <div class="rating-small text-warning">
+                                <i class="fas fa-star"></i> {{ state.averageRating|default('5.0') }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    {# --- SECTION 2: RECENT REVIEWS --- #}
+    <div class="mt-5 pt-4 border-top">
+        <div class="d-flex justify-content-between align-items-end mb-3">
+            <h2 class="font-weight-bold"><i class="fas fa-comment-dots text-primary mr-2"></i>Avis des Voyageurs</h2>
+        </div>
+        
+        <div class="modern-scroll-wrapper">
+            {% for res in recent_reviews %}
+                <div class="modern-review-card" style="min-width: 320px; background: #fff; border-radius: 24px; padding: 24px; box-shadow: 0 10px 30px rgba(0,0,0,0.05);">
+                    <div class="d-flex justify-content-between align-items-start mb-3">
+                        <div class="d-flex align-items-center">
+                            <div class="avatar-squircle mr-3" style="width: 45px; height: 45px; background: linear-gradient(135deg, #6a1b9a, #fa9e1b); color: #fff; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-weight: 800;">
+                                {{ res.user_id.nom|slice(0, 1)|upper }}
+                            </div>
+                            <div>
+                                <span class="font-weight-bold d-block">{{ res.user_id.nom }}</span>
+                                <span class="text-muted small">{{ res.date|date('d M') }}</span>
+                            </div>
+                        </div>
+                        <span class="badge badge-light border">{{ res.exp }}</span>
+                    </div>
+
+                    <p class="comment-body mb-3" style="font-style: italic; color: #555;">"{{ res.comment|default('Expérience fantastique !') }}"</p>
+
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div class="text-warning small">
+                            {% for i in 1..5 %}<i class="{{ res.stars >= i ? 'fas' : 'far' }} fa-star"></i>{% endfor %}
+                        </div>
+                        <button class="btn-like" onclick="handleLike({{ res.id }})">
+                            <i class="far fa-heart mr-1"></i> <span id="like-count-{{ res.id }}">{{ res.likes|default(0) }}</span>
+                        </button>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block javascripts %}
+<script>
+function filterSeason(season, btn) {
+    document.querySelectorAll('.season-filter-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    const cards = document.querySelectorAll('.destination-item');
+    cards.forEach(card => {
+        card.style.opacity = '0';
+        setTimeout(() => {
+            if (card.getAttribute('data-season') === season) {
+                card.classList.remove('hidden-card');
+                card.style.opacity = '1';
+            } else {
+                card.classList.add('hidden-card');
+            }
+        }, 300);
+    });
+}
+</script>
+{% endblock %}

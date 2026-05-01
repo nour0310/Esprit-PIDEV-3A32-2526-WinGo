@@ -1,0 +1,193 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Inscription à {{ event.title }} - WinGo{% endblock %}
+
+{% block stylesheets %}
+    <style>
+        .form-container {
+            max-width: 600px;
+            margin: 80px auto;
+            background: white;
+            border-radius: 24px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.08);
+            padding: 40px;
+        }
+        .form-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 28px;
+            margin-bottom: 8px;
+        }
+        .event-name {
+            color: #fa9e1b;
+            font-weight: 600;
+            margin-bottom: 24px;
+        }
+        .info-readonly {
+            background-color: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 12px;
+            padding: 12px 16px;
+            margin-bottom: 16px;
+        }
+        .info-readonly label {
+            font-size: 11px;
+            text-transform: uppercase;
+            font-weight: 700;
+            color: #6c757d;
+            display: block;
+            margin-bottom: 4px;
+        }
+        .info-readonly .value {
+            font-weight: 500;
+            color: #1a1a2e;
+        }
+        .price-preview {
+            background: #f0f4ff;
+            border-radius: 12px;
+            padding: 15px 20px;
+            margin: 20px 0;
+            text-align: center;
+            border-left: 4px solid #fa9e1b;
+        }
+        .price-preview .total-price {
+            font-size: 28px;
+            font-weight: 800;
+            color: #1a1a2e;
+            font-family: 'Playfair Display', serif;
+        }
+        .price-preview .unit-price {
+            font-size: 14px;
+            color: #6c757d;
+        }
+        .discount-badge {
+            background: #e74c3c;
+            color: white;
+            padding: 2px 8px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: bold;
+            margin-left: 10px;
+        }
+        .alert-info {
+            background: #e7f3ff;
+            border: 1px solid #b8daff;
+            color: #004085;
+            border-radius: 12px;
+            padding: 12px 16px;
+            font-size: 13px;
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="form-container">
+        <h1 class="form-title">✨ Participez à l'événement</h1>
+        <div class="event-name">{{ event.title }}</div>
+
+        {% for message in app.flashes('error') %}
+            <div class="alert alert-danger">{{ message }}</div>
+        {% endfor %}
+
+        <form method="post" id="participationForm" novalidate>
+            <div class="info-readonly">
+                <label>Nom</label>
+                <div class="value">{{ user.nom }}</div>
+                <input type="hidden" name="nom_participant" value="{{ user.nom }}">
+            </div>
+            <div class="info-readonly">
+                <label>Prénom</label>
+                <div class="value">{{ user.prenom }}</div>
+                <input type="hidden" name="prenom_participant" value="{{ user.prenom }}">
+            </div>
+            <div class="info-readonly">
+                <label>Email</label>
+                <div class="value">{{ user.email }}</div>
+                <input type="hidden" name="email_participant" value="{{ user.email }}">
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">📞 Téléphone *</label>
+                <input type="tel" name="telephone" class="form-control" placeholder="+216 XX XXX XXX" required>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">🎟️ Nombre de places (max {{ event.available_places }})</label>
+                <input type="number" name="nombre_places" id="nombre_places" class="form-control" 
+                       min="1" max="{{ event.available_places }}" value="1" required>
+                <small class="text-muted">Places encore disponibles : {{ event.available_places }}</small>
+            </div>
+
+            {# Affichage dynamique du prix total avec réduction #}
+            {% set unitPrice = discounted_price is defined ? discounted_price : event.price %}
+            <div class="price-preview">
+                <div class="unit-price">
+                    {% if original_price is defined and discount_active and original_price > 0 %}
+                        <span style="text-decoration: line-through;">{{ original_price|number_format(2) }} €</span>
+                        <span class="discount-badge">-20%</span>
+                    {% endif %}
+                    <br>
+                    <strong>Prix unitaire :</strong> 
+                    {% if unitPrice > 0 %}
+                        {{ unitPrice|number_format(2) }} €
+                    {% else %}
+                        Gratuit
+                    {% endif %}
+                </div>
+                <div class="total-price" id="totalPriceDisplay">
+                    {% if unitPrice > 0 %}
+                        {{ unitPrice|number_format(2) }} €
+                    {% else %}
+                        Gratuit
+                    {% endif %}
+                </div>
+                <div class="unit-price" id="priceDetails">
+                    {% if unitPrice > 0 %}
+                        pour 1 place
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="alert alert-info">
+                <i class="fa fa-info-circle"></i> En cliquant sur "Confirmer", vous acceptez les conditions générales.
+            </div>
+
+            <div class="d-flex justify-content-between mt-4">
+                <a href="{{ path('event_front') }}" class="btn btn-outline-secondary">← Retour aux événements</a>
+                <button type="submit" class="btn btn-primary">Confirmer mon inscription</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const placesInput = document.getElementById('nombre_places');
+        const totalDisplay = document.getElementById('totalPriceDisplay');
+        const priceDetails = document.getElementById('priceDetails');
+        // Utiliser le prix réduit (défini dans discounted_price)
+        const unitPrice = {{ discounted_price is defined ? discounted_price : event.price }};
+        const isFree = unitPrice == 0;
+
+        function updateTotal() {
+            let places = parseInt(placesInput.value) || 0;
+            if (places < 1) places = 1;
+            const maxPlaces = parseInt(placesInput.getAttribute('max')) || 1;
+            if (places > maxPlaces) places = maxPlaces;
+            placesInput.value = places;
+
+            if (isFree) {
+                totalDisplay.innerText = 'Gratuit';
+                priceDetails.innerText = '';
+            } else {
+                const total = unitPrice * places;
+                totalDisplay.innerText = total.toFixed(2) + ' €';
+                priceDetails.innerText = 'pour ' + places + ' place' + (places > 1 ? 's' : '');
+            }
+        }
+
+        placesInput.addEventListener('input', updateTotal);
+        updateTotal(); // initial call
+    });
+</script>
+{% endblock %}

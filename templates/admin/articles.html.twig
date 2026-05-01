@@ -1,0 +1,398 @@
+{% extends 'admin/base_admin.html.twig' %}
+
+{% block title %}Articles - Admin WinGo{% endblock %}
+{% block page_title %}Gestion des Articles{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <style>
+        /* Cartes statistiques */
+        .stats-container {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+        .stat-card {
+            background: #fff;
+            border-radius: 8px;
+            padding: 20px;
+            flex: 1;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        .stat-icon {
+            font-size: 2rem;
+            color: #fa9e1b;
+            background: rgba(250, 158, 27, 0.1);
+            padding: 15px;
+            border-radius: 50%;
+        }
+        .stat-info h3 { margin: 0; font-size: 1.5rem; color: #333; }
+        .stat-info p { margin: 0; color: #777; font-size: 0.9rem; }
+
+        /* Boutons d'action */
+        .action-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 32px;
+            height: 32px;
+            border-radius: 6px;
+            color: #fff;
+            text-decoration: none;
+            margin-right: 5px;
+            border: none;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        .btn-view { background: #17a2b8; }
+        .btn-edit { background: #ffc107; color: #000; }
+        .btn-comments { background: #6f42c1; }
+        .btn-delete { background: #dc3545; }
+        .btn-view:hover { background: #138496; }
+        .btn-edit:hover { background: #e0a800; }
+        .btn-comments:hover { background: #5a32a3; }
+        .btn-delete:hover { background: #c82333; }
+
+        /* Barre de recherche */
+        .search-container {
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+        }
+        .search-form {
+            display: flex;
+            gap: 10px;
+        }
+        .search-input {
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 14px;
+            min-width: 280px;
+        }
+        .search-btn {
+            padding: 8px 16px;
+            background: #fa9e1b;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        .search-btn:hover { background: #e89e0c; }
+        .search-results {
+            color: #666;
+            font-size: 14px;
+            margin-left: 15px;
+        }
+
+        /* Tableau */
+        .data_card {
+            background: #fff;
+            border-radius: 14px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+            overflow: hidden;
+            margin-bottom: 24px;
+            border: 1px solid rgba(0,0,0,0.04);
+        }
+        .data_card_header {
+            padding: 20px 24px;
+            border-bottom: 1px solid #f0f0f0;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .data_card_title {
+            font-size: 16px;
+            font-weight: 700;
+            color: #1a1a2e;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th {
+            background: #f8f9fa;
+            padding: 12px 20px;
+            text-align: left;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: #888;
+            font-weight: 600;
+        }
+        td {
+            padding: 14px 20px;
+            border-bottom: 1px solid #f5f5f5;
+            font-size: 14px;
+            color: #444;
+        }
+        tr:last-child td { border-bottom: none; }
+        tr:hover td { background: #fafbff; }
+
+        /* Graphiques */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        .chart-card {
+            background: white;
+            border-radius: 16px;
+            padding: 20px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.05);
+        }
+        .chart-title {
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: #2d3436;
+        }
+        .chart-container {
+            position: relative;
+            height: 250px;
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <h1>Gestion des Articles</h1>
+
+    {# Graphiques statistiques (allégés et modernisés) #}
+    <div class="stats-grid">
+        <div class="chart-card">
+            <div class="chart-title"><i class="fa fa-bar-chart" style="color:#8d4fff; margin-right:8px;"></i>Articles par mois</div>
+            <div class="chart-container">
+                <canvas id="articlesChart"></canvas>
+            </div>
+        </div>
+        <div class="chart-card">
+            <div class="chart-title"><i class="fa fa-pie-chart" style="color:#fa9e1c; margin-right:8px;"></i>Articles par catégorie</div>
+            <div class="chart-container">
+                <canvas id="categoriesChart"></canvas>
+            </div>
+        </div>
+        <div class="chart-card">
+            <div class="chart-title"><i class="fa fa-line-chart" style="color:#10b981; margin-right:8px;"></i>Activité (Coms & Likes)</div>
+            <div class="chart-container">
+                <canvas id="evolutionChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    {# Cartes statistiques #}
+    <div class="stats-container">
+        <div class="stat-card">
+            <i class="fa fa-newspaper-o stat-icon"></i>
+            <div class="stat-info">
+                <h3>{{ total_articles }}</h3>
+                <p>Articles publiés</p>
+            </div>
+        </div>
+        <div class="stat-card">
+            <i class="fa fa-comments-o stat-icon" style="color: #6f42c1; background: rgba(111, 66, 193, 0.1);"></i>
+            <div class="stat-info">
+                <h3>{{ total_commentaires }}</h3>
+                <p>Commentaires totaux</p>
+            </div>
+        </div>
+        <div class="stat-card">
+            <i class="fa fa-star-o stat-icon" style="color: #28a745; background: rgba(40, 167, 69, 0.1);"></i>
+            <div class="stat-info">
+                {% if article_top %}
+                    <h3>{{ article_top.commentaires|length }} <small style="font-size: 0.6em; color: #777;">coms</small></h3>
+                    <p>Top: {{ article_top.titre|length > 20 ? article_top.titre|slice(0, 20) ~ '...' : article_top.titre }}</p>
+                {% else %}
+                    <h3>0</h3>
+                    <p>Aucun top article</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    {# Barre de recherche à droite #}
+    <div class="search-container">
+        <form method="GET" class="search-form">
+            <input type="text" name="search" class="search-input" 
+                   placeholder="Rechercher par titre ou contenu..." 
+                   value="{{ search|default('') }}" autocomplete="off">
+            <button type="submit" class="search-btn">
+                <i class="fa fa-search"></i> Rechercher
+            </button>
+        </form>
+        {% if search %}
+            <div class="search-results">
+                {{ articles|length }} résultat(s) pour "{{ search }}"
+            </div>
+        {% endif %}
+    </div>
+
+    {# Tableau des articles #}
+    <div class="data_card">
+        <div class="data_card_header">
+            <div class="data_card_title"><i class="fa fa-list" style="color:#fa9e1b"></i> Liste des Articles</div>
+        </div>
+        <table>
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Titre</th>
+                    <th>Région</th>
+                    <th>Catégorie</th>
+                    <th>Commentaires</th>
+                    <th>Date publication</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for article in articles %}
+                <tr>
+                    <td>{{ article.id }}</td>
+                    <td><strong>{{ article.titre }}</strong></td>
+                    <td>{{ article.region ?? '-' }}</td>
+                    <td>{{ article.categorie ?? '-' }}</td>
+                    <td style="text-align: center;">
+                        <span style="background: rgba(111, 66, 193, 0.1); color: #6f42c1; padding: 2px 8px; border-radius: 10px; font-weight: bold;">
+                            {{ article.commentaires|length }}
+                        </span>
+                    </td>
+                    <td>{{ article.datePublication ? article.datePublication|date('d/m/Y H:i') : '-' }}</td>
+                    <td style="display: flex; gap: 5px;">
+                        <a href="{{ path('admin_article_show', {id: article.id}) }}" class="action-btn btn-view" title="Voir">
+                            <i class="fa fa-eye"></i>
+                        </a>
+                        <a href="{{ path('admin_article_edit', {id: article.id}) }}" class="action-btn btn-edit" title="Modifier">
+                            <i class="fa fa-pencil"></i>
+                        </a>
+                        <a href="{{ path('admin_article_commentaires', {id: article.id}) }}" class="action-btn btn-comments" title="Commentaires">
+                            <i class="fa fa-comments"></i>
+                        </a>
+                        <form method="post" action="{{ path('admin_article_delete', {id: article.id}) }}" style="margin: 0;"
+                              onsubmit="return confirm('Supprimer cet article et tous ses commentaires ?');">
+                            <input type="hidden" name="_token" value="{{ csrf_token('delete_admin' ~ article.id) }}">
+                            <button type="submit" class="action-btn btn-delete" title="Supprimer">
+                                <i class="fa fa-trash"></i>
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+                {% else %}
+                <tr><td colspan="7" style="text-align:center;color:#aaa;padding:40px;">Aucun article disponible</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
+{% block javascripts %}
+    {{ parent() }}
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Options globales "Légères"
+            Chart.defaults.font.family = "'Segoe UI', sans-serif";
+            Chart.defaults.color = '#888';
+            Chart.defaults.scale.grid.color = 'rgba(0, 0, 0, 0.04)';
+            
+            // Articles par mois (Barres arrondies)
+            new Chart(document.getElementById('articlesChart').getContext('2d'), {
+                type: 'bar',
+                data: {
+                    labels: [{% for item in articlesParMois %}'{{ item.mois }}',{% endfor %}],
+                    datasets: [{
+                        label: 'Articles',
+                        data: [{% for item in articlesParMois %}{{ item.nb }},{% endfor %}],
+                        backgroundColor: 'rgba(141, 79, 255, 0.7)',
+                        borderColor: '#8d4fff',
+                        borderWidth: 1,
+                        borderRadius: 12,
+                        barPercentage: 0.6
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        x: { grid: { display: false } },
+                        y: { beginAtZero: true, border: {display: false} }
+                    }
+                }
+            });
+
+            // Catégories (Doughnut léger)
+            new Chart(document.getElementById('categoriesChart').getContext('2d'), {
+                type: 'doughnut',
+                data: {
+                    labels: [{% for item in articlesParCategorie %}'{{ item.categorie }}',{% endfor %}],
+                    datasets: [{
+                        data: [{% for item in articlesParCategorie %}{{ item.nb }},{% endfor %}],
+                        backgroundColor: ['rgba(141, 79, 255, 0.8)', 'rgba(250, 158, 28, 0.8)', 'rgba(16, 185, 129, 0.8)', 'rgba(239, 68, 68, 0.8)', 'rgba(59, 130, 246, 0.8)', 'rgba(245, 158, 11, 0.8)'],
+                        borderWidth: 2,
+                        borderColor: '#fff',
+                        cutout: '70%'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { 
+                        legend: { position: 'bottom', labels: { boxWidth: 12, padding: 15, font: {size: 11} } } 
+                    }
+                }
+            });
+
+            // Évolution commentaires/likes (Lignes courbes et douces)
+            const commMap = { {% for item in commentairesParMois %}'{{ item.mois }}': {{ item.nb }},{% endfor %} };
+            const likeMap = { {% for item in likesParMois %}'{{ item.mois }}': {{ item.nb }},{% endfor %} };
+            const allMonths = [...new Set([...Object.keys(commMap), ...Object.keys(likeMap)])].sort();
+            
+            new Chart(document.getElementById('evolutionChart').getContext('2d'), {
+                type: 'line',
+                data: {
+                    labels: allMonths,
+                    datasets: [
+                        {
+                            label: 'Commentaires',
+                            data: allMonths.map(m => commMap[m] || 0),
+                            borderColor: '#8d4fff',
+                            backgroundColor: 'rgba(141, 79, 255, 0.1)',
+                            fill: true,
+                            tension: 0.4,
+                            pointRadius: 3,
+                            pointBackgroundColor: '#8d4fff',
+                            borderWidth: 2
+                        },
+                        {
+                            label: 'Likes',
+                            data: allMonths.map(m => likeMap[m] || 0),
+                            borderColor: '#fa9e1c',
+                            backgroundColor: 'rgba(250, 158, 28, 0.1)',
+                            fill: true,
+                            tension: 0.4,
+                            pointRadius: 3,
+                            pointBackgroundColor: '#fa9e1c',
+                            borderWidth: 2
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { 
+                        legend: { position: 'top', labels: { boxWidth: 10, usePointStyle: true, font: {size: 11} } } 
+                    },
+                    scales: {
+                        x: { grid: { display: false } },
+                        y: { beginAtZero: true, border: {display: false} }
+                    }
+                }
+            });
+        });
+    </script>
+{% endblock %}

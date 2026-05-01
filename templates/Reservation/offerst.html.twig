@@ -1,0 +1,503 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Offers - Travelix{% endblock %}
+
+{% block stylesheets %}
+<link rel="stylesheet" type="text/css" href="{{ asset('styles/offers_styles.css') }}">
+<link rel="stylesheet" type="text/css" href="{{ asset('styles/offers_responsive.css') }}">
+<link href='https://unpkg.com/maplibre-gl@latest/dist/maplibre-gl.css' rel='stylesheet' />
+<style>
+        /* Optional: Add this to make sure the popup looks clean */
+        .maplibregl-popup-content {
+            border-radius: 15px;
+            padding: 10px;
+            font-family: 'Open Sans', sans-serif;
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+
+	<!-- Home Banner -->
+	<div class="home" style="width: 100%; height: 60vh; position: relative;">
+        <div class="home_background" style="background-image: url('{{ asset('images/about_background.jpg') }}'); background-size: cover; background-position: center; width: 100%; height: 100%; position: absolute; top: 0; left: 0; z-index: 1;"></div>
+        
+        <div class="home_content" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 2; width: 100%; text-align: center;">
+            <div class="home_title" style="color: #FFFFFF; font-size: 72px; font-weight: 800; text-transform: uppercase;">our offers</div>
+        </div>
+    </div>
+
+
+
+	<!-- Offers -->
+	<div class="offers">
+
+		<!-- Search -->
+		<div class="container text-center mb-5" style="margin-top: -60px; position: relative; z-index: 100;">
+    <div class="d-flex flex-column align-items-center">
+        <button class="btn btn-warning shadow-lg px-5 py-3 mb-3" 
+                type="button" 
+                data-toggle="collapse" 
+                data-target="#transportFormCollapse" 
+                style="border-radius: 50px; font-weight: 700; color: white; border: none; background: #fa9e1b;">
+            <i class="fa fa-plus-circle mr-2"></i> {{ editMode ? 'MODIFIER LA RÉSERVATION' : 'NOUVELLE RÉSERVATION' }}
+        </button>
+
+        <a href="{{ path('app_front_reservations') }}" class="text-muted small font-weight-bold" style="text-decoration: none; transition: 0.3s;">
+            <i class="fa fa-bus mr-1"></i> VOIR LES reservations <i class="fa fa-chevron-right ml-1" style="font-size: 10px;"></i>
+        </a>
+    </div>
+
+    
+
+    <div class="collapse {{ editMode ? 'show' : '' }} mt-4" id="transportFormCollapse">
+        <div class="card card-body border-0 shadow-lg p-4 p-md-5" style="border-radius: 30px; background: #ffffff;">
+            <h4 class="mb-4 text-dark font-weight-bold">Détails du Transport</h4>
+            
+            {{ form_start(f, {'attr': {'class': 'row align-items-end'}}) }}
+                <div class="col-md-4 mb-3 text-left">
+                    <label class="small font-weight-bold text-uppercase text-muted ml-2">Type (ex: Bus)</label>
+                    {{ form_widget(f.type, {'attr': {'class': 'form-control modern-input'}}) }}
+                </div>
+                <div class="col-md-4 mb-3 text-left">
+                    <label class="small font-weight-bold text-uppercase text-muted ml-2">Tarif (TND)</label>
+                    {{ form_widget(f.tarif, {'attr': {'class': 'form-control modern-input'}}) }}
+                </div>
+                <div class="col-md-4 mb-3 text-left">
+                    <label class="small font-weight-bold text-uppercase text-muted ml-2">Capacité</label>
+                    {{ form_widget(f.capacite, {'attr': {'class': 'form-control modern-input'}}) }}
+                </div>
+                <div class="col-md-4 mb-3 text-left">
+                    <label class="small font-weight-bold text-uppercase text-muted ml-2">Départ</label>
+                    {{ form_widget(f.depart, {'attr': {'class': 'form-control modern-input'}}) }}
+                </div>
+                <div class="col-md-4 mb-3 text-left">
+                    <label class="small font-weight-bold text-uppercase text-muted ml-2">Arrivée</label>
+                    {{ form_widget(f.arrivee, {'attr': {'class': 'form-control modern-input'}}) }}
+                </div>
+                <div class="col-md-4 mb-3 text-left">
+                    <label class="small font-weight-bold text-uppercase text-muted ml-2">Date Départ</label>
+                    <div class="modern-input-date-wrapper">
+                         {{ form_widget(f.datedepart) }}
+                    </div>
+                </div>
+                <div class="col-12 mt-2">
+                    <div id="live-status-box" class="alert d-none" style="border-radius: 15px; font-size: 14px;"></div>
+                </div>
+
+                <div class="col-12 mt-4">
+                    <button type="submit" id="submit-transport-btn" class="btn btn-dark px-5 py-3" style="border-radius: 50px; font-weight: 600; background: #2d2c2c; border: none;">
+                        {{ editMode ? 'METTRE À JOUR' : 'CONFIRMER L\'AJOUT' }}
+                    </button>
+                </div>
+                <div style="display:none;">{{ form_rest(f) }}</div>
+            {{ form_end(f) }}
+        </div>
+    </div>
+</div>
+
+		<!-- Offers List -->
+		<div class="container">
+			<div class="row">
+				<div class="col-lg-1 temp_col"></div>
+				<div class="col-lg-11">
+					<!-- Offers Sorting -->
+					<div class="offers_sorting_container d-flex flex-row align-items-end justify-content-start">
+    <div class="sorting_item" style="margin-right: 30px; margin-bottom: 5px;">
+    <form id="searchForm" action="{{ path('app_front_offers') }}" method="get">
+        <input type="text" 
+           id="searchInput" 
+           name="search" 
+           value="{{ searchTerm }}" 
+           placeholder="Rechercher..." 
+           autocomplete="off"
+           style="height: 40px; border: 1px solid #ededed; padding-left: 15px; border-radius: 5px; width: 250px;">
+        <datalist id="searchOptions">
+            </datalist>
+    </form>
+</div>
+
+    <ul class="offers_sorting">
+        <li>
+            <span class="sorting_text">price</span>
+            <i class="fa fa-chevron-down"></i>
+            <ul>
+                {# Link to reset sorting #}
+                <li><a href="{{ path('app_front_offers', {search: searchTerm}) }}">show all</a></li>
+                {# Link to sort by price ascending #}
+                <li><a href="{{ path('app_front_offers', {sort: 'price_asc', search: searchTerm}) }}">ascending</a></li>
+                {# Link to sort by price descending #}
+                <li><a href="{{ path('app_front_offers', {sort: 'price_desc', search: searchTerm}) }}">descending</a></li>
+            </ul>
+        </li>
+
+        <li>
+            <span class="sorting_text">Capacité</span>
+            <i class="fa fa-chevron-down"></i>
+            <ul>
+                {# We use capacity since your Transport might not have 'stars' #}
+                <li><a href="{{ path('app_front_offers', {sort: 'cap_high', search: searchTerm}) }}">high to low</a></li>
+                <li><a href="{{ path('app_front_offers', {sort: 'cap_low', search: searchTerm}) }}">low to high</a></li>
+            </ul>
+        </li>
+    </ul>
+</div>
+				</div>
+
+				<div class="col-lg-12">
+					<div class="offers_grid" id="results-container">
+                        {% for offer in list %}
+                            {# 1. Keep your image index logic #}
+                            {% set img_index = (loop.index0 % 4) + 1 %}
+                            
+                            {# 2. Insert the modern card code here #}
+                            <div class="offers_item shadow-sm mb-5" style="border-radius: 25px; background: white; overflow: hidden; border: 1px solid #f0f0f0;">
+                                <div class="row no-gutters">
+                                    <div class="col-lg-4">
+                                        <div class="offers_image_container" style="height: 100%; min-height: 260px; position: relative;">
+                                            <img src="{{ asset('images/offer_' ~ img_index ~ '.jpg') }}" 
+                                                alt="{{ offer.type }}" 
+                                                style="width: 100%; height: 100%; object-fit: cover;">
+                                            <div class="offer_name" style="position: absolute; top: 20px; left: 0; z-index: 2;">
+                                                <a href="#" style="background: #fa9e1b; color: #FFFFFF; padding: 8px 20px; font-weight: 700; text-transform: uppercase; border-radius: 0 25px 25px 0; font-size: 12px;">
+                                                    {{ offer.type }}
+                                                </a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="col-lg-5">
+                                        <div class="offers_content p-4">
+                                            <div class="offers_price" style="font-size: 28px; color: #fa9e1b; font-weight: 700;">
+                                                {{ offer.tarif }} TND<span style="font-size: 14px; color: #999; margin-left: 5px;">/ trajet</span>
+                                            </div>
+                                            <div class="rating_r rating_4 offers_rating mb-3"><i></i><i></i><i></i><i></i><i></i></div>
+                                            <p class="offers_text text-muted">Ce transport peut accueillir jusqu'à <strong>{{ offer.capacite }} personnes</strong>. Idéal pour vos trajets entre {{ offer.depart }} et {{ offer.arrivee }}.</p>
+                                            
+                                            <div class="mt-3">
+                                                <span class="badge badge-light p-2 mr-2"><i class="fa fa-map-marker text-warning mr-1"></i> {{ offer.depart }}</span>
+                                                <span class="badge badge-light p-2"><i class="fa fa-long-arrow-right text-muted mx-2"></i> {{ offer.arrivee }}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-lg-3 bg-light d-flex align-items-center justify-content-center border-left">
+                                        <div class="offers_details_container p-4 text-center">
+                                            {% if (offer.user_id and offer.user_id.id == app.user.id) or is_granted('ROLE_ADMIN') %}
+                                                <a href="{{ path('app_front_offers', {'id': offer.id}) }}#transportFormCollapse" class="btn btn-outline-warning btn-block mb-2" style="border-radius: 20px; font-weight: 700;">
+                                                    MODIFIER
+                                                </a>
+                                                <a href="{{ path('app_front_offers_delete', {'id': offer.id}) }}" 
+                                                onclick="return confirm('Supprimer ce transport ?');" 
+                                                class="text-danger small font-weight-bold d-block mb-3">
+                                                    <i class="fa fa-trash mr-1"></i> SUPPRIMER
+                                                </a>
+                                            {% else %}
+                                                <div class="text-muted small italic mb-3">Consultation<br>Uniquement</div>
+                                            {% endif %}
+
+                                            <hr>
+
+                                            {# --- CALCUL TRAJET WIDGET --- #}
+                                            <div class="route-widget mt-2" 
+                                                data-slat="36.8065" data-slon="10.1815" 
+                                                data-elat="{{ offer.destinationLat|default('35.8256') }}" 
+                                                data-elon="{{ offer.destinationLon|default('10.6084') }}">
+                                                
+                                                <button class="btn btn-sm btn-dark btn-block btn-calculate" type="button" style="border-radius: 20px; font-size: 11px;">
+                                                    <i class="fas fa-route mr-1"></i> CALCULER TRAJET
+                                                </button>
+
+                                                <div class="route-info d-none mt-2 pt-2 border-top">
+                                                    <div class="row no-gutters">
+                                                        <div class="col-6">
+                                                            <small class="text-muted d-block">Dist.</small>
+                                                            <strong class="r-dist text-warning">--</strong>
+                                                        </div>
+                                                        <div class="col-6">
+                                                            <small class="text-muted d-block">Durée</small>
+                                                            <strong class="r-dur text-warning">--</strong>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <button class="map-trigger btn btn-warning" data-city="{{ offer.arrivee }}">
+                                                    📍 Voir le lieu
+                                                </button>
+                                                
+                                                
+                                                <div class="route-loading d-none mt-2">
+                                                    <div class="spinner-border spinner-border-sm text-warning" role="status"></div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        {% else %}
+                            <div class="col-12 text-center" style="padding: 50px;">
+                                <p>Aucun transport trouvé dans la base de données.</p>
+                            </div>
+                        {% endfor %}
+                    </div>
+							
+				</div>
+			</div>
+		</div>
+
+	</div>
+    <div class="modal fade" id="mapModal" tabindex="-1" role="dialog" aria-hidden="true" style="z-index: 9999;">
+    <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+        <div class="modal-content" style="border-radius: 20px; border: none; overflow: hidden;">
+            <div class="modal-header" style="background: #fa9e1b; color: white;">
+                <h5 class="modal-title font-weight-bold"><i class="fa fa-map-marker-alt"></i> Localisation du trajet</h5>
+                <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body p-0">
+                <div id="map" style="height: 500px; width: 100%;"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block javascripts %}
+<script src="{{ asset('plugins/parallax-js-master/parallax.min.js') }}"></script>
+<script src="{{ asset('plugins/isotope/isotope.pkgd.min.js') }}"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/parallax/3.1.0/parallax.min.js"></script>
+<script src="https://unpkg.com/maplibre-gl@latest/dist/maplibre-gl.js"></script>
+
+<script>
+// We open ONE single listener for the whole page
+document.addEventListener('DOMContentLoaded', function() {
+
+    // ==========================================
+    // 1. AJAX SEARCH LOGIC
+    // ==========================================
+    const searchInput = document.getElementById('searchInput');
+    const resultsContainer = document.getElementById('results-container');
+
+    if (searchInput && resultsContainer) {
+        searchInput.addEventListener('keyup', function() {
+            const query = this.value;
+            fetch("{{ path('app_front_offers') }}?search=" + query + "&ajax=1", {
+                headers: { 'X-Requested-With': 'XMLHttpRequest' }
+            })
+            .then(response => response.text())
+            .then(html => {
+                resultsContainer.innerHTML = html;
+                initRouteButtons(); 
+            });
+        });
+    }
+
+    // ==========================================
+    // 2. ROUTE CALCULATION LOGIC
+    // ==========================================
+    function initRouteButtons() {
+        document.querySelectorAll('.btn-calculate').forEach(btn => {
+            btn.onclick = async function() {
+                const widget = this.closest('.route-widget');
+                const loader = widget.querySelector('.route-loading');
+                const info = widget.querySelector('.route-info');
+                
+                this.classList.add('d-none');
+                loader.classList.remove('d-none');
+
+                const { slat, slon, elat, elon } = widget.dataset;
+                
+                try {
+                    const response = await fetch(`/api/route/${slat}/${slon}/${elat}/${elon}`);
+                    const data = await response.json();
+                    
+                    widget.querySelector('.r-dist').innerText = data.distance_km + 'km';
+                    widget.querySelector('.r-dur').innerText = data.duration_min + 'min';
+                    
+                    loader.classList.add('d-none');
+                    info.classList.remove('d-none');
+                } catch (e) {
+                    this.classList.remove('d-none');
+                    loader.classList.add('d-none');
+                    alert("Erreur de calcul");
+                }
+            };
+        });
+    }
+    initRouteButtons();
+
+    // ==========================================
+    // 3. REAL-TIME AVAILABILITY & PRICING LOGIC
+    // ==========================================
+    const typeSelect = document.querySelector('#transport_type'); 
+    const departInput = document.querySelector('#transport_depart'); 
+    const arriveeInput = document.querySelector('#transport_arrivee'); 
+    const dateInput = document.querySelector('#transport_datedepart'); 
+    const tarifInput = document.querySelector('#transport_tarif'); 
+    
+    // Replace these IDs if you have specific ones for your status box and button
+    const statusBox = document.querySelector('#YOUR_STATUS_BOX_ID'); 
+    const submitBtn = document.querySelector('#YOUR_SUBMIT_BUTTON_ID'); 
+
+    let timeout = null;
+
+    [typeSelect, departInput, arriveeInput, dateInput].forEach(el => {
+        if (!el) return;
+
+        el.addEventListener('input', () => {
+            clearTimeout(timeout);
+
+            timeout = setTimeout(() => {
+                checkTransportAvailability();
+            }, 400); // wait user finishes typing/selecting
+        });
+    });
+
+    function checkTransportAvailability() {
+    let selectedType = typeSelect ? typeSelect.value : null;
+    let selectedDepart = departInput ? departInput.value : null;
+    let selectedArrivee = arriveeInput ? arriveeInput.value : null;
+    let selectedDate = dateInput ? dateInput.value : null;
+
+    console.log("--- SCRIPT RUNNING ---");
+    console.log("1. Type:", selectedType);
+    console.log("2. Depart:", selectedDepart);
+    console.log("3. Arrivee:", selectedArrivee);
+    console.log("4. Date:", selectedDate);
+
+    if (!selectedType || !selectedDepart || !selectedArrivee || !selectedDate) {
+        console.warn("🛑 Stopped: A field is empty.");
+        return;
+    }
+
+    if (statusBox) {
+        statusBox.classList.remove('d-none', 'alert-success', 'alert-warning', 'alert-danger');
+        statusBox.classList.add('alert-info', 'd-block');
+        statusBox.innerHTML = '<i class="fa fa-spinner fa-spin mr-2"></i> Calcul du tarif en cours...';
+    }
+
+    fetch("{{ path('app_transport_live_check') }}", {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            type: selectedType,
+            depart: selectedDepart,
+            arrivee: selectedArrivee,
+            date: selectedDate
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+
+        if (statusBox) statusBox.classList.remove('alert-info');
+
+        // 🔥 ALWAYS set price if backend sends it
+        if (tarifInput && data.price !== undefined) {
+            tarifInput.value = data.price;
+            tarifInput.readOnly = true;
+        }
+
+        if (data.status === 'available') {
+            if (statusBox) {
+                statusBox.classList.add('alert-success');
+                statusBox.innerHTML = `<i class="fa fa-check-circle mr-2"></i> <strong>Disponible!</strong> ${data.message}`;
+            }
+
+            if (submitBtn) {
+                submitBtn.disabled = false;
+                submitBtn.style.opacity = '1';
+            }
+        }
+
+        else if (data.status === 'full') {
+            if (statusBox) {
+                statusBox.classList.add('alert-warning');
+                statusBox.innerHTML = `<i class="fa fa-exclamation-triangle mr-2"></i> ${data.message}`;
+            }
+
+            if (submitBtn) {
+                submitBtn.disabled = true;
+                submitBtn.style.opacity = '0.5';
+            }
+        }
+
+        else {
+            if (statusBox) {
+                statusBox.classList.add('alert-warning');
+                statusBox.innerHTML = `<i class="fa fa-info-circle mr-2"></i> ${data.message}`;
+            }
+
+            if (submitBtn) {
+                submitBtn.disabled = false;
+                submitBtn.style.opacity = '1';
+            }
+        }
+    })
+    .catch(error => {
+        console.error("Erreur AJAX:", error);
+        if (statusBox) statusBox.classList.add('d-none');
+    });
+}
+
+}); // <--- THIS is the magical bracket that fixes your Syntax Error!
+</script>
+
+<script>
+    // ==========================================
+    // 4. MAP MODAL LOGIC
+    // ==========================================
+    var map; 
+    const cityCoords = {
+        'tunis': [10.1815, 36.8065], 
+        'sousse': [10.6084, 35.8256],
+        'sfax': [10.7603, 34.7406],
+        'kairouan': [10.0963, 35.6781],
+        'kairaouen': [10.0963, 35.6781],
+        'kabeli': [8.9659, 33.7053]
+    };
+
+    document.addEventListener('DOMContentLoaded', function() {
+        $(document).on('click', '.map-trigger', function() {
+            const city = $(this).attr('data-city').toLowerCase().trim();
+            const pos = cityCoords[city];
+
+            if (pos) {
+                $('#mapModal').modal('show');
+
+                $('#mapModal').one('shown.bs.modal', function () {
+                    if (!map) {
+                        map = new maplibregl.Map({
+                            container: 'map',
+                            style: 'https://tiles.openfreemap.org/styles/bright', 
+                            center: [10.1815, 36.8065],
+                            zoom: 6
+                        });
+                        maplibregl.setRTLTextPlugin(
+                    'https://unpkg.com/@mapbox/mapbox-gl-rtl-text@0.2.3/mapbox-gl-rtl-text.min.js',
+                    null,
+                    true                );
+                        map.addControl(new maplibregl.NavigationControl());
+                    }
+
+                    setTimeout(() => {
+                        map.resize(); 
+                        
+                        map.flyTo({
+                            center: pos,
+                            zoom: 14,
+                            pitch: 45, 
+                            duration: 2500,
+                            essential: true
+                        });
+
+                        new maplibregl.Marker({ color: '#fa9e1b' })
+                            .setLngLat(pos)
+                            .addTo(map);
+                    }, 200);
+                });
+            }
+        });
+    });
+</script>
+{% endblock %}

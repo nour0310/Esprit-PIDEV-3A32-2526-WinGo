@@ -1,0 +1,72 @@
+<h1 style="text-align:center;">🇹🇳 Smart Transport Recommendation</h1>
+
+{{ form_start(form) }}
+
+<div style="max-width:500px; margin:auto;">
+    {{ form_row(form.arrivee) }}
+    {{ form_row(form.budget) }}
+    {{ form_row(form.type) }}
+
+    <button type="submit"
+        style="width:100%; padding:12px; background:#111; color:white; border:none; border-radius:8px;">
+        🎯 Get Recommendation
+    </button>
+</div>
+
+{{ form_end(form) }}
+
+<hr>
+
+<h2 style="text-align:center;">🏆 Top 3 Best Matches</h2>
+
+<div style="display:flex; gap:15px; justify-content:center; flex-wrap:wrap;">
+
+    {% for item in top3 %}
+
+        <div style="
+            width:250px;
+            border-radius:15px;
+            padding:15px;
+            box-shadow:0 10px 20px rgba(0,0,0,0.1);
+            background:white;
+            position:relative;
+        ">
+
+            {# 🥇 Ranking badge #}
+            <div style="
+                position:absolute;
+                top:10px;
+                right:10px;
+                background:#111;
+                color:white;
+                padding:5px 10px;
+                border-radius:50px;
+                font-size:12px;
+            ">
+                #{{ loop.index }}
+            </div>
+
+            <h3 style="margin-bottom:10px;">🚗 {{ item.transport.type }}</h3>
+
+            <p>📍 <b>Destination:</b> {{ item.transport.arrivee }}</p>
+            <p>💺 <b>Capacity:</b> {{ item.transport.capacite }}</p>
+            <p>💰 <b>Price:</b> {{ item.transport.tarif }} TND</p>
+
+            {# 🧠 Score bar #}
+            <div style="margin-top:10px;">
+                <div style="height:8px; background:#eee; border-radius:10px;">
+                    <div style="
+                        height:8px;
+                        width:{{ item.score * 10 }}%;
+                        background:linear-gradient(to right, #00c6ff, #0072ff);
+                        border-radius:10px;
+                    "></div>
+                </div>
+                <small>AI Match Score: {{ item.score }}</small>
+            </div>
+
+        </div>
+
+    {% endfor %}
+
+</div>

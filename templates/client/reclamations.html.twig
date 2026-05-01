@@ -1,0 +1,28 @@
+{% extends 'client/base_client.html.twig' %}
+{% block title %}Réclamations - WinGo{% endblock %}
+{% block page_title %}Mes Réclamations{% endblock %}
+
+{% block content %}
+<div class="dash_card">
+    <div class="dash_card_title"><i class="fa fa-exclamation-circle"></i> Mes réclamations</div>
+    {% if reclamations|length > 0 %}
+    <table class="data_table">
+        <thead><tr><th>#</th><th>Type</th><th>Sujet</th><th>Priorité</th><th>Statut</th><th>Date</th></tr></thead>
+        <tbody>
+            {% for rec in reclamations %}
+            <tr>
+                <td>{{ rec.id }}</td>
+                <td>{{ rec.typeReclamation ?? '-' }}</td>
+                <td>{{ rec.sujet ?? 'Sans sujet' }}</td>
+                <td>{{ rec.priorite ?? '-' }}</td>
+                <td><span class="badge_s {% if rec.statut == 'Résolue' %}badge_done{% else %}badge_pending{% endif %}">{{ rec.statut }}</span></td>
+                <td>{{ rec.dateReclamation ? rec.dateReclamation|date('d/m/Y') : '-' }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <div class="empty_state"><i class="fa fa-smile-o"></i> Aucune réclamation. Tout va bien !</div>
+    {% endif %}
+</div>
+{% endblock %}

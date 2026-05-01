@@ -1,0 +1,204 @@
+{% extends 'base.html.twig' %}
+{% block title %}Mon Profil - WinGo{% endblock %}
+
+{% block stylesheets %}
+<link rel="stylesheet" type="text/css" href="{{ asset('styles/main_styles.css') }}">
+<style>
+    .profile_section { min-height: 80vh; padding-top: 200px; padding-bottom: 60px; background: #f8f9fa; }
+    .profile_card { background: #fff; border-radius: 20px; box-shadow: 0 8px 30px rgba(0,0,0,0.08); overflow: hidden; }
+    .profile_header { background: linear-gradient(135deg, #1a1a2e 0%, #0f3460 100%); padding: 40px; color: #fff; text-align: center; position: relative; }
+    .profile_avatar { width: 90px; height: 90px; border-radius: 50%; background: linear-gradient(135deg, #fa9e1b, #8d4fff); display: flex; align-items: center; justify-content: center; font-size: 36px; font-weight: 800; color: #fff; margin: 0 auto 16px; border: 4px solid rgba(255,255,255,0.2); overflow: hidden; }
+    .profile_avatar img { width: 100%; height: 100%; object-fit: cover; }
+    .profile_name { font-size: 24px; font-weight: 700; margin-bottom: 6px; }
+    .profile_role { font-size: 13px; background: #fa9e1b; padding: 3px 14px; border-radius: 20px; display: inline-block; }
+    .profile_body { padding: 36px; }
+    .info_grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 20px; margin-bottom: 30px; }
+    .info_item { background: #f8f9fa; border-radius: 12px; padding: 18px; }
+    .info_label { font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: #aaa; margin-bottom: 6px; font-weight: 600; }
+    .info_value { font-size: 15px; font-weight: 600; color: #333; }
+    .profile_actions { display: flex; gap: 12px; flex-wrap: wrap; }
+    .btn_primary { background: linear-gradient(135deg, #fa9e1b, #8d4fff); color: #fff; padding: 12px 24px; border-radius: 10px; text-decoration: none; font-weight: 600; font-size: 14px; border: none; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; }
+    .btn_primary:hover { opacity: 0.9; color: #fff; }
+    .btn_outline { background: #fff; color: #333; padding: 12px 24px; border-radius: 10px; text-decoration: none; font-weight: 600; font-size: 14px; border: 2px solid #e8e8e8; display: inline-flex; align-items: center; gap: 8px; }
+    .btn_outline:hover { border-color: #fa9e1b; color: #fa9e1b; }
+    .flash_success { background: #e8f5e9; border-left: 4px solid #4CAF50; color: #2e7d32; padding: 14px 18px; border-radius: 8px; margin-bottom: 20px; }
+    .flash_error { background: #ffebee; border-left: 4px solid #f44336; color: #c62828; padding: 14px 18px; border-radius: 8px; margin-bottom: 20px; }
+    .bio_box { background: #f8f9fa; border-radius: 12px; padding: 18px; margin-bottom: 24px; }
+    .photo_panel { background: #f8f9fa; border-radius: 14px; padding: 18px; margin-bottom: 24px; }
+    .photo_form { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
+    .photo_input { font-size: 13px; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="profile_section">
+    <div class="container">
+        {% for message in app.flashes('success') %}
+            <div class="flash_success" style="margin-bottom:20px"><i class="fa fa-check-circle"></i> {{ message }}</div>
+        {% endfor %}
+        {% for message in app.flashes('error') %}
+            <div class="flash_error" style="margin-bottom:20px"><i class="fa fa-times-circle"></i> {{ message }}</div>
+        {% endfor %}
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <div class="profile_card">
+                    <div class="profile_header">
+                        <div class="profile_avatar" style="background: #eee; position: relative;">
+                            <img src="{{ user.avatarUrl }}" 
+                                 alt="{{ user.initials }}" 
+                                 style="position: absolute; top: 0; left: 0; z-index: 2;"
+                                 onerror="this.style.opacity='0'; this.parentNode.querySelector('.avatar_fallback').style.display='flex';">
+                            <div class="avatar_fallback" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, #fa9e1b, #8d4fff); color: #fff; z-index: 1;">
+                                {{ user.initials }}
+                            </div>
+                        </div>
+                        <div class="profile_name">{{ user.fullName }}</div>
+                        <div class="profile_role">{{ user.type ?? 'CLIENT' }}</div>
+                    </div>
+                    <div class="profile_body">
+                        <div class="photo_panel">
+                            <div class="info_label">Photo de profil</div>
+                            <form method="post" action="{{ path('app_profile_upload_photo') }}" enctype="multipart/form-data" class="photo_form">
+                                <input class="photo_input" type="file" name="photo" accept="image/jpeg,image/png,image/webp,image/gif" required>
+                                <button type="submit" class="btn_primary"><i class="fa fa-upload"></i> Televerser la photo</button>
+                                {% if profil and profil.photo %}
+                                    <button type="submit" formaction="{{ path('app_profile_delete_photo') }}" formmethod="post" class="btn_outline"><i class="fa fa-trash"></i> Supprimer la photo</button>
+                                {% endif %}
+                            </form>
+                        </div>
+
+                        <!-- FACE ID ENROLLMENT -->
+                        <div class="photo_panel" style="background: #fdfaf3; border: 1px dashed #fa9e1b;">
+                            <div class="info_label" style="color: #fa9e1b;"><i class="fa fa-user-shield"></i> Sécurité IA : Face ID</div>
+                            <p style="font-size: 13px; color: #666; margin-bottom: 15px;">
+                                Enregistrez votre visage pour vous connecter sans mot de passe.
+                                {% if app.user.faceDescriptor %}
+                                    <span style="color: #2e7d32; font-weight: bold;"><i class="fa fa-check"></i> Votre visage est déjà enregistré.</span>
+                                {% else %}
+                                    <span style="color: #c62828;">Vous n'avez pas encore enregistré votre visage.</span>
+                                {% endif %}
+                            </p>
+                            <button type="button" id="enroll_face_btn" class="btn_primary" style="background: #1a1a2e;"><i class="fa fa-camera"></i> Enregistrer mon visage</button>
+                        </div>
+
+                        <!-- ENROLLMENT MODAL -->
+                        <div id="enroll_modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.9); z-index:9999; flex-direction:column; align-items:center; justify-content:center; color:#fff; padding: 20px;">
+                            <div style="position:relative; width:100%; max-width:400px; border-radius:20px; overflow:hidden; border: 4px solid #fa9e1b;">
+                                <video id="enroll_video" width="400" height="300" autoplay muted></video>
+                            </div>
+                            <h3 id="enroll_status" style="margin-top:20px;">Prêt pour le scan...</h3>
+                            <button id="close_enroll" style="margin-top:20px; background:rgba(255,255,255,0.1); border:1px solid #fff; color:#fff; padding:8px 20px; border-radius:10px; cursor:pointer;">Fermer</button>
+                        </div>
+
+                        <script src="https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/dist/face-api.min.js"></script>
+                        <script>
+                            const enrollBtn = document.getElementById('enroll_face_btn');
+                            const enrollModal = document.getElementById('enroll_modal');
+                            const enrollVideo = document.getElementById('enroll_video');
+                            const enrollStatus = document.getElementById('enroll_status');
+
+                            enrollBtn.onclick = async () => {
+                                enrollModal.style.display = 'flex';
+                                enrollStatus.innerText = "Initialisation de l'IA...";
+                                
+                                try {
+                                    const MODEL_URL = '/models';
+                                    await Promise.all([
+                                        faceapi.nets.tinyFaceDetector.loadFromUri(MODEL_URL),
+                                        faceapi.nets.faceLandmark68Net.loadFromUri(MODEL_URL),
+                                        faceapi.nets.faceRecognitionNet.loadFromUri(MODEL_URL)
+                                    ]);
+                                    
+                                    const stream = await navigator.mediaDevices.getUserMedia({ video: {} });
+                                    enrollVideo.srcObject = stream;
+                                    
+                                    enrollVideo.onplay = () => {
+                                        const interval = setInterval(async () => {
+                                            const detections = await faceapi.detectSingleFace(enrollVideo, new faceapi.TinyFaceDetectorOptions()).withFaceLandmarks().withFaceDescriptor();
+                                            if (detections) {
+                                                enrollStatus.innerText = "Visage détecté ! Enregistrement...";
+                                                clearInterval(interval);
+                                                
+                                                const formData = new FormData();
+                                                formData.append('descriptor', JSON.stringify(Array.from(detections.descriptor)));
+                                                
+                                                const response = await fetch('{{ path('app_face_id_save') }}', {
+                                                    method: 'POST',
+                                                    body: formData
+                                                });
+                                                
+                                                const result = await response.json();
+                                                if(result.success) {
+                                                    enrollStatus.innerText = "Visage enregistré avec succès !";
+                                                    setTimeout(() => location.reload(), 2000);
+                                                } else {
+                                                    enrollStatus.innerText = "Erreur : " + result.error;
+                                                }
+                                            }
+                                        }, 1000);
+                                    };
+                                } catch (err) {
+                                    console.error("Détail de l'erreur Face ID:", err);
+                                    enrollStatus.innerText = "Erreur : " + err.message;
+                                }
+                            };
+                            
+                            document.getElementById('close_enroll').onclick = () => {
+                                enrollModal.style.display = 'none';
+                                if(enrollVideo.srcObject) enrollVideo.srcObject.getTracks().forEach(t => t.stop());
+                            };
+                        </script>
+
+                        {% if profil and profil.bio %}
+                        <div class="bio_box">
+                            <div class="info_label">Bio</div>
+                            <p style="color:#555;margin:0;line-height:1.6;">{{ profil.bio }}</p>
+                        </div>
+                        {% endif %}
+
+                        <div class="info_grid">
+                            <div class="info_item">
+                                <div class="info_label"><i class="fa fa-user"></i> Prénom</div>
+                                <div class="info_value">{{ user.prenom }}</div>
+                            </div>
+                            <div class="info_item">
+                                <div class="info_label"><i class="fa fa-user"></i> Nom</div>
+                                <div class="info_value">{{ user.nom }}</div>
+                            </div>
+                            <div class="info_item">
+                                <div class="info_label"><i class="fa fa-envelope"></i> Email</div>
+                                <div class="info_value">{{ user.email }}</div>
+                            </div>
+                            <div class="info_item">
+                                <div class="info_label"><i class="fa fa-phone"></i> Téléphone</div>
+                                <div class="info_value">{{ user.telephone ?? 'Non renseigné' }}</div>
+                            </div>
+                            <div class="info_item">
+                                <div class="info_label"><i class="fa fa-birthday-cake"></i> Âge</div>
+                                <div class="info_value">{{ user.age ? user.age ~ ' ans' : 'Non renseigné' }}</div>
+                            </div>
+                            <div class="info_item">
+                                <div class="info_label"><i class="fa fa-check-circle"></i> Vérifié</div>
+                                <div class="info_value">{{ user.isVerified ? 'Oui' : 'Non' }}</div>
+                            </div>
+                        </div>
+
+                        <div class="profile_actions" style="justify-content: space-between; align-items: center;">
+                            <div style="display: flex; gap: 12px; flex-wrap: wrap;">
+                                <a href="{{ path('app_profile_edit') }}" class="btn_primary"><i class="fa fa-edit"></i> Modifier le profil</a>
+                                <a href="{{ path('app_profile_password') }}" class="btn_outline"><i class="fa fa-lock"></i> Changer le mot de passe</a>
+                                <a href="{{ path(user.isAdmin ? 'admin_dashboard' : 'client_dashboard') }}" class="btn_outline"><i class="fa fa-tachometer"></i> Mon dashboard</a>
+                            </div>
+
+                            <form action="{{ path('app_profile_delete') }}" method="post" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer définitivement votre compte ? Cette action est irréversible.');">
+                                <input type="hidden" name="_token" value="{{ csrf_token('delete_account') }}">
+                                <button type="submit" class="btn_primary" style="background: #c62828; color: #fff;"><i class="fa fa-trash"></i> Supprimer le compte</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

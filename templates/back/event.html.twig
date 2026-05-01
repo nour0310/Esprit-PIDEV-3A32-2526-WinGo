@@ -1,0 +1,713 @@
+{% extends 'admin/base_admin.html.twig' %}
+
+{% block title %}Admin — Events Dashboard · WinGo{% endblock %}
+{% block page_title %}Gestion des Événements{% endblock %}
+
+{% block stylesheets %}
+<style>
+:root {
+    --gold: #f5a623;
+    --violet: #7c3aed;
+    --violet-light: #a78bfa;
+    --deep: #1e0a3c;
+    --ink: #0d0d1a;
+    --mist: #f5f4f9;
+    --white: #ffffff;
+    --grey: #7b7a8a;
+    --success: #10b981;
+    --danger: #ef4444;
+    --warning: #f59e0b;
+}
+.kpi_grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 14px; margin-bottom: 16px;
+}
+.kpi_card {
+    background: var(--white);
+    border-radius: 12px;
+    padding: 20px 22px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+    position: relative;
+    transition: all 200ms;
+}
+.kpi_card:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(0,0,0,0.1); }
+.kpi_card::before {
+    content: '';
+    position: absolute; top: 0; left: 0; right: 0; height: 3px;
+    background: linear-gradient(90deg, var(--gold), var(--violet));
+}
+.kpi_label {
+    font-size: 10px; font-weight: 700; letter-spacing: 1.5px;
+    text-transform: uppercase; color: var(--grey); margin-bottom: 10px;
+}
+.kpi_value {
+    font-size: 34px; font-weight: 800; color: var(--ink);
+    line-height: 1; margin-bottom: 5px;
+}
+.kpi_sub { font-size: 12px; color: var(--grey); }
+.kpi_icon {
+    position: absolute; right: 18px; top: 50%;
+    transform: translateY(-50%);
+    font-size: 38px; opacity: 0.06;
+}
+.tbl_card {
+    background: var(--white);
+    border-radius: 12px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+    overflow: hidden;
+}
+.tbl_head {
+    padding: 18px 22px;
+    border-bottom: 1px solid #f0eef8;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+.tbl_head h3 {
+    font-size: 15px; font-weight: 700; color: var(--ink);
+}
+.search_wrap { position: relative; }
+.search_input {
+    height: 36px; border: 1.5px solid #e8e4f5; border-radius: 9px;
+    padding: 0 12px 0 34px;
+    font-size: 13px;
+    outline: none; width: 210px; background: #fafafa;
+}
+.search_input:focus { border-color: var(--violet); background: #fff; }
+.search_ico {
+    position: absolute; left: 11px; top: 50%;
+    transform: translateY(-50%); color: var(--grey); font-size: 12px;
+}
+.filter_pills { display: flex; gap: 6px; }
+.filter_pill {
+    height: 33px; padding: 0 14px;
+    border-radius: 17px; font-size: 11px; font-weight: 600;
+    border: 1.5px solid #e8e4f5; color: var(--grey);
+    cursor: pointer; transition: all 160ms; background: none;
+}
+.filter_pill:hover, .filter_pill.active {
+    border-color: var(--violet); color: var(--violet);
+    background: rgba(124,58,237,0.07);
+}
+.adm_table {
+    width: 100%; border-collapse: collapse; font-size: 13px;
+}
+.adm_table thead tr { background: #faf9fd; border-bottom: 2px solid #f0eef8; }
+.adm_table thead th {
+    padding: 11px 16px; text-align: left;
+    font-size: 10px; font-weight: 700;
+    letter-spacing: 1px; text-transform: uppercase; color: var(--grey);
+}
+.adm_table tbody tr { border-bottom: 1px solid #f8f6fc; }
+.adm_table tbody tr:hover { background: #faf8ff; }
+.adm_table td { padding: 13px 16px; color: #333; vertical-align: middle; }
+.ev_thumb {
+    width: 42px; height: 42px; border-radius: 9px;
+    background: linear-gradient(135deg, var(--gold), var(--violet));
+    overflow: hidden;
+}
+.ev_thumb img { width: 100%; height: 100%; object-fit: cover; }
+.ev_name_cell { display: flex; align-items: center; gap: 11px; }
+.ev_name_cell .nm { font-weight: 600; color: var(--ink); font-size: 13px; }
+.badge {
+    display: inline-block; padding: 3px 10px; border-radius: 6px;
+    font-size: 10px; font-weight: 700; text-transform: uppercase;
+}
+.badge-active { background: rgba(16,185,129,0.1); color: var(--success); }
+.badge-cancelled { background: rgba(239,68,68,0.1); color: var(--danger); }
+.badge-pending { background: rgba(245,158,11,0.1); color: var(--warning); }
+.td_acts { display: flex; gap: 5px; }
+.btn-sm { height: 30px; padding: 0 12px; font-size: 11px; border-radius: 6px; }
+.form_card {
+    background: var(--white);
+    border-radius: 16px;
+    padding: 32px 36px;
+    max-width: 860px;
+}
+.form_sect {
+    font-size: 11px; font-weight: 700; letter-spacing: 1.5px;
+    text-transform: uppercase; color: var(--grey);
+    margin: 28px 0 16px; padding-bottom: 10px;
+    border-bottom: 1.5px solid #f0eef8;
+}
+.form_sect:first-child { margin-top: 0; }
+.fg { margin-bottom: 18px; }
+.fl {
+    display: block; font-size: 11px; font-weight: 700;
+    letter-spacing: 0.8px; text-transform: uppercase;
+    color: var(--deep); margin-bottom: 7px;
+}
+.fi {
+    width: 100%; height: 44px;
+    border: 1.5px solid #e8e4f5; border-radius: 9px;
+    padding: 0 14px;
+    font-size: 14px; color: var(--ink); outline: none;
+    background: #fafafa;
+}
+.fi:focus { border-color: var(--violet); background: #fff; }
+textarea.fi { height: 110px; padding: 12px 14px; resize: vertical; }
+select.fi {
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='7' viewBox='0 0 10 7'%3E%3Cpath fill='%237b7a8a' d='M5 7L0 0h10z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat; background-position: right 14px center;
+}
+.fg_row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.fg_row3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
+.img_preview_wrap {
+    display: none; position: relative;
+    border-radius: 10px; overflow: hidden; height: 160px;
+    border: 2px solid #e8e4f5;
+    margin-bottom: 15px;
+}
+.img_preview_wrap img { width: 100%; height: 100%; object-fit: cover; }
+.img_preview_wrap .remove_img {
+    position: absolute; top: 8px; right: 8px;
+    width: 28px; height: 28px; background: rgba(0,0,0,0.6);
+    border: none; border-radius: 50%; color: #fff;
+    cursor: pointer; font-size: 12px;
+}
+.img_preview_wrap .remove_img:hover { background: var(--danger); }
+.detail_grid {
+    display: grid;
+    grid-template-columns: 1fr 320px;
+    gap: 22px;
+}
+.detail_tbl {
+    background: var(--white); border-radius: 12px;
+    overflow: hidden;
+}
+.detail_tbl tr { border-bottom: 1px solid #f5f3fb; }
+.detail_tbl th {
+    width: 36%; padding: 13px 18px;
+    font-size: 10px; font-weight: 700;
+    text-transform: uppercase; color: var(--grey); background: #faf9fd;
+}
+.detail_tbl td { padding: 13px 18px; color: var(--ink); }
+.side_card {
+    background: var(--white); border-radius: 12px;
+    overflow: hidden; margin-bottom: 16px;
+}
+.side_head {
+    padding: 14px 18px;
+    background: linear-gradient(135deg, var(--deep), #4a0e8a);
+    color: #fff;
+    font-size: 11px; font-weight: 700;
+    text-transform: uppercase;
+}
+.side_body { padding: 18px; }
+.side_row {
+    display: flex; justify-content: space-between;
+    padding: 8px 0; border-bottom: 1px solid #f5f3fb;
+    font-size: 13px;
+}
+.event_img_panel {
+    width: 100%; height: 190px;
+    background: linear-gradient(135deg, var(--gold), var(--violet));
+    border-radius: 12px; overflow: hidden;
+    position: relative; margin-bottom: 14px;
+}
+.event_img_panel img { width: 100%; height: 100%; object-fit: cover; }
+.price_tag {
+    position: absolute; bottom: 12px; right: 12px;
+    background: var(--deep); color: #fff;
+    font-size: 16px; font-weight: 700;
+    padding: 6px 14px; border-radius: 8px;
+}
+.del_overlay {
+    position: fixed; inset: 0;
+    background: rgba(10,5,30,0.65);
+    backdrop-filter: blur(5px);
+    z-index: 9999; display: flex;
+    align-items: center; justify-content: center;
+    opacity: 0; pointer-events: none; transition: opacity 230ms;
+}
+.del_overlay.open { opacity: 1; pointer-events: all; }
+.del_box {
+    background: #fff; border-radius: 16px;
+    padding: 36px 40px; max-width: 420px; width: 100%;
+    text-align: center;
+}
+.del_icon { font-size: 50px; margin-bottom: 14px; }
+.del_box h3 { font-size: 19px; color: var(--ink); margin-bottom: 10px; }
+.del_acts { display: flex; gap: 12px; justify-content: center; margin-top: 24px; }
+.btn {
+    display: inline-flex; align-items: center; gap: 7px;
+    height: 40px; padding: 0 18px; border-radius: 9px;
+    font-size: 13px; font-weight: 600;
+    cursor: pointer; border: none; text-decoration: none;
+}
+.btn-primary { background: linear-gradient(135deg, var(--gold), var(--violet)); color: #fff; }
+.btn-primary:hover { opacity: 0.88; color: #fff; }
+.btn-outline { background: transparent; border: 1.5px solid #ddd; color: var(--ink); }
+.btn-outline:hover { border-color: var(--deep); background: var(--deep); color: #fff; }
+.btn-danger { background: var(--danger); color: #fff; }
+.btn-danger:hover { opacity: 0.85; color: #fff; }
+.btn-dark { background: var(--deep); color: #fff; }
+</style>
+{% endblock %}
+
+{% block content %}
+
+{% if mode == 'list' %}
+
+    {% set total_events = events|length %}
+    {% set active_count = 0 %}
+    {% set pending_count = 0 %}
+    {% set cancelled_count = 0 %}
+    {% set total_cap = 0 %}
+    {% set total_avail = 0 %}
+    {% set total_revenue = 0 %}
+    {% for e in events %}
+        {% if e.status|lower == 'active' %}{% set active_count = active_count + 1 %}{% endif %}
+        {% if e.status|lower == 'pending' %}{% set pending_count = pending_count + 1 %}{% endif %}
+        {% if e.status|lower == 'cancelled' %}{% set cancelled_count = cancelled_count + 1 %}{% endif %}
+        {% set total_cap = total_cap + e.capacity %}
+        {% set total_avail = total_avail + e.available_places %}
+        {% set booked_e = e.capacity - e.available_places %}
+        {% set total_revenue = total_revenue + (booked_e * e.price) %}
+    {% endfor %}
+    {% set total_booked = total_cap - total_avail %}
+    {% set fill_rate = total_cap > 0 ? ((total_booked / total_cap * 100)|round) : 0 %}
+
+    <div class="stats_section">
+        <div class="kpi_grid">
+            <div class="kpi_card">
+                <div class="kpi_label">Total Events</div>
+                <div class="kpi_value">{{ total_events }}</div>
+                <div class="kpi_sub">All time</div>
+                <i class="fa fa-calendar kpi_icon"></i>
+            </div>
+            <div class="kpi_card">
+                <div class="kpi_label">Active Events</div>
+                <div class="kpi_value" style="color:var(--success)">{{ active_count }}</div>
+                <div class="kpi_sub">{{ pending_count }} pending · {{ cancelled_count }} cancelled</div>
+                <i class="fa fa-check-circle kpi_icon"></i>
+            </div>
+            <div class="kpi_card">
+                <div class="kpi_label">Seats Booked</div>
+                <div class="kpi_value" style="color:var(--violet)">{{ total_booked }}</div>
+                <div class="kpi_sub">{{ fill_rate }}% fill rate · {{ total_avail }} left</div>
+                <i class="fa fa-ticket kpi_icon"></i>
+            </div>
+            <div class="kpi_card">
+                <div class="kpi_label">Est. Revenue</div>
+                <div class="kpi_value" style="color:var(--gold)">${{ total_revenue|number_format(0) }}</div>
+                <div class="kpi_sub">Based on bookings</div>
+                <i class="fa fa-dollar kpi_icon"></i>
+            </div>
+        </div>
+    </div>
+
+    <div class="tbl_card">
+        <div class="tbl_head">
+            <h3><i class="fa fa-ticket"></i> All Events</h3>
+            <form method="get" action="{{ path('event_index') }}" style="display: flex; gap: 12px; flex-wrap: wrap; align-items: center;">
+                <input type="text" name="search" class="search_input" placeholder="Search by title or location..." value="{{ current_search }}" style="width: 200px;">
+                
+                <select name="status" class="filter_pill" style="background: none;">
+                    <option value="all" {{ current_status == 'all' ? 'selected' : '' }}>All statuses</option>
+                    <option value="active" {{ current_status == 'active' ? 'selected' : '' }}>Active</option>
+                    <option value="pending" {{ current_status == 'pending' ? 'selected' : '' }}>Pending</option>
+                    <option value="cancelled" {{ current_status == 'cancelled' ? 'selected' : '' }}>Cancelled</option>
+                </select>
+
+                <select name="sort" class="filter_pill" style="background: none;">
+                    <option value="id_desc" {{ current_sort == 'id_desc' ? 'selected' : '' }}>Newest first</option>
+                    <option value="title_asc" {{ current_sort == 'title_asc' ? 'selected' : '' }}>Title A→Z</option>
+                    <option value="title_desc" {{ current_sort == 'title_desc' ? 'selected' : '' }}>Title Z→A</option>
+                    <option value="date_asc" {{ current_sort == 'date_asc' ? 'selected' : '' }}>Date ↑</option>
+                    <option value="date_desc" {{ current_sort == 'date_desc' ? 'selected' : '' }}>Date ↓</option>
+                </select>
+
+                <button type="submit" class="btn btn-primary" style="height:36px;">Filter</button>
+                <a href="{{ path('event_index') }}" class="btn btn-outline" style="height:36px;">Reset</a>
+                <a href="{{ path('event_new') }}" class="btn btn-primary" style="height:36px;">
+                    <i class="fa fa-plus"></i> New Event
+                </a>
+            </form>
+        </div>
+
+        {% if events is empty %}
+            <div style="text-align: center; padding: 70px 30px;">
+                <i class="fa fa-calendar-o" style="font-size: 52px; color: #ddd;"></i>
+                <p style="margin-top: 16px; color: var(--grey);">No events found.</p>
+            </div>
+        {% else %}
+            <div style="overflow-x:auto;">
+                <table class="adm_table">
+                    <thead>
+                        <tr>
+                            <th>Event</th>
+                            <th>Date</th>
+                            <th>Location</th>
+                            <th>Capacity</th>
+                            <th>Price</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for e in events %}
+                        {% set booked_e = e.capacity - e.available_places %}
+                        <tr>
+                            <td>
+                                <div class="ev_name_cell">
+                                    <div class="ev_thumb">
+                                        {% if e.image_event %}
+                                            <img src="{{ asset('images/' ~ e.image_event) }}" alt="" onerror="this.style.display='none'">
+                                        {% endif %}
+                                    </div>
+                                    <div>
+                                        <div class="nm">{{ e.title }}</div>
+                                        <div style="font-size: 10px; color: var(--grey);">{{ e.event_type }} · {{ e.season }}</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>{{ e.date_event|date('M d, Y') }}<br><small style="color:var(--grey)">{{ e.start_time }}</small></td>
+                            <td>{{ e.location }}</td>
+                            <td><strong>{{ e.available_places }}</strong>/{{ e.capacity }}</td>
+                            <td><strong>{{ e.price == 0 ? 'Free' : '$' ~ e.price }}</strong></td>
+                            <td><span class="badge badge-{{ e.status|lower }}">{{ e.status }}</span></td>
+                            <td>
+                                <div class="td_acts">
+                                    <a href="{{ path('participation_index', {id_event: e.id_event}) }}" class="btn btn-dark btn-sm" title="Participations">
+                                        <i class="fa fa-users"></i>
+                                    </a>
+                                    <a href="{{ path('event_show', {id_event: e.id_event}) }}" class="btn btn-dark btn-sm" title="View">
+                                        <i class="fa fa-eye"></i>
+                                    </a>
+                                    <a href="{{ path('event_edit', {id_event: e.id_event}) }}" class="btn btn-outline btn-sm" title="Edit">
+                                        <i class="fa fa-pencil"></i>
+                                    </a>
+                                    <button class="btn btn-danger btn-sm" onclick="confirmDelete('{{ path('event_delete', {id_event: e.id_event}) }}', '{{ e.title|e('js') }}')" title="Delete">
+                                        <i class="fa fa-trash"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% endif %}
+    </div>
+
+{% elseif mode == 'new' or mode == 'edit' %}
+
+    <div style="margin-bottom: 24px;">
+        <a href="{{ path('event_index') }}" class="btn btn-outline">
+            <i class="fa fa-arrow-left"></i> Back to Events
+        </a>
+        {% if mode == 'edit' %}
+            <a href="{{ path('event_show', {id_event: event.id_event}) }}" class="btn btn-dark" style="margin-left: 10px;">
+                <i class="fa fa-eye"></i> View Event
+            </a>
+        {% endif %}
+    </div>
+
+    <div class="form_card">
+        <form method="post" enctype="multipart/form-data" id="eventForm">
+            <div class="form_sect">Basic Information</div>
+            <div class="fg_row">
+                <div class="fg">
+                    <label class="fl">Title</label>
+                    <input type="text" name="title" class="fi"
+                        value="{{ mode == 'edit' ? event.title : '' }}"
+                        placeholder="Event title" required>
+                </div>
+                <div class="fg">
+                    <label class="fl">Event Type</label>
+                    <select name="event_type" class="fi" required>
+                        <option value="">— Select type —</option>
+                        {% set types = ['Conference', 'Concert', 'Festival', 'Sport', 'Exhibition', 'Workshop', 'Party', 'Other'] %}
+                        {% set current = mode == 'edit' ? event.event_type : '' %}
+                        {% for t in types %}
+                            <option value="{{ t }}" {{ current == t ? 'selected' : '' }}>{{ t }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+
+            <div class="fg">
+                <label class="fl">Description</label>
+                <textarea name="description" class="fi" placeholder="Describe the event..." required>{{ mode == 'edit' ? event.description : '' }}</textarea>
+            </div>
+
+            <div class="form_sect">Date & Location</div>
+            <div class="fg_row3">
+                <div class="fg">
+                    <label class="fl">Date</label>
+                    <input type="date" name="date_event" class="fi"
+                        value="{{ mode == 'edit' ? event.date_event|date('Y-m-d') : '' }}" required>
+                </div>
+                <div class="fg">
+                    <label class="fl">Start Time</label>
+                    <input type="time" name="start_time" class="fi"
+                        value="{{ mode == 'edit' ? event.start_time : '' }}" required>
+                </div>
+                <div class="fg">
+                    <label class="fl">Season</label>
+                    <select name="season" class="fi" required>
+                        <option value="">— Season —</option>
+                        {% set seasons = ['Spring', 'Summer', 'Autumn', 'Winter'] %}
+                        {% set curSeason = mode == 'edit' ? event.season : '' %}
+                        {% for s in seasons %}
+                            <option value="{{ s }}" {{ curSeason == s ? 'selected' : '' }}>{{ s }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+            <div class="fg">
+                <label class="fl">Location</label>
+                <input type="text" name="location" class="fi"
+                    value="{{ mode == 'edit' ? event.location : '' }}"
+                    placeholder="City, Venue..." required>
+            </div>
+
+            <div class="form_sect">Tickets & Pricing</div>
+            <div class="fg_row3">
+                <div class="fg">
+                    <label class="fl">Total Capacity</label>
+                    <input type="number" name="capacity" class="fi"
+                        value="{{ mode == 'edit' ? event.capacity : '' }}"
+                        placeholder="500" required>
+                </div>
+                <div class="fg">
+                    <label class="fl">Available Places</label>
+                    <input type="number" name="available_places" class="fi"
+                        value="{{ mode == 'edit' ? event.available_places : '' }}"
+                        placeholder="500" required>
+                </div>
+                <div class="fg">
+                    <label class="fl">Price (USD)</label>
+                    <input type="number" step="0.01" name="price" class="fi"
+                        value="{{ mode == 'edit' ? event.price : '' }}"
+                        placeholder="0.00" required>
+                </div>
+            </div>
+
+            {# ========== AI IMAGE GENERATION ========== #}
+            <div class="form_sect">Event Image – AI Generation</div>
+            <div class="fg">
+                <label class="fl">Describe the image you want (prompt)</label>
+                <textarea id="aiPrompt" class="fi" rows="2" placeholder="e.g. A futuristic conference hall with purple neon lights, digital art style">{{ mode == 'edit' ? event.title : '' }}</textarea>
+                <div class="mt-2 mb-3">
+                    <button type="button" id="generateImageBtn" class="btn btn-primary" style="height:40px;">
+                        <i class="fa fa-magic"></i> Generate Image with AI
+                    </button>
+                    <span id="genLoader" style="display:none; margin-left:12px;"><i class="fa fa-spinner fa-spin"></i> Generating...</span>
+                </div>
+
+                <div id="aiPreviewContainer" class="img_preview_wrap" style="{{ mode == 'edit' and event.image_event ? 'display:block' : 'display:none' }}">
+                    <img id="aiPreviewImg" src="{{ mode == 'edit' and event.image_event ? asset('images/' ~ event.image_event) : '' }}" alt="AI Preview">
+                    <button type="button" id="clearAiImage" class="remove_img">✕</button>
+                </div>
+
+                <input type="hidden" name="image_event" id="imageFilenameInput" value="{{ mode == 'edit' ? event.image_event : '' }}">
+                <div id="aiError" class="alert alert-danger mt-2" style="display:none;"></div>
+            </div>
+
+            <div class="form_sect">Status</div>
+            <div class="fg">
+                <select name="status" class="fi" required>
+                    <option value="">— Status —</option>
+                    <option value="active" {{ mode == 'edit' and event.status|lower == 'active' ? 'selected' : '' }}>Active</option>
+                    <option value="pending" {{ mode == 'edit' and event.status|lower == 'pending' ? 'selected' : '' }}>Pending</option>
+                    <option value="cancelled" {{ mode == 'edit' and event.status|lower == 'cancelled' ? 'selected' : '' }}>Cancelled</option>
+                </select>
+            </div>
+
+            <div style="display:flex; gap:12px; margin-top:28px; padding-top:22px; border-top:1px solid #f0eef8;">
+                <button type="submit" class="btn btn-primary">
+                    <i class="fa fa-check"></i>
+                    {{ mode == 'new' ? 'Create Event' : 'Save Changes' }}
+                </button>
+                <a href="{{ path('event_index') }}" class="btn btn-outline">Cancel</a>
+                {% if mode == 'edit' %}
+                    <button type="button" class="btn btn-danger" style="margin-left:auto;"
+                        onclick="confirmDelete('{{ path('event_delete', {id_event: event.id_event}) }}', '{{ event.title|e('js') }}')">
+                        <i class="fa fa-trash"></i> Delete Event
+                    </button>
+                {% endif %}
+            </div>
+        </form>
+    </div>
+
+{% elseif mode == 'show' %}
+
+    {% set filled = event.capacity - event.available_places %}
+    {% set pct = event.capacity > 0 ? ((filled / event.capacity) * 100)|round : 0 %}
+
+    <div style="margin-bottom: 24px;">
+        <a href="{{ path('event_index') }}" class="btn btn-outline">
+            <i class="fa fa-arrow-left"></i> Back to Events
+        </a>
+        <a href="{{ path('participation_index', {id_event: event.id_event}) }}" class="btn btn-primary" style="margin-left: 10px;">
+            <i class="fa fa-users"></i> View Participations
+        </a>
+        <a href="{{ path('event_edit', {id_event: event.id_event}) }}" class="btn btn-primary" style="margin-left: 10px;">
+            <i class="fa fa-pencil"></i> Edit Event
+        </a>
+        <button class="btn btn-danger" style="margin-left: 10px;" onclick="confirmDelete('{{ path('event_delete', {id_event: event.id_event}) }}', '{{ event.title|e('js') }}')">
+            <i class="fa fa-trash"></i> Delete
+        </button>
+    </div>
+
+    <div class="detail_grid">
+        <div>
+            <table class="detail_tbl">
+                <tr><th>ID</th><td>#{{ event.id_event }}</td></tr>
+                <tr><th>Title</th><td><strong>{{ event.title }}</strong></td></tr>
+                <tr><th>Description</th><td style="white-space:pre-wrap;">{{ event.description }}</td></tr>
+                <tr><th>Date</th><td>{{ event.date_event|date('F d, Y') }}</td></tr>
+                <tr><th>Start Time</th><td>{{ event.start_time }}</td></tr>
+                <tr><th>Location</th><td>{{ event.location }}</td></tr>
+                <tr><th>Event Type</th><td>{{ event.event_type }}</td></tr>
+                <tr><th>Season</th><td>{{ event.season }}</td></tr>
+                <tr><th>Total Capacity</th><td>{{ event.capacity }}</td></tr>
+                <tr><th>Available Places</th><td>{{ event.available_places }}</td></tr>
+                <tr><th>Status</th><td><span class="badge badge-{{ event.status|lower }}">{{ event.status }}</span></td></tr>
+                <tr><th>Price</th><td><strong>{{ event.price == 0 ? 'Free' : '$' ~ event.price }}</strong></td></tr>
+                <tr><th>Image</th><td><code>{{ event.image_event }}</code></td></tr>
+            </table>
+        </div>
+
+        <div>
+            <div class="event_img_panel">
+                {% if event.image_event %}
+                    <img src="{{ asset('images/' ~ event.image_event) }}" alt="{{ event.title }}" onerror="this.style.display='none'">
+                {% endif %}
+                <div class="price_tag">{{ event.price == 0 ? 'Free' : '$' ~ event.price }}</div>
+            </div>
+            <div class="side_card">
+                <div class="side_head"><i class="fa fa-bar-chart"></i> Capacity Stats</div>
+                <div class="side_body">
+                    <div class="side_row"><span>Total seats</span><span><strong>{{ event.capacity }}</strong></span></div>
+                    <div class="side_row"><span>Seats booked</span><span><strong>{{ filled }}</strong></span></div>
+                    <div class="side_row"><span>Seats available</span><span><strong>{{ event.available_places }}</strong></span></div>
+                    <div class="side_row"><span>Fill rate</span><span><strong>{{ pct }}%</strong></span></div>
+                </div>
+            </div>
+
+            <div class="side_card mt-3">
+                <div class="side_head"><i class="fa fa-comments"></i> Feedbacks</div>
+                <div class="side_body">
+                    {% if event.feedbacks|length > 0 %}
+                        {% for fb in event.feedbacks %}
+                            <div class="side_row">
+                                <span><strong>{{ fb.participantName }}</strong></span>
+                                <span>
+                                    {% if fb.feeling == 'like' %}👍
+                                    {% elseif fb.feeling == 'love' %}❤️
+                                    {% elseif fb.feeling == 'haha' %}😂
+                                    {% elseif fb.feeling == 'wow' %}😮
+                                    {% elseif fb.feeling == 'sad' %}😢
+                                    {% elseif fb.feeling == 'angry' %}😡
+                                    {% endif %}
+                                </span>
+                            </div>
+                            <div class="side_row">
+                                <span class="text-muted">{{ fb.comment|default('No comment') }}</span>
+                            </div>
+                            <div class="side_row">
+                                <span class="small">{{ fb.createdAt }}</span>
+                            </div>
+                            {% if not loop.last %}<hr>{% endif %}
+                        {% endfor %}
+                    {% else %}
+                        <div class="text-muted">No feedback yet.</div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+{% endif %}
+
+<div class="del_overlay" id="delOverlay">
+    <div class="del_box">
+        <div class="del_icon">🗑️</div>
+        <h3>Delete Event?</h3>
+        <p id="delMsg">This will permanently remove the event and all its participations.</p>
+        <div class="del_acts">
+            <a id="delConfirmBtn" href="#" class="btn btn-danger">
+                <i class="fa fa-trash"></i> Yes, Delete
+            </a>
+            <button class="btn btn-outline" onclick="closeDelete()">Cancel</button>
+        </div>
+    </div>
+</div>
+
+<script>
+function confirmDelete(url, name) {
+    document.getElementById('delMsg').textContent = 'Delete "' + name + '"? All participations will also be removed. This cannot be undone.';
+    document.getElementById('delConfirmBtn').href = url;
+    document.getElementById('delOverlay').classList.add('open');
+}
+function closeDelete() { document.getElementById('delOverlay').classList.remove('open'); }
+if (document.getElementById('delOverlay')) {
+    document.getElementById('delOverlay').addEventListener('click', function(e) { if (e.target === this) closeDelete(); });
+}
+
+// AI Image Generation
+document.addEventListener('DOMContentLoaded', function() {
+    const genBtn = document.getElementById('generateImageBtn');
+    const promptField = document.getElementById('aiPrompt');
+    const previewContainer = document.getElementById('aiPreviewContainer');
+    const previewImg = document.getElementById('aiPreviewImg');
+    const filenameInput = document.getElementById('imageFilenameInput');
+    const loader = document.getElementById('genLoader');
+    const errorDiv = document.getElementById('aiError');
+    const clearBtn = document.getElementById('clearAiImage');
+
+    if (genBtn) {
+        genBtn.addEventListener('click', async () => {
+            const prompt = promptField.value.trim();
+            if (!prompt) {
+                errorDiv.innerText = 'Please enter an image description.';
+                errorDiv.style.display = 'block';
+                return;
+            }
+            errorDiv.style.display = 'none';
+            genBtn.disabled = true;
+            loader.style.display = 'inline-block';
+
+            try {
+                const formData = new FormData();
+                formData.append('prompt', prompt);
+                const response = await fetch('{{ path('event_generate_image') }}', {
+                    method: 'POST',
+                    body: formData
+                });
+                const data = await response.json();
+                if (data.success) {
+                    previewImg.src = '/images/' + data.filename;
+                    previewContainer.style.display = 'block';
+                    filenameInput.value = data.filename;
+                } else {
+                    errorDiv.innerText = data.error || 'Generation failed.';
+                    errorDiv.style.display = 'block';
+                }
+            } catch (err) {
+                errorDiv.innerText = 'Network error: ' + err.message;
+                errorDiv.style.display = 'block';
+            } finally {
+                genBtn.disabled = false;
+                loader.style.display = 'none';
+            }
+        });
+    }
+
+    if (clearBtn) {
+        clearBtn.addEventListener('click', () => {
+            previewContainer.style.display = 'none';
+            previewImg.src = '';
+            filenameInput.value = '';
+        });
+    }
+});
+</script>
+{% endblock %}

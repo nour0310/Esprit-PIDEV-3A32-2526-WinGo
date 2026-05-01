@@ -1,0 +1,608 @@
+{% extends 'base.html.twig' %}
+{% block title %}Jeu WinGo — Tente ta chance !{% endblock %}
+
+{% block stylesheets %}
+{{ parent() }}
+<style>
+    .jeu_section {
+        padding: 160px 0 80px;
+        background: radial-gradient(circle at top left, rgba(141,79,255,0.12), transparent 40%),
+                    radial-gradient(circle at bottom right, rgba(250,158,27,0.12), transparent 40%),
+                    #f0f2f8;
+        min-height: 100vh;
+    }
+
+    .jeu_hero {
+        text-align: center;
+        margin-bottom: 48px;
+    }
+
+    .jeu_retour_btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 20px;
+        padding: 10px 22px;
+        border-radius: 999px;
+        background: rgba(255,255,255,0.85);
+        color: #8d4fff;
+        font-size: 14px;
+        font-weight: 700;
+        text-decoration: none;
+        border: 1.5px solid rgba(141,79,255,0.25);
+        transition: all 0.2s ease;
+        box-shadow: 0 4px 14px rgba(0,0,0,0.07);
+    }
+
+    .jeu_retour_btn:hover {
+        background: #8d4fff;
+        color: #fff;
+        border-color: #8d4fff;
+        transform: translateY(-2px);
+        text-decoration: none;
+    }
+ 
+    .jeu_hero h1 {
+        font-size: 48px;
+        font-weight: 900;
+        background: linear-gradient(135deg, #fa9e1b, #8d4fff);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        margin-bottom: 12px;
+    }
+
+    .jeu_hero p {
+        font-size: 18px;
+        color: #6d748b;
+    }
+
+    /* ── DÉJÀ JOUÉ ── */
+    .deja_joue_box {
+        max-width: 480px;
+        margin: 0 auto;
+        background: #fff;
+        border-radius: 24px;
+        padding: 40px;
+        text-align: center;
+        box-shadow: 0 16px 40px rgba(0,0,0,0.08);
+    }
+
+    .deja_joue_icon {
+        font-size: 64px;
+        margin-bottom: 16px;
+    }
+
+    .deja_joue_box h2 {
+        font-size: 24px;
+        font-weight: 800;
+        color: #1f2235;
+        margin-bottom: 8px;
+    }
+
+    .deja_joue_box p {
+        color: #6d748b;
+        font-size: 15px;
+    }
+
+    .countdown {
+        margin-top: 20px;
+        padding: 14px 24px;
+        background: linear-gradient(135deg, rgba(250,158,27,0.1), rgba(141,79,255,0.08));
+        border-radius: 12px;
+        font-weight: 700;
+        color: #8d4fff;
+        font-size: 15px;
+    }
+
+    /* ── CHOIX DU JEU ── */
+    .jeu_choix {
+        display: flex;
+        gap: 32px;
+        justify-content: center;
+        flex-wrap: wrap;
+        margin-bottom: 48px;
+    }
+
+    .jeu_btn {
+        padding: 16px 36px;
+        border-radius: 999px;
+        font-size: 18px;
+        font-weight: 800;
+        border: none;
+        cursor: pointer;
+        transition: all 0.25s ease;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.12);
+    }
+
+    .jeu_btn_roue {
+        background: linear-gradient(135deg, #fa9e1b, #f97316);
+        color: #fff;
+    }
+
+    .jeu_btn_cartes {
+        background: linear-gradient(135deg, #8d4fff, #5d7cf3);
+        color: #fff;
+    }
+
+    .jeu_btn:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 16px 40px rgba(0,0,0,0.18);
+    }
+
+    .jeu_btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+        transform: none;
+    }
+
+    /* ── ROUE ── */
+    .roue_container {
+        display: none;
+        flex-direction: column;
+        align-items: center;
+        margin-bottom: 40px;
+    }
+
+    .roue_wrapper {
+        position: relative;
+        width: 320px;
+        height: 320px;
+        margin-bottom: 24px;
+    }
+
+    .roue_fleche {
+        position: absolute;
+        top: -20px;
+        left: 50%;
+        transform: translateX(-50%);
+        font-size: 36px;
+        z-index: 10;
+        filter: drop-shadow(0 4px 8px rgba(0,0,0,0.3));
+    }
+
+    #roueCanvas {
+        border-radius: 50%;
+        box-shadow: 0 16px 48px rgba(0,0,0,0.2);
+    }
+
+    /* ── CARTES ── */
+    .cartes_container {
+        display: none;
+        flex-direction: column;
+        align-items: center;
+        margin-bottom: 40px;
+    }
+
+    .cartes_grille {
+        display: flex;
+        gap: 20px;
+        margin-bottom: 24px;
+    }
+
+    .carte {
+        width: 110px;
+        height: 160px;
+        perspective: 1000px;
+        cursor: pointer;
+    }
+
+    .carte_inner {
+        width: 100%;
+        height: 100%;
+        position: relative;
+        transform-style: preserve-3d;
+        transition: transform 0.6s ease;
+        border-radius: 16px;
+    }
+
+    .carte.retournee .carte_inner {
+        transform: rotateY(180deg);
+    }
+
+    .carte_face, .carte_dos {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        backface-visibility: hidden;
+        border-radius: 16px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 32px;
+        font-weight: 900;
+        box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+    }
+
+    .carte_dos {
+        background: linear-gradient(135deg, #8d4fff, #5d7cf3);
+        color: #fff;
+        font-size: 48px;
+    }
+
+    .carte_face {
+        background: #fff;
+        transform: rotateY(180deg);
+        flex-direction: column;
+        gap: 8px;
+        padding: 12px;
+        text-align: center;
+    }
+
+    .carte_face .carte_emoji { font-size: 36px; }
+    .carte_face .carte_label { font-size: 12px; font-weight: 700; color: #1f2235; }
+
+    /* ── RÉSULTAT ── */
+    .resultat_box {
+        display: none;
+        max-width: 440px;
+        margin: 0 auto 40px;
+        background: #fff;
+        border-radius: 24px;
+        padding: 36px;
+        text-align: center;
+        box-shadow: 0 16px 40px rgba(0,0,0,0.1);
+        animation: fadeInUp 0.4s ease;
+    }
+
+    @keyframes fadeInUp {
+        from { opacity: 0; transform: translateY(20px); }
+        to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .resultat_emoji { font-size: 64px; margin-bottom: 16px; }
+
+    .resultat_titre {
+        font-size: 24px;
+        font-weight: 900;
+        color: #1f2235;
+        margin-bottom: 8px;
+    }
+
+    .resultat_label {
+        font-size: 16px;
+        color: #6d748b;
+        margin-bottom: 20px;
+    }
+
+    .promo_code_box {
+        background: linear-gradient(135deg, rgba(250,158,27,0.1), rgba(141,79,255,0.08));
+        border: 2px dashed #fa9e1b;
+        border-radius: 16px;
+        padding: 18px 24px;
+        margin-bottom: 16px;
+    }
+
+    .promo_code_label {
+        font-size: 12px;
+        font-weight: 700;
+        color: #8d9bb5;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        margin-bottom: 8px;
+    }
+
+    .promo_code {
+        font-size: 28px;
+        font-weight: 900;
+        color: #fa9e1b;
+        letter-spacing: 3px;
+    }
+
+    .promo_info {
+        font-size: 13px;
+        color: #8d9bb5;
+        margin-top: 6px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="jeu_section">
+    <div class="container">
+
+        <div class="jeu_hero">
+            <a href="{{ path('client_produits') }}" class="jeu_retour_btn">
+                <i class="fa fa-arrow-left"></i> Retour aux produits
+            </a>
+            <h1>🎮 Tente ta chance !</h1>
+            <p>Joue une fois par jour et gagne une réduction sur ta prochaine commande.</p>
+        </div>
+
+        {# ── DÉJÀ JOUÉ AUJOURD'HUI ── #}
+        {% if dejaJoue %}
+            <div class="deja_joue_box">
+                <div class="deja_joue_icon">⏰</div>
+                <h2>Tu as déjà joué aujourd'hui !</h2>
+                <p>Tu as joué {{ todayReward.playedAt | time_diff }}.</p>
+                <div class="countdown">
+                    Reviens demain pour une nouvelle chance 🎯
+                </div>
+                {% if todayReward.hasPromotion %}
+                    <div class="promo_code_box" style="margin-top:20px;">
+                        <div class="promo_code_label">Ton code promo actif</div>
+                        <div class="promo_code">{{ todayReward.promotion.code }}</div>
+                        <div class="promo_info">{{ todayReward.promotion.label }} — valable 30 jours</div>
+                    </div>
+                {% endif %}
+            </div>
+
+        {# ── PAS ENCORE JOUÉ ── #}
+        {% else %}
+
+            {# Tokens CSRF cachés pour le JS #}
+            <input type="hidden" id="csrf_roue"   value="{{ csrf_token('jeu_roue') }}">
+            <input type="hidden" id="csrf_cartes"  value="{{ csrf_token('jeu_cartes') }}">
+
+            {# Choix du jeu #}
+            <div class="jeu_choix">
+                <button class="jeu_btn jeu_btn_roue"   onclick="afficherJeu('roue')">
+                    🎡 Roue de la chance
+                </button>
+                <button class="jeu_btn jeu_btn_cartes" onclick="afficherJeu('cartes')">
+                    🃏 Jeu de cartes
+                </button>
+            </div>
+
+            {# ── ROUE ── #}
+            <div class="roue_container" id="roueContainer">
+                <div class="roue_wrapper">
+                    <div class="roue_fleche">▼</div>
+                    <canvas id="roueCanvas" width="320" height="320"></canvas>
+                </div>
+                <button class="jeu_btn jeu_btn_roue" id="btnTournerRoue" onclick="jouerRoue()">
+                    🎡 Tourner la roue !
+                </button>
+            </div>
+
+            {# ── CARTES ── #}
+            <div class="cartes_container" id="cartesContainer">
+                <p style="font-size:16px;color:#6d748b;margin-bottom:20px;font-weight:600;">
+                    Retourne une carte pour découvrir ta récompense !
+                </p>
+                <div class="cartes_grille" id="cartesGrille">
+                    {% for i in 1..4 %}
+                        <div class="carte" id="carte{{ i }}" onclick="retournerCarte({{ i }})">
+                            <div class="carte_inner">
+                                <div class="carte_dos">🎴</div>
+                                <div class="carte_face">
+                                    <span class="carte_emoji" id="carteEmoji{{ i }}">?</span>
+                                    <span class="carte_label" id="carteLabel{{ i }}">?</span>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            {# ── RÉSULTAT ── #}
+            <div class="resultat_box" id="resultatBox">
+                <div class="resultat_emoji" id="resultatEmoji"></div>
+                <div class="resultat_titre" id="resultatTitre"></div>
+                <div class="resultat_label" id="resultatLabel"></div>
+                <div class="promo_code_box" id="promoBox" style="display:none;">
+                    <div class="promo_code_label">Ton code promo</div>
+                    <div class="promo_code" id="promoCode"></div>
+                    <div class="promo_info">Utilise-le dans ton panier · Valable 30 jours</div>
+                </div>
+            </div>
+
+        {% endif %}
+
+    </div>
+</div>
+{% endblock %}
+
+{% block javascripts %}
+{{ parent() }}
+<script>
+// ── CONFIG ROUE ──────────────────────────────────────────────────────────────
+const SEGMENTS = [
+    { label: 'Rien',            emoji: '😔', color: '#e0e0e0', type: 'rien' },
+    { label: 'Réduction 5%',   emoji: '🏷️', color: '#fa9e1b', type: 'reduction_pourcent' },
+    { label: 'Rien',            emoji: '😔', color: '#e0e0e0', type: 'rien' },
+    { label: 'Remise 5 TND',   emoji: '💰', color: '#8d4fff', type: 'remise_fixe' },
+    { label: 'Rien',            emoji: '😔', color: '#e0e0e0', type: 'rien' },
+    { label: 'Livraison 🚚',   emoji: '🚚', color: '#1abc9c', type: 'livraison_gratuite' },
+    { label: 'Rien',            emoji: '😔', color: '#e0e0e0', type: 'rien' },
+    { label: 'Réduction 5%',   emoji: '🏷️', color: '#fa9e1b', type: 'reduction_pourcent' },
+];
+
+let jeuEnCours = false;
+
+// ── AFFICHAGE DU JEU CHOISI ──────────────────────────────────────────────────
+function afficherJeu(type) {
+    document.getElementById('roueContainer').style.display   = 'none';
+    document.getElementById('cartesContainer').style.display = 'none';
+
+    if (type === 'roue') {
+        document.getElementById('roueContainer').style.display = 'flex';
+        dessinerRoue(0);
+    } else {
+        document.getElementById('cartesContainer').style.display = 'flex';
+    }
+}
+
+// ── ROUE — DESSIN ────────────────────────────────────────────────────────────
+function dessinerRoue(rotation) {
+    const canvas  = document.getElementById('roueCanvas');
+    const ctx     = canvas.getContext('2d');
+    const cx      = canvas.width / 2;
+    const cy      = canvas.height / 2;
+    const rayon   = cx - 4;
+    const angle   = (2 * Math.PI) / SEGMENTS.length;
+
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    SEGMENTS.forEach((seg, i) => {
+        const debut = rotation + i * angle;
+        const fin   = debut + angle;
+
+        // Segment
+        ctx.beginPath();
+        ctx.moveTo(cx, cy);
+        ctx.arc(cx, cy, rayon, debut, fin);
+        ctx.closePath();
+        ctx.fillStyle   = seg.color;
+        ctx.fill();
+        ctx.strokeStyle = '#fff';
+        ctx.lineWidth   = 2;
+        ctx.stroke();
+
+        // Texte
+        ctx.save();
+        ctx.translate(cx, cy);
+        ctx.rotate(debut + angle / 2);
+        ctx.textAlign    = 'right';
+        ctx.fillStyle    = '#1f2235';
+        ctx.font         = 'bold 13px Helvetica Neue';
+        ctx.fillText(seg.label, rayon - 10, 5);
+        ctx.restore();
+    });
+
+    // Centre
+    ctx.beginPath();
+    ctx.arc(cx, cy, 18, 0, 2 * Math.PI);
+    ctx.fillStyle = '#fff';
+    ctx.fill();
+    ctx.strokeStyle = '#fa9e1b';
+    ctx.lineWidth   = 3;
+    ctx.stroke();
+}
+
+// ── ROUE — JOUER ─────────────────────────────────────────────────────────────
+function jouerRoue() {
+    if (jeuEnCours) return;
+    jeuEnCours = true;
+
+    const btn    = document.getElementById('btnTournerRoue');
+    btn.disabled = true;
+    btn.textContent = '⏳ La roue tourne...';
+
+    const duree       = 4000;
+    const tours       = 5 + Math.random() * 3;
+    const angleTotal  = tours * 2 * Math.PI;
+    const debut       = performance.now();
+    let   rotCourante = 0;
+
+    function animer(maintenant) {
+        const elapsed  = maintenant - debut;
+        const progress = Math.min(elapsed / duree, 1);
+        // Easing ease-out
+        const eased    = 1 - Math.pow(1 - progress, 3);
+        rotCourante    = eased * angleTotal;
+
+        dessinerRoue(rotCourante);
+
+        if (progress < 1) {
+            requestAnimationFrame(animer);
+        } else {
+            // Animation terminée → appel API
+            envoyerResultat('roue');
+        }
+    }
+
+    requestAnimationFrame(animer);
+}
+
+// ── CARTES — RETOURNER ───────────────────────────────────────────────────────
+let carteRetournee = false;
+
+function retournerCarte(num) {
+    if (carteRetournee || jeuEnCours) return;
+    carteRetournee = true;
+    jeuEnCours     = true;
+
+    // Désactive les autres cartes
+    for (let i = 1; i <= 4; i++) {
+        document.getElementById('carte' + i).style.cursor = 'not-allowed';
+    }
+
+    // Retourne la carte cliquée
+    document.getElementById('carte' + num).classList.add('retournee');
+
+    // Appel API après l'animation flip (600ms)
+    setTimeout(() => envoyerResultat('cartes', num), 700);
+}
+
+// ── APPEL API ─────────────────────────────────────────────────────────────────
+function envoyerResultat(typeJeu, numeroCarte = null) {
+    const csrfKey = typeJeu === 'roue' ? 'csrf_roue' : 'csrf_cartes';
+    const url     = typeJeu === 'roue' ? '{{ path("jeu_roue") }}' : '{{ path("jeu_cartes") }}';
+
+    const body = new URLSearchParams();
+    body.append('_token', document.getElementById(csrfKey).value);
+
+    fetch(url, { method: 'POST', body })
+        .then(r => r.json())
+        .then(data => {
+            if (data.error) {
+                afficherErreur(data.error);
+                return;
+            }
+            afficherResultat(data, typeJeu, numeroCarte);
+        })
+        .catch(() => afficherErreur('Erreur réseau. Réessaie.'));
+}
+
+// ── AFFICHAGE DU RÉSULTAT ─────────────────────────────────────────────────────
+function afficherResultat(data, typeJeu, numeroCarte) {
+    const emojis = {
+        'rien'               : '😔',
+        'reduction_pourcent' : '🏷️',
+        'remise_fixe'        : '💰',
+        'livraison_gratuite' : '🚚',
+    };
+
+    // Si jeu de cartes → révèle toutes les autres cartes avec "rien"
+    if (typeJeu === 'cartes' && numeroCarte) {
+        for (let i = 1; i <= 4; i++) {
+            if (i !== numeroCarte) {
+                setTimeout(() => {
+                    document.getElementById('carteEmoji' + i).textContent = '😔';
+                    document.getElementById('carteLabel' + i).textContent  = 'Rien';
+                    document.getElementById('carte' + i).classList.add('retournee');
+                }, (i - 1) * 200);
+            } else {
+                document.getElementById('carteEmoji' + numeroCarte).textContent = emojis[data.rewardType] || '🎁';
+                document.getElementById('carteLabel' + numeroCarte).textContent  = data.rewardLabel;
+            }
+        }
+    }
+
+    // Affiche le bloc résultat
+    setTimeout(() => {
+        const box = document.getElementById('resultatBox');
+
+        document.getElementById('resultatEmoji').textContent = data.hasPromotion
+            ? emojis[data.rewardType]
+            : '😔';
+
+        document.getElementById('resultatTitre').textContent = data.hasPromotion
+            ? '🎉 Félicitations !'
+            : 'Pas de chance cette fois !';
+
+        document.getElementById('resultatLabel').textContent = data.rewardLabel;
+
+        if (data.hasPromotion && data.promoCode) {
+            document.getElementById('promoCode').textContent = data.promoCode;
+            document.getElementById('promoBox').style.display = 'block';
+        }
+
+        box.style.display = 'block';
+        box.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }, typeJeu === 'cartes' ? 1200 : 500);
+}
+
+function afficherErreur(message) {
+    alert(message);
+    jeuEnCours     = false;
+    carteRetournee = false;
+}
+
+// Dessine la roue au chargement si nécessaire
+window.addEventListener('load', () => {
+    const canvas = document.getElementById('roueCanvas');
+    if (canvas) dessinerRoue(0);
+});
+</script>
+{% endblock %}

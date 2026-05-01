@@ -1,0 +1,789 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Mon Panier - WinGo{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <style>
+        .cart_section{
+            padding: 180px 0 90px 0;
+            background:
+                radial-gradient(circle at top left, rgba(141,79,255,0.10), transparent 28%),
+                radial-gradient(circle at top right, rgba(250,158,27,0.10), transparent 28%),
+                linear-gradient(180deg, #eef3f8 0%, #f7f9fc 100%);
+            min-height: 100vh;
+        }
+
+        .cart_hero{
+            background: linear-gradient(135deg, rgba(255,255,255,0.90), rgba(255,255,255,0.72));
+            border-radius: 30px;
+            padding: 42px 34px;
+            box-shadow: 0 18px 45px rgba(25,30,70,0.10);
+            margin-bottom: 35px;
+            border: 1px solid rgba(255,255,255,0.55);
+        }
+
+        .cart_badge{
+            display: inline-block;
+            padding: 8px 18px;
+            border-radius: 999px;
+            background: linear-gradient(135deg, #fa9e1b, #8d4fff);
+            color: #fff;
+            font-size: 12px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.7px;
+            margin-bottom: 16px;
+        }
+
+        .cart_title{
+            font-size: 52px;
+            font-weight: 900;
+            line-height: 1.05;
+            margin-bottom: 10px;
+            background: linear-gradient(135deg, #1d2140 10%, #8d4fff 58%, #fa9e1b 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .cart_subtitle{
+            font-size: 17px;
+            color: #71758a;
+            margin: 0;
+        }
+
+        .flash_success{
+            margin-bottom: 20px;
+            background: #eefaf0;
+            border: 1px solid #cdebd3;
+            color: #2e7d32;
+            padding: 14px 18px;
+            border-radius: 16px;
+            font-weight: 600;
+        }
+
+        .cart_table_box{
+            background: rgba(255,255,255,0.96);
+            border-radius: 26px;
+            overflow: hidden;
+            box-shadow: 0 16px 38px rgba(25,30,70,0.10);
+            margin-bottom: 30px;
+        }
+
+        .cart_table_header{
+            padding: 22px 28px;
+            border-bottom: 1px solid #eef1f6;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .cart_table_title{
+            font-size: 24px;
+            font-weight: 800;
+            color: #1f2235;
+            margin: 0;
+        }
+
+        .cart_count_badge{
+            padding: 10px 16px;
+            border-radius: 999px;
+            background: rgba(141,79,255,0.10);
+            color: #6b49d8;
+            font-size: 13px;
+            font-weight: 800;
+        }
+
+        .cart_item{
+            padding: 24px 28px;
+            border-bottom: 1px solid #f1f3f8;
+        }
+
+        .cart_item:last-child{
+            border-bottom: none;
+        }
+
+        .cart_item_row{
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .cart_left{
+            display: flex;
+            align-items: center;
+            gap: 18px;
+            min-width: 0;
+            flex: 1 1 420px;
+        }
+
+        .cart_product_img{
+            width: 95px;
+            height: 95px;
+            border-radius: 18px;
+            object-fit: cover;
+            flex-shrink: 0;
+            background: #f4f6fb;
+        }
+
+        .cart_product_placeholder{
+            width: 95px;
+            height: 95px;
+            border-radius: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #5d7cf3, #8d4fff);
+            color: #fff;
+            font-size: 30px;
+            flex-shrink: 0;
+        }
+
+        .cart_info{
+            min-width: 0;
+        }
+
+        .cart_product_name{
+            font-size: 22px;
+            font-weight: 800;
+            color: #1f2235;
+            margin-bottom: 8px;
+            line-height: 1.15;
+        }
+
+        .cart_product_meta{
+            color: #7b8095;
+            font-size: 14px;
+            margin-bottom: 6px;
+        }
+
+        .remove_btn{
+            margin-top: 10px;
+            width: 36px;
+            height: 36px;
+            border: none;
+            border-radius: 50%;
+            background: #fff1f1;
+            color: #d32f2f;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            transition: 0.2s ease;
+        }
+
+        .remove_btn:hover{
+            transform: translateY(-1px);
+            background: #ffe5e5;
+        }
+
+        .cart_right{
+            display: flex;
+            align-items: center;
+            gap: 18px;
+            flex: 0 0 auto;
+            margin-left: auto;
+        }
+
+        .qty_box{
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: #f8f9fd;
+            border: 1px solid #e8ebf3;
+            border-radius: 999px;
+            padding: 6px 10px;
+        }
+
+        .qty_btn_form{
+            margin: 0;
+        }
+
+        .qty_btn{
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background: #ffffff;
+            color: #1f2235;
+            font-size: 18px;
+            font-weight: 700;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            line-height: 1;
+            transition: 0.2s ease;
+            border: 1px solid #e8ebf3;
+        }
+
+        .qty_btn:hover{
+            background: #f1f4fb;
+        }
+
+        .qty_btn:disabled{
+            opacity: .5;
+            cursor: not-allowed;
+        }
+
+        .qty_value{
+            min-width: 24px;
+            text-align: center;
+            font-weight: 800;
+            color: #1f2235;
+            font-size: 15px;
+        }
+
+        .cart_price{
+            min-width: 120px;
+            text-align: right;
+            font-size: 24px;
+            font-weight: 900;
+            background: linear-gradient(135deg, #fa9e1b, #8d4fff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            white-space: nowrap;
+        }
+
+        .cart_total_box{
+            background: rgba(255,255,255,0.96);
+            border-radius: 26px;
+            box-shadow: 0 16px 38px rgba(25,30,70,0.10);
+            padding: 28px;
+            position: sticky;
+            top: 140px;
+        }
+
+        .cart_total_title{
+            font-size: 24px;
+            font-weight: 800;
+            color: #1f2235;
+            margin-bottom: 18px;
+        }
+
+        .cart_total_row{
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 14px;
+            color: #6f7489;
+            font-size: 15px;
+        }
+
+        .cart_total_row strong{
+            color: #1f2235;
+        }
+
+        .cart_total_final{
+            margin-top: 18px;
+            padding-top: 18px;
+            border-top: 1px solid #edf0f6;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .cart_total_amount{
+            font-size: 32px;
+            font-weight: 900;
+            background: linear-gradient(135deg, #fa9e1b, #8d4fff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            white-space: nowrap;
+        }
+
+        .cart_btn{
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            width: 100%;
+            padding: 14px 22px;
+            border-radius: 999px;
+            border: none;
+            text-decoration: none !important;
+            font-size: 14px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.6px;
+            transition: 0.3s ease;
+            margin-top: 14px;
+        }
+
+        .cart_btn_primary{
+            background: linear-gradient(135deg, #fa9e1b, #8d4fff);
+            color: #fff !important;
+            box-shadow: 0 12px 28px rgba(141,79,255,0.18);
+        }
+
+        .cart_btn_soft{
+            background: #eef2ff;
+            color: #5d63a8 !important;
+        }
+
+        .cart_btn:hover{
+            transform: translateY(-2px);
+            opacity: 0.97;
+        }
+
+        .empty_cart{
+            background: rgba(255,255,255,0.96);
+            border-radius: 26px;
+            box-shadow: 0 16px 38px rgba(25,30,70,0.10);
+            text-align: center;
+            padding: 60px 30px;
+        }
+
+        .empty_cart_icon{
+            width: 90px;
+            height: 90px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #fa9e1b, #8d4fff);
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 36px;
+            margin: 0 auto 20px auto;
+        }
+
+        .empty_cart_title{
+            font-size: 30px;
+            font-weight: 900;
+            color: #1f2235;
+            margin-bottom: 10px;
+        }
+
+        .empty_cart_text{
+            color: #71758a;
+            font-size: 16px;
+            margin-bottom: 24px;
+        }
+
+        /* ── PROMO ── */
+        .promo_separator{
+            border: none;
+            border-top: 1px solid #edf0f6;
+            margin: 14px 0;
+        }
+
+        .promo_input_group{
+            display: flex;
+            gap: 8px;
+            margin-bottom: 8px;
+        }
+
+        .promo_input{
+            flex: 1;
+            padding: 10px 14px;
+            border: 1.5px solid #e0e3ef;
+            border-radius: 999px;
+            font-size: 13px;
+            font-family: inherit;
+            outline: none;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: border-color 0.2s;
+        }
+
+        .promo_input:focus{
+            border-color: #8d4fff;
+        }
+
+        .promo_apply_btn{
+            padding: 10px 16px;
+            border-radius: 999px;
+            border: none;
+            background: linear-gradient(135deg, #fa9e1b, #8d4fff);
+            color: #fff;
+            font-size: 13px;
+            font-weight: 800;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: opacity 0.2s;
+        }
+
+        .promo_apply_btn:hover{ opacity: 0.88; }
+
+        .promo_applied_box{
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: #eefaf0;
+            border: 1.5px solid #cdebd3;
+            border-radius: 14px;
+            padding: 10px 14px;
+            margin-bottom: 8px;
+        }
+
+        .promo_applied_code{
+            font-weight: 800;
+            color: #1a6b3a;
+            font-size: 14px;
+        }
+
+        .promo_applied_label{
+            color: #2e7d32;
+            font-size: 13px;
+            margin-left: 6px;
+        }
+
+        .promo_remove_btn{
+            background: none;
+            border: none;
+            color: #d32f2f;
+            font-size: 13px;
+            cursor: pointer;
+            font-weight: 700;
+            padding: 0;
+            text-decoration: none;
+        }
+
+        .promo_msg{
+            font-size: 13px;
+            min-height: 18px;
+            padding: 0 4px;
+        }
+
+        @media (max-width: 991px){
+            .cart_title{ font-size: 40px; }
+            .cart_total_box{ position: static; }
+            .cart_item_row{ flex-direction: column; align-items: flex-start; }
+            .cart_right{ width: 100%; justify-content: space-between; margin-left: 0; }
+            .cart_price{ text-align: left; }
+        }
+
+        @media (max-width: 575px){
+            .cart_left{ flex-direction: column; align-items: flex-start; }
+            .cart_right{ flex-direction: column; align-items: flex-start; }
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+    <div class="cart_section">
+        <div class="container">
+
+            {% for message in app.flashes('success') %}
+                <div class="flash_success">{{ message }}</div>
+            {% endfor %}
+
+            <div class="cart_hero">
+                <div class="cart_badge">Mon panier</div>
+                <h1 class="cart_title">Panier WinGo</h1>
+                <p class="cart_subtitle">
+                    Retrouvez ici tous les produits que vous avez ajoutés à votre panier.
+                </p>
+            </div>
+
+            {% if cartItems is not empty %}
+                <div class="row">
+
+                    {# ── LISTE DES PRODUITS ── #}
+                    <div class="col-lg-8">
+                        <div class="cart_table_box">
+                            <div class="cart_table_header">
+                                <h3 class="cart_table_title">Produits sélectionnés</h3>
+                                <div class="cart_count_badge" id="cart-count">{{ cartCount }} article(s)</div>
+                            </div>
+
+                            <div id="cart-items-list">
+                                {% for item in cartItems %}
+                                    <div class="cart_item" id="cart-item-{{ item.panier.id }}">
+                                        <div class="cart_item_row">
+                                            <div class="cart_left">
+                                                {% if item.produit.image %}
+                                                    <img src="{{ asset('images/' ~ item.produit.image) }}"
+                                                         alt="{{ item.produit.nom }}"
+                                                         class="cart_product_img">
+                                                {% else %}
+                                                    <div class="cart_product_placeholder">
+                                                        <i class="fa fa-shopping-bag"></i>
+                                                    </div>
+                                                {% endif %}
+
+                                                <div class="cart_info">
+                                                    <div class="cart_product_name">{{ item.produit.nom }}</div>
+                                                    <div class="cart_product_meta">
+                                                        <i class="fa fa-map-marker"></i> {{ item.produit.region }}
+                                                    </div>
+                                                    <div class="cart_product_meta">
+                                                        Catégorie : {{ item.produit.categorie }}
+                                                    </div>
+
+                                                    <form method="post"
+                                                          action="{{ path('panier_delete', {'id': item.panier.id}) }}">
+                                                        <input type="hidden" name="_token"
+                                                               value="{{ csrf_token('delete_panier_' ~ item.panier.id) }}">
+                                                        <button type="submit" class="remove_btn" title="Supprimer">
+                                                            <i class="fa fa-trash"></i>
+                                                        </button>
+                                                    </form>
+                                                </div>
+                                            </div>
+
+                                            <div class="cart_right">
+                                                <div class="qty_box">
+                                                    <form method="post"
+                                                          action="{{ path('panier_decrease', {'id': item.panier.id}) }}"
+                                                          class="qty_btn_form ajax-qty-form"
+                                                          data-panier-id="{{ item.panier.id }}">
+                                                        <button type="submit" class="qty_btn">-</button>
+                                                    </form>
+
+                                                    <span class="qty_value" id="qty-{{ item.panier.id }}">
+                                                        {{ item.panier.quantite }}
+                                                    </span>
+
+                                                    <form method="post"
+                                                          action="{{ path('panier_increase', {'id': item.panier.id}) }}"
+                                                          class="qty_btn_form ajax-qty-form"
+                                                          data-panier-id="{{ item.panier.id }}">
+                                                        <button type="submit" class="qty_btn">+</button>
+                                                    </form>
+                                                </div>
+
+                                                <div class="cart_price" id="line-total-{{ item.panier.id }}">
+                                                    {{ item.lineTotal|number_format(2, '.', '') }} DT
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+
+                    {# ── RÉSUMÉ DE COMMANDE ── #}
+                    <div class="col-lg-4 mt-4 mt-lg-0">
+                        <div class="cart_total_box">
+                            <h3 class="cart_total_title">Résumé de commande</h3>
+
+                            <div class="cart_total_row">
+                                <span>Sous-total</span>
+                                <strong id="subtotal-value">{{ subtotal|number_format(2, '.', '') }} DT</strong>
+                            </div>
+
+                            <div class="cart_total_row">
+                                <span>Livraison</span>
+                                <strong id="livraison-value">{{ livraison|number_format(2, '.', '') }} DT</strong>
+                            </div>
+
+                            <div class="cart_total_row">
+                                <span>Réduction</span>
+                                <strong id="reduction-value"
+                                        style="color: {% if reduction > 0 %}#2e7d32{% else %}#1f2235{% endif %};">
+                                    -{{ reduction|number_format(2, '.', '') }} DT
+                                </strong>
+                            </div>
+
+                            {# ── SÉPARATEUR ── #}
+                            <hr class="promo_separator">
+
+                            {# ── BLOC CODE PROMO ── #}
+                            {% if promoCode %}
+                                {# Promo déjà appliquée : afficher le code + bouton retirer #}
+                                <div class="promo_applied_box">
+                                    <div>
+                                        <span class="promo_applied_code">{{ promoCode }}</span>
+                                        <span class="promo_applied_label">— {{ promoLabel }}</span>
+                                    </div>
+                                    <a href="{{ path('panier_supprimer_promo') }}"
+                                       class="promo_remove_btn"
+                                       title="Retirer ce code promo">
+                                        ✕ Retirer
+                                    </a>
+                                </div>
+                            {% else %}
+                                {# Formulaire saisie du code promo #}
+                                <div class="promo_input_group">
+                                    <input
+                                        type="text"
+                                        id="promoInput"
+                                        class="promo_input"
+                                        placeholder="Code promo (WINGO-XXXX)"
+                                        maxlength="12"
+                                        autocomplete="off"
+                                    >
+                                    <button type="button"
+                                            class="promo_apply_btn"
+                                            onclick="appliquerPromo()">
+                                        Appliquer
+                                    </button>
+                                </div>
+                                <div id="promoMsg" class="promo_msg"></div>
+
+                                {# Token CSRF — convention Symfony hors form #}
+                                <input type="hidden" id="csrf_promo"
+                                       value="{{ csrf_token('appliquer_promo') }}">
+                            {% endif %}
+
+                            {# ── SÉPARATEUR ── #}
+                            <hr class="promo_separator">
+
+                            {# ── TOTAL FINAL ── #}
+                            <div class="cart_total_final">
+                                <span><strong>Total</strong></span>
+                                <div class="cart_total_amount" id="total-value">
+                                    {{ total|number_format(2, '.', '') }} DT
+                                </div>
+                            </div>
+
+                            {# ── BOUTON COMMANDER ── #}
+                            <form method="post" action="{{ path('commande_valider') }}">
+                                <input type="hidden" name="_token"
+                                       value="{{ csrf_token('commande_valider') }}">
+                                <button type="submit" class="cart_btn cart_btn_primary">
+                                    <i class="fa fa-credit-card"></i>
+                                    Commander
+                                </button>
+                            </form>
+
+                            <a href="{{ path('client_produits') }}" class="cart_btn cart_btn_soft">
+                                <i class="fa fa-arrow-left"></i>
+                                Continuer mes achats
+                            </a>
+                        </div>
+                    </div>
+
+                </div>
+
+            {% else %}
+                {# ── PANIER VIDE ── #}
+                <div class="empty_cart">
+                    <div class="empty_cart_icon">
+                        <i class="fa fa-shopping-cart"></i>
+                    </div>
+                    <div class="empty_cart_title">Votre panier est vide</div>
+                    <div class="empty_cart_text">
+                        Ajoutez des produits pour commencer vos achats.
+                    </div>
+                    <a href="{{ path('client_produits') }}"
+                       class="cart_btn cart_btn_primary"
+                       style="max-width:260px;margin:0 auto;">
+                        <i class="fa fa-shopping-bag"></i>
+                        Voir les produits
+                    </a>
+                </div>
+            {% endif %}
+
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+
+            // ── QUANTITÉ AJAX ──────────────────────────────────────────────────
+            const qtyForms = document.querySelectorAll('.ajax-qty-form');
+
+            qtyForms.forEach(form => {
+                form.addEventListener('submit', async function (e) {
+                    e.preventDefault();
+
+                    const panierId = this.dataset.panierId;
+                    const url      = this.action;
+                    const button   = this.querySelector('.qty_btn');
+
+                    if (button) button.disabled = true;
+
+                    try {
+                        const response = await fetch(url, {
+                            method: 'POST',
+                            headers: {
+                                'X-Requested-With': 'XMLHttpRequest',
+                                'Accept': 'application/json'
+                            }
+                        });
+
+                        const data = await response.json();
+
+                        if (!data.success) {
+                            alert(data.message || 'Erreur lors de la mise à jour.');
+                            return;
+                        }
+
+                        const qtyEl       = document.getElementById('qty-' + panierId);
+                        const lineTotalEl = document.getElementById('line-total-' + panierId);
+
+                        if (qtyEl)       qtyEl.textContent       = data.quantity;
+                        if (lineTotalEl) lineTotalEl.textContent = data.lineTotal + ' DT';
+
+                        if (data.summary) {
+                            const cartCount = document.getElementById('cart-count');
+                            const subtotal  = document.getElementById('subtotal-value');
+                            const livraison = document.getElementById('livraison-value');
+                            const reduction = document.getElementById('reduction-value');
+                            const total     = document.getElementById('total-value');
+
+                            if (cartCount) cartCount.textContent = data.summary.cartCount + ' article(s)';
+                            if (subtotal)  subtotal.textContent  = data.summary.subtotal  + ' DT';
+                            if (livraison) livraison.textContent = data.summary.livraison + ' DT';
+                            if (reduction) reduction.textContent = '-' + data.summary.reduction + ' DT';
+                            if (total)     total.textContent     = data.summary.total     + ' DT';
+                        }
+
+                    } catch (error) {
+                        alert('Erreur réseau.');
+                    } finally {
+                        if (button) button.disabled = false;
+                    }
+                });
+            });
+
+        });
+
+        // ── CODE PROMO ────────────────────────────────────────────────────────
+        async function appliquerPromo() {
+            const input = document.getElementById('promoInput');
+            const msg   = document.getElementById('promoMsg');
+            const code  = input ? input.value.trim() : '';
+
+            if (!code) {
+                msg.style.color = '#d32f2f';
+                msg.textContent = 'Veuillez saisir un code promo.';
+                return;
+            }
+
+            msg.style.color = '#6f7489';
+            msg.textContent = 'Vérification…';
+
+            const body = new URLSearchParams();
+            body.append('_token', document.getElementById('csrf_promo').value);
+            body.append('code',   code);
+
+            try {
+                const res  = await fetch('{{ path("panier_appliquer_promo") }}', {
+                    method: 'POST',
+                    body,
+                    headers: { 'X-Requested-With': 'XMLHttpRequest' }
+                });
+
+                const data = await res.json();
+
+                if (data.success) {
+                    // Mettre à jour les montants avant le rechargement
+                    const reductionEl = document.getElementById('reduction-value');
+                    const totalEl     = document.getElementById('total-value');
+
+                    if (reductionEl) reductionEl.textContent = '-' + data.reduction + ' DT';
+                    if (totalEl)     totalEl.textContent     = data.total + ' DT';
+
+                    // Recharger pour afficher le bloc "promo appliquée"
+                    location.reload();
+                } else {
+                    msg.style.color = '#d32f2f';
+                    msg.textContent = data.message;
+                }
+
+            } catch {
+                msg.style.color = '#d32f2f';
+                msg.textContent = 'Erreur réseau. Réessaie.';
+            }
+        }
+    </script>
+{% endblock %}

@@ -1,0 +1,114 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Mes réservations événements - WinGo{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <h1 class="mb-4">📋 Mes réservations d'événements</h1>
+
+    {% for message in app.flashes('success') %}
+        <div class="alert alert-success">{{ message }}</div>
+    {% endfor %}
+    {% for message in app.flashes('error') %}
+        <div class="alert alert-danger">{{ message }}</div>
+    {% endfor %}
+
+    {% if participations|length == 0 %}
+        <div class="alert alert-info text-center">
+            <i class="fa fa-calendar-o fa-2x mb-2"></i>
+            <p>Vous n'avez aucune réservation pour le moment.</p>
+            <a href="{{ path('event_front') }}" class="btn btn-primary">Découvrir les événements</a>
+        </div>
+    {% else %}
+        <div class="row">
+            {% for p in participations %}
+                {% set event = p.idEvent %}
+                {% if event %}
+                    {% set today = date() %}
+                    {% set daysLeft = today.diff(event.date_event).days %}
+                    {% set cancelAllowed = daysLeft > 7 %}
+
+                    <div class="col-md-6 col-lg-4 mb-4">
+                        <div class="card h-100 shadow-sm">
+                            <div class="card-body">
+                                <h5 class="card-title">{{ event.title }}</h5>
+                                <p class="text-muted small">
+                                    <i class="fa fa-calendar"></i> {{ event.date_event|date('d/m/Y') }} à {{ event.start_time }}<br>
+                                    <i class="fa fa-map-marker"></i> {{ event.location }}
+                                </p>
+                                <hr>
+                                <p><strong>Places réservées :</strong> {{ p.nombrePlaces }}</p>
+                                <p><strong>Statut :</strong> <span class="badge bg-success">{{ p.statut|upper }}</span></p>
+
+                                {# QR Code #}
+                                {% if p.token %}
+                                    <div class="text-center mt-2 mb-2">
+                                        <img src="{{ path('participation_qrcode', {id_participation: p.idParticipation}) }}" 
+                                             alt="QR Code" 
+                                             style="width: 130px; height: 130px; border: 1px solid #ddd; padding: 5px; border-radius: 8px;">
+                                        <div class="small text-muted mt-1">Présentez ce QR code à l'entrée</div>
+                                    </div>
+                                {% endif %}
+
+                                {% if cancelAllowed %}
+                                    <div class="text-success small mb-2">✅ Annulation possible jusqu'au {{ event.date_event|date_modify('-7 days')|date('d/m/Y') }}</div>
+                                {% else %}
+                                    <div class="text-danger small mb-2">⚠️ Annulation impossible – événement dans moins de 7 jours.</div>
+                                {% endif %}
+
+                                <div class="d-flex gap-2 mt-3">
+                                    <a href="{{ path('client_edit_reservation', {id_participation: p.idParticipation}) }}" class="btn btn-sm btn-warning">Modifier</a>
+                                    {% if cancelAllowed %}
+                                        <a href="{{ path('client_cancel_reservation', {id_participation: p.idParticipation}) }}" class="btn btn-sm btn-danger" onclick="return confirm('Annuler définitivement cette réservation ? Les places seront remises à disposition.')">Annuler</a>
+                                    {% else %}
+                                        <button class="btn btn-sm btn-secondary" disabled>Annulation bloquée</button>
+                                    {% endif %}
+                                </div>
+
+                                {# === FEEDBACK SECTION (only for past events) === #}
+                                {% if event.date_event < today %}
+                                    {% set userFeedback = null %}
+                                    {% for fb in event.feedbacks %}
+                                        {% if fb.userId == app.user.id %}
+                                            {% set userFeedback = fb %}
+                                        {% endif %}
+                                    {% endfor %}
+
+                                    <div class="mt-3">
+                                        {% if userFeedback %}
+                                            <div class="alert alert-sm alert-success">
+                                                <strong>Votre avis :</strong>
+                                                {% if userFeedback.feeling == 'like' %}👍
+                                                {% elseif userFeedback.feeling == 'love' %}❤️
+                                                {% elseif userFeedback.feeling == 'haha' %}😂
+                                                {% elseif userFeedback.feeling == 'wow' %}😮
+                                                {% elseif userFeedback.feeling == 'sad' %}😢
+                                                {% elseif userFeedback.feeling == 'angry' %}😡
+                                                {% endif %}
+                                                <br><small>{{ userFeedback.comment|default('Aucun commentaire') }}</small>
+                                                <br><small class="text-muted">Déposé le {{ userFeedback.createdAt|date('d/m/Y') }}</small>
+                                            </div>
+                                        {% else %}
+                                            <a href="{{ path('event_show_front', {id: event.id_event}) }}" class="btn btn-sm btn-outline-primary w-100">
+                                                💬 Donner mon avis
+                                            </a>
+                                        {% endif %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                {% else %}
+                    <div class="col-12">
+                        <div class="alert alert-warning">Une réservation orpheline (événement supprimé) a été ignorée.</div>
+                    </div>
+                {% endif %}
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    <div class="text-center mt-4">
+        <a href="{{ path('event_front') }}" class="btn btn-primary">+ Réserver un autre événement</a>
+    </div>
+</div>
+{% endblock %}

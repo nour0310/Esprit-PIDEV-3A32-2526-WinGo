@@ -1,0 +1,989 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Events - WinGo{% endblock %}
+
+{% block stylesheets %}
+<link rel="stylesheet" type="text/css" href="{{ asset('styles/main_styles.css') }}">
+<link rel="stylesheet" type="text/css" href="{{ asset('styles/responsive.css') }}">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+    :root {
+        --gold: #fa9e1b;
+        --violet: #8d4fff;
+        --deep: #31124b;
+        --ink: #1a1a2e;
+        --mist: #f6f9fb;
+        --white: #ffffff;
+        --grey: #929191;
+        --success: #27ae60;
+        --danger: #e74c3c;
+    }
+
+    * { box-sizing: border-box; }
+    body { font-family: 'DM Sans', sans-serif; }
+
+    .front_hero {
+        min-height: 420px;
+        background: linear-gradient(135deg, var(--ink) 0%, var(--deep) 55%, #5a1a8a 100%);
+        display: flex;
+        align-items: flex-end;
+        padding: 0 0 60px;
+        position: relative;
+        overflow: hidden;
+    }
+    .front_hero::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+    }
+    .front_hero_orb {
+        position: absolute;
+        border-radius: 50%;
+        filter: blur(80px);
+        opacity: 0.25;
+    }
+    .orb1 { width: 500px; height: 500px; background: var(--gold); top: -200px; right: -100px; }
+    .orb2 { width: 300px; height: 300px; background: var(--violet); bottom: -100px; left: 10%; }
+    .front_hero .container { position: relative; z-index: 2; }
+    .front_hero_eyebrow {
+        display: inline-block;
+        font-family: 'DM Sans', sans-serif;
+        font-size: 11px;
+        font-weight: 600;
+        letter-spacing: 3px;
+        text-transform: uppercase;
+        color: var(--gold);
+        margin-bottom: 16px;
+        padding: 6px 16px;
+        border: 1px solid rgba(250,158,27,0.4);
+        border-radius: 20px;
+    }
+    .front_hero_title {
+        font-family: 'Playfair Display', serif;
+        font-size: clamp(38px, 6vw, 72px);
+        font-weight: 900;
+        color: #fff;
+        line-height: 1.05;
+        margin-bottom: 20px;
+    }
+    .front_hero_title em {
+        font-style: italic;
+        background: linear-gradient(90deg, var(--gold), var(--violet));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+    .front_hero_sub {
+        color: rgba(255,255,255,0.6);
+        font-size: 16px;
+        font-weight: 300;
+        max-width: 500px;
+        line-height: 1.7;
+    }
+
+    .filter_bar {
+        background: var(--white);
+        box-shadow: 0 4px 30px rgba(0,0,0,0.08);
+        padding: 20px 30px;
+        display: flex;
+        gap: 12px;
+        align-items: center;
+        flex-wrap: wrap;
+        position: sticky;
+        top: 0;
+        z-index: 100;
+    }
+    .filter_pill {
+        height: 38px;
+        line-height: 38px;
+        padding: 0 18px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 600;
+        border: 2px solid #ebebeb;
+        color: var(--grey);
+        cursor: pointer;
+        transition: all 200ms;
+        background: none;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    .filter_pill:hover, .filter_pill.active {
+        border-color: var(--gold);
+        color: var(--deep);
+        background: rgba(250,158,27,0.08);
+    }
+    .filter_search {
+        margin-left: auto;
+        height: 40px;
+        border: 2px solid #ebebeb;
+        border-radius: 20px;
+        padding: 0 18px;
+        font-size: 13px;
+        font-family: 'DM Sans', sans-serif;
+        outline: none;
+        min-width: 220px;
+        transition: border-color 200ms;
+    }
+    .filter_search:focus { border-color: var(--gold); }
+
+    .events_front_section {
+        background: var(--mist);
+        padding: 60px 0 100px;
+    }
+    .events_grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+        gap: 28px;
+        margin-top: 40px;
+    }
+
+    .fe_card {
+        background: var(--white);
+        border-radius: 16px;
+        overflow: hidden;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+        transition: all 300ms cubic-bezier(0.34, 1.56, 0.64, 1);
+        cursor: pointer;
+        display: flex;
+        flex-direction: column;
+    }
+    .fe_card:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 20px 50px rgba(49,18,75,0.15);
+    }
+    .fe_card_thumb {
+        position: relative;
+        height: 230px;
+        background: linear-gradient(135deg, var(--gold), var(--violet));
+        overflow: hidden;
+    }
+    .fe_card_thumb img {
+        width: 100%; height: 100%;
+        object-fit: cover;
+        transition: transform 400ms ease;
+    }
+    .fe_card:hover .fe_card_thumb img { transform: scale(1.05); }
+    .fe_card_type {
+        position: absolute;
+        top: 16px; left: 16px;
+        background: rgba(0,0,0,0.55);
+        backdrop-filter: blur(8px);
+        color: #fff;
+        font-size: 10px;
+        font-weight: 700;
+        letter-spacing: 1.5px;
+        text-transform: uppercase;
+        padding: 5px 12px;
+        border-radius: 12px;
+    }
+    .fe_card_price_tag {
+        position: absolute;
+        bottom: 16px; right: 16px;
+        background: var(--deep);
+        color: #fff;
+        font-family: 'Playfair Display', serif;
+        font-size: 20px;
+        font-weight: 700;
+        padding: 8px 18px;
+        border-radius: 12px;
+    }
+    .fe_card_price_tag.free { background: var(--success); font-family: 'DM Sans', sans-serif; font-size: 13px; }
+    .fe_card_season_dot {
+        position: absolute;
+        top: 16px; right: 16px;
+        width: 34px; height: 34px;
+        border-radius: 50%;
+        background: rgba(255,255,255,0.2);
+        backdrop-filter: blur(6px);
+        display: flex; align-items: center; justify-content: center;
+        font-size: 16px;
+    }
+    .fe_card_body {
+        padding: 24px 26px 28px;
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+    }
+    .fe_card_title {
+        font-family: 'Playfair Display', serif;
+        font-size: 20px;
+        font-weight: 700;
+        color: var(--ink);
+        margin-bottom: 12px;
+        line-height: 1.25;
+    }
+    .fe_card_info {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        margin-bottom: 18px;
+    }
+    .fe_info_row {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 13px;
+        color: var(--grey);
+        font-weight: 400;
+    }
+    .fe_info_row .icon { color: var(--gold); font-size: 12px; width: 16px; }
+    .fe_cap_wrap { margin-bottom: 20px; }
+    .fe_cap_header { display: flex; justify-content: space-between; font-size: 11px; color: var(--grey); margin-bottom: 5px; font-weight: 500; }
+    .fe_cap_bg { height: 5px; background: #eee; border-radius: 3px; overflow: hidden; }
+    .fe_cap_fill { height: 100%; border-radius: 3px; background: linear-gradient(90deg, var(--gold), var(--violet)); }
+    .fe_cap_fill.full { background: var(--danger); }
+    .fe_status {
+        display: inline-block;
+        padding: 3px 12px;
+        border-radius: 10px;
+        font-size: 10px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-bottom: 18px;
+    }
+    .fe_status.active { background: rgba(39,174,96,0.12); color: var(--success); }
+    .fe_status.cancelled { background: rgba(231,76,60,0.12); color: var(--danger); }
+    .fe_status.soldout { background: rgba(49,18,75,0.1); color: var(--deep); }
+    .fe_status.pending { background: rgba(250,158,27,0.12); color: #c47a00; }
+    .fe_status.passed { background: rgba(108,117,125,0.1); color: #6c757d; }
+
+    .fe_card_cta {
+        margin-top: auto;
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+    }
+    .btn_front {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 7px;
+        height: 46px;
+        padding: 0 24px;
+        border-radius: 23px;
+        font-family: 'DM Sans', sans-serif;
+        font-size: 13px;
+        font-weight: 600;
+        text-decoration: none;
+        cursor: pointer;
+        border: none;
+        transition: all 200ms ease;
+        white-space: nowrap;
+    }
+    .btn_primary_front {
+        background: linear-gradient(135deg, var(--gold), var(--violet));
+        color: #fff !important;
+        flex: 1;
+    }
+    .btn_primary_front:hover { opacity: 0.88; transform: scale(1.02); color: #fff !important; }
+    .btn_chat_front {
+        background: linear-gradient(135deg, #27ae60, #2ecc71);
+        color: #fff !important;
+    }
+    .btn_chat_front:hover { opacity: 0.88; transform: scale(1.02); color: #fff !important; }
+    .btn_ghost_front {
+        background: transparent;
+        border: 2px solid #e4e4e4;
+        color: var(--ink) !important;
+    }
+    .btn_ghost_front:hover { border-color: var(--deep); background: var(--deep); color: #fff !important; }
+    .sold_out_overlay {
+        position: absolute;
+        inset: 0;
+        background: rgba(0,0,0,0.45);
+        display: flex; align-items: center; justify-content: center;
+    }
+    .sold_out_badge {
+        background: var(--danger);
+        color: #fff;
+        font-weight: 800;
+        font-size: 13px;
+        letter-spacing: 2px;
+        text-transform: uppercase;
+        padding: 10px 24px;
+        border-radius: 4px;
+        transform: rotate(-8deg);
+    }
+    .section_heading { text-align: center; margin-bottom: 10px; }
+    .section_heading h2 {
+        font-family: 'Playfair Display', serif;
+        font-size: 38px;
+        font-weight: 900;
+        color: var(--ink);
+        margin-bottom: 8px;
+    }
+    .section_heading p { color: var(--grey); font-size: 15px; font-weight: 300; }
+    .section_divider {
+        width: 50px;
+        height: 3px;
+        background: linear-gradient(90deg, var(--gold), var(--violet));
+        border-radius: 2px;
+        margin: 12px auto 0;
+    }
+    .front_empty {
+        text-align: center;
+        padding: 100px 30px;
+        grid-column: 1/-1;
+    }
+    .front_empty_icon {
+        font-size: 64px;
+        margin-bottom: 20px;
+        opacity: 0.2;
+    }
+    .front_empty h3 {
+        font-family: 'Playfair Display', serif;
+        font-size: 26px;
+        color: var(--ink);
+        margin-bottom: 10px;
+    }
+    .front_empty p { color: var(--grey); font-size: 15px; }
+
+    .fe_modal_overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(10,5,30,0.75);
+        backdrop-filter: blur(6px);
+        z-index: 9999;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 300ms;
+    }
+    .fe_modal_overlay.open { opacity: 1; pointer-events: all; }
+    .fe_modal {
+        background: var(--white);
+        border-radius: 20px;
+        max-width: 700px;
+        width: 100%;
+        max-height: 90vh;
+        overflow-y: auto;
+        transform: translateY(30px) scale(0.97);
+        transition: transform 300ms cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    .fe_modal_overlay.open .fe_modal { transform: translateY(0) scale(1); }
+    .fe_modal_image { height: 280px; background: linear-gradient(135deg, var(--gold), var(--violet)); position: relative; overflow: hidden; }
+    .fe_modal_image img { width: 100%; height: 100%; object-fit: cover; }
+    .fe_modal_close {
+        position: absolute;
+        top: 16px; right: 16px;
+        width: 38px; height: 38px;
+        background: rgba(255,255,255,0.9);
+        border: none;
+        border-radius: 50%;
+        font-size: 18px;
+        cursor: pointer;
+        display: flex; align-items: center; justify-content: center;
+        transition: background 200ms;
+        z-index: 2;
+    }
+    .fe_modal_close:hover { background: #fff; }
+    .fe_modal_body { padding: 32px 36px 36px; }
+    .fe_modal_eyebrow { font-size: 11px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--gold); margin-bottom: 10px; }
+    .fe_modal_title { font-family: 'Playfair Display', serif; font-size: 32px; font-weight: 900; color: var(--ink); margin-bottom: 18px; line-height: 1.15; }
+    .fe_modal_desc { color: #555; font-size: 15px; line-height: 1.75; margin-bottom: 28px; }
+    .fe_modal_grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 28px; }
+    .fe_modal_stat { background: var(--mist); padding: 14px 18px; border-radius: 10px; }
+    .fe_modal_stat .label { font-size: 10px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: var(--grey); margin-bottom: 4px; }
+    .fe_modal_stat .value { font-size: 15px; font-weight: 600; color: var(--ink); }
+    .fe_modal_footer { display: flex; gap: 12px; flex-wrap: wrap; }
+    .fe_modal_price_big {
+        font-family: 'Playfair Display', serif;
+        font-size: 36px;
+        font-weight: 900;
+        color: var(--deep);
+        margin-bottom: 20px;
+    }
+    .fe_modal_price_big small { font-family: 'DM Sans', sans-serif; font-size: 14px; color: var(--grey); font-weight: 400; }
+
+    .alert-danger {
+        background: #f8d7da;
+        color: #721c24;
+        padding: 12px 18px;
+        border-radius: 12px;
+        margin-bottom: 20px;
+        border-left: 4px solid #dc3545;
+        font-size: 14px;
+    }
+    .admin_back_btn {
+        position: fixed;
+        bottom: 32px;
+        right: 32px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        background: var(--deep);
+        color: #fff !important;
+        text-decoration: none;
+        padding: 12px 20px;
+        border-radius: 50px;
+        font-family: 'DM Sans', sans-serif;
+        font-size: 12px;
+        font-weight: 700;
+        letter-spacing: 0.5px;
+        text-transform: uppercase;
+        box-shadow: 0 8px 30px rgba(49,18,75,0.4);
+        transition: all 250ms ease;
+        z-index: 500;
+    }
+    .admin_back_btn:hover {
+        background: var(--ink);
+        transform: translateY(-3px);
+        box-shadow: 0 14px 40px rgba(49,18,75,0.5);
+        color: #fff !important;
+    }
+  
+    @keyframes pulse_dot {
+        0%, 100% { opacity: 1; transform: scale(1); }
+        50% { opacity: 0.5; transform: scale(0.7); }
+    }
+    .login_banner {
+        background: linear-gradient(135deg, var(--deep), #5a1a8a);
+        border-radius: 16px;
+        padding: 40px;
+        text-align: center;
+        margin: 40px 0;
+    }
+    .login_banner h3 {
+        font-family: 'Playfair Display', serif;
+        font-size: 28px;
+        color: #fff;
+        margin-bottom: 12px;
+    }
+    .login_banner p {
+        color: rgba(255,255,255,0.7);
+        margin-bottom: 24px;
+        font-size: 16px;
+    }
+    .btn_login_banner {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        background: linear-gradient(135deg, var(--gold), var(--violet));
+        color: #fff;
+        padding: 14px 32px;
+        border-radius: 40px;
+        text-decoration: none;
+        font-weight: 600;
+        transition: transform 200ms;
+    }
+    .btn_login_banner:hover {
+        transform: translateY(-2px);
+        color: #fff;
+    }
+    .discount-badge {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        background: #e74c3c;
+        color: white;
+        padding: 3px 8px;
+        border-radius: 20px;
+        font-size: 10px;
+        font-weight: bold;
+        z-index: 2;
+    }
+    .feedback-link {
+        margin-top: 12px;
+        text-align: center;
+    }
+    .feedback-link a {
+        display: inline-block;
+        width: 100%;
+        text-align: center;
+        padding: 8px;
+        background: #f0f4ff;
+        border-radius: 8px;
+        font-size: 12px;
+        font-weight: 600;
+        color: var(--violet);
+        text-decoration: none;
+        transition: all 0.2s;
+    }
+    .feedback-link a:hover {
+        background: var(--violet);
+        color: white;
+    }
+    .feedback-message {
+        margin-top: 12px;
+        font-size: 12px;
+        text-align: center;
+        padding: 6px;
+        border-radius: 8px;
+        background: #e8f5e9;
+        color: #2e7d32;
+    }
+    .feedback-disabled {
+        margin-top: 12px;
+        font-size: 11px;
+        text-align: center;
+        color: #9e9e9e;
+    }
+    .chat-badge {
+        position: absolute;
+        bottom: 16px;
+        left: 16px;
+        background: linear-gradient(135deg, #27ae60, #2ecc71);
+        color: white;
+        padding: 5px 12px;
+        border-radius: 20px;
+        font-size: 10px;
+        font-weight: bold;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        z-index: 2;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="front_hero">
+    <div class="front_hero_orb orb1"></div>
+    <div class="front_hero_orb orb2"></div>
+    <div class="container" style="padding-top: 140px;">
+        <span class="front_hero_eyebrow">✦ WinGo Events</span>
+        <h1 class="front_hero_title">Discover <em>Experiences</em><br>Worth Living</h1>
+        <p class="front_hero_sub">Curated events across every season — concerts, conferences, festivals & more. Book your spot today.</p>
+    </div>
+</div>
+
+<div class="filter_bar">
+    <form method="get" action="{{ path('event_front') }}" id="filterForm" style="display: flex; gap: 12px; align-items: center; flex-wrap: wrap; width: 100%;">
+        <select name="type" class="filter_pill" style="background: none; cursor: pointer;" onchange="this.form.submit()">
+            <option value="all" {{ current_type == 'all' ? 'selected' : '' }}>All</option>
+            <option value="Conference" {{ current_type == 'Conference' ? 'selected' : '' }}>Conference</option>
+            <option value="Concert" {{ current_type == 'Concert' ? 'selected' : '' }}>Concert</option>
+            <option value="Festival" {{ current_type == 'Festival' ? 'selected' : '' }}>Festival</option>
+            <option value="Sport" {{ current_type == 'Sport' ? 'selected' : '' }}>Sport</option>
+        </select>
+
+        <input type="text" name="search" class="filter_search" placeholder="🔍 Search events..." value="{{ current_search }}">
+
+        <select name="sort" class="filter_pill" style="background: none;" onchange="this.form.submit()">
+            <option value="date_asc" {{ current_sort == 'date_asc' ? 'selected' : '' }}>Date ↑</option>
+            <option value="date_desc" {{ current_sort == 'date_desc' ? 'selected' : '' }}>Date ↓</option>
+            <option value="price_asc" {{ current_sort == 'price_asc' ? 'selected' : '' }}>Price ↑</option>
+            <option value="price_desc" {{ current_sort == 'price_desc' ? 'selected' : '' }}>Price ↓</option>
+            <option value="title_asc" {{ current_sort == 'title_asc' ? 'selected' : '' }}>Title A→Z</option>
+        </select>
+
+        <button type="submit" class="filter_pill" style="background: var(--gold); color: white; border: none;">Apply</button>
+        <a href="{{ path('event_front') }}" class="filter_pill">Reset</a>
+
+        {% if is_granted('ROLE_USER') %}
+        <a href="{{ path('client_event_reservations') }}" class="btn_front btn_primary_front" style="background: linear-gradient(135deg, #8d4fff, #fa9e1b); margin-left: auto;">
+            <i class="fa fa-ticket"></i> Mes réservations
+        </a>
+        <a href="{{ path('chat_inbox') }}" class="btn_front" style="background: linear-gradient(135deg, #27ae60, #2ecc71); color: white; margin-left: 10px;">
+            <i class="fa fa-comments"></i> Messages
+        </a>
+        {% endif %}
+    </form>
+</div>
+
+<section class="events_front_section">
+    <div class="container">
+        <div class="section_heading">
+            <h2>Upcoming Events</h2>
+            <p>{{ events|length }} event{{ events|length != 1 ? 's' : '' }} found</p>
+            <div class="section_divider"></div>
+        </div>
+
+        <div class="events_grid" id="eventsGrid">
+            {% if events is empty %}
+                <div class="front_empty">
+                    <div class="front_empty_icon">🔍</div>
+                    <h3>No events match</h3>
+                    <p>Try different keywords or filters.</p>
+                </div>
+            {% else %}
+                {% for event in events %}
+                {% set filled = event.capacity - event.available_places %}
+                {% set pct = event.capacity > 0 ? ((filled / event.capacity) * 100)|round : 0 %}
+                {% set isFull = event.available_places <= 0 %}
+                {% set seasonEmoji = {'Summer': '☀️', 'Winter': '❄️', 'Spring': '🌸', 'Autumn': '🍂', 'Fall': '🍂'}[event.season] ?? '🌍' %}
+                {% set alreadyRegistered = event.id_event in registered_event_ids %}
+
+                <div class="fe_card" data-event-id="{{ event.id_event }}">
+                    <div class="fe_card_thumb">
+                        {% if event.image_event %}
+                            <img src="{{ asset('images/' ~ event.image_event) }}" alt="{{ event.title }}" onerror="this.style.display='none'">
+                        {% endif %}
+                        <div class="fe_card_type">{{ event.event_type }}</div>
+                        <div class="fe_card_season_dot">{{ seasonEmoji }}</div>
+                        {% if event.discountActive and event.price > 0 %}
+                            <div class="discount-badge">-20%</div>
+                        {% endif %}
+                        <div class="fe_card_price_tag {{ event.price == 0 ? 'free' : '' }}">
+                            {% if event.discountActive and event.price > 0 %}
+                                <span style="text-decoration: line-through; font-size: 0.7em;">${{ event.price }}</span>
+                                <span style="color: #fa9e1b;">${{ event.discountedPrice|number_format(2) }}</span>
+                                <span style="display: block; font-size: 10px;">-20% promo</span>
+                            {% else %}
+                                {{ event.price == 0 ? 'Free' : '$' ~ event.price }}
+                            {% endif %}
+                        </div>
+                        {% if alreadyRegistered and not event.isPassed %}
+                            <div class="chat-badge">
+                                <i class="fa fa-comments"></i> Chat Available
+                            </div>
+                        {% endif %}
+                        {% if isFull %}
+                            <div class="sold_out_overlay"><div class="sold_out_badge">Sold Out</div></div>
+                        {% endif %}
+                    </div>
+                    <div class="fe_card_body">
+                        <div class="fe_card_title">{{ event.title }}</div>
+                        <div class="fe_card_info">
+                            <div class="fe_info_row"><i class="fa fa-calendar icon"></i> {{ event.date_event|date('D, M d Y') }} · {{ event.start_time }}</div>
+                            <div class="fe_info_row"><i class="fa fa-map-marker icon"></i> {{ event.location }}</div>
+                            <div class="fe_info_row"><i class="fa fa-leaf icon"></i> {{ event.season }} season</div>
+                            <div class="fe_info_row">
+                                <i class="fa fa-sun-o icon"></i>
+                                {% if event.weatherData is defined and event.weatherData.error is not defined %}
+                                    {{ event.weatherData.temp }}°C, {{ event.weatherData.description }}
+                                    {% if event.weatherData.icon %}
+                                        <img src="https://openweathermap.org/img/wn/{{ event.weatherData.icon }}.png" alt="weather icon" style="width: 20px; height: 20px; margin-left: 5px;">
+                                    {% endif %}
+                                {% else %}
+                                    <span class="text-muted small">Weather unavailable</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                        {% if event.isPassed %}
+                            <span class="fe_status passed">Passed</span>
+                        {% else %}
+                            <span class="fe_status {{ isFull ? 'soldout' : event.status|lower }}">
+                                {{ isFull ? 'Sold Out' : event.status }}
+                            </span>
+                        {% endif %}
+                        <div class="fe_cap_wrap">
+                            <div class="fe_cap_header">
+                                <span>{{ event.available_places }} seats left</span>
+                                <span>{{ pct }}% filled</span>
+                            </div>
+                            <div class="fe_cap_bg">
+                                <div class="fe_cap_fill {{ isFull ? 'full' : '' }}" style="width:{{ pct }}%;"></div>
+                            </div>
+                        </div>
+
+                        {# ========== FEEDBACK SECTION (for past events) ========== #}
+                        {% if event.isPassed %}
+                            <div class="feedback-link">
+                                {% if alreadyRegistered %}
+                                    {% set userFeedbackGiven = false %}
+                                    {% for fb in event.feedbacks %}
+                                        {% if fb.userId == app.user.id %}
+                                            {% set userFeedbackGiven = true %}
+                                        {% endif %}
+                                    {% endfor %}
+                                    {% if not userFeedbackGiven %}
+                                        <a href="{{ path('event_show_front', {id: event.id_event}) }}" class="btn-feedback">
+                                            📝 Leave feedback
+                                        </a>
+                                    {% else %}
+                                        <div class="feedback-message">
+                                            ✅ You already left feedback
+                                        </div>
+                                    {% endif %}
+                                {% else %}
+                                    <div class="feedback-disabled">
+                                        🔒 Only participants can leave feedback
+                                    </div>
+                                {% endif %}
+                            </div>
+                        {% endif %}
+
+                        <div class="fe_card_cta">
+                            {% if event.isPassed %}
+                                <span class="btn_front btn_primary_front" style="background: #6c757d; cursor: default; opacity: 0.7;">
+                                    <i class="fa fa-calendar-times"></i> Past event
+                                </span>
+                            {% elseif alreadyRegistered %}
+                                <span class="btn_front btn_primary_front" style="background: #6c757d; cursor: default; opacity: 0.7;">
+                                    <i class="fa fa-check-circle"></i> Already registered
+                                </span>
+                                <a href="{{ path('event_participants', {id: event.id_event}) }}" class="btn_front btn_chat_front">
+                                    <i class="fa fa-comments"></i> Chat
+                                </a>
+                            {% elseif is_granted('ROLE_USER') %}
+                                <a href="{{ path('participation_front_new', {'id_event': event.id_event}) }}"
+                                   class="btn_front btn_primary_front"
+                                   {{ isFull ? 'disabled style=opacity:0.5;cursor:not-allowed;pointer-events:none;' : '' }}>
+                                    <i class="fa fa-ticket"></i> {{ isFull ? 'Sold Out' : 'Register' }}
+                                </a>
+                            {% else %}
+                                <a href="{{ path('app_login') }}?redirect={{ path('event_front') }}" class="btn_front btn_primary_front">
+                                    <i class="fa fa-lock"></i> Login to Register
+                                </a>
+                            {% endif %}
+                            <button class="btn_front btn_ghost_front" onclick="openDetail({{ event.id_event }})">
+                                <i class="fa fa-info"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            {% endif %}
+        </div>
+
+        {% if not is_granted('ROLE_USER') and events is not empty %}
+        <div class="login_banner" style="margin-top: 60px;">
+            <h3>🔐 Want to join these events?</h3>
+            <p>Create an account or log in to register for events and secure your spot!</p>
+            <a href="{{ path('app_login') }}?redirect={{ path('event_front') }}" class="btn_login_banner">
+                <i class="fa fa-sign-in"></i> Login / Sign Up
+            </a>
+        </div>
+        {% endif %}
+    </div>
+</section>
+
+{# Section des événements recommandés #}
+{% if recommended_events|length > 0 %}
+<section class="recommended-section mt-5 pt-4">
+    <div class="container">
+        <div class="section_heading">
+            <h2>🌟 Recommandé pour vous</h2>
+            <div class="section_divider"></div>
+        </div>
+        <div class="events_grid">
+            {% for event in recommended_events %}
+                {% set alreadyRegistered = event.id_event in registered_event_ids %}
+                <div class="fe_card" data-event-id="{{ event.id_event }}">
+                    <div class="fe_card_thumb">
+                        {% if event.image_event %}
+                            <img src="{{ asset('images/' ~ event.image_event) }}" alt="{{ event.title }}" onerror="this.style.display='none'">
+                        {% endif %}
+                        <div class="fe_card_type">{{ event.event_type }}</div>
+                        <div class="fe_card_season_dot">{{ {'Summer': '☀️', 'Winter': '❄️', 'Spring': '🌸', 'Autumn': '🍂', 'Fall': '🍂'}[event.season] ?? '🌍' }}</div>
+                        {% if event.discountActive and event.price > 0 %}
+                            <div class="discount-badge">-20%</div>
+                        {% endif %}
+                        <div class="fe_card_price_tag {{ event.price == 0 ? 'free' : '' }}">
+                            {% if event.discountActive and event.price > 0 %}
+                                <span style="text-decoration: line-through; font-size: 0.7em;">${{ event.price }}</span>
+                                <span style="color: #fa9e1b;">${{ event.discountedPrice|number_format(2) }}</span>
+                                <span style="display: block; font-size: 10px;">-20% promo</span>
+                            {% else %}
+                                {{ event.price == 0 ? 'Free' : '$' ~ event.price }}
+                            {% endif %}
+                        </div>
+                        {% if alreadyRegistered and not event.isPassed %}
+                            <div class="chat-badge">
+                                <i class="fa fa-comments"></i> Chat Available
+                            </div>
+                        {% endif %}
+                        {% if event.available_places <= 0 %}
+                            <div class="sold_out_overlay"><div class="sold_out_badge">Sold Out</div></div>
+                        {% endif %}
+                    </div>
+                    <div class="fe_card_body">
+                        <div class="fe_card_title">{{ event.title }}</div>
+                        <div class="fe_card_info">
+                            <div class="fe_info_row"><i class="fa fa-calendar icon"></i> {{ event.date_event|date('D, M d Y') }} · {{ event.start_time }}</div>
+                            <div class="fe_info_row"><i class="fa fa-map-marker icon"></i> {{ event.location }}</div>
+                            <div class="fe_info_row"><i class="fa fa-leaf icon"></i> {{ event.season }} season</div>
+                            <div class="fe_info_row">
+                                <i class="fa fa-sun-o icon"></i>
+                                {% if event.weatherData is defined and event.weatherData.error is not defined %}
+                                    {{ event.weatherData.temp }}°C, {{ event.weatherData.description }}
+                                    {% if event.weatherData.icon %}
+                                        <img src="https://openweathermap.org/img/wn/{{ event.weatherData.icon }}.png" alt="weather icon" style="width: 20px; height: 20px; margin-left: 5px;">
+                                    {% endif %}
+                                {% else %}
+                                    <span class="text-muted small">Weather unavailable</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                        {% if event.isPassed %}
+                            <span class="fe_status passed">Passed</span>
+                        {% else %}
+                            <span class="fe_status {{ event.available_places <= 0 ? 'soldout' : event.status|lower }}">
+                                {{ event.available_places <= 0 ? 'Sold Out' : event.status }}
+                            </span>
+                        {% endif %}
+                        <div class="fe_cap_wrap">
+                            <div class="fe_cap_header">
+                                <span>{{ event.available_places }} seats left</span>
+                                <span>{{ ((event.capacity - event.available_places) / event.capacity * 100)|round }}% filled</span>
+                            </div>
+                            <div class="fe_cap_bg">
+                                <div class="fe_cap_fill {{ event.available_places <= 0 ? 'full' : '' }}" style="width:{{ ((event.capacity - event.available_places) / event.capacity * 100)|round }}%;"></div>
+                            </div>
+                        </div>
+                        <div class="fe_card_cta">
+                            {% if event.isPassed %}
+                                <span class="btn_front btn_primary_front" style="background: #6c757d; cursor: default; opacity: 0.7;">
+                                    <i class="fa fa-calendar-times"></i> Past event
+                                </span>
+                            {% elseif alreadyRegistered %}
+                                <span class="btn_front btn_primary_front" style="background: #6c757d; cursor: default; opacity: 0.7;">
+                                    <i class="fa fa-check-circle"></i> Already registered
+                                </span>
+                                <a href="{{ path('event_participants', {id: event.id_event}) }}" class="btn_front btn_chat_front">
+                                    <i class="fa fa-comments"></i> Chat
+                                </a>
+                            {% elseif is_granted('ROLE_USER') %}
+                                <a href="{{ path('participation_front_new', {'id_event': event.id_event}) }}"
+                                   class="btn_front btn_primary_front"
+                                   {{ event.available_places <= 0 ? 'disabled style=opacity:0.5;cursor:not-allowed;pointer-events:none;' : '' }}>
+                                    <i class="fa fa-ticket"></i> {{ event.available_places <= 0 ? 'Sold Out' : 'Register' }}
+                                </a>
+                            {% else %}
+                                <a href="{{ path('app_login') }}?redirect={{ path('event_front') }}" class="btn_front btn_primary_front">
+                                    <i class="fa fa-lock"></i> Login to Register
+                                </a>
+                            {% endif %}
+                            <button class="btn_front btn_ghost_front" onclick="openDetail({{ event.id_event }})">
+                                <i class="fa fa-info"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endif %}
+
+<div class="d-flex justify-content-center mt-5">
+    {{ knp_pagination_render(pagination) }}
+</div>
+
+<div class="fe_modal_overlay" id="detailOverlay" onclick="if(event.target===this)closeDetail()">
+    <div class="fe_modal" id="detailModal">
+        <div class="fe_modal_image" id="detailImage">
+            <img id="detailImg" src="" alt="">
+            <button class="fe_modal_close" onclick="closeDetail()">✕</button>
+        </div>
+        <div class="fe_modal_body">
+            <div class="fe_modal_eyebrow" id="detailType"></div>
+            <div class="fe_modal_title" id="detailTitle"></div>
+            <div class="fe_modal_price_big" id="detailPrice"></div>
+            <div class="fe_modal_desc" id="detailDesc"></div>
+            <div class="fe_modal_grid" id="detailGrid"></div>
+            <div class="fe_modal_footer" id="detailFooter"></div>
+        </div>
+    </div>
+</div>
+
+{% if is_granted('ROLE_ADMIN') %}
+<a href="{{ path('event_index') }}" class="admin_back_btn">
+    <div class="dot"></div>
+    <i class="fa fa-lock"></i> Event Back
+</a>
+{% endif %}
+
+<script>
+    const EVENTS_DATA = {
+        {% for event in events %}
+        {{ event.id_event }}: {
+            title: {{ event.title|json_encode|raw }},
+            description: {{ event.description|json_encode|raw }},
+            type: {{ event.event_type|json_encode|raw }},
+            date: {{ event.date_event|date('Y-m-d')|json_encode|raw }},
+            time: {{ event.start_time|json_encode|raw }},
+            location: {{ event.location|json_encode|raw }},
+            season: {{ event.season|json_encode|raw }},
+            capacity: {{ event.capacity }},
+            available: {{ event.available_places }},
+            status: {{ event.status|json_encode|raw }},
+            price: {{ event.discountActive and event.price > 0 ? event.discountedPrice : event.price }},
+            originalPrice: {{ event.price }},
+            discountActive: {{ event.discountActive ? 'true' : 'false' }},
+            image: {{ event.image_event ? (asset('images/' ~ event.image_event))|json_encode|raw : 'null' }},
+            registerUrl: {{ path('participation_front_new', {id_event: event.id_event})|json_encode|raw }},
+            isPassed: {{ event.isPassed ? 'true' : 'false' }}
+        }{% if not loop.last %},{% endif %}
+        {% endfor %}
+    };
+
+    {% if recommended_events is defined %}
+        {% for event in recommended_events %}
+        EVENTS_DATA[{{ event.id_event }}] = {
+            title: {{ event.title|json_encode|raw }},
+            description: {{ event.description|json_encode|raw }},
+            type: {{ event.event_type|json_encode|raw }},
+            date: {{ event.date_event|date('Y-m-d')|json_encode|raw }},
+            time: {{ event.start_time|json_encode|raw }},
+            location: {{ event.location|json_encode|raw }},
+            season: {{ event.season|json_encode|raw }},
+            capacity: {{ event.capacity }},
+            available: {{ event.available_places }},
+            status: {{ event.status|json_encode|raw }},
+            price: {{ event.discountActive and event.price > 0 ? event.discountedPrice : event.price }},
+            originalPrice: {{ event.price }},
+            discountActive: {{ event.discountActive ? 'true' : 'false' }},
+            image: {{ event.image_event ? (asset('images/' ~ event.image_event))|json_encode|raw : 'null' }},
+            registerUrl: {{ path('participation_front_new', {id_event: event.id_event})|json_encode|raw }},
+            isPassed: {{ event.isPassed ? 'true' : 'false' }}
+        };
+        {% endfor %}
+    {% endif %}
+
+    const REGISTERED_IDS = {{ registered_event_ids|json_encode|raw }};
+
+    function openDetail(id) {
+        const e = EVENTS_DATA[id];
+        if (!e) return;
+        document.getElementById('detailType').textContent = e.type + ' · ' + e.season;
+        document.getElementById('detailTitle').textContent = e.title;
+        let priceHtml = '';
+        if (e.discountActive && e.originalPrice > 0) {
+            priceHtml = `<span style="text-decoration: line-through; font-size: 0.7em;">$${e.originalPrice}</span> <span style="color: #fa9e1b;">$${e.price}</span> <span style="display: block; font-size: 10px;">-20% promo</span>`;
+        } else {
+            priceHtml = e.price === 0 ? '<span style="color:var(--success)">Free Entry</span>' : '$' + e.price + ' <small>per seat</small>';
+        }
+        document.getElementById('detailPrice').innerHTML = priceHtml;
+        document.getElementById('detailDesc').textContent = e.description;
+        document.getElementById('detailImg').src = e.image || '';
+        document.getElementById('detailImg').style.display = e.image ? 'block' : 'none';
+        document.getElementById('detailGrid').innerHTML = `
+            <div class="fe_modal_stat"><div class="label">Date & Time</div><div class="value">${e.date} · ${e.time}</div></div>
+            <div class="fe_modal_stat"><div class="label">Location</div><div class="value">${e.location}</div></div>
+            <div class="fe_modal_stat"><div class="label">Capacity</div><div class="value">${e.available} / ${e.capacity} available</div></div>
+            <div class="fe_modal_stat"><div class="label">Status</div><div class="value">${e.status}</div></div>
+        `;
+        
+        const alreadyRegistered = REGISTERED_IDS.includes(id);
+        {% if is_granted('ROLE_USER') %}
+            if (e.isPassed) {
+                document.getElementById('detailFooter').innerHTML = `
+                    <span class="btn_front btn_primary_front" style="background: #6c757d; cursor: default;">📅 Past event</span>
+                    <button class="btn_front btn_ghost_front" onclick="closeDetail()">Close</button>
+                `;
+            } else if (alreadyRegistered) {
+                document.getElementById('detailFooter').innerHTML = `
+                    <span class="btn_front btn_primary_front" style="background: #6c757d; cursor: default;">✓ Already registered</span>
+                    <button class="btn_front btn_ghost_front" onclick="closeDetail()">Close</button>
+                `;
+            } else {
+                document.getElementById('detailFooter').innerHTML = `
+                    <a href="${e.registerUrl}" class="btn_front btn_primary_front" ${e.available<=0?'disabled style=opacity:0.5;pointer-events:none;':''}><i class="fa fa-ticket"></i> ${e.available<=0?'Sold Out':'Register Now'}</a>
+                    <button class="btn_front btn_ghost_front" onclick="closeDetail()">Close</button>
+                `;
+            }
+        {% else %}
+            document.getElementById('detailFooter').innerHTML = `
+                <a href="{{ path('app_login') }}?redirect={{ path('event_front') }}" class="btn_front btn_primary_front"><i class="fa fa-lock"></i> Login to Register</a>
+                <button class="btn_front btn_ghost_front" onclick="closeDetail()">Close</button>
+            `;
+        {% endif %}
+        
+        document.getElementById('detailOverlay').classList.add('open');
+        document.body.style.overflow = 'hidden';
+    }
+    
+    function closeDetail() {
+        document.getElementById('detailOverlay').classList.remove('open');
+        document.body.style.overflow = '';
+    }
+</script>
+{% endblock %}

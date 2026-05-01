@@ -1,0 +1,10 @@
+twig:
+    file_name_pattern: '*.twig'
+    form_themes: ['@QuillJs/form.html.twig']
+    globals:
+        app_domain: '%app_domain%'
+        app_scheme: '%app_scheme%'
+
+when@test:
+    twig:
+        strict_variables: true
