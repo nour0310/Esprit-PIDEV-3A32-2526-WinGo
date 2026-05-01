@@ -15,7 +15,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\HttpFoundation\JsonResponse;
 
-use App\Repository\EventRepository;
+use App\Entity\Event;
 use App\Repository\ProduitRepository;
 use App\Repository\CommentaireRepository;
 use App\Repository\ArticleRepository;
@@ -25,16 +25,16 @@ class FrontController extends AbstractController
     #[Route('/', name: 'home')]
     #[Route('/index', name: 'index_page')]
     public function index(
-        EventRepository $eventRepo,
+        EntityManagerInterface $em,
         ProduitRepository $produitRepo,
         CommentaireRepository $commentaireRepo,
         ArticleRepository $articleRepo
     ): Response {
         // Fetch real data to replace static placeholders
-        $events = $eventRepo->findBy([], ['date_debut' => 'DESC'], 3);
+        $events = $em->getRepository(Event::class)->findBy([], ['date_event' => 'DESC'], 3);
         $produits = $produitRepo->findBy([], ['id' => 'DESC'], 3);
-        $eventsOffers = $eventRepo->findBy([], ['price' => 'ASC'], 4); // The cheapest events for offers
-        $commentaires = $commentaireRepo->findBy([], ['datePublication' => 'DESC'], 3);
+        $eventsOffers = $em->getRepository(Event::class)->findBy([], ['price' => 'ASC'], 4); // The cheapest events for offers
+        $commentaires = $commentaireRepo->findBy([], ['dateCommentaire' => 'DESC'], 3);
         $articles = $articleRepo->findBy([], ['datePublication' => 'DESC'], 8);
 
         return $this->render('index.html.twig', [
