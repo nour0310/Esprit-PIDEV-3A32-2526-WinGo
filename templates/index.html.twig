@@ -353,6 +353,39 @@
 		</div>
 	</div>
 
+	<!-- About Us WinGo -->
+	<div class="about_wingo" style="padding: 100px 0; background: #fff;">
+		<div class="container">
+			<div class="row">
+				<div class="col text-center">
+					<h2 class="section_title" style="margin-bottom: 20px;">À propos de WinGo</h2>
+					<p class="about_subtitle" style="font-size: 18px; color: #777; max-width: 800px; margin: 0 auto 60px;">Nous sommes une équipe passionnée d'étudiants d'ESPRIT qui ont conçu WinGo pour révolutionner votre façon de voyager et de découvrir des événements locaux.</p>
+				</div>
+			</div>
+			<div class="row team_container" style="display: flex; flex-wrap: wrap; justify-content: center; gap: 30px;">
+				
+				{% set team = [
+					{name: 'Balkis Zaghdoud', img: 'balkis zaghdoud.jpg'},
+					{name: 'Fatma Aloui', img: 'fatma aloui.png'},
+					{name: 'Nour Arrami', img: 'nour arrami.png'},
+					{name: 'Yomna Helali', img: 'yomna helali.png'},
+					{name: 'Nour Fourti', img: 'nour fourti.jpg'}
+				] %}
+
+				{% for member in team %}
+				<div class="team_item" style="text-align: center; width: 200px;">
+					<div class="team_image" style="width: 150px; height: 150px; border-radius: 50%; overflow: hidden; margin: 0 auto 20px; border: 4px solid #fa9e1b; box-shadow: 0 10px 20px rgba(0,0,0,0.1);">
+						<img src="{{ asset('images/' ~ member.img) }}" alt="{{ member.name }}" style="width: 100%; height: 100%; object-fit: cover;">
+					</div>
+					<div class="team_name" style="font-weight: 700; color: #2d2c2c; font-size: 16px;">{{ member.name }}</div>
+					<div class="team_role" style="color: #fa9e1b; font-size: 13px; text-transform: uppercase; font-weight: 600; margin-top: 5px;">Développeur</div>
+				</div>
+				{% endfor %}
+
+			</div>
+		</div>
+	</div>
+
 	<!-- Contact -->
 	<div class="contact">
 		<div class="contact_background" style="background-image:url({{ asset('images/contact.png') }})"></div>
