@@ -367,7 +367,7 @@
 							<div class="owl-item">
 								<div class="test_item">
 									<div class="test_image">
-										<img src="{{ (test.user_id and test.user_id.avatarUrl) ? test.user_id.avatarUrl : asset('images/test_1.jpg') }}" alt="" style="width: 100%; height: 100%; object-fit: cover;">
+										<img src="https://api.dicebear.com/7.x/avataaars/svg?seed={{ test.user|default('WinGo')|url_encode }}" alt="" style="width: 100%; height: 100%; object-fit: cover;">
 									</div>
 									<div class="test_icon"><img src="{{ asset('images/backpack.png') }}" alt=""></div>
 									<div class="test_content_container">
