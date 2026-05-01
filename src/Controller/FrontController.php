@@ -15,20 +15,42 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\HttpFoundation\JsonResponse;
 
+use App\Repository\EventRepository;
+use App\Repository\ProduitRepository;
+use App\Repository\CommentaireRepository;
+use App\Repository\ArticleRepository;
+
 class FrontController extends AbstractController
 {
     #[Route('/', name: 'home')]
     #[Route('/index', name: 'index_page')]
-    public function index(): Response
-    {
-        return $this->render('index.html.twig');
+    public function index(
+        EventRepository $eventRepo,
+        ProduitRepository $produitRepo,
+        CommentaireRepository $commentaireRepo,
+        ArticleRepository $articleRepo
+    ): Response {
+        // Fetch real data to replace static placeholders
+        $events = $eventRepo->findBy([], ['date_debut' => 'DESC'], 3);
+        $produits = $produitRepo->findBy([], ['id' => 'DESC'], 3);
+        $eventsOffers = $eventRepo->findBy([], ['price' => 'ASC'], 4); // The cheapest events for offers
+        $commentaires = $commentaireRepo->findBy([], ['datePublication' => 'DESC'], 3);
+        $articles = $articleRepo->findBy([], ['datePublication' => 'DESC'], 8);
+
+        return $this->render('index.html.twig', [
+            'events' => $events,
+            'produits' => $produits,
+            'events_offers' => $eventsOffers,
+            'commentaires' => $commentaires,
+            'articles' => $articles,
+        ]);
     }
-    #[Route('/about', name: 'about')] // <--- Ensure this name is exactly 'about'
-public function about(): Response
-{
-    return $this->render('about.html.twig');
-}
-#[Route('/contact', name: 'contact')]
+    #[Route('/about', name: 'about')]
+    public function about(): Response
+    {
+        return $this->render('about.html.twig');
+    }
+    #[Route('/contact', name: 'contact')]
     public function contact(): Response
     {
         return $this->render('contact.html.twig');
@@ -46,8 +68,8 @@ public function about(): Response
     #[Route('/Reservation/offerst/{id?}', name: 'app_front_offers')]
     public function offer(TransportRepository $repo, Request $request, EntityManagerInterface $em, $id = null): Response
     {
-        $searchTerm = $request->query->get('search'); 
-        $sortBy = $request->query->get('sort');      
+        $searchTerm = $request->query->get('search');
+        $sortBy = $request->query->get('sort');
         $list = $repo->searchAndSort($searchTerm, $sortBy);
 
         if ($request->query->get('ajax')) {
@@ -56,7 +78,8 @@ public function about(): Response
 
         if ($id) {
             $transport = $repo->find($id);
-            if (!$transport) return $this->redirectToRoute('app_front_offers');
+            if (!$transport)
+                return $this->redirectToRoute('app_front_offers');
         } else {
             $transport = new Transport();
         }
@@ -74,9 +97,9 @@ public function about(): Response
         return $this->render('Reservation/offerst.html.twig', [
             'list' => $list,
             'f' => $form->createView(),
-            'editMode' => (bool)$id,
+            'editMode' => (bool) $id,
             'searchTerm' => $searchTerm,
-            'currentSort' => $sortBy 
+            'currentSort' => $sortBy
         ]);
     }
 
@@ -93,9 +116,9 @@ public function about(): Response
     #[Route('/Reservation/offersr/{id?}', name: 'app_front_reservations')]
     public function reservations(ReservationRepository $repo, Request $request, EntityManagerInterface $em, $id = null): Response
     {
-        $searchTerm = $request->query->get('search'); 
-        $sortBy = $request->query->get('sort');      
-        
+        $searchTerm = $request->query->get('search');
+        $sortBy = $request->query->get('sort');
+
         // Pass the currently logged in user to avoid showing other clients' reservations
         $user = $this->getUser();
         $list = $repo->searchAndSortReservations($searchTerm, $sortBy, $user instanceof \App\Entity\Utilisateur ? $user : null);
@@ -120,7 +143,7 @@ public function about(): Response
             'f' => $form->createView(),
             'editMode' => $reservation->getId() !== null,
             'searchTerm' => $searchTerm,
-            'currentSort' => $sortBy 
+            'currentSort' => $sortBy
         ]);
     }
 

@@ -134,23 +134,17 @@
 			</div>
 			<div class="row intro_items">
 
-				{% set intro_items = intro_items is defined ? intro_items : [
-					{image: 'intro_1.jpg', date: 'May 25th - June 01st', name: 'Mauritius', price: 'From $1450'},
-					{image: 'intro_2.jpg', date: 'May 25th - June 01st', name: 'Greece', price: 'From $1450'},
-					{image: 'intro_3.jpg', date: 'May 25th - June 01st', name: 'Scotland', price: 'From $1450'}
-				] %}
-
-				{% for item in intro_items %}
+				{% for event in events %}
 				<div class="col-lg-4 intro_col">
 					<div class="intro_item">
 						<div class="intro_item_overlay"></div>
-						<div class="intro_item_background" style="background-image:url({{ asset('images/' ~ item.image) }})"></div>
+						<div class="intro_item_background" style="background-image:url({{ event.imageEvent ? asset('uploads/events/' ~ event.imageEvent) : asset('images/intro_1.jpg') }})"></div>
 						<div class="intro_item_content d-flex flex-column align-items-center justify-content-center">
-							<div class="intro_date">{{ item.date }}</div>
+							<div class="intro_date">{{ event.dateEvent ? event.dateEvent|date('M dS') : '' }}</div>
 							<div class="button intro_button"><div class="button_bcg"></div><a href="#">see more<span></span><span></span><span></span></a></div>
 							<div class="intro_center text-center">
-								<h1>{{ item.name }}</h1>
-								<div class="intro_price">{{ item.price }}</div>
+								<h1>{{ event.title }}</h1>
+								<div class="intro_price">From ${{ event.price }}</div>
 								<div class="rating rating_4">
 									<i class="fa fa-star"></i><i class="fa fa-star"></i><i class="fa fa-star"></i><i class="fa fa-star"></i><i class="fa fa-star"></i>
 								</div>
@@ -158,6 +152,8 @@
 						</div>
 					</div>
 				</div>
+				{% else %}
+				<div class="col text-center"><p>No events available yet.</p></div>
 				{% endfor %}
 
 			</div>
@@ -173,18 +169,19 @@
 					<div class="cta_slider_container">
 						<div class="owl-carousel owl-theme cta_slider">
 
-							{% set cta_items = cta_items is defined ? cta_items : [
-								{title: 'maldives deluxe package', text: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam eu convallis tortor. Suspendisse potenti.'},
-								{title: 'maldives deluxe package', text: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam eu convallis tortor. Suspendisse potenti.'},
-								{title: 'maldives deluxe package', text: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam eu convallis tortor. Suspendisse potenti.'}
-							] %}
-
-							{% for item in cta_items %}
+							{% for produit in produits %}
 							<div class="owl-item cta_item text-center">
-								<div class="cta_title">{{ item.title }}</div>
+								<div class="cta_title">{{ produit.nom }}</div>
 								<div class="rating_r rating_r_4"><i></i><i></i><i></i><i></i><i></i></div>
-								<p class="cta_text">{{ item.text }}</p>
-								<div class="button cta_button"><div class="button_bcg"></div><a href="#">book now<span></span><span></span><span></span></a></div>
+								<p class="cta_text">{{ produit.description|slice(0, 100) }}...</p>
+								<div class="button cta_button"><div class="button_bcg"></div><a href="#">view product<span></span><span></span><span></span></a></div>
+							</div>
+							{% else %}
+							<div class="owl-item cta_item text-center">
+								<div class="cta_title">Check out our products</div>
+								<div class="rating_r rating_r_4"><i></i><i></i><i></i><i></i><i></i></div>
+								<p class="cta_text">Discover the best items in our shop.</p>
+								<div class="button cta_button"><div class="button_bcg"></div><a href="#">shop now<span></span><span></span><span></span></a></div>
 							</div>
 							{% endfor %}
 
@@ -221,28 +218,21 @@
 			</div>
 			<div class="row offers_items">
 
-				{% set offers = offers is defined ? offers : [
-					{image: 'offer_1.jpg', name: 'grand castle', price: '$70', text: 'Suspendisse potenti. In faucibus massa. Lorem ipsum dolor sit amet, consectetur adipiscing elit.'},
-					{image: 'offer_2.jpg', name: 'turkey hills', price: '$50', text: 'Suspendisse potenti. In faucibus massa. Lorem ipsum dolor sit amet, consectetur adipiscing elit.'},
-					{image: 'offer_3.jpg', name: 'island dream', price: '$90', text: 'Suspendisse potenti. In faucibus massa. Lorem ipsum dolor sit amet, consectetur adipiscing elit.'},
-					{image: 'offer_4.jpg', name: 'travel light', price: '$30', text: 'Suspendisse potenti. In faucibus massa. Lorem ipsum dolor sit amet, consectetur adipiscing elit.'}
-				] %}
-
-				{% for offer in offers %}
+				{% for event in events_offers %}
 				<div class="col-lg-6 offers_col">
 					<div class="offers_item">
 						<div class="row">
 							<div class="col-lg-6">
 								<div class="offers_image_container">
-									<div class="offers_image_background" style="background-image:url({{ asset('images/' ~ offer.image) }})"></div>
-									<div class="offer_name"><a href="#">{{ offer.name }}</a></div>
+									<div class="offers_image_background" style="background-image:url({{ event.imageEvent ? asset('uploads/events/' ~ event.imageEvent) : asset('images/offer_1.jpg') }})"></div>
+									<div class="offer_name"><a href="#">{{ event.title }}</a></div>
 								</div>
 							</div>
 							<div class="col-lg-6">
 								<div class="offers_content">
-									<div class="offers_price">{{ offer.price }}<span>per night</span></div>
+									<div class="offers_price">${{ event.price }}<span>per ticket</span></div>
 									<div class="rating_r rating_r_4 offers_rating"><i></i><i></i><i></i><i></i><i></i></div>
-									<p class="offers_text">{{ offer.text }}</p>
+									<p class="offers_text">{{ event.description|slice(0, 80) }}...</p>
 									<div class="offers_icons">
 										<ul class="offers_icons_list">
 											<li class="offers_icons_item"><img src="{{ asset('images/post.png') }}" alt=""></li>
@@ -257,6 +247,8 @@
 						</div>
 					</div>
 				</div>
+				{% else %}
+				<div class="col text-center"><p>No offers available yet.</p></div>
 				{% endfor %}
 
 			</div>
@@ -277,25 +269,35 @@
 					<div class="test_slider_container">
 						<div class="owl-carousel owl-theme test_slider">
 
-							{% set testimonials = testimonials is defined ? testimonials : [
-								{image: 'test_1.jpg', icon: 'backpack.png', name: 'carla smith', date: 'May 24, 2017', quote: 'Best holliday ever', text: 'Nullam eu convallis tortor. Suspendisse potenti. In faucibus massa arcu, vitae cursus mi hendrerit nec.'},
-								{image: 'test_2.jpg', icon: 'island_t.png', name: 'carla smith', date: 'May 24, 2017', quote: 'Best holliday ever', text: 'Nullam eu convallis tortor. Suspendisse potenti. In faucibus massa arcu, vitae cursus mi hendrerit nec.'},
-								{image: 'test_3.jpg', icon: 'kayak.png', name: 'carla smith', date: 'May 24, 2017', quote: 'Best holliday ever', text: 'Nullam eu convallis tortor. Suspendisse potenti. In faucibus massa arcu, vitae cursus mi hendrerit nec.'}
-							] %}
-
-							{% for test in testimonials %}
+							{% for test in commentaires %}
 							<div class="owl-item">
 								<div class="test_item">
-									<div class="test_image"><img src="{{ asset('images/' ~ test.image) }}" alt=""></div>
-									<div class="test_icon"><img src="{{ asset('images/' ~ test.icon) }}" alt=""></div>
+									<div class="test_image"><img src="{{ test.utilisateur and test.utilisateur.avatarUrl ? test.utilisateur.avatarUrl : asset('images/test_1.jpg') }}" alt="" style="width: 100%; height: 100%; object-fit: cover;"></div>
+									<div class="test_icon"><img src="{{ asset('images/backpack.png') }}" alt=""></div>
 									<div class="test_content_container">
 										<div class="test_content">
 											<div class="test_item_info">
-												<div class="test_name">{{ test.name }}</div>
-												<div class="test_date">{{ test.date }}</div>
+												<div class="test_name">{{ test.utilisateur ? test.utilisateur.nom : 'Anonyme' }}</div>
+												<div class="test_date">{{ test.dateCommentaire ? test.dateCommentaire|date('M d, Y') : '' }}</div>
 											</div>
-											<div class="test_quote_title">" {{ test.quote }} "</div>
-											<p class="test_quote_text">{{ test.text }}</p>
+											<div class="test_quote_title">" Very satisfied "</div>
+											<p class="test_quote_text">{{ test.contenu }}</p>
+										</div>
+									</div>
+								</div>
+							</div>
+							{% else %}
+							<div class="owl-item">
+								<div class="test_item">
+									<div class="test_image"><img src="{{ asset('images/test_1.jpg') }}" alt=""></div>
+									<div class="test_icon"><img src="{{ asset('images/backpack.png') }}" alt=""></div>
+									<div class="test_content_container">
+										<div class="test_content">
+											<div class="test_item_info">
+												<div class="test_name">WinGo Client</div>
+											</div>
+											<div class="test_quote_title">" Best holliday ever "</div>
+											<p class="test_quote_text">Be the first to leave a comment!</p>
 										</div>
 									</div>
 								</div>
@@ -335,28 +337,25 @@
 			</div>
 			<div class="row trending_container">
 
-				{% set trending = trending is defined ? trending : [
-					{image: 'trend_1.png', title: 'grand hotel', price: 'From $182', location: 'madrid, spain'},
-					{image: 'trend_2.png', title: 'mars hotel', price: 'From $182', location: 'madrid, spain'},
-					{image: 'trend_3.png', title: 'queen hotel', price: 'From $182', location: 'madrid, spain'},
-					{image: 'trend_4.png', title: 'mars hotel', price: 'From $182', location: 'madrid, spain'},
-					{image: 'trend_5.png', title: 'grand hotel', price: 'From $182', location: 'madrid, spain'},
-					{image: 'trend_6.png', title: 'mars hotel', price: 'From $182', location: 'madrid, spain'},
-					{image: 'trend_7.png', title: 'queen hotel', price: 'From $182', location: 'madrid, spain'},
-					{image: 'trend_8.png', title: 'mars hotel', price: 'From $182', location: 'madrid, spain'}
-				] %}
-
-				{% for item in trending %}
+				{% for article in articles %}
 				<div class="col-lg-3 col-sm-6">
 					<div class="trending_item clearfix">
-						<div class="trending_image"><img src="{{ asset('images/' ~ item.image) }}" alt=""></div>
+						<div class="trending_image">
+							{% if article.image %}
+								<img src="{{ asset('uploads/articles/' ~ article.image) }}" alt="{{ article.titre }}" style="width: 100%; height: 90px; object-fit: cover;">
+							{% else %}
+								<img src="{{ asset('images/trend_1.png') }}" alt="">
+							{% endif %}
+						</div>
 						<div class="trending_content">
-							<div class="trending_title"><a href="#">{{ item.title }}</a></div>
-							<div class="trending_price">{{ item.price }}</div>
-							<div class="trending_location">{{ item.location }}</div>
+							<div class="trending_title"><a href="#">{{ article.titre|slice(0, 20) }}</a></div>
+							<div class="trending_price">{{ article.categorie }}</div>
+							<div class="trending_location">{{ article.region }}</div>
 						</div>
 					</div>
 				</div>
+				{% else %}
+				<div class="col text-center"><p>No articles trending right now.</p></div>
 				{% endfor %}
 
 			</div>
