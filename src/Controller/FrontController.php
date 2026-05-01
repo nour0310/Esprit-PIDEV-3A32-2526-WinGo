@@ -37,12 +37,21 @@ class FrontController extends AbstractController
         $commentaires = $commentaireRepo->findBy([], ['dateCommentaire' => 'DESC'], 3);
         $articles = $articleRepo->findBy([], ['datePublication' => 'DESC'], 8);
 
+        // Get Top Destinations based on most frequent 'exp' in Reservations
+        $topDestinations = $em->createQuery('
+            SELECT r.exp as location, COUNT(r.id) as total
+            FROM App\Entity\Reservation r
+            GROUP BY r.exp
+            ORDER BY total DESC
+        ')->setMaxResults(6)->getResult();
+
         return $this->render('index.html.twig', [
             'events' => $events,
             'produits' => $produits,
             'events_offers' => $eventsOffers,
             'commentaires' => $commentaires,
             'articles' => $articles,
+            'topDestinations' => $topDestinations,
         ]);
     }
     #[Route('/about', name: 'about')]
