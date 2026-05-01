@@ -16,7 +16,6 @@ use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\HttpFoundation\JsonResponse;
 
 use App\Entity\Event;
-use App\Entity\Reservation;
 use App\Repository\ProduitRepository;
 use App\Repository\CommentaireRepository;
 use App\Repository\ArticleRepository;
