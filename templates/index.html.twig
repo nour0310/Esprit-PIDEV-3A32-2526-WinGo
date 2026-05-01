@@ -152,31 +152,6 @@
 						</div>
 					</div>
 				</div>
-				{% else %}
-				{% set intro_items = [
-					{image: 'intro_1.jpg', date: 'May 25th - June 01st', name: 'Mauritius', price: 'From $1450'},
-					{image: 'intro_2.jpg', date: 'May 25th - June 01st', name: 'Greece', price: 'From $1450'},
-					{image: 'intro_3.jpg', date: 'May 25th - June 01st', name: 'Scotland', price: 'From $1450'}
-				] %}
-				{% for item in intro_items %}
-				<div class="col-lg-4 intro_col">
-					<div class="intro_item">
-						<div class="intro_item_overlay"></div>
-						<div class="intro_item_background" style="background-image:url({{ asset('images/' ~ item.image) }})"></div>
-						<div class="intro_item_content d-flex flex-column align-items-center justify-content-center">
-							<div class="intro_date">{{ item.date }}</div>
-							<div class="button intro_button"><div class="button_bcg"></div><a href="#">see more<span></span><span></span><span></span></a></div>
-							<div class="intro_center text-center">
-								<h1>{{ item.name }}</h1>
-								<div class="intro_price">{{ item.price }}</div>
-								<div class="rating rating_4">
-									<i class="fa fa-star"></i><i class="fa fa-star"></i><i class="fa fa-star"></i><i class="fa fa-star"></i><i class="fa fa-star"></i>
-								</div>
-							</div>
-						</div>
-					</div>
-				</div>
-				{% endfor %}
 				{% endfor %}
 
 			</div>
@@ -199,20 +174,6 @@
 								<p class="cta_text">{{ produit.description|slice(0, 100) }}...</p>
 								<div class="button cta_button"><div class="button_bcg"></div><a href="#">view product<span></span><span></span><span></span></a></div>
 							</div>
-							{% else %}
-							{% set cta_items = [
-								{title: 'maldives deluxe package', text: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam eu convallis tortor. Suspendisse potenti.'},
-								{title: 'maldives deluxe package', text: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam eu convallis tortor. Suspendisse potenti.'},
-								{title: 'maldives deluxe package', text: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam eu convallis tortor. Suspendisse potenti.'}
-							] %}
-							{% for item in cta_items %}
-							<div class="owl-item cta_item text-center">
-								<div class="cta_title">{{ item.title }}</div>
-								<div class="rating_r rating_r_4"><i></i><i></i><i></i><i></i><i></i></div>
-								<p class="cta_text">{{ item.text }}</p>
-								<div class="button cta_button"><div class="button_bcg"></div><a href="#">book now<span></span><span></span><span></span></a></div>
-							</div>
-							{% endfor %}
 							{% endfor %}
 
 						</div>
@@ -277,43 +238,6 @@
 						</div>
 					</div>
 				</div>
-				{% else %}
-				{% set fallback_offers = [
-					{image: 'offer_1.jpg', name: 'grand castle', price: '$70', text: 'Suspendisse potenti. In faucibus massa. Lorem ipsum dolor sit amet, consectetur adipiscing elit.'},
-					{image: 'offer_2.jpg', name: 'turkey hills', price: '$50', text: 'Suspendisse potenti. In faucibus massa. Lorem ipsum dolor sit amet, consectetur adipiscing elit.'},
-					{image: 'offer_3.jpg', name: 'island dream', price: '$90', text: 'Suspendisse potenti. In faucibus massa. Lorem ipsum dolor sit amet, consectetur adipiscing elit.'},
-					{image: 'offer_4.jpg', name: 'travel light', price: '$30', text: 'Suspendisse potenti. In faucibus massa. Lorem ipsum dolor sit amet, consectetur adipiscing elit.'}
-				] %}
-				{% for offer in fallback_offers %}
-				<div class="col-lg-6 offers_col">
-					<div class="offers_item">
-						<div class="row">
-							<div class="col-lg-6">
-								<div class="offers_image_container">
-									<div class="offers_image_background" style="background-image:url({{ asset('images/' ~ offer.image) }})"></div>
-									<div class="offer_name"><a href="#">{{ offer.name }}</a></div>
-								</div>
-							</div>
-							<div class="col-lg-6">
-								<div class="offers_content">
-									<div class="offers_price">{{ offer.price }}<span>per night</span></div>
-									<div class="rating_r rating_r_4 offers_rating"><i></i><i></i><i></i><i></i><i></i></div>
-									<p class="offers_text">{{ offer.text }}</p>
-									<div class="offers_icons">
-										<ul class="offers_icons_list">
-											<li class="offers_icons_item"><img src="{{ asset('images/post.png') }}" alt=""></li>
-											<li class="offers_icons_item"><img src="{{ asset('images/compass.png') }}" alt=""></li>
-											<li class="offers_icons_item"><img src="{{ asset('images/bicycle.png') }}" alt=""></li>
-											<li class="offers_icons_item"><img src="{{ asset('images/sailboat.png') }}" alt=""></li>
-										</ul>
-									</div>
-									<div class="offers_link"><a href="#">read more</a></div>
-								</div>
-							</div>
-						</div>
-					</div>
-				</div>
-				{% endfor %}
 				{% endfor %}
 
 			</div>
@@ -382,30 +306,6 @@
 									</div>
 								</div>
 							</div>
-							{% else %}
-							{% set testimonials = [
-								{image: 'test_1.jpg', icon: 'backpack.png', name: 'carla smith', date: 'May 24, 2017', quote: 'Best holliday ever', text: 'Nullam eu convallis tortor. Suspendisse potenti. In faucibus massa arcu, vitae cursus mi hendrerit nec.'},
-								{image: 'test_2.jpg', icon: 'island_t.png', name: 'carla smith', date: 'May 24, 2017', quote: 'Best holliday ever', text: 'Nullam eu convallis tortor. Suspendisse potenti. In faucibus massa arcu, vitae cursus mi hendrerit nec.'},
-								{image: 'test_3.jpg', icon: 'kayak.png', name: 'carla smith', date: 'May 24, 2017', quote: 'Best holliday ever', text: 'Nullam eu convallis tortor. Suspendisse potenti. In faucibus massa arcu, vitae cursus mi hendrerit nec.'}
-							] %}
-							{% for test in testimonials %}
-							<div class="owl-item">
-								<div class="test_item">
-									<div class="test_image"><img src="{{ asset('images/' ~ test.image) }}" alt=""></div>
-									<div class="test_icon"><img src="{{ asset('images/' ~ test.icon) }}" alt=""></div>
-									<div class="test_content_container">
-										<div class="test_content">
-											<div class="test_item_info">
-												<div class="test_name">{{ test.name }}</div>
-												<div class="test_date">{{ test.date }}</div>
-											</div>
-											<div class="test_quote_title">" {{ test.quote }} "</div>
-											<p class="test_quote_text">{{ test.text }}</p>
-										</div>
-									</div>
-								</div>
-							</div>
-							{% endfor %}
 							{% endfor %}
 
 						</div>
