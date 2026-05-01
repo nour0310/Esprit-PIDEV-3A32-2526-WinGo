@@ -117,21 +117,38 @@
 		</div>
 	</div>
 
+	<!-- Top Destinations (Reservations) -->
+	<div class="trending" style="background: #f3f6f9; padding-top: 80px; padding-bottom: 80px;">
+		<div class="container">
+			<div class="row">
+				<div class="col text-center">
+					<h2 class="section_title" style="color: #2d2c2c;">Destinations les plus réservées</h2>
+				</div>
+			</div>
+			<div class="row trending_container">
+				{% for dest in topDestinations %}
+				<div class="col-lg-4 col-sm-6">
+					<div class="trending_item clearfix">
+						<div class="trending_image">
+							<img src="{{ asset('images/trend_' ~ loop.index ~ '.png') }}" alt="" onerror="this.src='{{ asset('images/trend_1.png') }}'" style="width: 100%; height: 90px; object-fit: cover;">
+						</div>
+						<div class="trending_content">
+							<div class="trending_title"><a href="#">{{ dest.location }}</a></div>
+							<div class="trending_price" style="color: #fa9e1b; font-weight: 700;">🔥 {{ dest.total }} réservations</div>
+							<div class="trending_location">Popularité locale</div>
+						</div>
+					</div>
+				</div>
+				{% else %}
+				<div class="col text-center"><p>Découvrez nos futures destinations phares !</p></div>
+				{% endfor %}
+			</div>
+		</div>
+	</div>
+
 	<!-- Intro -->
 	<div class="intro">
 		<div class="container">
-			<div class="row">
-				<div class="col">
-					<h2 class="intro_title text-center">We have the best tours</h2>
-				</div>
-			</div>
-			<div class="row">
-				<div class="col-lg-10 offset-lg-1">
-					<div class="intro_text text-center">
-						<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam eu convallis tortor. Suspendisse potenti. In faucibus massa arcu, vitae cursus mi hendrerit nec.</p>
-					</div>
-				</div>
-			</div>
 			<div class="row intro_items">
 
 				{% for event in events %}
@@ -244,34 +261,6 @@
 		</div>
 	</div>
 
-	<!-- Top Destinations (Reservations) -->
-	<div class="trending" style="background: #f3f6f9; padding-top: 80px; padding-bottom: 80px;">
-		<div class="container">
-			<div class="row">
-				<div class="col text-center">
-					<h2 class="section_title" style="color: #2d2c2c;">Destinations les plus réservées</h2>
-				</div>
-			</div>
-			<div class="row trending_container">
-				{% for dest in topDestinations %}
-				<div class="col-lg-4 col-sm-6">
-					<div class="trending_item clearfix">
-						<div class="trending_image">
-							<img src="{{ asset('images/trend_' ~ loop.index ~ '.png') }}" alt="" onerror="this.src='{{ asset('images/trend_1.png') }}'" style="width: 100%; height: 90px; object-fit: cover;">
-						</div>
-						<div class="trending_content">
-							<div class="trending_title"><a href="#">{{ dest.location }}</a></div>
-							<div class="trending_price" style="color: #fa9e1b; font-weight: 700;">🔥 {{ dest.total }} réservations</div>
-							<div class="trending_location">Popularité locale</div>
-						</div>
-					</div>
-				</div>
-				{% else %}
-				<div class="col text-center"><p>Découvrez nos futures destinations phares !</p></div>
-				{% endfor %}
-			</div>
-		</div>
-	</div>
 
 	<!-- Testimonials -->
 	<div class="testimonials">
