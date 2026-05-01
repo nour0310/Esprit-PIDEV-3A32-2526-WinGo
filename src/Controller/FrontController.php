@@ -16,6 +16,7 @@ use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\HttpFoundation\JsonResponse;
 
 use App\Entity\Event;
+use App\Entity\Reservation;
 use App\Repository\ProduitRepository;
 use App\Repository\CommentaireRepository;
 use App\Repository\ArticleRepository;
@@ -37,6 +38,9 @@ class FrontController extends AbstractController
         $commentaires = $commentaireRepo->findBy([], ['dateCommentaire' => 'DESC'], 3);
         $articles = $articleRepo->findBy([], ['datePublication' => 'DESC'], 8);
 
+        // Get Testimonials from Reservations (field 'exp' is used as the comment)
+        $reservationTestimonials = $em->getRepository(Reservation::class)->findBy([], ['date' => 'DESC'], 3);
+
         // Get Top Destinations based on most frequent 'exp' in Reservations
         $topDestinations = $em->createQuery('
             SELECT r.exp as location, COUNT(r.id) as total
@@ -52,6 +56,7 @@ class FrontController extends AbstractController
             'commentaires' => $commentaires,
             'articles' => $articles,
             'topDestinations' => $topDestinations,
+            'reservation_testimonials' => $reservationTestimonials,
         ]);
     }
     #[Route('/about', name: 'about')]
