@@ -15,16 +15,21 @@ class ReservationRepository extends ServiceEntityRepository
     {
         parent::__construct($registry, Reservation::class);
     }
-    public function searchAndSortReservations(?string $search, ?string $sort)
-{
-    $qb = $this->createQueryBuilder('r')
-        ->leftJoin('r.user_id', 'u') // Join the relation
-        ->addSelect('u');           // Load user data to avoid extra queries
+    public function searchAndSortReservations(?string $search, ?string $sort, ?\App\Entity\Utilisateur $user = null)
+    {
+        $qb = $this->createQueryBuilder('r')
+            ->leftJoin('r.user_id', 'u') // Join the relation
+            ->addSelect('u');           // Load user data to avoid extra queries
 
-    if ($search) {
-        $qb->andWhere('r.statut LIKE :term OR u.nom LIKE :term OR u.prenom LIKE :term')
-           ->setParameter('term', '%' . $search . '%');
-    }
+        if ($user) {
+            $qb->andWhere('r.user_id = :user')
+               ->setParameter('user', $user);
+        }
+
+        if ($search) {
+            $qb->andWhere('r.statut LIKE :term OR u.nom LIKE :term OR u.prenom LIKE :term')
+               ->setParameter('term', '%' . $search . '%');
+        }
 
     // Sorting logic
     if ($sort === 'date_asc') {

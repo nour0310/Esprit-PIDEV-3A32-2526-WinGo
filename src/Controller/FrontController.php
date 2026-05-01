@@ -96,8 +96,9 @@ public function about(): Response
         $searchTerm = $request->query->get('search'); 
         $sortBy = $request->query->get('sort');      
         
-        // Ensure this method exists in ReservationRepository
-        $list = $repo->searchAndSortReservations($searchTerm, $sortBy);
+        // Pass the currently logged in user to avoid showing other clients' reservations
+        $user = $this->getUser();
+        $list = $repo->searchAndSortReservations($searchTerm, $sortBy, $user instanceof \App\Entity\Utilisateur ? $user : null);
 
         if ($id) {
             $reservation = $repo->find($id);
