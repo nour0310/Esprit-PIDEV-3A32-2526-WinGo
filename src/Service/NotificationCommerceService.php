@@ -50,19 +50,25 @@ class NotificationCommerceService
                 'isRead' => $notification->isRead(),
             ];
 
-            try {
-                $update = new Update(
-                    self::ADMIN_TOPIC,
-                    json_encode($payload, JSON_UNESCAPED_UNICODE),
-                    true
-                );
+           try {
+    $jsonPayload = json_encode($payload, JSON_UNESCAPED_UNICODE);
 
-                $this->hub->publish($update);
-            } catch (\Throwable $e) {
-                $this->logger->error('Publication Mercure échouée', [
-                    'message' => $e->getMessage(),
-                ]);
-            }
+    if ($jsonPayload === false) {
+        throw new \RuntimeException('Erreur encodage JSON notification Mercure.');
+    }
+
+    $update = new Update(
+        self::ADMIN_TOPIC,
+        $jsonPayload,
+        true
+    );
+
+    $this->hub->publish($update);
+} catch (\Throwable $e) {
+    $this->logger->error('Publication Mercure échouée', [
+        'message' => $e->getMessage(),
+    ]);
+}
         }
     }
 

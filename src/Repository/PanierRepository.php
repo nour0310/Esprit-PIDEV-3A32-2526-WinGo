@@ -6,6 +6,9 @@ use App\Entity\Panier;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
+/**
+ * @extends ServiceEntityRepository<Panier>
+ */
 class PanierRepository extends ServiceEntityRepository
 {
     public function __construct(ManagerRegistry $registry)
@@ -13,6 +16,9 @@ class PanierRepository extends ServiceEntityRepository
         parent::__construct($registry, Panier::class);
     }
 
+    /**
+     * @return Panier[]
+     */
     public function findActiveByUser(int $idUser): array
     {
         return $this->createQueryBuilder('p')

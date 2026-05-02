@@ -5,180 +5,104 @@
 {% block stylesheets %}
     {{ parent() }}
     <style>
-        .client_products_section {
-            padding: 190px 0 110px 0;
-            background:
-                radial-gradient(circle at top left, rgba(141,79,255,0.10), transparent 28%),
-                radial-gradient(circle at top right, rgba(250,158,27,0.10), transparent 28%),
-                linear-gradient(180deg, #eef3f8 0%, #f7f9fc 100%);
-            min-height: 100vh;
+    @import url('https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Poppins:wght@800;900&display=swap');
+        body {
+            background: #f7f9fc;
         }
 
-        .products_hero_box_wow {
+        /* HERO IMAGE */
+        .products_hero_fullscreen {
             position: relative;
-            overflow: hidden;
-            border-radius: 34px;
-            padding: 60px 40px;
-            margin-bottom: 35px;
-            background: linear-gradient(135deg, rgba(255,255,255,0.88), rgba(255,255,255,0.68));
-            backdrop-filter: blur(18px);
-            -webkit-backdrop-filter: blur(18px);
-            box-shadow: 0 20px 60px rgba(26, 35, 80, 0.10);
-            border: 1px solid rgba(255,255,255,0.45);
+            width: 100%;
+            min-height: 760px;
+            padding: 0 20px 130px 20px;
+            background: url('https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?q=80&w=2070&auto=format&fit=crop') center center/cover no-repeat;
+            display: flex;
+            align-items: flex-start;
+            justify-content: center;
             text-align: center;
+            margin-top: -80px;
+            overflow: hidden;
         }
 
-        .hero_glow {
+        .products_hero_overlay {
             position: absolute;
-            border-radius: 50%;
-            filter: blur(10px);
+            inset: 0;
+            background: linear-gradient(135deg, rgba(88, 33, 166, 0.78), rgba(250, 158, 27, 0.58));
             z-index: 1;
-            pointer-events: none;
         }
 
-        .hero_glow_1 {
-            width: 280px;
-            height: 280px;
-            top: -80px;
-            left: -70px;
-            background: radial-gradient(circle, rgba(250,158,27,0.22), transparent 70%);
-        }
-
-        .hero_glow_2 {
-            width: 320px;
-            height: 320px;
-            right: -100px;
-            bottom: -120px;
-            background: radial-gradient(circle, rgba(141,79,255,0.18), transparent 70%);
-        }
-
-        .products_hero_sub,
-        .products_hero_title_wrap,
-        .products_hero_text,
-        .products_top_stats,
-        .products_hero_actions {
+        /* C'EST CETTE PARTIE QUI DESCEND LE TITRE + TEXTE + BOUTONS */
+        .products_hero_content {
             position: relative;
             z-index: 2;
-        }
-
-        .products_hero_sub {
-            display: inline-block;
-            padding: 8px 18px;
-            border-radius: 999px;
-            font-size: 13px;
-            font-weight: 700;
-            letter-spacing: 1px;
-            text-transform: uppercase;
             color: #fff;
-            background: linear-gradient(135deg, #fa9e1b, #8d4fff);
-            margin-bottom: 18px;
-        }
-
-        .products_hero_title_wrap {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 18px;
-            flex-wrap: wrap;
-            margin-bottom: 12px;
+            width: 100%;
+            max-width: 1320px;
+            margin: 0 auto;
+            padding: 315px 20px 0 20px;
         }
 
         .products_hero_title {
-            font-size: 58px;
-            font-weight: 900;
-            line-height: 1;
-            margin: 0;
-            background: linear-gradient(135deg, #1d2140 10%, #8d4fff 58%, #fa9e1b 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
+    margin: 0 0 18px 0;
+    color: #ffffff;
+    text-shadow: 0 4px 18px rgba(0,0,0,0.25);
+    line-height: 0.9;
+}
 
-        .products_hero_badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            padding: 10px 18px;
-            border-radius: 999px;
-            background: rgba(255,255,255,0.72);
-            color: #6b49d8;
-            font-size: 13px;
-            font-weight: 800;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.05);
-            border: 1px solid rgba(255,255,255,0.65);
-        }
+.products_hero_title .discover_text {
+    display: block;
+    font-family: 'Poppins', sans-serif;
+    font-size: 105px;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 4px;
+}
+
+.products_hero_title .shop_text {
+    display: block;
+    font-family: 'Dancing Script', cursive;
+    font-size: 72px;
+    font-weight: 700;
+    text-transform: none;
+    letter-spacing: 0;
+    margin-top: 5px;
+}
 
         .products_hero_text {
-            font-size: 18px;
-            color: #71758a;
-            max-width: 780px;
-            margin: 0 auto 30px auto;
-            line-height: 1.8;
-        }
-
-        .products_top_stats {
-            display: flex;
-            justify-content: center;
-            gap: 18px;
-            flex-wrap: wrap;
-        }
-
-        .wow_stat_card {
-            min-width: 170px;
-            padding: 18px 22px;
-            border-radius: 22px;
-            background: rgba(255,255,255,0.72);
-            box-shadow: 0 12px 30px rgba(0,0,0,0.05);
-            border: 1px solid rgba(255,255,255,0.55);
-        }
-
-        .products_stat_icon {
-            width: 48px;
-            height: 48px;
-            margin: 0 auto 12px auto;
-            border-radius: 16px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: #fff;
             font-size: 19px;
-            background: linear-gradient(135deg, #fa9e1b, #8d4fff);
+            color: rgba(255, 255, 255, 0.95);
+            max-width: 820px;
+            margin: 0 auto 34px auto;
+            line-height: 1.8;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.12);
         }
 
-        .products_stat_num {
-            font-size: 24px;
-            font-weight: 900;
-            margin-bottom: 3px;
-            background: linear-gradient(135deg, #fa9e1b, #8d4fff);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-
-        .products_stat_label {
-            font-size: 13px;
-            color: #777;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.6px;
-        }
-
-        @keyframes pulse_jeu {
-            0%, 100% { box-shadow: 0 16px 35px rgba(141,79,255,0.20), 0 0 0 0 rgba(250,158,27,0.5); }
-            50%       { box-shadow: 0 16px 35px rgba(141,79,255,0.20), 0 0 0 10px rgba(250,158,27,0); }
-        }
-
-        .products_hero_actions {
-            margin-top: 32px;
+        .products_action_bar {
             display: flex;
             justify-content: center;
             align-items: center;
             gap: 16px;
             flex-wrap: wrap;
+            margin-top: 18px;
+        }
+
+        @keyframes pulse_jeu {
+            0%, 100% {
+                box-shadow: 0 16px 35px rgba(141,79,255,0.20), 0 0 0 0 rgba(250,158,27,0.5);
+            }
+
+            50% {
+                box-shadow: 0 16px 35px rgba(141,79,255,0.20), 0 0 0 10px rgba(250,158,27,0);
+            }
         }
 
         .products_hero_btn_main {
             display: inline-flex;
             align-items: center;
+            justify-content: center;
             gap: 10px;
+            min-height: 56px;
             padding: 15px 28px;
             border-radius: 999px;
             background: linear-gradient(135deg, #fa9e1b, #8d4fff);
@@ -188,21 +112,36 @@
             text-transform: uppercase;
             letter-spacing: 0.6px;
             text-decoration: none !important;
-            box-shadow: 0 16px 35px rgba(141,79,255,0.20);
+            box-shadow: 0 12px 28px rgba(15, 15, 30, 0.18);
+            border: 1px solid rgba(255,255,255,0.15);
+            backdrop-filter: blur(8px);
             transition: all 0.3s ease;
+        }
+
+        .products_hero_btn_main:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 18px 35px rgba(15, 15, 30, 0.24);
         }
 
         .products_hero_note {
             display: inline-flex;
             align-items: center;
+            justify-content: center;
             gap: 8px;
-            padding: 14px 18px;
+            min-height: 56px;
+            padding: 14px 20px;
             border-radius: 999px;
-            background: rgba(255,255,255,0.68);
-            color: #73738b;
+            background: rgba(255, 255, 255, 0.16);
+            color: #ffffff;
             font-size: 13px;
             font-weight: 700;
-            border: 1px solid rgba(255,255,255,0.55);
+            border: 1px solid rgba(255,255,255,0.22);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 10px 25px rgba(15,15,30,0.12);
+        }
+
+        .client_products_section {
+            padding: 45px 0 110px 0;
         }
 
         .filters_box {
@@ -373,8 +312,15 @@
         }
 
         @keyframes clignoter {
-            0%, 100% { opacity: 1; transform: scale(1); }
-            50%       { opacity: 0.6; transform: scale(0.95); }
+            0%, 100% {
+                opacity: 1;
+                transform: scale(1);
+            }
+
+            50% {
+                opacity: 0.6;
+                transform: scale(0.95);
+            }
         }
 
         .product-card-summary {
@@ -396,7 +342,6 @@
             line-height: 1.1;
         }
 
-        /* ── Prix affiché dynamiquement ── */
         .product-card-price {
             font-size: 24px;
             font-weight: 900;
@@ -415,7 +360,6 @@
             opacity: .45;
         }
 
-        /* Spinner par carte */
         .prix-spinner {
             display: none;
             width: 16px;
@@ -431,9 +375,12 @@
             display: inline-block;
         }
 
-        @keyframes wingo-spin { to { transform: rotate(360deg); } }
+        @keyframes wingo-spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
 
-        /* ── Switcher global de devises (dans filters_box) ── */
         .currency-global-bar {
             display: flex;
             align-items: center;
@@ -480,7 +427,6 @@
             box-shadow: 0 3px 10px rgba(141,79,255,0.30);
         }
 
-        /* Spinner global */
         .currency-global-spinner {
             display: none;
             width: 18px;
@@ -586,96 +532,106 @@
         }
 
         @media (max-width: 991px) {
-            .client_products_section { padding-top: 160px; }
-            .products_hero_box_wow   { padding: 45px 22px; }
-            .products_hero_title     { font-size: 42px; }
-            .products_hero_text      { font-size: 16px; }
-            .wow_stat_card           { min-width: 140px; }
-            .filters_form            { grid-template-columns: 1fr; }
-            .product-card            { height: 460px; }
-            .product-card-overlay    { opacity: 1; background: rgba(25, 18, 45, 0.28); }
+            .products_hero_fullscreen {
+                min-height: 720px;
+                padding: 0 20px 80px 20px;
+            }
+
+            .products_hero_content {
+                padding-top: 230px;
+            }
+
+            .products_hero_title .discover_text {
+    font-size: 54px;
+    letter-spacing: 2px;
+}
+
+.products_hero_title .shop_text {
+    font-size: 42px;
+}
+
+            .products_hero_text {
+                font-size: 16px;
+            }
+
+            .filters_form {
+                grid-template-columns: 1fr;
+            }
+
+            .product-card {
+                height: 460px;
+            }
+
+            .product-card-overlay {
+                opacity: 1;
+                background: rgba(25, 18, 45, 0.28);
+            }
+
+            .products_action_bar {
+                gap: 12px;
+            }
+
+            .products_hero_btn_main,
+            .products_hero_note {
+                width: 100%;
+            }
         }
     </style>
 {% endblock %}
 
 {% block content %}
+    <div class="products_hero_fullscreen">
+        <div class="products_hero_overlay"></div>
+
+        <div class="products_hero_content">
+            <h1 class="products_hero_title">
+    <span class="discover_text">Discover</span>
+    <span class="shop_text">our Shop WinGo</span>
+</h1>
+
+            <p class="products_hero_text">
+                Bonjour, <strong>{{ app.user.fullName }}</strong>.
+                Cliquez sur une devise pour convertir le prix de chaque produit.
+            </p>
+
+            <div class="products_action_bar">
+                <a href="#products-grid" class="products_hero_btn_main">
+                    Voir les produits <i class="fa fa-arrow-right"></i>
+                </a>
+
+                <a href="{{ path('app_panier') }}" class="products_hero_btn_main" style="background: linear-gradient(135deg, #5d7cf3, #8d4fff);">
+                    Voir panier <i class="fa fa-shopping-cart"></i>
+                </a>
+
+                {% if app.user.type == 'COMMERCANT' %}
+                    <a href="{{ path('produit_add') }}" class="products_hero_btn_main" style="background: linear-gradient(135deg, #ff9800, #ff5e62);">
+                        Ajouter produit <i class="fa fa-plus"></i>
+                    </a>
+
+                    <a href="{{ path('merchant_dashboard') }}" class="products_hero_btn_main" style="background: linear-gradient(135deg, #11998e, #38ef7d);">
+                        Dashboard commerçant <i class="fa fa-dashboard"></i>
+                    </a>
+                {% elseif app.user.type == 'EN_ATTENTE_COMMERCANT' %}
+                    <div class="products_hero_note">
+                        <i class="fa fa-clock-o"></i> Demande en attente
+                    </div>
+                {% else %}
+                    <a href="{{ path('devenir_commercant') }}" class="products_hero_btn_main" style="background: linear-gradient(135deg, #16a085, #2ecc71);">
+                        Devenir commerçant <i class="fa fa-briefcase"></i>
+                    </a>
+                {% endif %}
+
+                <a href="{{ path('jeu_index') }}" class="products_hero_btn_main"
+                   style="background: linear-gradient(135deg, #fa9e1b, #8d4fff); animation: pulse_jeu 2s infinite;">
+                    🎮 Tente ta chance <i class="fa fa-star"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+
     <div class="client_products_section">
         <div class="container">
 
-            {# ── Hero ──────────────────────────────────────────────── #}
-            <div class="products_hero_box_wow">
-                <div class="hero_glow hero_glow_1"></div>
-                <div class="hero_glow hero_glow_2"></div>
-
-                <div class="products_hero_sub">Collection Signature</div>
-
-                <div class="products_hero_title_wrap">
-                    <h1 class="products_hero_title">Boutique WinGo</h1>
-                    <div class="products_hero_badge">
-                        <i class="fa fa-diamond"></i> Sélection Premium
-                    </div>
-                </div>
-
-                <p class="products_hero_text">
-                    Bonjour, <strong>{{ app.user.fullName }}</strong>.
-                    Cliquez sur une devise pour convertir le prix de chaque produit.
-                </p>
-
-                <div class="products_top_stats">
-                    <div class="wow_stat_card">
-                        <div class="products_stat_icon"><i class="fa fa-shopping-bag"></i></div>
-                        <div class="products_stat_num">{{ produits.getTotalItemCount }}</div>
-                        <div class="products_stat_label">Produits</div>
-                    </div>
-                    <div class="wow_stat_card">
-                        <div class="products_stat_icon"><i class="fa fa-calendar"></i></div>
-                        <div class="products_stat_num">{{ (selectedSort|default('')) == 'recent' ? 'Récent' : 'Liste' }}</div>
-                        <div class="products_stat_label">Tri actif</div>
-                    </div>
-                    <div class="wow_stat_card">
-                        <div class="products_stat_icon"><i class="fa fa-layer-group"></i></div>
-                        <div class="products_stat_num">{{ produits|length }}</div>
-                        <div class="products_stat_label">Cette page</div>
-                    </div>
-                </div>
-
-                <div class="products_hero_actions">
-                    <a href="#products-grid" class="products_hero_btn_main">
-                        Voir les produits <i class="fa fa-arrow-right"></i>
-                    </a>
-                    <a href="{{ path('app_panier') }}" class="products_hero_btn_main" style="background: linear-gradient(135deg, #5d7cf3, #8d4fff);">
-                        Voir panier <i class="fa fa-shopping-cart"></i>
-                    </a>
-
-                    {% if app.user.type == 'COMMERCANT' %}
-                        <a href="{{ path('produit_add') }}" class="products_hero_btn_main" style="background: linear-gradient(135deg, #ff9800, #ff5e62);">
-                            Ajouter produit <i class="fa fa-plus"></i>
-                        </a>
-                        <a href="{{ path('merchant_dashboard') }}" class="products_hero_btn_main" style="background: linear-gradient(135deg, #11998e, #38ef7d);">
-                            Dashboard commerçant <i class="fa fa-dashboard"></i>
-                        </a>
-                    {% elseif app.user.type == 'EN_ATTENTE_COMMERCANT' %}
-                        <div class="products_hero_note">
-                            <i class="fa fa-clock-o"></i> Demande en attente
-                        </div>
-                    {% else %}
-                        <a href="{{ path('devenir_commercant') }}" class="products_hero_btn_main" style="background: linear-gradient(135deg, #16a085, #2ecc71);">
-                            Devenir commerçant <i class="fa fa-briefcase"></i>
-                        </a>
-                    {% endif %}
-
-                    <a href="{{ path('jeu_index') }}" class="products_hero_btn_main"
-                       style="background: linear-gradient(135deg, #fa9e1b, #8d4fff); animation: pulse_jeu 2s infinite;">
-                        🎮 Tente ta chance <i class="fa fa-star"></i>
-                    </a>
-
-                    <div class="products_hero_note">
-                        <i class="fa fa-diamond"></i> Espace client
-                    </div>
-                </div>
-            </div>
-
-            {# ── Filtres + switcher global ─────────────────────────── #}
             <div class="filters_box">
                 <h2 class="filters_title">Recherche, filtres et tri des produits</h2>
 
@@ -691,12 +647,12 @@
                         <label for="categorie">Catégorie</label>
                         <select id="categorie" name="categorie">
                             <option value="">Toutes les catégories</option>
-                            <option value="Artisanat"   {{ (selectedCategorie|default('')) == 'Artisanat'   ? 'selected' : '' }}>Artisanat</option>
+                            <option value="Artisanat" {{ (selectedCategorie|default('')) == 'Artisanat' ? 'selected' : '' }}>Artisanat</option>
                             <option value="Gastronomie" {{ (selectedCategorie|default('')) == 'Gastronomie' ? 'selected' : '' }}>Gastronomie</option>
-                            <option value="Textile"     {{ (selectedCategorie|default('')) == 'Textile'     ? 'selected' : '' }}>Textile</option>
-                            <option value="Bijoux"      {{ (selectedCategorie|default('')) == 'Bijoux'      ? 'selected' : '' }}>Bijoux</option>
-                            <option value="Art"         {{ (selectedCategorie|default('')) == 'Art'         ? 'selected' : '' }}>Art</option>
-                            <option value="Souvenirs"   {{ (selectedCategorie|default('')) == 'Souvenirs'   ? 'selected' : '' }}>Souvenirs</option>
+                            <option value="Textile" {{ (selectedCategorie|default('')) == 'Textile' ? 'selected' : '' }}>Textile</option>
+                            <option value="Bijoux" {{ (selectedCategorie|default('')) == 'Bijoux' ? 'selected' : '' }}>Bijoux</option>
+                            <option value="Art" {{ (selectedCategorie|default('')) == 'Art' ? 'selected' : '' }}>Art</option>
+                            <option value="Souvenirs" {{ (selectedCategorie|default('')) == 'Souvenirs' ? 'selected' : '' }}>Souvenirs</option>
                         </select>
                     </div>
 
@@ -704,30 +660,30 @@
                         <label for="region">Région</label>
                         <select id="region" name="region">
                             <option value="">Toutes les régions</option>
-                            <option value="Tunis"       {{ (selectedRegion|default('')) == 'Tunis'       ? 'selected' : '' }}>Tunis</option>
-                            <option value="Ariana"      {{ (selectedRegion|default('')) == 'Ariana'      ? 'selected' : '' }}>Ariana</option>
-                            <option value="Ben Arous"   {{ (selectedRegion|default('')) == 'Ben Arous'   ? 'selected' : '' }}>Ben Arous</option>
-                            <option value="Manouba"     {{ (selectedRegion|default('')) == 'Manouba'     ? 'selected' : '' }}>Manouba</option>
-                            <option value="Nabeul"      {{ (selectedRegion|default('')) == 'Nabeul'      ? 'selected' : '' }}>Nabeul</option>
-                            <option value="Zaghouan"    {{ (selectedRegion|default('')) == 'Zaghouan'    ? 'selected' : '' }}>Zaghouan</option>
-                            <option value="Bizerte"     {{ (selectedRegion|default('')) == 'Bizerte'     ? 'selected' : '' }}>Bizerte</option>
-                            <option value="Béja"        {{ (selectedRegion|default('')) == 'Béja'        ? 'selected' : '' }}>Béja</option>
-                            <option value="Jendouba"    {{ (selectedRegion|default('')) == 'Jendouba'    ? 'selected' : '' }}>Jendouba</option>
-                            <option value="Le Kef"      {{ (selectedRegion|default('')) == 'Le Kef'      ? 'selected' : '' }}>Le Kef</option>
-                            <option value="Siliana"     {{ (selectedRegion|default('')) == 'Siliana'     ? 'selected' : '' }}>Siliana</option>
-                            <option value="Sousse"      {{ (selectedRegion|default('')) == 'Sousse'      ? 'selected' : '' }}>Sousse</option>
-                            <option value="Monastir"    {{ (selectedRegion|default('')) == 'Monastir'    ? 'selected' : '' }}>Monastir</option>
-                            <option value="Mahdia"      {{ (selectedRegion|default('')) == 'Mahdia'      ? 'selected' : '' }}>Mahdia</option>
-                            <option value="Sfax"        {{ (selectedRegion|default('')) == 'Sfax'        ? 'selected' : '' }}>Sfax</option>
-                            <option value="Kairouan"    {{ (selectedRegion|default('')) == 'Kairouan'    ? 'selected' : '' }}>Kairouan</option>
-                            <option value="Kasserine"   {{ (selectedRegion|default('')) == 'Kasserine'   ? 'selected' : '' }}>Kasserine</option>
+                            <option value="Tunis" {{ (selectedRegion|default('')) == 'Tunis' ? 'selected' : '' }}>Tunis</option>
+                            <option value="Ariana" {{ (selectedRegion|default('')) == 'Ariana' ? 'selected' : '' }}>Ariana</option>
+                            <option value="Ben Arous" {{ (selectedRegion|default('')) == 'Ben Arous' ? 'selected' : '' }}>Ben Arous</option>
+                            <option value="Manouba" {{ (selectedRegion|default('')) == 'Manouba' ? 'selected' : '' }}>Manouba</option>
+                            <option value="Nabeul" {{ (selectedRegion|default('')) == 'Nabeul' ? 'selected' : '' }}>Nabeul</option>
+                            <option value="Zaghouan" {{ (selectedRegion|default('')) == 'Zaghouan' ? 'selected' : '' }}>Zaghouan</option>
+                            <option value="Bizerte" {{ (selectedRegion|default('')) == 'Bizerte' ? 'selected' : '' }}>Bizerte</option>
+                            <option value="Béja" {{ (selectedRegion|default('')) == 'Béja' ? 'selected' : '' }}>Béja</option>
+                            <option value="Jendouba" {{ (selectedRegion|default('')) == 'Jendouba' ? 'selected' : '' }}>Jendouba</option>
+                            <option value="Le Kef" {{ (selectedRegion|default('')) == 'Le Kef' ? 'selected' : '' }}>Le Kef</option>
+                            <option value="Siliana" {{ (selectedRegion|default('')) == 'Siliana' ? 'selected' : '' }}>Siliana</option>
+                            <option value="Sousse" {{ (selectedRegion|default('')) == 'Sousse' ? 'selected' : '' }}>Sousse</option>
+                            <option value="Monastir" {{ (selectedRegion|default('')) == 'Monastir' ? 'selected' : '' }}>Monastir</option>
+                            <option value="Mahdia" {{ (selectedRegion|default('')) == 'Mahdia' ? 'selected' : '' }}>Mahdia</option>
+                            <option value="Sfax" {{ (selectedRegion|default('')) == 'Sfax' ? 'selected' : '' }}>Sfax</option>
+                            <option value="Kairouan" {{ (selectedRegion|default('')) == 'Kairouan' ? 'selected' : '' }}>Kairouan</option>
+                            <option value="Kasserine" {{ (selectedRegion|default('')) == 'Kasserine' ? 'selected' : '' }}>Kasserine</option>
                             <option value="Sidi Bouzid" {{ (selectedRegion|default('')) == 'Sidi Bouzid' ? 'selected' : '' }}>Sidi Bouzid</option>
-                            <option value="Gabès"       {{ (selectedRegion|default('')) == 'Gabès'       ? 'selected' : '' }}>Gabès</option>
-                            <option value="Médenine"    {{ (selectedRegion|default('')) == 'Médenine'    ? 'selected' : '' }}>Médenine</option>
-                            <option value="Tataouine"   {{ (selectedRegion|default('')) == 'Tataouine'   ? 'selected' : '' }}>Tataouine</option>
-                            <option value="Gafsa"       {{ (selectedRegion|default('')) == 'Gafsa'       ? 'selected' : '' }}>Gafsa</option>
-                            <option value="Tozeur"      {{ (selectedRegion|default('')) == 'Tozeur'      ? 'selected' : '' }}>Tozeur</option>
-                            <option value="Kébili"      {{ (selectedRegion|default('')) == 'Kébili'      ? 'selected' : '' }}>Kébili</option>
+                            <option value="Gabès" {{ (selectedRegion|default('')) == 'Gabès' ? 'selected' : '' }}>Gabès</option>
+                            <option value="Médenine" {{ (selectedRegion|default('')) == 'Médenine' ? 'selected' : '' }}>Médenine</option>
+                            <option value="Tataouine" {{ (selectedRegion|default('')) == 'Tataouine' ? 'selected' : '' }}>Tataouine</option>
+                            <option value="Gafsa" {{ (selectedRegion|default('')) == 'Gafsa' ? 'selected' : '' }}>Gafsa</option>
+                            <option value="Tozeur" {{ (selectedRegion|default('')) == 'Tozeur' ? 'selected' : '' }}>Tozeur</option>
+                            <option value="Kébili" {{ (selectedRegion|default('')) == 'Kébili' ? 'selected' : '' }}>Kébili</option>
                         </select>
                     </div>
 
@@ -746,32 +702,27 @@
                     </div>
                 </form>
 
-                {#
-                    ── Switcher global de devises ──────────────────────
-                    Placé ici (hors carte produit) pour être toujours
-                    cliquable, sans conflit avec l'overlay au survol.
-                    data-convert-url : URL générée par Symfony path(),
-                    jamais écrite en dur dans le JS.
-                #}
-                <div class="currency-global-bar"
-data-convert-url="{{ path('api_currency_convert', {id: 0, currency: 'TND'}) }}"
+                <div class="currency-global-bar" data-convert-url="{{ path('api_currency_convert', {id: 0, currency: 'TND'}) }}">
                     <span class="currency-label">
                         <i class="fa fa-exchange"></i> Devise :
                     </span>
-                    {% for code, info in currencies %}
-                        <button
-                            class="btn-devise {% if code == 'TND' %}active{% endif %}"
-                            data-currency="{{ code }}"
-                            onclick="convertTousLesPrix('{{ code }}', this)"
-                            title="{{ info.label }}"
-                            type="button"
-                        >
-                            {{ info.flag }} {{ code }}
-                        </button>
-                    {% endfor %}
+
+                    {% if currencies is defined %}
+                        {% for code, info in currencies %}
+                            <button
+                                class="btn-devise {% if code == 'TND' %}active{% endif %}"
+                                data-currency="{{ code }}"
+                                onclick="convertTousLesPrix('{{ code }}', this)"
+                                title="{{ info.label }}"
+                                type="button"
+                            >
+                                {{ info.flag }} {{ code }}
+                            </button>
+                        {% endfor %}
+                    {% endif %}
+
                     <span class="currency-global-spinner" id="global-spinner"></span>
                 </div>
-
             </div>
 
             {% if searchTerm is defined and searchTerm %}
@@ -780,27 +731,25 @@ data-convert-url="{{ path('api_currency_convert', {id: 0, currency: 'TND'}) }}"
                 </div>
             {% endif %}
 
-            {# ── Grille produits ───────────────────────────────────── #}
             <div class="row products_grid" id="products-grid">
                 {% for p in produits %}
                     <div class="col-lg-4 col-md-6 mb-4">
                         <div class="product-card">
 
-                            {# Image #}
                             <div class="product-card-image">
                                 {% if p.image %}
                                     <img src="{{ asset('images/' ~ p.image) }}" alt="{{ p.nom }}">
                                 {% else %}
-                                    <div class="product-card-placeholder"><i class="fa fa-shopping-bag"></i></div>
+                                    <div class="product-card-placeholder">
+                                        <i class="fa fa-shopping-bag"></i>
+                                    </div>
                                 {% endif %}
                             </div>
 
-                            {# Badge catégorie #}
                             {% if p.categorie %}
                                 <span class="product-card-category">{{ p.categorie }}</span>
                             {% endif %}
 
-                            {# Badge stock — vert normal, rouge clignotant si <= 5, rupture si 0 #}
                             {% if p.stock == 0 %}
                                 <span class="product-card-stock stock-rupture">Rupture</span>
                             {% elseif p.stock <= 5 %}
@@ -809,12 +758,9 @@ data-convert-url="{{ path('api_currency_convert', {id: 0, currency: 'TND'}) }}"
                                 <span class="product-card-stock">En stock {{ p.stock }}</span>
                             {% endif %}
 
-                            {# Summary (visible par défaut, masqué au hover) #}
                             <div class="product-card-summary">
-
                                 <div class="product-card-title">{{ p.nom }}</div>
 
-                                {# Prix — mis à jour dynamiquement par le switcher global #}
                                 <div class="product-card-price" id="prix-{{ p.id }}">
                                     <span id="prix-val-{{ p.id }}">
                                         {{ p.prix|number_format(2, '.', ' ') }} TND
@@ -822,24 +768,22 @@ data-convert-url="{{ path('api_currency_convert', {id: 0, currency: 'TND'}) }}"
                                     <span class="prix-spinner" id="spinner-{{ p.id }}"></span>
                                 </div>
 
-                                {% if p.region %}
+                                {% if p.region is defined and p.region %}
                                     <div class="product-card-region">
                                         <i class="fa fa-map-marker"></i> {{ p.region }}
                                     </div>
                                 {% endif %}
 
-                                {% if p.dateAjout %}
+                                {% if p.dateAjout is defined and p.dateAjout %}
                                     <div class="product-card-date">
-                                        <i class="fa fa-calendar"></i> {{ p.dateAjout|date('d/m/Y') }}
+                                        <i class="fa fa-clock-o"></i> {{ p.dateAjout|date('d/m/Y') }}
                                     </div>
                                 {% endif %}
-
                             </div>
 
-                            {# Overlay survol → bouton détail #}
                             <div class="product-card-overlay">
                                 <a href="{{ path('produit_details', {'id': p.id}) }}" class="product-card-btn">
-                                    Explorer <i class="fa fa-arrow-right"></i>
+                                    Voir détails
                                 </a>
                             </div>
 
@@ -847,18 +791,16 @@ data-convert-url="{{ path('api_currency_convert', {id: 0, currency: 'TND'}) }}"
                     </div>
                 {% else %}
                     <div class="col-12">
-                        <div class="client_empty_state">
-                            <i class="fa fa-shopping-bag"></i><br><br>
-                            Aucun produit trouvé avec les filtres choisis.
-                        </div>
+                        <div class="client_empty_state">Aucun produit trouvé.</div>
                     </div>
                 {% endfor %}
             </div>
 
-            <div class="pagination_wrap">
-                {{ knp_pagination_render(produits) }}
-            </div>
-
+            {% if produits is defined and produits.pageCount is defined and produits.pageCount > 1 %}
+                <div class="pagination_wrap">
+                    {{ knp_pagination_render(produits) }}
+                </div>
+            {% endif %}
         </div>
     </div>
 {% endblock %}
@@ -866,46 +808,28 @@ data-convert-url="{{ path('api_currency_convert', {id: 0, currency: 'TND'}) }}"
 {% block javascripts %}
 {{ parent() }}
 <script>
-    /**
-     * Convertit TOUS les prix de la page vers la devise choisie.
-     * ✅ Les IDs sont lus depuis le DOM (pas depuis Twig).
-     * ✅ L'URL est lue depuis data-convert-url (Symfony path(), pas hardcodée).
-     *
-     * @param {string}      currency - Code devise (TND, USD, EUR, SAR)
-     * @param {HTMLElement} btn      - Bouton global cliqué
-     */
     async function convertTousLesPrix(currency, btn) {
-        // Marquer le bouton actif
         document.querySelectorAll('.currency-global-bar .btn-devise')
-                .forEach(b => b.classList.remove('active'));
+            .forEach(b => b.classList.remove('active'));
+
         btn.classList.add('active');
 
-        // Spinner global
         const globalSpinner = document.getElementById('global-spinner');
         globalSpinner.classList.add('show');
 
-        // ✅ IDs lus depuis le DOM, pas depuis une variable Twig
         const produitIds = Array.from(
             document.querySelectorAll('[id^="prix-val-"]')
         ).map(el => el.id.replace('prix-val-', ''));
 
-        // Lancer toutes les conversions en parallèle
         await Promise.all(produitIds.map(id => convertPrix(id, currency)));
 
         globalSpinner.classList.remove('show');
     }
 
-    /**
-     * Convertit le prix d'UN produit via l'API Symfony.
-     * ✅ URL construite depuis data-convert-url (généré par path()), jamais hardcodée.
-     *
-     * @param {string} produitId - ID du produit
-     * @param {string} currency  - Code devise (TND, USD, EUR, SAR)
-     */
     async function convertPrix(produitId, currency) {
-        const valEl     = document.getElementById('prix-val-' + produitId);
-        const spinnerEl = document.getElementById('spinner-'  + produitId);
-        const prixEl    = document.getElementById('prix-'     + produitId);
+        const valEl = document.getElementById('prix-val-' + produitId);
+        const spinnerEl = document.getElementById('spinner-' + produitId);
+        const prixEl = document.getElementById('prix-' + produitId);
 
         if (!valEl || !prixEl) return;
 
@@ -914,11 +838,10 @@ data-convert-url="{{ path('api_currency_convert', {id: 0, currency: 'TND'}) }}"
         valEl.textContent = '...';
 
         try {
-            // ✅ URL lue depuis data-convert-url (Symfony path()), jamais écrite en dur
             const urlTemplate = document.querySelector('.currency-global-bar').dataset.convertUrl;
             const url = urlTemplate
-                .replace('/0/',  '/' + produitId + '/')
-    .replace('/TND', '/' + currency);
+                .replace('/0/', '/' + produitId + '/')
+                .replace('/TND', '/' + currency);
 
             const response = await fetch(url, {
                 headers: { 'Accept': 'application/json' }

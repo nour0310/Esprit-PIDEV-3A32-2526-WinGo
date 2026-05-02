@@ -1,6 +1,15 @@
 parameters:
-    level: 5
+    level: 8
+
     paths:
         - src
+
     excludePaths:
         - src/Kernel.php
+        - src/Command/GenerateEntitiesCommand.php
+        - src/Command/GenerateRepositoriesCommand.php
+
+    ignoreErrors:
+        - '#Call to an undefined method#'
+        - identifier: property.unusedType
+          path: src/Entity/*

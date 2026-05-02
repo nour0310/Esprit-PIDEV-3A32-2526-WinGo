@@ -23,6 +23,7 @@ class ChatController extends AbstractController
     #[Route('/event/{id}/chat', name: 'event_chat')]
     public function eventChat(Event $event): Response
     {
+        /** @var Utilisateur|null $user */
         $user = $this->getUser();
         if (!$user) {
             return $this->redirectToRoute('app_login');
@@ -71,6 +72,7 @@ class ChatController extends AbstractController
   #[Route('/chat/inbox', name: 'chat_inbox')]
 public function inbox(EntityManagerInterface $em): Response
 {
+    /** @var Utilisateur|null $user */
     $user = $this->getUser();
     if (!$user) {
         return $this->redirectToRoute('app_login');

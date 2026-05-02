@@ -8,6 +8,7 @@ use App\Service\MerchantDashboardService;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
+use App\Entity\Utilisateur;
 
 final class MerchantController extends AbstractController
 {

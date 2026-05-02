@@ -12,7 +12,8 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Doctrine\ORM\EntityManagerInterface;
 use App\Entity\PromoCode;
-
+use App\Entity\Utilisateur;
+use Symfony\Component\HttpFoundation\JsonResponse;
 
 #[Route('/reservation')]
 final class ReservationController extends AbstractController
@@ -26,6 +27,7 @@ public function listReservationsFromDB(
 ): Response
 {
     $em = $manager->getManager();
+    /** @var Utilisateur|null $user */
     $user = $this->getUser();
     $allReservations = $repo->findAll();
 
@@ -79,11 +81,9 @@ public function listReservationsFromDB(
             'user_id' => $user,
             'is_used' => 0 // On vérifie qu'il n'est pas déjà consommé
         ]);
-        // Si ça affiche "null", c'est que la requête SQL ne trouve rien
-        dd($enteredCode, $user->getId(), $promo);
 
         if ($promo) {
-            $newReservation->setPrice(0.0); // BINGO : Prix à zéro
+            $newReservation->setPrice(0); // BINGO : Prix à zéro
             $promo->setIsUsed(1);           // On le marque comme "utilisé"
             $isFreeTrip = true;
             $this->addFlash('success', 'Félicitations ! Votre code promo a été appliqué : Voyage GRATUIT !');
@@ -99,7 +99,7 @@ public function listReservationsFromDB(
 
         if ($nextCount >= 10) {
             // Prix Gold (-30%)
-            $newReservation->setPrice($basePrice * 0.70); 
+            $newReservation->setPrice((int) round($basePrice * 0.70));
             
             // --- ON GÉNÈRE LE CODE POUR LA PROCHAINE FOIS ---
             $promoCode = "WINGO-GOLD-" . rand(100, 999);
@@ -119,10 +119,10 @@ public function listReservationsFromDB(
                 $this->addFlash('warning', 'Statut GOLD ! Notez votre code : ' . $promoCode);
             }
         } elseif ($nextCount >= 5) {
-            $newReservation->setPrice($basePrice * 0.85); // Silver (-15%)
+            $newReservation->setPrice((int) round($basePrice * 0.85)); // Silver (-15%)
             $this->addFlash('success', 'Statut Silver appliqué !');
         } else {
-            $newReservation->setPrice($basePrice); // Prix normal
+            $newReservation->setPrice((int) round($basePrice)); // Prix normal
         }
     }
 }
@@ -142,44 +142,42 @@ public function listReservationsFromDB(
     ]);
 }
     #[Route('/details/{id}', name: "reservationDetails")]
-    public function reservationDetails($id, ReservationRepository $repo): Response
+    public function reservationDetails(int $id, ReservationRepository $repo): Response
     {
         return $this->render("Reservation/offersr.html.twig", ['id' => $id, "reservation" => $repo->find($id)]);
     }
 
-    #[Route('/add', name: "addReservation")]
-    public function addReservation(ManagerRegistry $manager, Request $request): Response
-    {
-        $em = $manager->getManager();
-        $newReservation = new Reservation();
-        $reservation->setUser_id($this->getUser());
-        $form = $this->createForm(ReservationType::class, $newReservation);
-        
-        $form->handleRequest($request);
-        if ($form->isSubmitted()) {
-            // 1. Check if Type is empty
-        if (empty($reservation->getUser())) {
-            $errors[] = "veuillez saisir votre nom ou une abréviation.";
-        }
-        if (empty($reservation->getStatut())) {
-            $errors[] = "veuillez remplir ce champ.";
-        }
-        if (empty($reservation->getExp())) {
-            $errors[] = "Le lieu où vous voulez reserver.";
-        }
-        }
-        
-        if ($form->isSubmitted()) {
-            $em->persist($newReservation);
-            $em->flush();
-            return $this->redirectToRoute('displayReservation');
-        }
+#[Route('/add', name: "addReservation")]
+public function addReservation(ManagerRegistry $manager, Request $request): Response
+{
+    $em = $manager->getManager();
+    $newReservation = new Reservation();
 
-        return $this->render('reservation/add.html.twig', ['f' => $form]);
+    $currentUser = $this->getUser();
+
+    if (!$currentUser instanceof Utilisateur) {
+        throw $this->createAccessDeniedException('Vous devez être connecté.');
     }
 
+    $newReservation->setUser_id($currentUser);
+
+    $form = $this->createForm(ReservationType::class, $newReservation);
+    $form->handleRequest($request);
+
+    if ($form->isSubmitted() && $form->isValid()) {
+        $em->persist($newReservation);
+        $em->flush();
+
+        return $this->redirectToRoute('displayReservation');
+    }
+
+    return $this->render('reservation/add.html.twig', [
+        'f' => $form->createView(),
+    ]);
+}
+
     #[Route('/delete/{id}', name: "deleteReservation")]
-public function delete($id, ManagerRegistry $manager, ReservationRepository $repo): Response
+public function delete(int $id, ManagerRegistry $manager, ReservationRepository $repo): Response
 {
     $em = $manager->getManager();
     $reservation = $repo->find($id);
@@ -210,16 +208,26 @@ public function delete($id, ManagerRegistry $manager, ReservationRepository $rep
     return $this->redirectToRoute('app_front_reservations');
 }
     #[Route('/update/{id}', name: "updateReservation")]
-public function updateReservation($id, ReservationRepository $repo, ManagerRegistry $manager, Request $request): Response
+public function updateReservation(int $id, ReservationRepository $repo, ManagerRegistry $manager, Request $request): Response
 {
     $em = $manager->getManager();
     $reservation = $repo->find($id);
     $currentUser = $this->getUser();
 
     // Security check
-    if ($reservation->getUser_id()->getId() !== $currentUser->getId() && !$this->isGranted('ROLE_ADMIN')) {
-        throw $this->createAccessDeniedException('Access Denied.');
-    }
+   if (!$reservation) {
+    throw $this->createNotFoundException('Réservation introuvable.');
+}
+
+if (!$currentUser instanceof Utilisateur) {
+    throw $this->createAccessDeniedException('Vous devez être connecté.');
+}
+
+$owner = $reservation->getUser_id();
+
+if (!$this->isGranted('ROLE_ADMIN') && ($owner === null || $owner->getId() !== $currentUser->getId())) {
+    throw $this->createAccessDeniedException('Access Denied.');
+}
         
     $form = $this->createForm(ReservationType::class, $reservation);
     $form->handleRequest($request);
@@ -231,10 +239,7 @@ public function updateReservation($id, ReservationRepository $repo, ManagerRegis
     }
 
     // 1. Get the user count for the loyalty progress bar
-    $userCount = 0;
-    if ($currentUser) {
-        $userCount = $repo->countUserReservationsThisYear($currentUser);
-    }
+   $userCount = $repo->countUserReservationsThisYear($currentUser);
 
     // 2. Fetch all reservations and split them
     // (Note: You could also use your $repo->searchAndSortReservations() here if you prefer)
@@ -250,9 +255,11 @@ public function updateReservation($id, ReservationRepository $repo, ManagerRegis
         } else { 
             // --- FIX: HISTORY FILTER ---
             // Only add to history if the reservation belongs to the currently logged-in user
-            if ($currentUser && $res->getUser_id() && $res->getUser_id()->getId() === $currentUser->getId()) {
-                $historyReservations[] = $res; 
-            }
+           $resOwner = $res->getUser_id();
+
+if ($resOwner !== null && $resOwner->getId() === $currentUser->getId()) {
+    $historyReservations[] = $res;
+}
         }
     }
 
@@ -266,7 +273,10 @@ public function updateReservation($id, ReservationRepository $repo, ManagerRegis
 }
 
     #[Route('/search', name: "searchReservationStatut")]
-    public function searchAndSortReservations(?string $search, ?string $sort,$owner = null)
+   /**
+ * @return Reservation[]
+ */
+public function searchAndSortReservations(?string $search, ?string $sort, ?Utilisateur $owner = null): Response
     {
         $qb = $this->createQueryBuilder('r');
         if ($owner !== null) {
@@ -292,12 +302,12 @@ public function updateReservation($id, ReservationRepository $repo, ManagerRegis
         return $qb->getQuery()->getResult();
     }
     #[Route('/rate/{id}', name: 'app_reservation_rate', methods: ['POST'])]
-public function rateTrip(Reservation $reservation, Request $request, EntityManagerInterface $em)
+public function rateTrip(Reservation $reservation, Request $request, EntityManagerInterface $em): Response
 {
     // 1. Get data from the POST request
     $stars = $request->request->get('stars');
-    $comment = $request->request->get('comment');
-
+ $comment = $request->request->get('comment');
+$comment = $comment !== null ? (string) $comment : null;
     // 2. Update the entity (Symfony already found $reservation via the {id} in the URL)
     if ($stars !== null) {
         $reservation->setStars((int)$stars);

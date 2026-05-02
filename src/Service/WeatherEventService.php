@@ -18,7 +18,9 @@ class WeatherEventService
             throw new \RuntimeException('OPENWEATHER_API_KEY environment variable is not set.');
         }
     }
-
+/**
+ * @return array<string, int|string|float>
+ */
     public function getWeatherForEvent(string $city): array
     {
         if (empty($city)) {

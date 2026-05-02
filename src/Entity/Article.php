@@ -46,9 +46,15 @@ class Article
     #[Assert\NotBlank(message: "Veuillez choisir une catégorie")]
     private string $categorie = '';
 
+    /**
+     * @var Collection<int, Commentaire>
+     */
     #[ORM\OneToMany(targetEntity: Commentaire::class, mappedBy: 'article', cascade: ['remove'])]
     private Collection $commentaires;
 
+    /**
+     * @var Collection<int, Tag>
+     */
     #[ORM\ManyToMany(targetEntity: Tag::class, inversedBy: 'articles')]
     #[ORM\JoinTable(name: 'article_tag')]
     private Collection $tags;

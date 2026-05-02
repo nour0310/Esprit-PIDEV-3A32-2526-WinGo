@@ -25,7 +25,7 @@ class TravelApiController extends AbstractController
     }
 
     #[Route('/api/route/{sLat}/{sLon}/{eLat}/{eLon}', name: 'api_route')]
-    public function route($sLat, $sLon, $eLat, $eLon, TravelApiService $apiService): JsonResponse
+    public function route(string $sLat, string $sLon, string $eLat, string $eLon, TravelApiService $apiService): JsonResponse
     {
         $data = $apiService->getRoute((float)$sLat, (float)$sLon, (float)$eLat, (float)$eLon);
         

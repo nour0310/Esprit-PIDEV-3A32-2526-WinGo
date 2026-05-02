@@ -15,7 +15,13 @@ class PollinationsImageService
         ParameterBagInterface $params,
         LoggerInterface $logger
     ) {
-        $this->imageDirectory = $params->get('images_directory');
+        $imageDirectory = $params->get('images_directory');
+
+if (!is_string($imageDirectory)) {
+    throw new \RuntimeException('Parameter images_directory must be a string.');
+}
+
+$this->imageDirectory = $imageDirectory;
         $this->logger = $logger;
     }
 
@@ -57,8 +63,8 @@ class PollinationsImageService
             }
             
             // Generate unique filename
-            $safePrompt = preg_replace('/[^a-z0-9]+/i', '_', $prompt);
-            $safePrompt = substr($safePrompt, 0, 50);
+           $safePrompt = preg_replace('/[^a-z0-9]+/i', '_', $prompt) ?? 'image';
+$safePrompt = substr($safePrompt, 0, 50);
             $filename = $safePrompt . '_' . uniqid() . '.png';
             $filePath = $this->imageDirectory . '/' . $filename;
             

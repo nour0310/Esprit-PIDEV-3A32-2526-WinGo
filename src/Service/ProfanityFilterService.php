@@ -41,10 +41,11 @@ class ProfanityFilterService
      * Nettoie un texte en remplaçant les mots inappropriés par des astérisques.
      */
     public function clean(string $text): string
-    {
-        $text = $this->filterFr->clean($text);
-        $text = $this->filterEn->clean($text);
-        return $text;
-    }
+{
+    $text = $this->filterFr->clean($text) ?? $text;
+    $text = $this->filterEn->clean($text) ?? $text;
+
+    return $text;
+}
 }
 

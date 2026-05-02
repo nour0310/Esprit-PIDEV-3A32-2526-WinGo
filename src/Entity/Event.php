@@ -2,11 +2,11 @@
 
 namespace App\Entity;
 
+use App\Entity\Participation;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
-use Doctrine\Common\Collections\Collection;
-use Doctrine\Common\Collections\ArrayCollection;
-use App\Entity\Participation;
 
 #[ORM\Entity]
 class Event
@@ -75,6 +75,20 @@ class Event
     #[ORM\Column(type: "text", nullable: true)]
     private ?string $feedbacks = null;
 
+    /**
+     * Données temporaires utilisées dans Twig, non stockées en base.
+     *
+     * @var array<string, mixed>
+     */
+    public array $weatherData = [];
+
+    public float $discountedPrice = 0.0;
+
+    public bool $discountActive = false;
+
+    /**
+     * @var Collection<int, Participation>
+     */
     #[ORM\OneToMany(mappedBy: "id_event", targetEntity: Participation::class)]
     private Collection $participations;
 
@@ -83,83 +97,238 @@ class Event
         $this->participations = new ArrayCollection();
     }
 
-    public function getId_event(): int { return $this->id_event; }
-    public function setId_event(int $id_event): self { $this->id_event = $id_event; return $this; }
+    public function getId_event(): int
+    {
+        return $this->id_event;
+    }
 
-    public function getTitle(): string { return $this->title; }
-    public function setTitle(string $title): self { $this->title = $title; return $this; }
+    public function setId_event(int $id_event): self
+    {
+        $this->id_event = $id_event;
 
-    public function getDescription(): string { return $this->description; }
-    public function setDescription(string $description): self { $this->description = $description; return $this; }
+        return $this;
+    }
 
-    public function getDate_event(): \DateTimeInterface { return $this->date_event; }
-    public function setDate_event(\DateTimeInterface $date_event): self { $this->date_event = $date_event; return $this; }
+    public function getTitle(): string
+    {
+        return $this->title;
+    }
 
-    public function getStart_time(): string { return $this->start_time; }
-    public function setStart_time(string $start_time): self { $this->start_time = $start_time; return $this; }
+    public function setTitle(string $title): self
+    {
+        $this->title = $title;
 
-    public function getLocation(): string { return $this->location; }
-    public function setLocation(string $location): self { $this->location = $location; return $this; }
+        return $this;
+    }
 
-    public function getEvent_type(): string { return $this->event_type; }
-    public function setEvent_type(string $event_type): self { $this->event_type = $event_type; return $this; }
+    public function getDescription(): string
+    {
+        return $this->description;
+    }
 
-    public function getSeason(): string { return $this->season; }
-    public function setSeason(string $season): self { $this->season = $season; return $this; }
+    public function setDescription(string $description): self
+    {
+        $this->description = $description;
 
-    public function getCapacity(): int { return $this->capacity; }
-    public function setCapacity(int $capacity): self { $this->capacity = $capacity; return $this; }
+        return $this;
+    }
 
-    public function getAvailable_places(): int { return $this->available_places; }
-    public function setAvailable_places(int $available_places): self { $this->available_places = $available_places; return $this; }
+    public function getDate_event(): \DateTimeInterface
+    {
+        return $this->date_event;
+    }
 
-    public function getStatus(): string { return $this->status; }
-    public function setStatus(string $status): self { $this->status = $status; return $this; }
+    public function setDate_event(\DateTimeInterface $date_event): self
+    {
+        $this->date_event = $date_event;
 
-    public function getImage_event(): string { return $this->image_event; }
-    public function setImage_event(string $image_event): self { $this->image_event = $image_event; return $this; }
+        return $this;
+    }
 
-    public function getPrice(): float { return $this->price; }
-    public function setPrice(float $price): self { $this->price = $price; return $this; }
+    public function getStart_time(): string
+    {
+        return $this->start_time;
+    }
 
-    public function getIsPassed(): ?bool { return $this->isPassed; }
-    public function setIsPassed(?bool $isPassed): self { $this->isPassed = $isPassed; return $this; }
+    public function setStart_time(string $start_time): self
+    {
+        $this->start_time = $start_time;
 
-    // Feedback methods
+        return $this;
+    }
+
+    public function getLocation(): string
+    {
+        return $this->location;
+    }
+
+    public function setLocation(string $location): self
+    {
+        $this->location = $location;
+
+        return $this;
+    }
+
+    public function getEvent_type(): string
+    {
+        return $this->event_type;
+    }
+
+    public function setEvent_type(string $event_type): self
+    {
+        $this->event_type = $event_type;
+
+        return $this;
+    }
+
+    public function getSeason(): string
+    {
+        return $this->season;
+    }
+
+    public function setSeason(string $season): self
+    {
+        $this->season = $season;
+
+        return $this;
+    }
+
+    public function getCapacity(): int
+    {
+        return $this->capacity;
+    }
+
+    public function setCapacity(int $capacity): self
+    {
+        $this->capacity = $capacity;
+
+        return $this;
+    }
+
+    public function getAvailable_places(): int
+    {
+        return $this->available_places;
+    }
+
+    public function setAvailable_places(int $available_places): self
+    {
+        $this->available_places = $available_places;
+
+        return $this;
+    }
+
+    public function getStatus(): string
+    {
+        return $this->status;
+    }
+
+    public function setStatus(string $status): self
+    {
+        $this->status = $status;
+
+        return $this;
+    }
+
+    public function getImage_event(): string
+    {
+        return $this->image_event;
+    }
+
+    public function setImage_event(string $image_event): self
+    {
+        $this->image_event = $image_event;
+
+        return $this;
+    }
+
+    public function getPrice(): float
+    {
+        return $this->price;
+    }
+
+    public function setPrice(float $price): self
+    {
+        $this->price = $price;
+
+        return $this;
+    }
+
+    public function getIsPassed(): ?bool
+    {
+        return $this->isPassed;
+    }
+
+    public function setIsPassed(?bool $isPassed): self
+    {
+        $this->isPassed = $isPassed;
+
+        return $this;
+    }
+
+    /**
+     * @return array<int, array<string, mixed>>
+     */
     public function getFeedbacks(): array
     {
-        if ($this->feedbacks === null) return [];
+        if ($this->feedbacks === null) {
+            return [];
+        }
+
         $data = @unserialize($this->feedbacks);
-        return $data !== false ? $data : [];
+
+        return is_array($data) ? $data : [];
     }
+
+    /**
+     * @param array<int, array<string, mixed>> $feedbacks
+     */
     public function setFeedbacks(array $feedbacks): self
     {
         $this->feedbacks = serialize($feedbacks);
+
         return $this;
     }
+
+    /**
+     * @param array<string, mixed> $feedback
+     */
     public function addFeedback(array $feedback): self
     {
         $feedbacks = $this->getFeedbacks();
         $feedbacks[] = $feedback;
+
         return $this->setFeedbacks($feedbacks);
     }
+
     public function hasUserFeedback(int $userId): bool
     {
         foreach ($this->getFeedbacks() as $fb) {
-            if (isset($fb['userId']) && $fb['userId'] === $userId) return true;
+            if (isset($fb['userId']) && $fb['userId'] === $userId) {
+                return true;
+            }
         }
+
         return false;
     }
 
-    public function getParticipations(): Collection { return $this->participations; }
+    /**
+     * @return Collection<int, Participation>
+     */
+    public function getParticipations(): Collection
+    {
+        return $this->participations;
+    }
+
     public function addParticipation(Participation $participation): self
     {
         if (!$this->participations->contains($participation)) {
             $this->participations[] = $participation;
             $participation->setId_event($this);
         }
+
         return $this;
     }
+
     public function removeParticipation(Participation $participation): self
     {
         if ($this->participations->removeElement($participation)) {
@@ -167,6 +336,7 @@ class Event
                 $participation->setId_event(null);
             }
         }
+
         return $this;
     }
 }

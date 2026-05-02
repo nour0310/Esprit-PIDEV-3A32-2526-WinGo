@@ -80,8 +80,8 @@ class MailjetTicketMailer
         $totalPrice = $p->getTotalPrice();
         
         if ($unitPrice > 0) {
-            $priceText = number_format($unitPrice, 2) . ' €';
-            $totalText = number_format($totalPrice, 2) . ' €';
+            $priceText = number_format((float) $unitPrice, 2) . ' €';
+            $totalText = number_format((float) $totalPrice, 2) . ' €';
         } else {
             $priceText = 'Gratuit';
             $totalText = 'Gratuit';

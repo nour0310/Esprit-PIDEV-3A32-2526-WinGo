@@ -6,14 +6,16 @@ use App\Repository\NotificationRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Attribute\Route;
+use App\Entity\Utilisateur;
 
 class NotificationController extends AbstractController
 {
     #[Route('/api/notifications', name: 'api_notifications', methods: ['GET'])]
     public function getNotifications(NotificationRepository $repo): JsonResponse
     {
+        /** @var Utilisateur|null $user */
         $user = $this->getUser();
-        if (!$user || !method_exists($user, 'getId') || $user->getId() === null) {
+        if (!$user instanceof Utilisateur || $user->getId() === null) {
             return $this->json(['error' => 'Non authentifié'], 401);
         }
 
@@ -43,8 +45,9 @@ class NotificationController extends AbstractController
     #[Route('/api/notifications/mark-read/{id}', name: 'api_notifications_mark_read', methods: ['POST'])]
     public function markAsRead(int $id, NotificationRepository $repo): JsonResponse
     {
+        /** @var Utilisateur|null $user */
         $user = $this->getUser();
-        if (!$user || !method_exists($user, 'getId') || $user->getId() === null) {
+        if (!$user instanceof Utilisateur || $user->getId() === null) {
             return $this->json(['success' => false], 401);
         }
 
@@ -61,8 +64,9 @@ class NotificationController extends AbstractController
     #[Route('/api/notifications/mark-all-read', name: 'api_notifications_mark_all_read', methods: ['POST'])]
     public function markAllAsRead(NotificationRepository $repo): JsonResponse
     {
+        /** @var Utilisateur|null $user */
         $user = $this->getUser();
-        if (!$user || !method_exists($user, 'getId') || $user->getId() === null) {
+        if (!$user instanceof Utilisateur || $user->getId() === null) {
             return $this->json(['success' => false], 401);
         }
 

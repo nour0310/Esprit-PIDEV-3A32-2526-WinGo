@@ -5,6 +5,7 @@ namespace App\Repository;
 use App\Entity\Transport;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
+use App\Entity\Utilisateur;
 
 /**
  * @extends ServiceEntityRepository<Transport>
@@ -15,7 +16,10 @@ class TransportRepository extends ServiceEntityRepository
     {
         parent::__construct($registry, Transport::class);
     }
-    public function searchAndSort(?string $term, ?string $sortBy,$user = null): array
+    /**
+ * @return Transport[]
+ */
+public function searchAndSort(?string $term, ?string $sortBy, ?Utilisateur $user = null): array
 {
     $qb = $this->createQueryBuilder('t');
 

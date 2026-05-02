@@ -60,88 +60,297 @@ class Participation
     #[ORM\Column(type: "boolean", options: ["default" => false])]
     private bool $is_used = false;
 
-    // NEW: price fields
     #[ORM\Column(type: "float", nullable: true)]
     private ?float $unit_price = null;
 
     #[ORM\Column(type: "float", nullable: true)]
     private ?float $total_price = null;
 
-    // ──────────────────────────────────────────────
-    // Getters / Setters (camelCase)
-    // ──────────────────────────────────────────────
-    public function getIdParticipation(): ?int { return $this->id_participation; }
-    public function setIdParticipation(?int $id): self { $this->id_participation = $id; return $this; }
+    public function getIdParticipation(): ?int
+    {
+        return $this->id_participation;
+    }
 
-    public function getIdEvent(): ?Event { return $this->id_event; }
-    public function setIdEvent(?Event $event): self { $this->id_event = $event; return $this; }
+    public function setIdParticipation(?int $id): self
+    {
+        $this->id_participation = $id;
 
-    public function getIdUser(): int { return $this->id_user; }
-    public function setIdUser(int $id): self { $this->id_user = $id; return $this; }
+        return $this;
+    }
 
-    public function getDateParticipation(): ?\DateTimeInterface { return $this->date_participation; }
-    public function setDateParticipation(?\DateTimeInterface $date): self { $this->date_participation = $date; return $this; }
+    public function getIdEvent(): ?Event
+    {
+        return $this->id_event;
+    }
 
-    public function getStatut(): string { return $this->statut; }
-    public function setStatut(string $statut): self { $this->statut = $statut; return $this; }
+    public function setIdEvent(?Event $event): self
+    {
+        $this->id_event = $event;
 
-    public function getNomParticipant(): string { return $this->nom_participant; }
-    public function setNomParticipant(?string $nom): self { $this->nom_participant = $nom ?? ''; return $this; }
+        return $this;
+    }
 
-    public function getPrenomParticipant(): string { return $this->prenom_participant; }
-    public function setPrenomParticipant(?string $prenom): self { $this->prenom_participant = $prenom ?? ''; return $this; }
+    public function getIdUser(): int
+    {
+        return $this->id_user;
+    }
 
-    public function getEmailParticipant(): string { return $this->email_participant; }
-    public function setEmailParticipant(?string $email): self { $this->email_participant = $email ?? ''; return $this; }
+    public function setIdUser(int $id): self
+    {
+        $this->id_user = $id;
 
-    public function getTelephone(): string { return $this->telephone; }
-    public function setTelephone(?string $tel): self { $this->telephone = $tel ?? ''; return $this; }
+        return $this;
+    }
 
-    public function getNombrePlaces(): int { return $this->nombre_places; }
-    public function setNombrePlaces(int $nb): self { $this->nombre_places = $nb; return $this; }
+    public function getDateParticipation(): ?\DateTimeInterface
+    {
+        return $this->date_participation;
+    }
 
-    public function getToken(): ?string { return $this->token; }
-    public function setToken(?string $token): self { $this->token = $token; return $this; }
+    public function setDateParticipation(?\DateTimeInterface $date): self
+    {
+        $this->date_participation = $date;
 
-    public function getIsUsed(): bool { return $this->is_used; }
-    public function setIsUsed(bool $used): self { $this->is_used = $used; return $this; }
+        return $this;
+    }
 
-    public function getUnitPrice(): ?float { return $this->unit_price; }
-    public function setUnitPrice(?float $price): self { $this->unit_price = $price; return $this; }
+    public function getStatut(): string
+    {
+        return $this->statut;
+    }
 
-    public function getTotalPrice(): ?float { return $this->total_price; }
-    public function setTotalPrice(?float $price): self { $this->total_price = $price; return $this; }
+    public function setStatut(string $statut): self
+    {
+        $this->statut = $statut;
 
-    // ──────────────────────────────────────────────
-    // Aliases underscore (for legacy templates)
-    // ──────────────────────────────────────────────
-    public function getId_participation(): ?int { return $this->id_participation; }
-    public function setId_participation($value): self { $this->id_participation = $value; return $this; }
+        return $this;
+    }
 
-    public function getId_event(): ?Event { return $this->id_event; }
-    public function setId_event($value): self { $this->id_event = $value; return $this; }
+    public function getNomParticipant(): string
+    {
+        return $this->nom_participant;
+    }
 
-    public function getId_user(): int { return $this->id_user; }
-    public function setId_user($value): self { $this->id_user = $value; return $this; }
+    public function setNomParticipant(?string $nom): self
+    {
+        $this->nom_participant = $nom ?? '';
 
-    public function getDate_participation(): ?\DateTimeInterface { return $this->date_participation; }
-    public function setDate_participation($value): self { $this->date_participation = $value; return $this; }
+        return $this;
+    }
 
-    public function getNom_participant(): string { return $this->nom_participant; }
-    public function setNom_participant($value): self { $this->nom_participant = $value ?? ''; return $this; }
+    public function getPrenomParticipant(): string
+    {
+        return $this->prenom_participant;
+    }
 
-    public function getPrenom_participant(): string { return $this->prenom_participant; }
-    public function setPrenom_participant($value): self { $this->prenom_participant = $value ?? ''; return $this; }
+    public function setPrenomParticipant(?string $prenom): self
+    {
+        $this->prenom_participant = $prenom ?? '';
 
-    public function getEmail_participant(): string { return $this->email_participant; }
-    public function setEmail_participant($value): self { $this->email_participant = $value ?? ''; return $this; }
+        return $this;
+    }
 
-    public function getNombre_places(): int { return $this->nombre_places; }
-    public function setNombre_places($value): self { $this->nombre_places = $value; return $this; }
+    public function getEmailParticipant(): string
+    {
+        return $this->email_participant;
+    }
 
-    public function getUnit_price(): ?float { return $this->unit_price; }
-    public function setUnit_price($value): self { $this->unit_price = $value; return $this; }
+    public function setEmailParticipant(?string $email): self
+    {
+        $this->email_participant = $email ?? '';
 
-    public function getTotal_price(): ?float { return $this->total_price; }
-    public function setTotal_price($value): self { $this->total_price = $value; return $this; }
+        return $this;
+    }
+
+    public function getTelephone(): string
+    {
+        return $this->telephone;
+    }
+
+    public function setTelephone(?string $tel): self
+    {
+        $this->telephone = $tel ?? '';
+
+        return $this;
+    }
+
+    public function getNombrePlaces(): int
+    {
+        return $this->nombre_places;
+    }
+
+    public function setNombrePlaces(int $nb): self
+    {
+        $this->nombre_places = $nb;
+
+        return $this;
+    }
+
+    public function getToken(): ?string
+    {
+        return $this->token;
+    }
+
+    public function setToken(?string $token): self
+    {
+        $this->token = $token;
+
+        return $this;
+    }
+
+    public function getIsUsed(): bool
+    {
+        return $this->is_used;
+    }
+
+    public function setIsUsed(bool $used): self
+    {
+        $this->is_used = $used;
+
+        return $this;
+    }
+
+    public function getUnitPrice(): ?float
+    {
+        return $this->unit_price;
+    }
+
+    public function setUnitPrice(?float $price): self
+    {
+        $this->unit_price = $price;
+
+        return $this;
+    }
+
+    public function getTotalPrice(): ?float
+    {
+        return $this->total_price;
+    }
+
+    public function setTotalPrice(?float $price): self
+    {
+        $this->total_price = $price;
+
+        return $this;
+    }
+
+    public function getId_participation(): ?int
+    {
+        return $this->id_participation;
+    }
+
+    public function setId_participation(?int $value): self
+    {
+        $this->id_participation = $value;
+
+        return $this;
+    }
+
+    public function getId_event(): ?Event
+    {
+        return $this->id_event;
+    }
+
+    public function setId_event(?Event $value): self
+    {
+        $this->id_event = $value;
+
+        return $this;
+    }
+
+    public function getId_user(): int
+    {
+        return $this->id_user;
+    }
+
+    public function setId_user(int $value): self
+    {
+        $this->id_user = $value;
+
+        return $this;
+    }
+
+    public function getDate_participation(): ?\DateTimeInterface
+    {
+        return $this->date_participation;
+    }
+
+    public function setDate_participation(?\DateTimeInterface $value): self
+    {
+        $this->date_participation = $value;
+
+        return $this;
+    }
+
+    public function getNom_participant(): string
+    {
+        return $this->nom_participant;
+    }
+
+    public function setNom_participant(?string $value): self
+    {
+        $this->nom_participant = $value ?? '';
+
+        return $this;
+    }
+
+    public function getPrenom_participant(): string
+    {
+        return $this->prenom_participant;
+    }
+
+    public function setPrenom_participant(?string $value): self
+    {
+        $this->prenom_participant = $value ?? '';
+
+        return $this;
+    }
+
+    public function getEmail_participant(): string
+    {
+        return $this->email_participant;
+    }
+
+    public function setEmail_participant(?string $value): self
+    {
+        $this->email_participant = $value ?? '';
+
+        return $this;
+    }
+
+    public function getNombre_places(): int
+    {
+        return $this->nombre_places;
+    }
+
+    public function setNombre_places(int $value): self
+    {
+        $this->nombre_places = $value;
+
+        return $this;
+    }
+
+    public function getUnit_price(): ?float
+    {
+        return $this->unit_price;
+    }
+
+    public function setUnit_price(?float $value): self
+    {
+        $this->unit_price = $value;
+
+        return $this;
+    }
+
+    public function getTotal_price(): ?float
+    {
+        return $this->total_price;
+    }
+
+    public function setTotal_price(?float $value): self
+    {
+        $this->total_price = $value;
+
+        return $this;
+    }
 }

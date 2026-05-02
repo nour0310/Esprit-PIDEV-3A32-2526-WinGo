@@ -16,6 +16,9 @@ class NotificationCommerceRepository extends ServiceEntityRepository
         parent::__construct($registry, NotificationCommerce::class);
     }
 
+    /**
+    * @return NotificationCommerce[]
+    */
     public function findUnreadForRole(string $role, int $limit = 5): array
     {
         return $this->createQueryBuilder('n')

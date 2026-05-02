@@ -6,12 +6,13 @@ use App\Entity\Article;
 use App\Entity\Commande;
 use App\Entity\Profil;
 use App\Entity\Utilisateur;
-use App\Form\UtilisateurType;
 use App\Form\ArticleType;
-use Symfony\Component\HttpFoundation\File\Exception\FileException;
-use Symfony\Component\HttpFoundation\File\UploadedFile;
+use App\Form\CommandeAnnulationType;
+use App\Form\UtilisateurType;
 use App\Repository\ArticleRepository;
 use App\Repository\CommandeRepository;
+use App\Repository\LikesRepository;
+use App\Repository\NotificationCommerceRepository;
 use App\Repository\ProduitRepository;
 use App\Repository\ProfilRepository;
 use App\Repository\ReclamationRepository;
@@ -19,29 +20,22 @@ use App\Repository\ReservationRepository;
 use App\Repository\SuggestionRepository;
 use App\Repository\TransportRepository;
 use App\Repository\UtilisateurRepository;
+use App\Service\CommandeMailerService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\File\Exception\FileException;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
-use App\Form\CommandeAnnulationType;
-use App\Repository\NotificationCommerceRepository;
-use App\Service\CommandeMailerService;
-use Symfony\Component\Mailer\MailerInterface;
-use Symfony\Component\Mime\Email;
-
 
 #[IsGranted('ROLE_ADMIN')]
 #[Route('/admin')]
 class AdminController extends AbstractController
 {
     private const ALLOWED_PHOTO_EXTENSIONS = ['jpg', 'jpeg', 'png', 'webp', 'gif'];
-
-    // ─────────────────────────────────────────────
-    //  DASHBOARD
-    // ─────────────────────────────────────────────
 
     #[Route('', name: 'admin_dashboard')]
     #[Route('/dashboard', name: 'admin_dashboard_page')]
@@ -53,7 +47,7 @@ class AdminController extends AbstractController
         ReclamationRepository $reclamationRepo,
     ): Response {
         $allUsers = $userRepo->findAll();
-        
+
         $statsAge = [
             '< 18' => 0,
             '18 - 25' => 0,
@@ -63,71 +57,69 @@ class AdminController extends AbstractController
             '> 80' => 0,
             'N/A' => 0,
         ];
-        
-        foreach ($allUsers as $u) {
-            $age = $u->getAge();
+
+        foreach ($allUsers as $user) {
+            $age = $user->getAge();
+
             if ($age === null) {
                 $statsAge['N/A']++;
             } elseif ($age < 18) {
                 $statsAge['< 18']++;
-            } elseif ($age >= 18 && $age <= 25) {
+            } elseif ($age <= 25) {
                 $statsAge['18 - 25']++;
-            } elseif ($age >= 26 && $age <= 40) {
+            } elseif ($age <= 40) {
                 $statsAge['26 - 40']++;
-            } elseif ($age >= 41 && $age <= 60) {
+            } elseif ($age <= 60) {
                 $statsAge['41 - 60']++;
-            } elseif ($age >= 61 && $age <= 80) {
+            } elseif ($age <= 80) {
                 $statsAge['61 - 80']++;
             } else {
                 $statsAge['> 80']++;
             }
         }
-        
+
         $totalAgeCount = count($allUsers);
         $totalAgeFixed = $totalAgeCount > 0 ? $totalAgeCount : 1;
-        
+
         $statsAgePercent = [];
         foreach ($statsAge as $key => $count) {
             $statsAgePercent[$key] = round(($count / $totalAgeFixed) * 100);
         }
 
         return $this->render('admin/dashboard.html.twig', [
-            'total_users'         => $totalAgeCount,
-            'total_articles'      => count($articleRepo->findAll()),
-            'total_commandes'     => count($commandeRepo->findAll()),
-            'total_reservations'  => count($reservationRepo->findAll()),
-            'total_reclamations'  => count($reclamationRepo->findAll()),
-            'recent_users'        => $userRepo->findBy([], ['id' => 'DESC'], 5),
+            'total_users' => $totalAgeCount,
+            'total_articles' => count($articleRepo->findAll()),
+            'total_commandes' => count($commandeRepo->findAll()),
+            'total_reservations' => count($reservationRepo->findAll()),
+            'total_reclamations' => count($reclamationRepo->findAll()),
+            'recent_users' => $userRepo->findBy([], ['id' => 'DESC'], 5),
             'recent_reclamations' => $reclamationRepo->findBy([], ['id' => 'DESC'], 5),
-            'stats_age'           => $statsAge,
-            'stats_age_percent'   => $statsAgePercent,
+            'stats_age' => $statsAge,
+            'stats_age_percent' => $statsAgePercent,
         ]);
     }
-
-    // ─────────────────────────────────────────────
-    //  UTILISATEURS
-    // ─────────────────────────────────────────────
 
     #[Route('/users', name: 'admin_users')]
     public function users(Request $request, UtilisateurRepository $repo): Response
     {
-        $query = $request->query->get('q', '');
-        $sort = $request->query->get('sort', 'id');
-        $direction = $request->query->get('direction', 'DESC');
+        $query = (string) $request->query->get('q', '');
+        $sort = (string) $request->query->get('sort', 'id');
+        $direction = (string) $request->query->get('direction', 'DESC');
 
-        // Validation simple du tri
         $allowedSorts = ['id', 'nom', 'prenom', 'email', 'type', 'age'];
-        if (!in_array($sort, $allowedSorts)) {
+
+        if (!in_array($sort, $allowedSorts, true)) {
             $sort = 'id';
         }
-        if (!in_array(strtoupper($direction), ['ASC', 'DESC'])) {
+
+        if (!in_array(strtoupper($direction), ['ASC', 'DESC'], true)) {
             $direction = 'DESC';
         }
 
         $users = $repo->searchAndSort($query, $sort, $direction);
 
-        // On injecte le score de fiabilité pour chaque utilisateur
         $totalReliability = 0;
+
         foreach ($users as $user) {
             $user->reliabilityScore = $repo->calculateReliabilityScore($user);
             $totalReliability += $user->reliabilityScore;
@@ -136,22 +128,19 @@ class AdminController extends AbstractController
         $avgReliability = count($users) > 0 ? round($totalReliability / count($users)) : 100;
 
         return $this->render('admin/users.html.twig', [
-            'users'             => $users,
-            'q'                 => $query,
-            'current_sort'      => $sort,
+            'users' => $users,
+            'q' => $query,
+            'current_sort' => $sort,
             'current_direction' => $direction,
             'stats' => [
                 'total' => count($repo->findAll()),
                 'admins' => count($repo->findBy(['type' => 'ADMIN'])),
                 'merchants' => count($repo->findBy(['type' => 'COMMERCANT'])),
                 'avg_reliability' => $avgReliability,
-            ]
+            ],
         ]);
     }
 
-    /**
-     * Upload ou remplacement de la photo d'un utilisateur par l'admin.
-     */
     #[Route('/user/{id}/photo', name: 'admin_user_photo', methods: ['POST'])]
     public function uploadUserPhoto(
         int $id,
@@ -161,75 +150,79 @@ class AdminController extends AbstractController
         EntityManagerInterface $em,
     ): Response {
         $user = $userRepo->find($id);
-        if (!$user) {
+
+        if (!$user instanceof Utilisateur) {
             throw $this->createNotFoundException('Utilisateur introuvable.');
         }
 
         $photoFile = $request->files->get('photo');
-        if (!$photoFile) {
+
+        if (!$photoFile instanceof UploadedFile) {
             $this->addFlash('error', 'Aucun fichier sélectionné.');
+
             return $this->redirectToRoute('admin_users');
         }
 
-        // Vérification des erreurs de téléchargement (ex: fichier trop gros pour le serveur)
         if (!$photoFile->isValid()) {
             $errorMsg = match ($photoFile->getError()) {
-                UPLOAD_ERR_INI_SIZE  => 'Le fichier est trop volumineux pour le serveur (max. 2 Mo).',
-                UPLOAD_ERR_PARTIAL   => 'Le fichier n\'a été que partiellement téléchargé.',
-                UPLOAD_ERR_NO_FILE   => 'Aucun fichier n\'a été téléchargé.',
-                default              => 'Une erreur est survenue lors du téléchargement (' . $photoFile->getErrorMessage() . ').',
+                UPLOAD_ERR_INI_SIZE => 'Le fichier est trop volumineux pour le serveur (max. 2 Mo).',
+                UPLOAD_ERR_PARTIAL => 'Le fichier n\'a été que partiellement téléchargé.',
+                UPLOAD_ERR_NO_FILE => 'Aucun fichier n\'a été téléchargé.',
+                default => 'Une erreur est survenue lors du téléchargement (' . $photoFile->getErrorMessage() . ').',
             };
+
             $this->addFlash('error', $errorMsg);
+
             return $this->redirectToRoute('admin_users');
         }
 
         $extension = strtolower($photoFile->getClientOriginalExtension());
+
         if (!in_array($extension, self::ALLOWED_PHOTO_EXTENSIONS, true)) {
             $this->addFlash('error', 'Format invalide. Utilisez JPG, PNG, WEBP ou GIF.');
+
             return $this->redirectToRoute('admin_users');
         }
 
-        // Validation taille (max 2 Mo)
         if ($photoFile->getSize() > 2 * 1024 * 1024) {
             $this->addFlash('error', 'La photo ne doit pas dépasser 2 Mo.');
+
             return $this->redirectToRoute('admin_users');
         }
 
-        $uploadDir = $this->getParameter('kernel.project_dir') . '/public/uploads/photos';
+        $uploadDir = $this->getUploadsDir('photos');
+
         if (!is_dir($uploadDir)) {
             mkdir($uploadDir, 0755, true);
         }
 
-        // Création du profil si inexistant
         $profil = $profilRepo->findOneBy(['utilisateur' => $user]);
-        if (!$profil) {
+
+        if (!$profil instanceof Profil) {
             $profil = new Profil();
             $profil->setUtilisateur($user);
             $em->persist($profil);
         }
 
-        // Suppression ancienne photo
         if ($profil->getPhoto()) {
             $oldPath = $uploadDir . '/' . $profil->getPhoto();
+
             if (file_exists($oldPath)) {
                 unlink($oldPath);
             }
         }
 
-        // Sauvegarde nouvelle photo
         $filename = uniqid('photo_', true) . '.' . $extension;
         $photoFile->move($uploadDir, $filename);
         $profil->setPhoto($filename);
 
         $em->flush();
+
         $this->addFlash('success', 'Photo mise à jour avec succès.');
 
         return $this->redirectToRoute('admin_users');
     }
 
-    /**
-     * Suppression de la photo d'un utilisateur par l'admin.
-     */
     #[Route('/user/{id}/photo/delete', name: 'admin_user_photo_delete', methods: ['POST'])]
     public function deleteUserPhoto(
         int $id,
@@ -238,19 +231,24 @@ class AdminController extends AbstractController
         EntityManagerInterface $em,
     ): Response {
         $user = $userRepo->find($id);
-        if (!$user) {
+
+        if (!$user instanceof Utilisateur) {
             throw $this->createNotFoundException('Utilisateur introuvable.');
         }
 
         $profil = $profilRepo->findOneBy(['utilisateur' => $user]);
-        if ($profil && $profil->getPhoto()) {
-            $uploadDir = $this->getParameter('kernel.project_dir') . '/public/uploads/photos';
-            $oldPath   = $uploadDir . '/' . $profil->getPhoto();
+
+        if ($profil instanceof Profil && $profil->getPhoto()) {
+            $uploadDir = $this->getUploadsDir('photos');
+            $oldPath = $uploadDir . '/' . $profil->getPhoto();
+
             if (file_exists($oldPath)) {
                 unlink($oldPath);
             }
+
             $profil->setPhoto(null);
             $em->flush();
+
             $this->addFlash('success', 'Photo supprimée.');
         }
 
@@ -265,19 +263,21 @@ class AdminController extends AbstractController
         EntityManagerInterface $em,
     ): Response {
         $user = $repo->find($id);
-        if (!$user) {
+
+        if (!$user instanceof Utilisateur) {
             throw $this->createNotFoundException('Utilisateur introuvable.');
         }
 
-        $newType = $request->request->get('type');
+        $newType = strtoupper((string) $request->request->get('type', ''));
         $allowedTypes = ['CLIENT', 'COMMERCANT', 'ADMIN'];
 
-        if (!in_array(strtoupper($newType), $allowedTypes, true)) {
+        if (!in_array($newType, $allowedTypes, true)) {
             $this->addFlash('error', 'Type d\'utilisateur invalide.');
+
             return $this->redirectToRoute('admin_users');
         }
 
-        $user->setType(strtoupper($newType));
+        $user->setType($newType);
         $em->flush();
 
         $this->addFlash('success', sprintf('Le rôle de %s a été mis à jour.', $user->getFullName()));
@@ -296,13 +296,14 @@ class AdminController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $plainPassword = $form->get('plainPassword')->getData();
+            $plainPassword = (string) $form->get('plainPassword')->getData();
             $user->setMotDePasse($passwordHasher->hashPassword($user, $plainPassword));
 
             $em->persist($user);
             $em->flush();
 
             $this->addFlash('success', 'Utilisateur créé avec succès.');
+
             return $this->redirectToRoute('admin_users');
         }
 
@@ -324,14 +325,16 @@ class AdminController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $plainPassword = $form->get('plainPassword')->getData();
-            if ($plainPassword) {
+            $plainPassword = (string) $form->get('plainPassword')->getData();
+
+            if ($plainPassword !== '') {
                 $user->setMotDePasse($passwordHasher->hashPassword($user, $plainPassword));
             }
 
             $em->flush();
 
             $this->addFlash('success', 'Utilisateur mis à jour avec succès.');
+
             return $this->redirectToRoute('admin_users');
         }
 
@@ -343,19 +346,24 @@ class AdminController extends AbstractController
     }
 
     #[Route('/user/{id}/delete', name: 'admin_user_delete', methods: ['POST'])]
-    public function userDelete(Request $request, Utilisateur $user, EntityManagerInterface $em, UtilisateurRepository $repo): Response
-    {
-        if ($this->isCsrfTokenValid('delete' . $user->getId(), $request->request->get('_token'))) {
-            
-            // MÉTIER AVANCÉ : Vérification avant suppression
+    public function userDelete(
+        Request $request,
+        Utilisateur $user,
+        EntityManagerInterface $em,
+        UtilisateurRepository $repo
+    ): Response {
+        $token = (string) $request->request->get('_token', '');
+
+        if ($this->isCsrfTokenValid('delete' . $user->getId(), $token)) {
             if (!$repo->canBeSafelyDeleted($user)) {
                 $this->addFlash('error', 'Cet utilisateur ne peut pas être supprimé car il a des commandes en cours ou est le dernier administrateur.');
+
                 return $this->redirectToRoute('admin_users');
             }
 
-            // Delete associated photo if exists
             if ($user->getProfil() && $user->getProfil()->getPhoto()) {
-                $photoPath = $this->getParameter('kernel.project_dir') . '/public/uploads/photos/' . $user->getProfil()->getPhoto();
+                $photoPath = $this->getUploadsDir('photos') . '/' . $user->getProfil()->getPhoto();
+
                 if (file_exists($photoPath)) {
                     unlink($photoPath);
                 }
@@ -363,6 +371,7 @@ class AdminController extends AbstractController
 
             $em->remove($user);
             $em->flush();
+
             $this->addFlash('success', 'Utilisateur supprimé.');
         } else {
             $this->addFlash('error', 'Token CSRF invalide.');
@@ -371,106 +380,133 @@ class AdminController extends AbstractController
         return $this->redirectToRoute('admin_users');
     }
 
-    // ─────────────────────────────────────────────
-    //  ARTICLES
-    // ─────────────────────────────────────────────
-
     #[Route('/articles', name: 'admin_articles')]
-    public function articles(Request $request, ArticleRepository $repo, \App\Repository\CommentaireRepository $commentaireRepo, \App\Repository\LikesRepository $likesRepo = null): Response
-    {
-        $search = $request->query->get('search', '');
+    public function articles(
+        Request $request,
+        ArticleRepository $repo,
+        \App\Repository\CommentaireRepository $commentaireRepo,
+        LikesRepository $likesRepo
+    ): Response {
+        $search = (string) $request->query->get('search', '');
 
-        if ($search) {
+        if ($search !== '') {
             $allArticles = $repo->findAll();
-            $articles = array_filter($allArticles, function($a) use ($search) {
-                return stripos($a->getTitre() ?? '', $search) !== false 
-                    || stripos($a->getContenu() ?? '', $search) !== false;
+            $articles = array_filter($allArticles, static function (Article $article) use ($search): bool {
+                return stripos($article->getTitre(), $search) !== false
+    || stripos($article->getContenu(), $search) !== false;
             });
         } else {
             $articles = $repo->findAll();
         }
-        
+
         $articleTop = null;
         $maxComments = -1;
+
         foreach ($articles as $article) {
             $commentsCount = count($article->getCommentaires());
+
             if ($commentsCount > $maxComments) {
                 $maxComments = $commentsCount;
                 $articleTop = $article;
             }
         }
 
-        // Stats Category
-        $cats = [];
+        $categories = [];
         $totalForStats = count($articles) ?: 1;
-        foreach ($articles as $a) {
-            $cat = $a->getCategorie() ?: 'Non classé';
-            $cats[$cat] = ($cats[$cat] ?? 0) + 1;
+
+        foreach ($articles as $article) {
+            $category = $article->getCategorie() ?: 'Non classé';
+            $categories[$category] = ($categories[$category] ?? 0) + 1;
         }
 
         $articlesParCategorie = [];
         $colors = ['#fa9e1b', '#8d4fff', '#4CAF50', '#2196F3', '#E91E63'];
         $i = 0;
-        foreach ($cats as $name => $count) {
+
+        foreach ($categories as $name => $count) {
             $articlesParCategorie[] = [
-                'name'      => $name,
+                'name' => $name,
                 'categorie' => $name,
-                'nb'        => $count,
-                'percent'   => round(($count / $totalForStats) * 100),
-                'color'     => $colors[$i % count($colors)],
+                'nb' => $count,
+                'percent' => round(($count / $totalForStats) * 100),
+                'color' => $colors[$i % count($colors)],
             ];
+
             $i++;
         }
-        usort($articlesParCategorie, fn($a, $b) => $b['nb'] <=> $a['nb']);
 
-        // Stats Mois Articles
+        usort($articlesParCategorie, static fn (array $a, array $b): int => $b['nb'] <=> $a['nb']);
+
         $articlesMoisMap = [];
-        foreach ($articles as $a) {
-            $date = $a->getDatePublication();
+
+        foreach ($articles as $article) {
+            $date = $article->getDatePublication();
+
             if ($date) {
-                $m = $date->format('M Y');
-                $articlesMoisMap[$m] = ($articlesMoisMap[$m] ?? 0) + 1;
+                $month = $date->format('M Y');
+                $articlesMoisMap[$month] = ($articlesMoisMap[$month] ?? 0) + 1;
             }
         }
+
         $articlesParMois = [];
-        foreach ($articlesMoisMap as $m => $nb) $articlesParMois[] = ['mois' => $m, 'nb' => $nb];
 
-        // Stats Mois Commentaires
+        foreach ($articlesMoisMap as $month => $count) {
+            $articlesParMois[] = [
+                'mois' => $month,
+                'nb' => $count,
+            ];
+        }
+
         $commentairesMoisMap = [];
-        foreach ($commentaireRepo->findAll() as $c) {
-            $date = $c->getDateCommentaire();
-            if ($date) {
-                $m = $date->format('M Y');
-                $commentairesMoisMap[$m] = ($commentairesMoisMap[$m] ?? 0) + 1;
-            }
-        }
-        $commentairesParMois = [];
-        foreach ($commentairesMoisMap as $m => $nb) $commentairesParMois[] = ['mois' => $m, 'nb' => $nb];
 
-        // Stats Mois Likes
-        $likesMoisMap = [];
-        if ($likesRepo) {
-            foreach ($likesRepo->findAll() as $l) {
-                $date = method_exists($l, 'getDateLike') ? $l->getDateLike() : null;
-                if ($date) {
-                    $m = $date->format('M Y');
-                    $likesMoisMap[$m] = ($likesMoisMap[$m] ?? 0) + 1;
-                }
+        foreach ($commentaireRepo->findAll() as $commentaire) {
+            $date = $commentaire->getDateCommentaire();
+
+            if ($date) {
+                $month = $date->format('M Y');
+                $commentairesMoisMap[$month] = ($commentairesMoisMap[$month] ?? 0) + 1;
             }
         }
+
+        $commentairesParMois = [];
+
+        foreach ($commentairesMoisMap as $month => $count) {
+            $commentairesParMois[] = [
+                'mois' => $month,
+                'nb' => $count,
+            ];
+        }
+
+        $likesMoisMap = [];
+
+        foreach ($likesRepo->findAll() as $like) {
+            $date = $like->getDateLike();
+
+            if ($date) {
+                $month = $date->format('M Y');
+                $likesMoisMap[$month] = ($likesMoisMap[$month] ?? 0) + 1;
+            }
+        }
+
         $likesParMois = [];
-        foreach ($likesMoisMap as $m => $nb) $likesParMois[] = ['mois' => $m, 'nb' => $nb];
+
+        foreach ($likesMoisMap as $month => $count) {
+            $likesParMois[] = [
+                'mois' => $month,
+                'nb' => $count,
+            ];
+        }
 
         return $this->render('admin/articles.html.twig', [
-            'articles'             => $articles,
-            'total_articles'       => count($articles),
-            'total_commentaires'   => count($commentaireRepo->findAll()),
-            'article_top'          => $articleTop,
-            'search'               => $search,
+            'articles' => $articles,
+            'total_articles' => count($articles),
+            'total_commentaires' => count($commentaireRepo->findAll()),
+            'article_top' => $articleTop,
+            'search' => $search,
             'articlesParCategorie' => $articlesParCategorie,
-            'articlesParMois'      => $articlesParMois,
-            'commentairesParMois'  => $commentairesParMois,
-            'likesParMois'         => $likesParMois,
+            'articlesParMois' => $articlesParMois,
+            'commentairesParMois' => $commentairesParMois,
+            'likesParMois' => $likesParMois,
         ]);
     }
 
@@ -490,27 +526,37 @@ class AdminController extends AbstractController
 
         if ($form->isSubmitted() && $form->isValid()) {
             $imageFile = $form->get('image')->getData();
+
             if (!$imageFile instanceof UploadedFile) {
                 $files = $request->files->get('article');
-                if (\is_array($files) && isset($files['image']) && $files['image'] instanceof UploadedFile) {
+
+                if (is_array($files) && isset($files['image']) && $files['image'] instanceof UploadedFile) {
                     $imageFile = $files['image'];
                 }
             }
+
             if ($imageFile instanceof UploadedFile && $imageFile->isValid()) {
-                $uploadDir = $this->getParameter('kernel.project_dir') . DIRECTORY_SEPARATOR . 'public' . DIRECTORY_SEPARATOR . 'uploads' . DIRECTORY_SEPARATOR . 'articles';
+                $uploadDir = $this->getUploadsDir('articles');
+
                 if (!is_dir($uploadDir)) {
                     mkdir($uploadDir, 0777, true);
                 }
+
                 $previousImage = $article->getImage();
                 $originalName = $imageFile->getClientOriginalName();
                 $extension = pathinfo($originalName, PATHINFO_EXTENSION) ?: 'jpg';
                 $newFilename = uniqid('', true) . '.' . $extension;
+
                 $this->storeUploadedImage($imageFile, $uploadDir, $newFilename);
                 $this->removeStoredArticleImage($previousImage, $uploadDir);
+
                 $article->setImage($newFilename);
             }
+
             $em->flush();
+
             $this->addFlash('success', 'Article modifié avec succès.');
+
             return $this->redirectToRoute('admin_articles');
         }
 
@@ -523,37 +569,50 @@ class AdminController extends AbstractController
     private function storeUploadedImage(UploadedFile $imageFile, string $uploadDir, string $newFilename): void
     {
         $target = $uploadDir . DIRECTORY_SEPARATOR . $newFilename;
+
         if ($imageFile->isValid()) {
             $imageFile->move($uploadDir, $newFilename);
+
             return;
         }
-        if (\UPLOAD_ERR_OK !== $imageFile->getError()) {
+
+        if (UPLOAD_ERR_OK !== $imageFile->getError()) {
             throw new FileException($imageFile->getErrorMessage());
         }
+
         $tmp = $imageFile->getPathname();
+
         if (!is_readable($tmp)) {
             throw new FileException('Fichier uploadé illisible.');
         }
+
         if (!@copy($tmp, $target)) {
             throw new FileException('Impossible d\'enregistrer l\'image.');
         }
+
         @chmod($target, 0666 & ~umask());
     }
 
     private function removeStoredArticleImage(?string $storedName, string $uploadDir): void
     {
-        if (!\is_string($storedName) || $storedName === '') {
+        if ($storedName === null || $storedName === '') {
             return;
         }
+
         $storedName = trim($storedName);
+
         if (filter_var($storedName, FILTER_VALIDATE_URL) || str_starts_with($storedName, '//')) {
             return;
         }
+
         $base = basename(str_replace('\\', '/', $storedName));
+
         if ($base === '' || str_contains($base, '..')) {
             return;
         }
+
         $path = $uploadDir . DIRECTORY_SEPARATOR . $base;
+
         if (is_file($path) && is_readable($path)) {
             @unlink($path);
         }
@@ -566,14 +625,17 @@ class AdminController extends AbstractController
 
         $badWordResults = [];
         $badWordCount = 0;
+
         foreach ($commentaires as $commentaire) {
             $contenu = $commentaire->getContenu() ?? '';
             $isProfane = $profanityFilter->containsProfanity($contenu);
+
             $badWordResults[$commentaire->getId()] = [
                 'has_bad_words' => $isProfane,
                 'severity' => $isProfane ? 'danger' : 'clean',
                 'cleaned' => $isProfane ? $profanityFilter->clean($contenu) : $contenu,
             ];
+
             if ($isProfane) {
                 $badWordCount++;
             }
@@ -589,28 +651,38 @@ class AdminController extends AbstractController
     #[Route('/commentaire/{id}/delete', name: 'admin_commentaire_delete', methods: ['POST'])]
     public function commentaireDelete(Request $request, \App\Entity\Commentaire $commentaire, EntityManagerInterface $em): Response
     {
-        $articleId = $commentaire->getArticle() ? $commentaire->getArticle()->getId() : null;
+        $article = $commentaire->getArticle();
+        $articleId = $article ? $article->getId() : null;
 
-        if ($this->isCsrfTokenValid('delete_admin_comment' . $commentaire->getId(), $request->request->get('_token'))) {
+        $token = (string) $request->request->get('_token', '');
+
+        if ($this->isCsrfTokenValid('delete_admin_comment' . $commentaire->getId(), $token)) {
             $em->remove($commentaire);
             $em->flush();
+
             $this->addFlash('success', 'Commentaire supprimé.');
         } else {
             $this->addFlash('error', 'Token CSRF invalide.');
         }
 
         if ($articleId) {
-            return $this->redirectToRoute('admin_article_commentaires', ['id' => $articleId]);
+            return $this->redirectToRoute('admin_article_commentaires', [
+                'id' => $articleId,
+            ]);
         }
+
         return $this->redirectToRoute('admin_articles');
     }
 
     #[Route('/article/{id}/delete', name: 'admin_article_delete', methods: ['POST'])]
     public function articleDelete(Request $request, Article $article, EntityManagerInterface $em): Response
     {
-        if ($this->isCsrfTokenValid('delete_admin' . $article->getId(), $request->request->get('_token'))) {
+        $token = (string) $request->request->get('_token', '');
+
+        if ($this->isCsrfTokenValid('delete_admin' . $article->getId(), $token)) {
             $em->remove($article);
             $em->flush();
+
             $this->addFlash('success', 'Article supprimé avec succès.');
         } else {
             $this->addFlash('error', 'Token CSRF invalide.');
@@ -618,10 +690,6 @@ class AdminController extends AbstractController
 
         return $this->redirectToRoute('admin_articles');
     }
-
-    // ─────────────────────────────────────────────
-    //  RÉCLAMATIONS
-    // ─────────────────────────────────────────────
 
     #[Route('/reclamations', name: 'admin_reclamations')]
     public function reclamations(ReclamationRepository $repo): Response
@@ -631,10 +699,6 @@ class AdminController extends AbstractController
         ]);
     }
 
-    // ─────────────────────────────────────────────
-    //  PRODUITS
-    // ─────────────────────────────────────────────
-
     #[Route('/produits', name: 'admin_produits')]
     public function produits(ProduitRepository $repo): Response
     {
@@ -642,10 +706,6 @@ class AdminController extends AbstractController
             'produits' => $repo->findAll(),
         ]);
     }
-
-    // ─────────────────────────────────────────────
-    //  RÉSERVATIONS
-    // ─────────────────────────────────────────────
 
     #[Route('/reservations', name: 'admin_reservations')]
     public function reservations(ReservationRepository $repo): Response
@@ -655,10 +715,6 @@ class AdminController extends AbstractController
         ]);
     }
 
-    // ─────────────────────────────────────────────
-    //  TRANSPORTS
-    // ─────────────────────────────────────────────
-
     #[Route('/transports', name: 'admin_transports')]
     public function transports(TransportRepository $repo): Response
     {
@@ -666,10 +722,6 @@ class AdminController extends AbstractController
             'transports' => $repo->findAll(),
         ]);
     }
-
-    // ─────────────────────────────────────────────
-    //  SUGGESTIONS
-    // ─────────────────────────────────────────────
 
     #[Route('/suggestions', name: 'admin_suggestions')]
     public function suggestions(SuggestionRepository $repo): Response
@@ -679,21 +731,16 @@ class AdminController extends AbstractController
         ]);
     }
 
-    // ─────────────────────────────────────────────
-    //  COMMANDES
-    // ─────────────────────────────────────────────
-
-        #[Route('/commandes', name: 'admin_commandes')]
+    #[Route('/commandes', name: 'admin_commandes')]
     public function commandes(CommandeRepository $repo, UtilisateurRepository $userRepo): Response
-        {
-        $commandes       = $repo->findBy([], ['id' => 'DESC']);
+    {
+        $commandes = $repo->findBy([], ['id' => 'DESC']);
         $annulationForms = [];
-        $clients         = [];
+        $clients = [];
 
         foreach ($commandes as $commande) {
             $id = $commande->getId();
 
-            // Résolution du client dans le contrôleur — jamais dans Twig
             $clients[$id] = $userRepo->find($commande->getIdUser());
 
             $form = $this->createForm(CommandeAnnulationType::class, null, [
@@ -703,13 +750,11 @@ class AdminController extends AbstractController
 
             $annulationForms[$id] = $form->createView();
         }
-        $commandes = $repo->findBy([], ['id' => 'DESC']);
 
         return $this->render('admin/commandes.html.twig', [
-            'commandes'       => $commandes,
-            'clients'         => $clients,          // tableau indexé par id commande
-            'annulationForms' => $annulationForms,
             'commandes' => $commandes,
+            'clients' => $clients,
+            'annulationForms' => $annulationForms,
             'userRepo' => $userRepo,
         ]);
     }
@@ -717,12 +762,15 @@ class AdminController extends AbstractController
     #[Route('/commande/{id}', name: 'admin_commande_details')]
     public function commandeDetails(Commande $commande, UtilisateurRepository $userRepo): Response
     {
-        $items = json_decode($commande->getItemsJson() ?? '[]', true);
+     $itemsJson = $commande->getItemsJson() ?? '[]';
+
+/** @var array<mixed> $items */
+$items = json_decode($itemsJson, true);
 
         return $this->render('admin/commande_details.html.twig', [
             'commande' => $commande,
-            'items'    => $items,
-            'client'   => $userRepo->find($commande->getIdUser()),
+            'items' => $items,
+            'client' => $userRepo->find($commande->getIdUser()),
         ]);
     }
 
@@ -734,21 +782,25 @@ class AdminController extends AbstractController
         UtilisateurRepository $userRepo,
         CommandeMailerService $commandeMailer
     ): Response {
-        // Protection CSRF
-        if (!$this->isCsrfTokenValid('livrer_commande_' . $commande->getId(), $request->request->get('_token'))) {
+        $token = (string) $request->request->get('_token', '');
+
+        if (!$this->isCsrfTokenValid('livrer_commande_' . $commande->getId(), $token)) {
             $this->addFlash('error', 'Token CSRF invalide.');
+
             return $this->redirectToRoute('admin_commandes');
         }
 
         if ($commande->getStatus() !== 'en_cours') {
             $this->addFlash('error', 'Cette commande ne peut plus être livrée.');
+
             return $this->redirectToRoute('admin_commandes');
         }
 
         $client = $userRepo->find($commande->getIdUser());
 
-        if (!$client) {
+        if (!$client instanceof Utilisateur) {
             $this->addFlash('error', 'Client introuvable.');
+
             return $this->redirectToRoute('admin_commandes');
         }
 
@@ -759,66 +811,82 @@ class AdminController extends AbstractController
             $commandeMailer->sendCommandeLivreeEmail($client, $commande);
             $this->addFlash('success', 'Commande marquée comme livrée et email envoyé.');
         } catch (\Throwable $e) {
-            // L'email échoue mais la commande est bien livrée — on ne bloque pas
             $this->addFlash('warning', 'Commande livrée, mais l\'email n\'a pas pu être envoyé : ' . $e->getMessage());
         }
 
         return $this->redirectToRoute('admin_commandes');
     }
 
+    #[Route('/commande/{id}/annuler', name: 'admin_commande_annuler', methods: ['POST'])]
+    public function annuler(
+        Request $request,
+        Commande $commande,
+        EntityManagerInterface $em,
+        UtilisateurRepository $userRepo,
+        CommandeMailerService $commandeMailer
+    ): Response {
+        if ($commande->getStatus() !== 'en_cours') {
+            $this->addFlash('error', 'Cette commande ne peut plus être annulée.');
 
-#[Route('/commande/{id}/annuler', name: 'admin_commande_annuler', methods: ['POST'])]
-public function annuler(
-    Request $request,
-    Commande $commande,
-    EntityManagerInterface $em,
-    UtilisateurRepository $userRepo,
-    CommandeMailerService $commandeMailer
-): Response {
-    if ($commande->getStatus() !== 'en_cours') {
-        $this->addFlash('error', 'Cette commande ne peut plus être annulée.');
+            return $this->redirectToRoute('admin_commandes');
+        }
+
+        $form = $this->createForm(CommandeAnnulationType::class, null, [
+            'action' => $this->generateUrl('admin_commande_annuler', ['id' => $commande->getId()]),
+            'method' => 'POST',
+        ]);
+
+        $form->handleRequest($request);
+
+        if (!$form->isSubmitted() || !$form->isValid()) {
+            $this->addFlash('error', 'Veuillez choisir une cause d’annulation.');
+
+            return $this->redirectToRoute('admin_commandes');
+        }
+
+        $data = $form->getData();
+        $cause = is_array($data) && isset($data['cause_annulation'])
+            ? (string) $data['cause_annulation']
+            : '';
+
+        if (trim($cause) === '') {
+            $this->addFlash('error', 'Cause d’annulation obligatoire.');
+
+            return $this->redirectToRoute('admin_commandes');
+        }
+
+        $client = $userRepo->find($commande->getIdUser());
+
+        if (!$client instanceof Utilisateur) {
+            $this->addFlash('error', 'Client introuvable.');
+
+            return $this->redirectToRoute('admin_commandes');
+        }
+
+        $commande->setStatus('annulee');
+        $commande->setCauseAnnulation($cause);
+        $em->flush();
+
+        try {
+            $commandeMailer->sendCommandeAnnuleeEmail($client, $commande);
+            $this->addFlash('success', 'Commande annulée et email envoyé au client.');
+        } catch (\Throwable $e) {
+            $this->addFlash('warning', 'Commande annulée, mais l\'email n\'a pas pu être envoyé : ' . $e->getMessage());
+        }
+
         return $this->redirectToRoute('admin_commandes');
     }
 
-    $form = $this->createForm(CommandeAnnulationType::class, null, [
-        'action' => $this->generateUrl('admin_commande_annuler', ['id' => $commande->getId()]),
-        'method' => 'POST',
-    ]);
-    $form->handleRequest($request);
+    private function getProjectDir(): string
+    {
+        /** @var string $projectDir */
+        $projectDir = $this->getParameter('kernel.project_dir');
 
-    if (!$form->isSubmitted() || !$form->isValid()) {
-        $this->addFlash('error', 'Veuillez choisir une cause d’annulation.');
-        return $this->redirectToRoute('admin_commandes');
+        return $projectDir;
     }
 
-    $data = $form->getData();
-    $cause = $data['cause_annulation'] ?? null;
-
-    if (!$cause || trim($cause) === '') {
-        $this->addFlash('error', 'Cause d’annulation obligatoire.');
-        return $this->redirectToRoute('admin_commandes');
+    private function getUploadsDir(string $folder): string
+    {
+        return $this->getProjectDir() . '/public/uploads/' . $folder;
     }
-
-    $client = $userRepo->find($commande->getIdUser());
-
-    if (!$client) {
-        $this->addFlash('error', 'Client introuvable.');
-        return $this->redirectToRoute('admin_commandes');
-    }
-
-    $commande->setStatus('annulee');
-    $commande->setCauseAnnulation($cause);
-    $em->flush();
-
-    try {
-        $commandeMailer->sendCommandeAnnuleeEmail($client, $commande);
-        $this->addFlash('success', 'Commande annulée et email envoyé au client.');
-    } catch (\Throwable $e) {
-        $this->addFlash('warning', 'Commande annulée, mais l\'email n\'a pas pu être envoyé : ' . $e->getMessage());
-    }
-
-    return $this->redirectToRoute('admin_commandes');
-}
-
-
 }

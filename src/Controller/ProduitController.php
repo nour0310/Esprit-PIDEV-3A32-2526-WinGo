@@ -17,6 +17,7 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Component\String\Slugger\SluggerInterface;
 use App\Service\DescriptionIAService;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use App\Entity\Utilisateur;
 
 #[Route('/client')]
 final class ProduitController extends AbstractController
@@ -90,8 +91,13 @@ final class ProduitController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
             /** @var \App\Entity\Utilisateur $user */
             $user = $this->getUser();
-            $produit->setIdUser($user->getId());
+$userId = $user->getId();
 
+if ($userId === null) {
+    throw $this->createAccessDeniedException('Utilisateur invalide.');
+}
+
+$produit->setIdUser($userId);
             $imageFile = $form->get('imageFile')->getData();
 
             if ($imageFile) {
@@ -224,14 +230,14 @@ public function genererDescription(
     Request $request,
     DescriptionIAService $descriptionIAService
 ): JsonResponse {
-    if (!$this->isCsrfTokenValid('generer_description', $request->request->get('_token'))) {
-        return $this->json(['error' => 'Token CSRF invalide.'], 403);
-    }
+    if (!$this->isCsrfTokenValid('generer_description',$request->request->getString('_token'))) {
+    return $this->json(['error' => 'Token CSRF invalide.'], 403);
+}
 
-    $nom = trim($request->request->get('nom', ''));
-    $categorie = trim($request->request->get('categorie', ''));
-    $region = trim($request->request->get('region', ''));
-    $prix = trim($request->request->get('prix', ''));
+    $nom = $request->request->getString('nom');
+$categorie = $request->request->getString('categorie');
+$region = $request->request->getString('region');
+$prix = $request->request->getString('prix');
 
     if ($nom === '' || $categorie === '' || $region === '') {
         return $this->json([

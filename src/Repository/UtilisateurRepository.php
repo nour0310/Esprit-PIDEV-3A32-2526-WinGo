@@ -6,6 +6,9 @@ use App\Entity\Utilisateur;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
+/**
+ * @extends ServiceEntityRepository<Utilisateur>
+ */
 class UtilisateurRepository extends ServiceEntityRepository
 {
     public function __construct(ManagerRegistry $registry)
@@ -13,7 +16,10 @@ class UtilisateurRepository extends ServiceEntityRepository
         parent::__construct($registry, Utilisateur::class);
     }
 
-    public function searchAndSort(?string $query, string $sort, string $direction)
+    /**
+     * @return Utilisateur[]
+     */
+    public function searchAndSort(?string $query, string $sort, string $direction): array
     {
         $qb = $this->createQueryBuilder('u');
 
@@ -30,9 +36,6 @@ class UtilisateurRepository extends ServiceEntityRepository
         return $qb->getQuery()->getResult();
     }
 
-    /**
-     * Calcule un score de fiabilité (0-100) basé sur l'historique des commandes.
-     */
     public function calculateReliabilityScore(Utilisateur $user): int
     {
         $conn = $this->getEntityManager()->getConnection();
@@ -42,20 +45,22 @@ class UtilisateurRepository extends ServiceEntityRepository
                     SUM(CASE WHEN status = 'annulee' THEN 1 ELSE 0 END) as cancelled
                 FROM commande 
                 WHERE id_user = :userId";
-        
+
         $result = $conn->executeQuery($sql, ['userId' => $user->getId()])->fetchAssociative();
 
-        $delivered = (int)($result['delivered'] ?? 0);
-        $cancelled = (int)($result['cancelled'] ?? 0);
+        $delivered = is_array($result) ? (int) ($result['delivered'] ?? 0) : 0;
+        $cancelled = is_array($result) ? (int) ($result['cancelled'] ?? 0) : 0;
         $total = $delivered + $cancelled;
 
-        if ($total === 0) return 80; // Par défaut si pas de commandes
+        if ($total === 0) {
+            return 80;
+        }
 
-        return (int)round(($delivered / $total) * 100);
+        return (int) round(($delivered / $total) * 100);
     }
 
     /**
-     * Calcule la répartition des utilisateurs par tranche d'âge.
+     * @return array<string, int>
      */
     public function getAgeStats(): array
     {
@@ -72,16 +77,28 @@ class UtilisateurRepository extends ServiceEntityRepository
 
         $result = $conn->executeQuery($sql)->fetchAssociative();
 
+        if (!is_array($result)) {
+            $result = [];
+        }
+
         return [
-            '< 18' => (int)($result['below_18'] ?? 0),
-            '18 - 25' => (int)($result['18_25'] ?? 0),
-            '26 - 40' => (int)($result['26_40'] ?? 0),
-            '41 - 60' => (int)($result['41_60'] ?? 0),
-            '61 - 80' => (int)($result['61_80'] ?? 0),
-            '> 80' => (int)($result['above_80'] ?? 0),
+            '< 18' => (int) ($result['below_18'] ?? 0),
+            '18 - 25' => (int) ($result['18_25'] ?? 0),
+            '26 - 40' => (int) ($result['26_40'] ?? 0),
+            '41 - 60' => (int) ($result['41_60'] ?? 0),
+            '61 - 80' => (int) ($result['61_80'] ?? 0),
+            '> 80' => (int) ($result['above_80'] ?? 0),
         ];
     }
 
+    /**
+     * @return array{
+     *     total: int,
+     *     admins: int,
+     *     merchants: int,
+     *     clients: int
+     * }
+     */
     public function getCountsByRole(): array
     {
         return [
@@ -92,26 +109,22 @@ class UtilisateurRepository extends ServiceEntityRepository
         ];
     }
 
-    /**
-     * Véfiie si l'utilisateur peut être supprimé sans casser l'intégrité métier
-     * (pas le dernier admin, et pas de commandes en cours d'acheminement).
-     */
     public function canBeSafelyDeleted(Utilisateur $user): bool
     {
-        // 1. Vérification du dernier administrateur
         if (strtoupper($user->getType() ?? '') === 'ADMIN') {
             $adminCount = $this->count(['type' => 'ADMIN']);
+
             if ($adminCount <= 1) {
                 return false;
             }
         }
 
-        // 2. Vérification des commandes en cours (ni livrées ni annulées)
         $conn = $this->getEntityManager()->getConnection();
+
         $sql = "SELECT COUNT(*) FROM commande WHERE id_user = :userId AND status NOT IN ('livree', 'annulee')";
         $ongoingOrdersCount = $conn->executeQuery($sql, ['userId' => $user->getId()])->fetchOne();
 
-        if ((int)$ongoingOrdersCount > 0) {
+        if ((int) $ongoingOrdersCount > 0) {
             return false;
         }
 

@@ -6,6 +6,9 @@ use App\Entity\Likes;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
+/**
+ * @extends ServiceEntityRepository<Likes>
+ */
 class LikesRepository extends ServiceEntityRepository
 {
     public function __construct(ManagerRegistry $registry)
@@ -18,7 +21,7 @@ class LikesRepository extends ServiceEntityRepository
      */
     public function countLikesForArticle(int $articleId): int
     {
-        return $this->createQueryBuilder('l')
+        return (int) $this->createQueryBuilder('l')
             ->select('COUNT(l.id)')
             ->where('l.articleId = :articleId')
             ->setParameter('articleId', $articleId)
@@ -31,7 +34,7 @@ class LikesRepository extends ServiceEntityRepository
      */
     public function hasUserLiked(int $userId, int $articleId): bool
     {
-        $result = $this->createQueryBuilder('l')
+        $result = (int) $this->createQueryBuilder('l')
             ->select('COUNT(l.id)')
             ->where('l.utilisateurId = :userId')
             ->andWhere('l.articleId = :articleId')
@@ -48,9 +51,11 @@ class LikesRepository extends ServiceEntityRepository
      */
     public function findOneByUserAndArticle(int $userId, int $articleId): ?Likes
     {
-        return $this->findOneBy([
+        $like = $this->findOneBy([
             'utilisateurId' => $userId,
-            'articleId'     => $articleId,
+            'articleId' => $articleId,
         ]);
+
+        return $like instanceof Likes ? $like : null;
     }
 }

@@ -52,6 +52,10 @@ class GoogleTranslateTtsService
         return $audioData !== '' ? $audioData : null;
     }
 
+    /**
+    * @return string[]
+    */
+
     private function splitText(string $text, int $limit): array
     {
         $chunks = [];

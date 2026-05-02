@@ -36,6 +36,9 @@ class Commentaire
     #[ORM\JoinColumn(name: 'parent_id', referencedColumnName: 'id')]
     private ?Commentaire $parent = null;
 
+    /**
+     * @var Collection<int, Commentaire>
+     */
     #[ORM\OneToMany(targetEntity: Commentaire::class, mappedBy: 'parent')]
     private Collection $reponses;
 

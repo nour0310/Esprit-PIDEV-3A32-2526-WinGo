@@ -51,7 +51,7 @@ class ArticleController extends AbstractController
 
         $cleanName = basename(str_replace('\\', '/', $imageName));
 
-        $projectDir = $this->getParameter('kernel.project_dir');
+        $projectDir = $this->getProjectDir();
         $mainDir = $projectDir . DIRECTORY_SEPARATOR . 'public' . DIRECTORY_SEPARATOR . 'uploads' . DIRECTORY_SEPARATOR . 'articles';
         $altDirs = [
             $projectDir . DIRECTORY_SEPARATOR . 'public' . DIRECTORY_SEPARATOR . 'images' . DIRECTORY_SEPARATOR . 'uploads',
@@ -80,7 +80,10 @@ class ArticleController extends AbstractController
 
     private function defaultImage(): Response
     {
-        $path = $this->getParameter('kernel.project_dir') . DIRECTORY_SEPARATOR . 'public' . DIRECTORY_SEPARATOR . 'images' . DIRECTORY_SEPARATOR . 'placeholder.svg';
+        $path = $this->getProjectDir()
+    . DIRECTORY_SEPARATOR . 'public'
+    . DIRECTORY_SEPARATOR . 'images'
+    . DIRECTORY_SEPARATOR . 'placeholder.svg';
         if (is_file($path) && is_readable($path)) {
             return new BinaryFileResponse($path);
         }
@@ -289,7 +292,7 @@ class ArticleController extends AbstractController
                 }
             }
             if ($imageFile instanceof UploadedFile && $imageFile->isValid()) {
-                $uploadDir = $this->getParameter('kernel.project_dir') . DIRECTORY_SEPARATOR . 'public' . DIRECTORY_SEPARATOR . 'uploads' . DIRECTORY_SEPARATOR . 'articles';
+$uploadDir = $this->getArticleUploadDir();
                 if (!is_dir($uploadDir)) {
                     mkdir($uploadDir, 0777, true);
                 }
@@ -368,7 +371,7 @@ class ArticleController extends AbstractController
                     $em->persist($commentaire);
                     $em->flush();
 
-                    if ($user && $user->getId() !== null) {
+                    if ($user->getId() !== null) {
                         $slugger = new AsciiSlugger();
                         $slugExpected = $slugger->slug($article->getTitre())->lower()->toString();
                         $articleUrl = $this->generateUrl('app_article_show', ['id' => $article->getId(), 'slug' => $slugExpected]);
@@ -385,22 +388,27 @@ class ArticleController extends AbstractController
                             );
                         }
 
-                        $parent = $commentaire->getParent();
-                        /** @var \App\Entity\Utilisateur|null $parentAuthor */
-                        $parentAuthor = $parent?->getUtilisateur();
-                        if (
-                            $parentAuthor
-                            && $parentAuthor->getId() !== null
-                            && $parentAuthor->getId() !== $user->getId()
-                        ) {
-                            $notificationService->create(
-                                $parentAuthor->getId(),
-                                $user->getId(),
-                                'reponse',
-                                trim($user->getPrenom() . ' ' . $user->getNom()) . ' a répondu à votre commentaire.',
-                                $articleUrl . '#comment-card-' . $parent->getId()
-                            );
-                        }
+                       $parent = $commentaire->getParent();
+
+if ($parent instanceof Commentaire) {
+    $parentAuthor = $parent->getUtilisateur();
+    $parentId = $parent->getId();
+
+    if (
+        $parentAuthor instanceof \App\Entity\Utilisateur
+        && $parentAuthor->getId() !== null
+        && $parentAuthor->getId() !== $user->getId()
+        && $parentId !== null
+    ) {
+        $notificationService->create(
+            $parentAuthor->getId(),
+            $user->getId(),
+            'reponse',
+            trim($user->getPrenom() . ' ' . $user->getNom()) . ' a répondu à votre commentaire.',
+            $articleUrl . '#comment-card-' . $parentId
+        );
+    }
+}   
                     }
                     $slugger = new AsciiSlugger();
                     $slugExpected = $slugger->slug($article->getTitre())->lower()->toString();
@@ -463,58 +471,36 @@ class ArticleController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            /** @var UploadedFile|null $imageFile */
             $imageFile = $form->get('image')->getData();
-
-            if ($imageFile) {
-                // Vérification des erreurs d'upload
-                if (!$imageFile->isValid()) {
-                    $this->addFlash('error', 'Le fichier image est invalide : ' . $imageFile->getErrorMessage());
-                    return $this->redirectToRoute('app_article_edit', ['id' => $article->getId()]);
+            if (!$imageFile instanceof UploadedFile) {
+                $files = $request->files->get('article');
+                if (\is_array($files) && isset($files['image']) && $files['image'] instanceof UploadedFile) {
+                    $imageFile = $files['image'];
                 }
-
-                // Vérification de la taille (max 5 Mo)
-                $maxSize = 5 * 1024 * 1024;
-                if ($imageFile->getSize() > $maxSize) {
-                    $this->addFlash('error', 'L\'image ne doit pas dépasser 5 Mo.');
-                    return $this->redirectToRoute('app_article_edit', ['id' => $article->getId()]);
+            }
+            if ($imageFile instanceof UploadedFile && $imageFile->isValid()) {
+               $uploadDir = $this->getArticleUploadDir();
+                if (!is_dir($uploadDir)) {
+                    mkdir($uploadDir, 0777, true);
                 }
-
-                // Vérification de l'extension
-                $allowedExtensions = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
-                $extension = strtolower($imageFile->getClientOriginalExtension());
-                if (!in_array($extension, $allowedExtensions, true)) {
-                    $this->addFlash('error', 'Format d\'image non supporté. Utilisez JPG, PNG, GIF ou WEBP.');
-                    return $this->redirectToRoute('app_article_edit', ['id' => $article->getId()]);
-                }
-
-                $uploadDir = $this->getParameter('kernel.project_dir') . DIRECTORY_SEPARATOR . 'public' . DIRECTORY_SEPARATOR . 'uploads' . DIRECTORY_SEPARATOR . 'articles';
-                if (!is_dir($uploadDir) && !mkdir($uploadDir, 0777, true) && !is_dir($uploadDir)) {
-                    $this->addFlash('error', 'Impossible de créer le dossier d\'upload.');
-                    return $this->redirectToRoute('app_article_edit', ['id' => $article->getId()]);
-                }
-
                 $previousImage = $article->getImage();
+                $originalName = $imageFile->getClientOriginalName();
+                $extension = pathinfo($originalName, PATHINFO_EXTENSION);
+                $extension = $extension ?: 'jpg';
                 $newFilename = uniqid('', true) . '.' . $extension;
-
-                try {
-                    $imageFile->move($uploadDir, $newFilename);
-                } catch (FileException $e) {
-                    $this->addFlash('error', 'Erreur lors de l\'enregistrement de l\'image : ' . $e->getMessage());
-                    return $this->redirectToRoute('app_article_edit', ['id' => $article->getId()]);
-                }
-
-                // Supprimer l'ancienne image si elle existe
-                if ($previousImage && file_exists($uploadDir . DIRECTORY_SEPARATOR . $previousImage)) {
-                    @unlink($uploadDir . DIRECTORY_SEPARATOR . $previousImage);
-                }
-
+                $this->storeUploadedImage($imageFile, $uploadDir, $newFilename);
+                $this->removeStoredArticleImage($previousImage, $uploadDir);
                 $article->setImage($newFilename);
             }
-
+            $em->persist($article);
             $em->flush();
-            $this->addFlash('success', 'Article mis à jour avec succès.');
             return $this->redirectToRoute('blog');
+        }
+        if ($form->isSubmitted() && !$form->isValid()) {
+            return $this->render('article/EditBlog.html.twig', [
+                'form' => $form->createView(),
+                'article' => $article,
+            ], new Response(null, 422));
         }
 
         return $this->render('article/EditBlog.html.twig', [
@@ -533,8 +519,10 @@ class ArticleController extends AbstractController
             return $this->redirectToRoute('blog');
         }
 
-        if ($this->isCsrfTokenValid('delete' . $article->getId(), $request->request->get('_token'))) {
-            $em->remove($article);
+$token = (string) $request->request->get('_token', '');
+
+if ($this->isCsrfTokenValid('delete' . $article->getId(), $token)) {
+                $em->remove($article);
             $em->flush();
         }
         return $this->redirectToRoute('blog');
@@ -579,4 +567,19 @@ class ArticleController extends AbstractController
             @unlink($path);
         }
     }
+private function getProjectDir(): string
+{
+    /** @var string $projectDir */
+    $projectDir = $this->getParameter('kernel.project_dir');
+
+    return $projectDir;
+}
+
+private function getArticleUploadDir(): string
+{
+    return $this->getProjectDir()
+        . DIRECTORY_SEPARATOR . 'public'
+        . DIRECTORY_SEPARATOR . 'uploads'
+        . DIRECTORY_SEPARATOR . 'articles';
+}
 }

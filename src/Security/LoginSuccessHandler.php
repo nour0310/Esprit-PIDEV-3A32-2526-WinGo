@@ -7,6 +7,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
+use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Security\Http\Authentication\AuthenticationSuccessHandlerInterface;
 
 class LoginSuccessHandler implements AuthenticationSuccessHandlerInterface
@@ -17,20 +18,22 @@ class LoginSuccessHandler implements AuthenticationSuccessHandlerInterface
 
     public function onAuthenticationSuccess(Request $request, TokenInterface $token): Response
     {
-        // Récupérer le captcha soumis et celui en session
-        $userCaptcha = $request->request->get('captcha');
-        $sessionCaptcha = $request->getSession()->get('captcha_code');
+        $userCaptcha = (string) $request->request->get('captcha', '');
+        $sessionCaptcha = (string) $request->getSession()->get('captcha_code', '');
 
-        // Vérifier la validité du captcha
-        if (!$userCaptcha || strtolower($userCaptcha) !== strtolower($sessionCaptcha)) {
-            // Invalider la session pour forcer la déconnexion
+        if ($userCaptcha === '' || strtolower($userCaptcha) !== strtolower($sessionCaptcha)) {
             $request->getSession()->invalidate();
             $request->getSession()->getFlashBag()->add('error', 'Le code Captcha est incorrect.');
+
             return new RedirectResponse($this->urlGenerator->generate('app_login'));
         }
 
-        // Captcha valide → redirection selon le rôle de l'utilisateur
         $user = $token->getUser();
+
+        if (!$user instanceof UserInterface) {
+            return new RedirectResponse($this->urlGenerator->generate('app_login'));
+        }
+
         $roles = $user->getRoles();
 
         if (in_array('ROLE_ADMIN', $roles, true) || in_array('ROLE_COMMERCANT', $roles, true)) {

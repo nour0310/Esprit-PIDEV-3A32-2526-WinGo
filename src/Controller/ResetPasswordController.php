@@ -145,7 +145,7 @@ class ResetPasswordController extends AbstractController
         UserPasswordHasherInterface $passwordHasher,
         ValidatorInterface $validator,
         AuthPageTranslationService $authPageTranslationService,
-        string $token = null
+        ?string $token = null
     ): Response {
         $lang = $authPageTranslationService->normalizeLang($request->query->get('lang', 'FR'));
         $ui = $authPageTranslationService->forResetPassword($lang);
@@ -182,7 +182,11 @@ class ResetPasswordController extends AbstractController
                 $errors = $validator->validate($user, null, ['registration']);
 
                 if (count($errors) > 0) {
-                    $error = $errors[0]->getMessage();
+                    $firstError = $errors[0] ?? null;
+
+                if ($firstError !== null) {
+                    $error = $firstError->getMessage();
+                }
                 } else {
                     $this->resetPasswordHelper->removeResetRequest($token);
                     $hashedPassword = $passwordHasher->hashPassword($user, $password);

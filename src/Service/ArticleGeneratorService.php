@@ -16,6 +16,9 @@ class ArticleGeneratorService
         private readonly LoggerInterface $logger
     ) {}
 
+    /**
+    * @return array<string, mixed>
+    */
     public function generateArticle(string $topic): array
     {
         if (empty(trim($topic))) {

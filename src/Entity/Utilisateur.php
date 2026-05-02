@@ -6,10 +6,10 @@ use App\Repository\UtilisateurRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\HttpFoundation\File\File;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Vich\UploaderBundle\Mapping\Annotation as Vich;
-use Symfony\Component\HttpFoundation\File\File;
 
 #[ORM\Entity(repositoryClass: UtilisateurRepository::class)]
 #[ORM\Table(name: 'utilisateur')]
@@ -21,6 +21,9 @@ class Utilisateur implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(type: 'integer')]
     private ?int $id = null;
 
+    /**
+     * @var Collection<int, Reservation>
+     */
     #[ORM\OneToMany(mappedBy: 'user_id', targetEntity: Reservation::class)]
     private Collection $reservations;
 
@@ -65,15 +68,21 @@ class Utilisateur implements UserInterface, PasswordAuthenticatedUserInterface
 
     #[ORM\Column(type: 'string', length: 20, nullable: true)]
     private ?string $genre = null;
-
+public int $reliabilityScore = 0;
     private ?string $plainPassword = null;
 
     #[ORM\OneToOne(mappedBy: 'utilisateur', targetEntity: Profil::class, cascade: ['persist', 'remove'])]
     private ?Profil $profil = null;
 
+    /**
+     * @var Collection<int, Article>
+     */
     #[ORM\OneToMany(mappedBy: 'auteur', targetEntity: Article::class)]
     private Collection $articles;
 
+    /**
+     * @var Collection<int, Commentaire>
+     */
     #[ORM\OneToMany(mappedBy: 'utilisateur', targetEntity: Commentaire::class)]
     private Collection $commentaires;
 
@@ -103,6 +112,7 @@ class Utilisateur implements UserInterface, PasswordAuthenticatedUserInterface
             $this->articles->add($article);
             $article->setAuteur($this);
         }
+
         return $this;
     }
 
@@ -113,32 +123,38 @@ class Utilisateur implements UserInterface, PasswordAuthenticatedUserInterface
                 $article->setAuteur(null);
             }
         }
+
         return $this;
     }
 
+    /**
+     * @return Collection<int, Reservation>
+     */
     public function getReservations(): Collection
-{
-    return $this->reservations;
-}
-
-public function addReservation(Reservation $reservation): static
-{
-    if (!$this->reservations->contains($reservation)) {
-        $this->reservations->add($reservation);
-        $reservation->setUser_id($this);
+    {
+        return $this->reservations;
     }
-    return $this;
-}
 
-public function removeReservation(Reservation $reservation): static
-{
-    if ($this->reservations->removeElement($reservation)) {
-        if ($reservation->getUser_id() === $this) {
-            $reservation->setUser_id(null);
+    public function addReservation(Reservation $reservation): static
+    {
+        if (!$this->reservations->contains($reservation)) {
+            $this->reservations->add($reservation);
+            $reservation->setUser_id($this);
         }
+
+        return $this;
     }
-    return $this;
-}
+
+    public function removeReservation(Reservation $reservation): static
+    {
+        if ($this->reservations->removeElement($reservation)) {
+            if ($reservation->getUser_id() === $this) {
+                $reservation->setUser_id(null);
+            }
+        }
+
+        return $this;
+    }
 
     /**
      * @return Collection<int, Commentaire>
@@ -154,6 +170,7 @@ public function removeReservation(Reservation $reservation): static
             $this->commentaires->add($commentaire);
             $commentaire->setUtilisateur($this);
         }
+
         return $this;
     }
 
@@ -164,6 +181,7 @@ public function removeReservation(Reservation $reservation): static
                 $commentaire->setUtilisateur(null);
             }
         }
+
         return $this;
     }
 
@@ -175,6 +193,7 @@ public function removeReservation(Reservation $reservation): static
     public function setNom(string $nom): static
     {
         $this->nom = $nom;
+
         return $this;
     }
 
@@ -186,6 +205,7 @@ public function removeReservation(Reservation $reservation): static
     public function setPrenom(string $prenom): static
     {
         $this->prenom = $prenom;
+
         return $this;
     }
 
@@ -197,6 +217,7 @@ public function removeReservation(Reservation $reservation): static
     public function setEmail(string $email): static
     {
         $this->email = $email;
+
         return $this;
     }
 
@@ -208,6 +229,7 @@ public function removeReservation(Reservation $reservation): static
     public function setMotDePasse(string $motDePasse): static
     {
         $this->motDePasse = $motDePasse;
+
         return $this;
     }
 
@@ -219,6 +241,7 @@ public function removeReservation(Reservation $reservation): static
     public function setType(?string $type): static
     {
         $this->type = $type;
+
         return $this;
     }
 
@@ -230,6 +253,7 @@ public function removeReservation(Reservation $reservation): static
     public function setTelephone(?int $telephone): static
     {
         $this->telephone = $telephone;
+
         return $this;
     }
 
@@ -241,6 +265,7 @@ public function removeReservation(Reservation $reservation): static
     public function setAge(?int $age): static
     {
         $this->age = $age;
+
         return $this;
     }
 
@@ -252,6 +277,7 @@ public function removeReservation(Reservation $reservation): static
     public function setIsVerified(bool $isVerified): static
     {
         $this->isVerified = $isVerified;
+
         return $this;
     }
 
@@ -263,6 +289,7 @@ public function removeReservation(Reservation $reservation): static
     public function setVerificationCode(?string $verificationCode): static
     {
         $this->verificationCode = $verificationCode;
+
         return $this;
     }
 
@@ -274,47 +301,59 @@ public function removeReservation(Reservation $reservation): static
     public function setProfil(?Profil $profil): static
     {
         $this->profil = $profil;
+
         return $this;
     }
 
-    // --- UserInterface ---
-
     public function getUserIdentifier(): string
     {
-        return $this->email;
+        if ($this->email !== '') {
+            return $this->email;
+        }
+
+        if ($this->id !== null) {
+            return 'user_' . $this->id;
+        }
+
+        return 'anonymous';
     }
 
+    /**
+     * @return string[]
+     */
     public function getRoles(): array
-{
-    $type = strtoupper($this->type ?? 'CLIENT');
+    {
+        $type = strtoupper($this->type ?? 'CLIENT');
 
-    if ($type === 'ADMIN') {
-        return ['ROLE_ADMIN', 'ROLE_USER'];
+        if ($type === 'ADMIN') {
+            return ['ROLE_ADMIN', 'ROLE_USER'];
+        }
+
+        if ($type === 'COMMERCANT') {
+            return ['ROLE_COMMERCANT', 'ROLE_USER'];
+        }
+
+        return ['ROLE_CLIENT', 'ROLE_USER'];
     }
 
-    if ($type === 'COMMERCANT') {
-        return ['ROLE_COMMERCANT', 'ROLE_USER'];
+    public function isCommercant(): bool
+    {
+        return strtoupper($this->type ?? '') === 'COMMERCANT';
     }
 
-    return ['ROLE_CLIENT', 'ROLE_USER'];
-}
-
-public function isCommercant(): bool
-{
-    return strtoupper($this->type ?? '') === 'COMMERCANT';
-}
-
-public function isEnAttenteCommercant(): bool
-{
-    return strtoupper($this->type ?? '') === 'EN_ATTENTE_COMMERCANT';
-}
+    public function isEnAttenteCommercant(): bool
+    {
+        return strtoupper($this->type ?? '') === 'EN_ATTENTE_COMMERCANT';
+    }
 
     public function getPassword(): string
     {
         return $this->motDePasse;
     }
 
-    public function eraseCredentials(): void {}
+    public function eraseCredentials(): void
+    {
+    }
 
     public function getFullName(): string
     {
@@ -334,6 +373,7 @@ public function isEnAttenteCommercant(): bool
     public function setFaceDescriptor(?string $faceDescriptor): static
     {
         $this->faceDescriptor = $faceDescriptor;
+
         return $this;
     }
 
@@ -345,6 +385,7 @@ public function isEnAttenteCommercant(): bool
     public function setPhoto(?string $photo): static
     {
         $this->photo = $photo;
+
         return $this;
     }
 
@@ -357,7 +398,7 @@ public function isEnAttenteCommercant(): bool
     {
         $this->imageFile = $imageFile;
 
-        if (null !== $imageFile) {
+        if ($imageFile !== null) {
             $this->updatedAt = new \DateTimeImmutable();
         }
     }
@@ -369,67 +410,76 @@ public function isEnAttenteCommercant(): bool
 
     public function getInitials(): string
     {
-        if (!$this->prenom || !$this->nom) return 'U';
+        if (!$this->prenom || !$this->nom) {
+            return 'U';
+        }
+
         return strtoupper($this->prenom[0] . $this->nom[0]);
     }
 
     public function getAvatarUrl(): string
     {
-        // On récupère le chemin absolu du dossier public pour vérifier l'existence des fichiers
-        // (Approche pragmatique pour éviter les liens cassés dans le back-office)
         $publicDir = dirname(__DIR__, 2) . DIRECTORY_SEPARATOR . 'public';
 
-        // 1. Photo locale dans l'entité Profil
         if ($this->profil && $this->profil->getPhoto()) {
             $photo = $this->profil->getPhoto();
+
             if (filter_var($photo, FILTER_VALIDATE_URL)) {
                 return $photo;
             }
-            
+
             $fullPath = $publicDir . DIRECTORY_SEPARATOR . 'uploads' . DIRECTORY_SEPARATOR . 'photos' . DIRECTORY_SEPARATOR . $photo;
+
             if (file_exists($fullPath)) {
                 return '/uploads/photos/' . $photo;
             }
         }
 
-        // 2. Photo dans l'entité Utilisateur (legacy)
         if ($this->photo) {
             $fullPath = $publicDir . DIRECTORY_SEPARATOR . 'uploads' . DIRECTORY_SEPARATOR . 'photos' . DIRECTORY_SEPARATOR . $this->photo;
+
             if (file_exists($fullPath)) {
                 return '/uploads/photos/' . $this->photo;
             }
         }
 
-        // 3. Avatar DiceBear automatique (v9) selon le genre
         $seed = urlencode($this->email ?: ($this->nom ? $this->nom . $this->id : 'user-' . $this->id));
         $genre = strtolower($this->genre ?? '');
 
-        if (in_array($genre, ['femme', 'fille', 'f'])) {
-            // Style distinct pour les femmes (Micah)
+        if (in_array($genre, ['femme', 'fille', 'f'], true)) {
             return "https://api.dicebear.com/9.x/micah/svg?seed={$seed}&backgroundColor=ffd5dc,ffdfbf";
-        } elseif (in_array($genre, ['homme', 'garcon', 'garçon', 'm'])) {
-            // Style distinct pour les hommes (Avataaars)
+        }
+
+        if (in_array($genre, ['homme', 'garcon', 'garçon', 'm'], true)) {
             return "https://api.dicebear.com/9.x/avataaars/svg?seed={$seed}&backgroundColor=b6e3f4,c0aede";
         }
 
-        // 4. Fallback (Mixte/Générique)
         return "https://api.dicebear.com/9.x/fun-emoji/svg?seed={$seed}&backgroundColor=b6e3f4,c0aede,ffd5dc,ffdfbf";
     }
 
     public function getAgeCategory(): string
     {
-        if (!$this->age) return 'Non précisé';
-        if ($this->age < 18) return 'Enfant/Ado';
-        if ($this->age < 60) return 'Adulte';
+        if (!$this->age) {
+            return 'Non précisé';
+        }
+
+        if ($this->age < 18) {
+            return 'Enfant/Ado';
+        }
+
+        if ($this->age < 60) {
+            return 'Adulte';
+        }
+
         return 'Sénior';
     }
 
     public function getTypeLabel(): string
     {
-        return match(strtoupper($this->type ?? 'CLIENT')) {
+        return match (strtoupper($this->type ?? 'CLIENT')) {
             'ADMIN' => 'Administrateur',
             'COMMERCANT' => 'Commerçant',
-            default => 'Client'
+            default => 'Client',
         };
     }
 
@@ -441,6 +491,7 @@ public function isEnAttenteCommercant(): bool
     public function setGenre(?string $genre): static
     {
         $this->genre = $genre;
+
         return $this;
     }
 
@@ -452,6 +503,7 @@ public function isEnAttenteCommercant(): bool
     public function setPlainPassword(?string $plainPassword): static
     {
         $this->plainPassword = $plainPassword;
+
         return $this;
     }
 }

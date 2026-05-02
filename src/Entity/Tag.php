@@ -19,15 +19,39 @@ class Tag
     #[ORM\Column(type: 'string', length: 50)]
     private string $nom = '';
 
+    /**
+     * @var Collection<int, Article>
+     */
     #[ORM\ManyToMany(targetEntity: Article::class, mappedBy: 'tags')]
     private Collection $articles;
 
-    public function __construct() { $this->articles = new ArrayCollection(); }
+    public function __construct()
+    {
+        $this->articles = new ArrayCollection();
+    }
 
-    public function getId(): ?int { return $this->id; }
-    public function getNom(): string { return $this->nom; }
-    public function setNom(string $nom): static { $this->nom = $nom; return $this; }
+    public function getId(): ?int
+    {
+        return $this->id;
+    }
 
-    /** @return Collection<int, Article> */
-    public function getArticles(): Collection { return $this->articles; }
+    public function getNom(): string
+    {
+        return $this->nom;
+    }
+
+    public function setNom(string $nom): static
+    {
+        $this->nom = $nom;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Article>
+     */
+    public function getArticles(): Collection
+    {
+        return $this->articles;
+    }
 }

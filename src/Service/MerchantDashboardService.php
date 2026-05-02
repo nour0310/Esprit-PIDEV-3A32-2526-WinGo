@@ -2,8 +2,23 @@
 
 namespace App\Service;
 
+use App\Entity\Produit;
+
 class MerchantDashboardService
 {
+    /**
+     * @param Produit[] $produits
+     *
+     * @return array{
+     *     totalProduits: int,
+     *     produitsEnStock: int,
+     *     produitsRupture: int,
+     *     stockFaible: int,
+     *     valeurStock: float,
+     *     nombreCategories: int,
+     *     dernierProduit: Produit|null
+     * }
+     */
     public function buildStats(array $produits): array
     {
         $totalProduits = count($produits);
@@ -31,11 +46,13 @@ class MerchantDashboardService
             $valeurStock += $prix * $stock;
 
             $categorie = $produit->getCategorie();
+
             if ($categorie !== null && trim((string) $categorie) !== '') {
                 $categories[] = trim((string) $categorie);
             }
 
             $dateAjout = $produit->getDateAjout();
+
             if (
                 $dateAjout !== null &&
                 (

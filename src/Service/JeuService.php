@@ -94,22 +94,19 @@ class JeuService
         return $promotion;
     }
 
-    /**
-     * Tirage au sort pondéré selon PROBABILITES.
-     */
     private function tirerAuSort(): string
-    {
-        assert(array_sum(self::PROBABILITES) === 100, 'Les probabilités doivent totaliser 100');
-        $random = random_int(1, 100);
-        $cumul  = 0;
+{
+    $random = random_int(1, 100);
+    $cumul  = 0;
 
-        foreach (self::PROBABILITES as $rewardType => $probabilite) {
-            $cumul += $probabilite;
-            if ($random <= $cumul) {
-                return $rewardType;
-            }
+    foreach (self::PROBABILITES as $rewardType => $probabilite) {
+        $cumul += $probabilite;
+
+        if ($random <= $cumul) {
+            return $rewardType;
         }
-
-        return Reward::REWARD_RIEN;
     }
+
+    return Reward::REWARD_RIEN;
+}
 }

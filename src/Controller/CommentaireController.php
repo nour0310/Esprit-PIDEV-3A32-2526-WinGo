@@ -21,39 +21,56 @@ class CommentaireController extends AbstractController
         if ($this->getUser() !== $commentaire->getUtilisateur() && !$this->isGranted('ROLE_ADMIN')) {
             return $this->json(['success' => false, 'message' => 'Non autorisé'], 403);
         }
-        return $this->json(['contenu' => $commentaire->getContenu()]);
+
+        return $this->json([
+            'contenu' => $commentaire->getContenu(),
+        ]);
     }
 
     #[Route('/commentaire/{id}/delete', name: 'app_commentaire_delete', methods: ['POST'])]
     public function delete(Request $request, Commentaire $commentaire, EntityManagerInterface $em): Response
     {
         $article = $commentaire->getArticle();
+
+        if ($article === null) {
+            throw $this->createNotFoundException('Article introuvable.');
+        }
+
         $articleId = $article->getId();
         $slugger = new AsciiSlugger();
         $slug = $slugger->slug($article->getTitre())->lower()->toString();
 
         if ($this->getUser() !== $commentaire->getUtilisateur() && !$this->isGranted('ROLE_ADMIN')) {
-             return $this->redirectToRoute('app_article_show', ['id' => $articleId, 'slug' => $slug]);
+            return $this->redirectToRoute('app_article_show', [
+                'id' => $articleId,
+                'slug' => $slug,
+            ]);
         }
 
-        if ($this->isCsrfTokenValid('delete' . $commentaire->getId(), $request->request->get('_token'))) {
+        $token = (string) $request->request->get('_token', '');
+
+        if ($this->isCsrfTokenValid('delete' . $commentaire->getId(), $token)) {
             $em->remove($commentaire);
             $em->flush();
         }
-        return $this->redirectToRoute('app_article_show', ['id' => $articleId, 'slug' => $slug]);
+
+        return $this->redirectToRoute('app_article_show', [
+            'id' => $articleId,
+            'slug' => $slug,
+        ]);
     }
 
     #[Route('/commentaire/{id}/sentiment', name: 'app_commentaire_sentiment', methods: ['GET'])]
-    #[IsGranted('PUBLIC_ACCESS')]   // Rendre public pour l'affichage du sentiment
+    #[IsGranted('PUBLIC_ACCESS')]
     public function analyzeSentiment(Commentaire $commentaire): JsonResponse
     {
-        $contenu = trim($commentaire->getContenu());
-        
+        $contenu = trim($commentaire->getContenu() ?? '');
+
         $analyzer = new Analyzer();
         $scores = $analyzer->getSentiment($contenu);
-        
-        $compound = $scores['compound'];
-        
+
+        $compound = (float) ($scores['compound'] ?? 0);
+
         if ($compound >= 0.05) {
             $sentiment = 'positif';
             $emoji = '😊';
@@ -70,7 +87,7 @@ class CommentaireController extends AbstractController
             $text = 'Neutre';
             $class = 'secondary';
         }
-        
+
         return $this->json([
             'sentiment' => $sentiment,
             'emoji' => $emoji,

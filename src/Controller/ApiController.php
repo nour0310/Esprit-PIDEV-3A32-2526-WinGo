@@ -17,24 +17,24 @@ class ApiController extends AbstractController
 {
     #[Route('/article/generate', name: 'api_article_generate', methods: ['POST'])]
     #[IsGranted('IS_AUTHENTICATED_FULLY')]
-    public function generateArticle(Request $request, ArticleGeneratorService $generator): JsonResponse
-    {
-        $topic = $request->request->get('topic');
-        if (!$topic) {
-            return $this->json(['error' => 'Sujet requis'], 400);
-        }
+public function generateArticle(Request $request, ArticleGeneratorService $generator): JsonResponse
+{
+    $topic = (string) $request->request->get('topic', '');
 
-        try {
-            $generated = $generator->generateArticle($topic);
-            return $this->json($generated);
-        } catch (ArticleGenerationException $e) {
-            return $this->json([
-                'error' => $e->getPublicMessage(),
-                'detail' => $this->getParameter('kernel.debug') ? $e->getDetail() : null,
-            ], $e->getStatusCode());
-        }
+    if (trim($topic) === '') {
+        return $this->json(['error' => 'Sujet requis'], 400);
     }
 
+    try {
+        $generated = $generator->generateArticle($topic);
+        return $this->json($generated);
+    } catch (ArticleGenerationException $e) {
+        return $this->json([
+            'error' => $e->getPublicMessage(),
+            'detail' => $this->getParameter('kernel.debug') ? $e->getDetail() : null,
+        ], $e->getStatusCode());
+    }
+}
     #[Route('/tts', name: 'api_tts', methods: ['POST'])]
     #[IsGranted('PUBLIC_ACCESS')]   // Rendre public pour le bouton "Écouter"
     public function tts(Request $request, GoogleTranslateTtsService $ttsService): JsonResponse
