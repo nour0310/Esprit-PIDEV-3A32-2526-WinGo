@@ -2,11 +2,18 @@ doctrine:
     dbal:
         url: '%env(resolve:DATABASE_URL)%'
 
+        # AJOUTÉ POUR DOCTRINE DOCTOR :
+        # Force MySQL/MariaDB à utiliser le même fuseau horaire que PHP : UTC.
+        # Cela évite les différences de dates entre PHP et la base de données.
+        options:
+            1002: "SET time_zone = '+00:00'"
+
         # IMPORTANT: You MUST configure your server version,
         # either here or in the DATABASE_URL env var (see .env file)
         #server_version: '16'
 
         profiling_collect_backtrace: '%kernel.debug%'
+
     orm:
         validate_xml_mapping: true
         naming_strategy: doctrine.orm.naming_strategy.underscore
@@ -30,9 +37,17 @@ when@test:
 when@prod:
     doctrine:
         orm:
+            # AJOUTÉ POUR DOCTRINE DOCTOR :
+            # Ce cache évite à Doctrine de relire les métadonnées des entités
+            # à chaque requête en production.
+            metadata_cache_driver:
+                type: pool
+                pool: doctrine.system_cache_pool
+
             query_cache_driver:
                 type: pool
                 pool: doctrine.system_cache_pool
+
             result_cache_driver:
                 type: pool
                 pool: doctrine.result_cache_pool
@@ -42,5 +57,6 @@ when@prod:
             pools:
                 doctrine.result_cache_pool:
                     adapter: cache.app
+
                 doctrine.system_cache_pool:
                     adapter: cache.system

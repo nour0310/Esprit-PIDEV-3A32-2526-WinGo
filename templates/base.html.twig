@@ -344,12 +344,6 @@
                                 </div>
 
                                 <div class="user_box_login user_box_link">
-                                    <a href="{{ path('app_dashboard_redirect') }}">
-                                        <i class="fa fa-tachometer" aria-hidden="true"></i> dashboard
-                                    </a>
-                                </div>
-
-                                <div class="user_box_login user_box_link">
                                     <a href="{{ path('app_profile') }}">
                                         <i class="fa fa-user" aria-hidden="true"></i> Mon profil
                                     </a>
@@ -405,10 +399,6 @@
 
                                 <li class="main_nav_item {% if app.request.attributes.get('_route') == 'blog' %}active{% endif %}">
                                     <a href="{{ path('blog') }}">blogs</a>
-                                </li>
-
-                                <li class="main_nav_item {% if app.request.attributes.get('_route') == 'reclamation' %}active{% endif %}">
-                                    <a href="#">reclamation</a>
                                 </li>
                             </ul>
                         </div>
@@ -484,7 +474,6 @@
                 <li class="menu_item"><a href="{{ path('client_produits') }}">product</a></li>
                 <li class="menu_item"><a href="{{ path('app_front_reservations') }}">reservations</a></li>
                 <li class="menu_item"><a href="{{ path('blog') }}">blogs</a></li>
-                <li class="menu_item"><a href="#">reclamation</a></li>
             </ul>
         </div>
     </div>
