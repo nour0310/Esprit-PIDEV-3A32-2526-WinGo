@@ -43,7 +43,7 @@ class EventController extends AbstractController
                 ->setParameter('type', $type);
         }
 
-        $sort = (string) $request->query->get('sort', 'date_asc');
+        $sort = (string) $request->query->get('event_sort', 'date_asc');
         switch ($sort) {
             case 'date_desc':
                 $qb->orderBy('e.date_event', 'DESC');

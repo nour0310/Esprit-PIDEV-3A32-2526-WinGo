@@ -26,17 +26,6 @@
             </div>
         </div>
     </div>
-
-    {# ========== DEBUG INFO (optional - remove in production) ========== #}
-    <div class="alert alert-info mt-3">
-        <strong>🔍 Debug Info:</strong><br>
-        Event date: {{ event.date_event|date('Y-m-d') }}<br>
-        Today: {{ "now"|date('Y-m-d') }}<br>
-        Is past? {{ event.date_event < date() ? '✅ YES' : '❌ NO' }}<br>
-        Feedbacks count: {{ event.feedbacks|length }}<br>
-        Raw feedbacks data: <pre>{{ event.feedbacks|json_encode(constant('JSON_PRETTY_PRINT')) }}</pre>
-    </div>
-
     <hr>
     <h3>💬 All feedbacks</h3>
 

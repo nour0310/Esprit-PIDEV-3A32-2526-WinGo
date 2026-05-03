@@ -565,7 +565,7 @@
 
         <input type="text" name="search" class="filter_search" placeholder="🔍 Search events..." value="{{ current_search }}">
 
-        <select name="sort" class="filter_pill" style="background: none;" onchange="this.form.submit()">
+        <select name="event_sort" class="filter_pill" style="background: none;" onchange="this.form.submit()">
             <option value="date_asc" {{ current_sort == 'date_asc' ? 'selected' : '' }}>Date ↑</option>
             <option value="date_desc" {{ current_sort == 'date_desc' ? 'selected' : '' }}>Date ↓</option>
             <option value="price_asc" {{ current_sort == 'price_asc' ? 'selected' : '' }}>Price ↑</option>
