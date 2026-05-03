@@ -30,8 +30,22 @@ RUN php bin/console importmap:install --no-interaction \
 
 RUN mkdir -p var/cache var/log && chown -R www-data:www-data var public
 
-RUN sed -ri -e 's!/var/www/html!/var/www/html/public!g' /etc/apache2/sites-available/*.conf \
-    && sed -ri -e 's!/var/www/!/var/www/html/public!g' /etc/apache2/apache2.conf /etc/apache2/conf-available/*.conf
+RUN cat > /etc/apache2/sites-available/000-default.conf <<'APACHE'
+<VirtualHost *:80>
+    ServerName localhost
+    DocumentRoot /var/www/html/public
+
+    <Directory /var/www/html/public>
+        AllowOverride All
+        Require all granted
+        DirectoryIndex index.php
+        FallbackResource /index.php
+    </Directory>
+
+    ErrorLog ${APACHE_LOG_DIR}/error.log
+    CustomLog ${APACHE_LOG_DIR}/access.log combined
+</VirtualHost>
+APACHE
 
 EXPOSE 80
 
