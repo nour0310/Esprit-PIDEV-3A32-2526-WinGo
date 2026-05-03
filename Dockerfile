@@ -22,7 +22,7 @@ COPY . .
 
 RUN composer install --no-dev --optimize-autoloader --no-interaction --no-scripts
 
-RUN chown -R www-data:www-data var public
+RUN mkdir -p var/cache var/log && chown -R www-data:www-data var public
 
 RUN sed -ri -e 's!/var/www/html!/var/www/html/public!g' /etc/apache2/sites-available/*.conf \
     && sed -ri -e 's!/var/www/!/var/www/html/public!g' /etc/apache2/apache2.conf /etc/apache2/conf-available/*.conf
