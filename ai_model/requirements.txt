@@ -1,0 +1,8 @@
+flask
+flask-cors
+python-dotenv
+google-generativeai
+numpy
+pandas
+scikit-learn
+gunicorn
