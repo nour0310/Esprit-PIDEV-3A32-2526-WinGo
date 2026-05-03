@@ -117,27 +117,27 @@
 		</div>
 	</div>
 
-	<!-- Intro -->
+	<!-- Intro (3 Destinations Préférées) -->
 	<div class="intro">
 		<div class="container">
 			<div class="row">
 				<div class="col">
-					<h2 class="intro_title text-center">We have the best tours</h2>
+					<h2 class="intro_title text-center">Nos 3 Destinations Préférées</h2>
 				</div>
 			</div>
 			<div class="row">
 				<div class="col-lg-10 offset-lg-1">
 					<div class="intro_text text-center">
-						<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam eu convallis tortor. Suspendisse potenti. In faucibus massa arcu, vitae cursus mi hendrerit nec.</p>
+						<p>Découvrez les 3 destinations les plus visitées par nos clients. Ces lieux uniques offrent des expériences inoubliables.</p>
 					</div>
 				</div>
 			</div>
 			<div class="row intro_items">
 
 				{% set intro_items = intro_items is defined ? intro_items : [
-					{image: 'intro_1.jpg', date: 'May 25th - June 01st', name: 'Mauritius', price: 'From $1450'},
-					{image: 'intro_2.jpg', date: 'May 25th - June 01st', name: 'Greece', price: 'From $1450'},
-					{image: 'intro_3.jpg', date: 'May 25th - June 01st', name: 'Scotland', price: 'From $1450'}
+					{image: 'intro_1.jpg', date: 'Top 1', name: 'Maldives', price: 'Visité par +10k clients'},
+					{image: 'intro_2.jpg', date: 'Top 2', name: 'Grèce', price: 'Visité par +8k clients'},
+					{image: 'intro_3.jpg', date: 'Top 3', name: 'Écosse', price: 'Visité par +5k clients'}
 				] %}
 
 				{% for item in intro_items %}
@@ -160,6 +160,172 @@
 				</div>
 				{% endfor %}
 
+			</div>
+		</div>
+	</div>
+
+	<style>
+		/* Animations et styles dynamiques pour About Us & Team */
+		.dynamic_section_title {
+			font-size: 3rem !important;
+			font-weight: 800 !important;
+			background: linear-gradient(to right, #fa9e1b, #ff7b00);
+			-webkit-background-clip: text;
+			-webkit-text-fill-color: transparent;
+			text-transform: uppercase;
+			letter-spacing: 2px;
+			animation: gradient-shift 3s infinite alternate;
+		}
+
+		@keyframes gradient-shift {
+			0% { background-position: 0% 50%; }
+			100% { background-position: 100% 50%; }
+		}
+
+		.about_content_card {
+			background: #ffffff;
+			padding: 50px;
+			border-radius: 30px;
+			box-shadow: 0px 10px 30px rgba(0,0,0,0.05);
+			height: 100%;
+			border: 1px solid rgba(0,0,0,0.02);
+			transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+			position: relative;
+			overflow: hidden;
+			z-index: 1;
+		}
+
+		.about_content_card::before {
+			content: '';
+			position: absolute;
+			top: 0; left: 0; right: 0; bottom: 0;
+			background: linear-gradient(135deg, rgba(250, 158, 27, 0.05) 0%, rgba(49, 18, 75, 0.05) 100%);
+			z-index: -1;
+			opacity: 0;
+			transition: opacity 0.4s ease;
+		}
+
+		.about_content_card:hover {
+			transform: translateY(-15px);
+			box-shadow: 0px 25px 50px rgba(0,0,0,0.12);
+			border-color: rgba(250, 158, 27, 0.3);
+		}
+
+		.about_content_card:hover::before {
+			opacity: 1;
+		}
+
+		.team_member_wrapper {
+			transition: all 0.4s ease;
+			cursor: pointer;
+		}
+
+		.team_member_wrapper:hover {
+			transform: translateY(-20px) scale(1.05);
+		}
+
+		.team_member_wrapper img {
+			transition: all 0.5s ease;
+		}
+
+		.team_member_wrapper:hover img {
+			box-shadow: 0px 15px 35px rgba(250, 158, 27, 0.6) !important;
+			border-color: #ffffff !important;
+		}
+
+		.team_member_wrapper h4 {
+			transition: color 0.3s ease;
+		}
+
+		.team_member_wrapper:hover h4 {
+			color: #fa9e1b !important;
+		}
+
+		.linkedin-icon {
+			color: white;
+			font-size: 26px;
+			text-decoration: none;
+			display: inline-block;
+			transition: all 0.3s ease;
+		}
+
+		.linkedin-icon:hover {
+			color: #fa9e1b !important;
+			transform: scale(1.3) rotate(5deg);
+			text-shadow: 0px 5px 15px rgba(250, 158, 27, 0.5);
+		}
+	</style>
+
+	<!-- About Us -->
+	<div class="about" style="padding-top: 100px; padding-bottom: 100px; background: #f3f6f9; position: relative; overflow: hidden;">
+		<div class="container">
+			<div class="row">
+				<div class="col text-center">
+					<h2 class="section_title dynamic_section_title">À propos de nous</h2>
+				</div>
+			</div>
+			<div class="row mt-5" style="margin-top: 50px;">
+				<div class="col-lg-6">
+					<div class="about_content_card">
+						<h3 style="color: #fa9e1b; margin-bottom: 25px; font-weight: 800; font-size: 2rem;">Qu'est-ce que WinGo ?</h3>
+						<p style="font-size: 17px; line-height: 1.8; color: #444;">WinGo est votre partenaire idéal pour l'organisation de vos voyages. Nous vous proposons les meilleures destinations à travers le monde avec une plateforme moderne, facile d'utilisation et sécurisée, vous permettant de gérer toutes vos réservations en quelques clics en toute tranquillité.</p>
+					</div>
+				</div>
+				<div class="col-lg-6 mt-4 mt-lg-0">
+					<div class="about_content_card">
+						<h3 style="color: #31124b; margin-bottom: 25px; font-weight: 800; font-size: 2rem;">Notre Groupe</h3>
+						<p style="font-size: 17px; line-height: 1.8; color: #444;">Notre groupe est composé de jeunes développeuses passionnées et déterminées. Ensemble, nous avons uni nos compétences pour concevoir cette plateforme intuitive. <strong>Notre site Web est directement interfacé avec une application Java</strong> robuste, assurant des performances élevées et une fiabilité constante pour nos utilisateurs.</p>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<!-- Our Team -->
+	<div class="team" style="padding-top: 100px; padding-bottom: 120px; background: linear-gradient(135deg, #31124b 0%, #1a082b 100%); position: relative;">
+		<div class="container">
+			<div class="row">
+				<div class="col text-center">
+					<h2 class="section_title" style="color: white; font-weight: 800; font-size: 3rem; letter-spacing: 2px;">NOTRE ÉQUIPE DE DÉVELOPPEURS</h2>
+					<p style="margin-top: 15px; font-size: 18px; color: #e0d4f5;">Découvrez les esprits brillants qui ont donné vie à WinGo.</p>
+				</div>
+			</div>
+			<div class="row mt-5 justify-content-center" style="margin-top: 80px;">
+				<div class="col-lg-2 col-md-4 col-sm-6 text-center mb-4" style="margin-bottom: 40px;">
+					<div class="team_member_wrapper">
+						<img src="{{ asset('images/team/member_1.jpg') }}" alt="Yomna Haleli" style="width: 160px; height: 160px; object-fit: cover; border-radius: 50%; border: 6px solid #fa9e1b; box-shadow: 0px 10px 25px rgba(0,0,0,0.5);">
+						<h4 style="margin-top: 25px; color: white; font-size: 20px; font-weight: 700;">Yomna Haleli</h4>
+						<a href="https://www.linkedin.com/in/yomna-helali-314307331/" target="_blank" class="linkedin-icon mt-2"><i class="fa fa-linkedin"></i></a>
+					</div>
+				</div>
+				<div class="col-lg-2 col-md-4 col-sm-6 text-center mb-4" style="margin-bottom: 40px;">
+					<div class="team_member_wrapper">
+						<img src="{{ asset('images/team/member_2.jpg') }}" alt="Balkis Zaghdoud" style="width: 160px; height: 160px; object-fit: cover; border-radius: 50%; border: 6px solid #fa9e1b; box-shadow: 0px 10px 25px rgba(0,0,0,0.5);">
+						<h4 style="margin-top: 25px; color: white; font-size: 20px; font-weight: 700;">Balkis Zaghdoud</h4>
+						<a href="#" target="_blank" class="linkedin-icon mt-2"><i class="fa fa-linkedin"></i></a>
+					</div>
+				</div>
+				<div class="col-lg-2 col-md-4 col-sm-6 text-center mb-4" style="margin-bottom: 40px;">
+					<div class="team_member_wrapper">
+						<img src="{{ asset('images/team/member_3.jpg') }}" alt="Fourti Nour el houda" style="width: 160px; height: 160px; object-fit: cover; border-radius: 50%; border: 6px solid #fa9e1b; box-shadow: 0px 10px 25px rgba(0,0,0,0.5);">
+						<h4 style="margin-top: 25px; color: white; font-size: 20px; font-weight: 700;">Fourti Nour el houda</h4>
+						<a href="https://www.linkedin.com/in/nour-el-houda-fourti-b49b3a3b3/" target="_blank" class="linkedin-icon mt-2"><i class="fa fa-linkedin"></i></a>
+					</div>
+				</div>
+				<div class="col-lg-2 col-md-4 col-sm-6 text-center mb-4" style="margin-bottom: 40px;">
+					<div class="team_member_wrapper">
+						<img src="{{ asset('images/team/member_4.png') }}" alt="Nour Arrami" style="width: 160px; height: 160px; object-fit: cover; border-radius: 50%; border: 6px solid #fa9e1b; box-shadow: 0px 10px 25px rgba(0,0,0,0.5);">
+						<h4 style="margin-top: 25px; color: white; font-size: 20px; font-weight: 700;">Nour Arrami</h4>
+						<a href="https://www.linkedin.com/in/nour-arrami-690b7b319/" target="_blank" class="linkedin-icon mt-2"><i class="fa fa-linkedin"></i></a>
+					</div>
+				</div>
+				<div class="col-lg-2 col-md-4 col-sm-6 text-center mb-4" style="margin-bottom: 40px;">
+					<div class="team_member_wrapper">
+						<img src="{{ asset('images/team/member_5.png') }}" alt="Fatma Aloui" style="width: 160px; height: 160px; object-fit: cover; border-radius: 50%; border: 6px solid #fa9e1b; box-shadow: 0px 10px 25px rgba(0,0,0,0.5);">
+						<h4 style="margin-top: 25px; color: white; font-size: 20px; font-weight: 700;">Fatma Aloui</h4>
+						<a href="#" target="_blank" class="linkedin-icon mt-2"><i class="fa fa-linkedin"></i></a>
+					</div>
+				</div>
 			</div>
 		</div>
 	</div>
