@@ -5,7 +5,6 @@ namespace App\Form;
 use App\Entity\Produit;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
-use Symfony\Component\Form\Extension\Core\Type\DateTimeType;
 use Symfony\Component\Form\Extension\Core\Type\FileType;
 use Symfony\Component\Form\Extension\Core\Type\IntegerType;
 use Symfony\Component\Form\Extension\Core\Type\MoneyType;
@@ -123,12 +122,6 @@ class ProduitType extends AbstractType
                         'mimeTypesMessage' => 'Veuillez choisir une image valide.',
                     ]),
                 ],
-            ])
-
-            ->add('dateAjout', DateTimeType::class, [
-                'label' => 'Date ajout',
-                'required' => false,
-                'widget' => 'single_text',
             ]);
     }
 

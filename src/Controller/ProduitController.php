@@ -84,6 +84,7 @@ final class ProduitController extends AbstractController
     ): Response {
         $em      = $manager->getManager();
         $produit = new Produit();
+        $produit->setDateAjout(new \DateTime('now', new \DateTimeZone('Africa/Tunis')));
 
         $form = $this->createForm(ProduitType::class, $produit);
         $form->handleRequest($request);
@@ -117,9 +118,7 @@ $produit->setIdUser($userId);
                 $produit->setImage($newFilename);
             }
 
-            if ($produit->getDateAjout() === null) {
-                $produit->setDateAjout(new \DateTime());
-            }
+           $produit->setDateAjout(new \DateTime('now', new \DateTimeZone('Africa/Tunis')));
 
             $em->persist($produit);
             $em->flush();
