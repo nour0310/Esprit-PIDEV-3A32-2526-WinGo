@@ -291,6 +291,29 @@
             justify-content: center;
             border-radius: 50%;
         }
+
+        .wingo-cart-wrap {
+    position: relative;
+    margin-right: 18px;
+    display: inline-flex;
+    align-items: center;
+}
+
+.wingo-cart-btn {
+    background: transparent;
+    border: none;
+    color: #fff;
+    cursor: pointer;
+    padding: 4px 8px;
+    position: relative;
+    font-size: 18px;
+    line-height: 1;
+    text-decoration: none !important;
+}
+
+.wingo-cart-btn:hover {
+    color: #fa9e1b;
+}
     </style>
     {% endif %}
 </head>
@@ -342,6 +365,14 @@
                                         <div class="wingo-notif-list" id="wingo-notif-list"></div>
                                     </div>
                                 </div>
+                                <div class="wingo-cart-wrap">
+    <a href="{{ path('app_panier') }}"
+       class="wingo-cart-btn"
+       aria-label="Panier"
+       title="Voir panier">
+        <i class="fa fa-shopping-cart" aria-hidden="true"></i>
+    </a>
+</div>
 
                                 <div class="user_box_login user_box_link">
                                     <a href="{{ path('app_profile') }}">
