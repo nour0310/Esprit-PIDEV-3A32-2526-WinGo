@@ -191,8 +191,8 @@
 							{% elseif im starts with '//' %}
 								{% set cover_src = 'https:' ~ im %}
 							{% else %}
-								{# Utilisation de la route Symfony pour servir l'image #}
-								{% set cover_src = path('app_article_image', {'id': article.id}) %}
+								{# Utilisation de la route Symfony pour servir l'image avec un cache-buster basé sur le nom du fichier #}
+								{% set cover_src = path('app_article_image', {'id': article.id}) ~ '?v=' ~ (article.image|default('1')|url_encode) %}
 							{% endif %}
 						<div class="blog_post wingo-card">
 							<div class="blog_post_image">

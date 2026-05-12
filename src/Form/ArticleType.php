@@ -61,6 +61,8 @@ class ArticleType extends AbstractType
                     'Gafsa' => 'Gafsa',
                     'Tozeur' => 'Tozeur',
                     'Kébili' => 'Kébili',
+                    'Djerba' => 'Djerba',
+                    'Tabarka' => 'Tabarka',
                 ],
                 'placeholder' => 'Choisissez une région',
                 'attr' => ['class' => 'form-control wingo-input']
@@ -72,6 +74,7 @@ class ArticleType extends AbstractType
                     'Culture' => 'Culture',
                     'Gastronomie' => 'Gastronomie',
                     'Détente' => 'Détente',
+                    'Sport' => 'Sport',
                 ],
                 'placeholder' => 'Choisissez une catégorie',
                 'attr' => ['class' => 'form-control wingo-input']

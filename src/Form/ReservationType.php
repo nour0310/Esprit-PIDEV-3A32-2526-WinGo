@@ -19,7 +19,14 @@ class ReservationType extends AbstractType
         $inputStyle = ['class' => 'form-control', 'style' => 'height: 46px; border: none; padding-left: 15px; border-radius: 0; box-shadow: none;'];
 
         $builder
-        ->add('user') 
+        ->add('user', TextType::class, [
+                'label' => 'Client',
+                'disabled' => true,  // Make it read-only
+                'attr' => [
+                    'class' => 'form-control',
+                    'readonly' => true,
+                ]
+            ]) 
         ->add('exp', ChoiceType::class, [
                 'label' => 'Expérience (Gouvernorat)',
                 'choices' => [

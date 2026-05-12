@@ -250,6 +250,7 @@ class FrontController extends AbstractController
             $reservation = new Reservation();
             $user = $this->getCurrentUtilisateur();
             $reservation->setUser_id($user);
+            $reservation->setUser($user->getNom()); 
         }
 
         $form = $this->createForm(ReservationType::class, $reservation);
@@ -259,6 +260,7 @@ class FrontController extends AbstractController
             $user = $this->getCurrentUtilisateur();
 
             $reservation->setUser_id($user);
+            
 
             $destination = strtolower(trim($reservation->getExp()));
             $pricingTable = [

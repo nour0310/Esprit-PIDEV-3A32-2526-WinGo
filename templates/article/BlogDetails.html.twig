@@ -13,8 +13,8 @@
     {% set cover_src = 'https:' ~ im %}
     {% set cover_src_absolute = 'https:' ~ im %}
 {% else %}
-    {% set cover_src = path('app_article_image', {'id': article.id}) %}
-    {% set cover_src_absolute = url('app_article_image', {'id': article.id}) %}
+    {% set cover_src = path('app_article_image', {'id': article.id}) ~ '?v=' ~ (article.image|default('1')|url_encode) %}
+    {% set cover_src_absolute = url('app_article_image', {'id': article.id}) ~ '?v=' ~ (article.image|default('1')|url_encode) %}
 {% endif %}
 
 {% block title %}{{ article.titre }} — WinGo{% endblock %}

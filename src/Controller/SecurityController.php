@@ -158,8 +158,14 @@ class SecurityController extends AbstractController
                         $user->setMotDePasse($hashedPassword);
                         $user->setPlainPassword(null);
 
-                        $em->persist($user);
-                        $em->flush();
+                        try {
+                            $em->persist($user);
+                            $em->flush();
+                        } catch (\Doctrine\DBAL\Exception\UniqueConstraintViolationException $e) {
+                            $error = 'Cette adresse email est déjà utilisée. Veuillez vous connecter ou utiliser une autre adresse.';
+                            $lastData = $request->request->all();
+                            goto render_register;
+                        }
 
                         if ($this->isMailerConfigured()) {
                             try {
@@ -199,6 +205,7 @@ class SecurityController extends AbstractController
             }
         }
 
+        render_register:
         return $this->render('security/register.html.twig', [
             'error' => $error,
             'last_data' => $lastData ?: $request->request->all(),

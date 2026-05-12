@@ -35,46 +35,47 @@ class ArticleController extends AbstractController
     #[IsGranted('PUBLIC_ACCESS')]
     public function image(Article $article): Response
     {
-        $raw = $article->getImage();
-        $imageName = \is_string($raw) ? trim($raw) : '';
+        $imageName = (string) $article->getImage();
+        $imageName = trim($imageName);
 
         if ($imageName === '') {
             return $this->defaultImage();
         }
 
-        if (str_starts_with($imageName, '//')) {
-            return new RedirectResponse('https:' . $imageName);
-        }
-        if (filter_var($imageName, FILTER_VALIDATE_URL)) {
-            return new RedirectResponse($imageName);
+        // 1. Si c'est une URL
+        if (str_starts_with($imageName, 'http') || str_starts_with($imageName, '//')) {
+            $url = str_starts_with($imageName, '//') ? 'https:' . $imageName : $imageName;
+            return new RedirectResponse($url);
         }
 
+        // 2. Si c'est un chemin absolu valide (souvent le cas avec Java)
+        if (is_file($imageName) && is_readable($imageName)) {
+            return new BinaryFileResponse($imageName);
+        }
+
+        // 3. Nettoyer le nom pour ne garder que le fichier
         $cleanName = basename(str_replace('\\', '/', $imageName));
-
         $projectDir = $this->getProjectDir();
-        $mainDir = $projectDir . DIRECTORY_SEPARATOR . 'public' . DIRECTORY_SEPARATOR . 'uploads' . DIRECTORY_SEPARATOR . 'articles';
-        $altDirs = [
-            $projectDir . DIRECTORY_SEPARATOR . 'public' . DIRECTORY_SEPARATOR . 'images' . DIRECTORY_SEPARATOR . 'uploads',
-            $projectDir . DIRECTORY_SEPARATOR . 'public' . DIRECTORY_SEPARATOR . 'images',
+        
+        // Liste des dossiers où chercher
+        $searchDirs = [
+            $this->getArticleUploadDir(),
+            $projectDir . '/public/uploads/photos',
+            $projectDir . '/public/images/uploads',
+            $projectDir . '/public/images',
+            'C:/Users/MSI-THIN/Downloads/Esprit-PIDEV-3A32-2526-WinGo-prodSymfonyy/Esprit-PIDEV-3A32-2526-WinGo-prodSymfonyy/public/uploads/articles',
+            'C:/Users/MSI-THIN/Downloads/fastoumet (3)/fastoumet/web/public/uploads/articles',
+            'C:/Users/MSI-THIN/Downloads/fastoumet/fastoumet/web/public/uploads/articles',
         ];
 
-        $path = $mainDir . DIRECTORY_SEPARATOR . $cleanName;
-        if (is_file($path) && is_readable($path)) {
-            return new BinaryFileResponse($path);
-        }
-
-        foreach ($altDirs as $dir) {
-            $altPath = $dir . DIRECTORY_SEPARATOR . $cleanName;
-            if (is_file($altPath) && is_readable($altPath)) {
-                return new BinaryFileResponse($altPath);
+        foreach ($searchDirs as $dir) {
+            $path = $dir . DIRECTORY_SEPARATOR . $cleanName;
+            if (is_file($path) && is_readable($path)) {
+                return new BinaryFileResponse($path);
             }
         }
 
-        $originalPath = $mainDir . DIRECTORY_SEPARATOR . $imageName;
-        if (is_file($originalPath) && is_readable($originalPath)) {
-            return new BinaryFileResponse($originalPath);
-        }
-
+        // 4. Fallback final
         return $this->defaultImage();
     }
 
@@ -521,9 +522,18 @@ if ($parent instanceof Commentaire) {
 
 $token = (string) $request->request->get('_token', '');
 
-if ($this->isCsrfTokenValid('delete' . $article->getId(), $token)) {
-                $em->remove($article);
+        if ($this->isCsrfTokenValid('delete' . $article->getId(), $token)) {
+            $articleId = $article->getId();
+            $conn = $em->getConnection();
+            
+            // Supprimer manuellement les données liées non mappées
+            $conn->executeStatement('DELETE FROM likes WHERE article_id = ?', [$articleId]);
+            $conn->executeStatement('DELETE FROM rating WHERE article_id = ?', [$articleId]);
+            $conn->executeStatement('DELETE FROM favori WHERE article_id = ?', [$articleId]);
+            
+            $em->remove($article);
             $em->flush();
+            $this->addFlash('success', 'L\'article a été supprimé ainsi que toutes ses données liées.');
         }
         return $this->redirectToRoute('blog');
     }

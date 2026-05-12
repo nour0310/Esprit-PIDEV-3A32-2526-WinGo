@@ -1,393 +1,779 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Offers - Travelix{% endblock %}
+{% block title %}Mes Réservations — WinGo{% endblock %}
 
 {% block stylesheets %}
 <link rel="stylesheet" type="text/css" href="{{ asset('styles/offers_styles.css') }}">
 <link rel="stylesheet" type="text/css" href="{{ asset('styles/offers_responsive.css') }}">
+<link rel="stylesheet" type="text/css" href="{{ asset('styles/main_styles.css') }}">
+<link rel="stylesheet" type="text/css" href="{{ asset('styles/responsive.css') }}">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+<link href="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.css" rel="stylesheet">
+<style>
+    .wingo-gradient-bg {
+        background: linear-gradient(135deg, #8d4fff 0%, #fa9e1c 100%);
+    }
+    
+    .wingo-card {
+        background: #ffffff;
+        border-radius: 20px;
+        overflow: hidden;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+        transition: all 0.3s ease;
+    }
+    
+    .wingo-card:hover {
+        transform: translateY(-6px);
+        box-shadow: 0 18px 35px rgba(0,0,0,0.14);
+    }
+    
+    .wingo-btn-primary {
+        background: linear-gradient(135deg, #8d4fff, #fa9e1c);
+        border: none;
+        border-radius: 30px;
+        padding: 12px 28px;
+        font-weight: 700;
+        color: white;
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        text-decoration: none;
+    }
+    
+    .wingo-btn-primary:hover {
+        transform: scale(1.05);
+        box-shadow: 0 8px 20px rgba(141, 79, 255, 0.3);
+        color: white;
+        text-decoration: none;
+    }
+    
+    .wingo-btn-outline {
+        background: rgba(141, 79, 255, 0.1);
+        border: 1px solid rgba(141, 79, 255, 0.2);
+        border-radius: 25px;
+        padding: 8px 20px;
+        font-weight: 600;
+        color: #8d4fff;
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        text-decoration: none;
+    }
+    
+    .wingo-btn-outline:hover {
+        background: #8d4fff;
+        color: white;
+        transform: translateY(-2px);
+        text-decoration: none;
+    }
+    
+    .wingo-btn-danger {
+        background: rgba(220, 53, 69, 0.1);
+        border: 1px solid rgba(220, 53, 69, 0.2);
+        border-radius: 25px;
+        padding: 8px 20px;
+        font-weight: 600;
+        color: #dc3545;
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        text-decoration: none;
+    }
+    
+    .wingo-btn-danger:hover {
+        background: #dc3545;
+        color: white;
+        transform: translateY(-2px);
+        text-decoration: none;
+    }
+    
+    .modern-input {
+        border: 1px solid #e0e0e0;
+        border-radius: 12px;
+        padding: 12px 16px;
+        transition: all 0.3s ease;
+        width: 100%;
+    }
+    
+    .modern-input:focus {
+        border-color: #8d4fff;
+        outline: none;
+        box-shadow: 0 0 0 3px rgba(141, 79, 255, 0.1);
+    }
+    
+    .modern-label {
+        font-size: 12px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        color: #6c757d;
+        margin-bottom: 8px;
+        display: block;
+    }
+    
+    .star-rating {
+        color: #fa9e1c;
+    }
+    
+    .status-badge {
+        background: linear-gradient(135deg, #fa9e1c, #8d4fff);
+        color: white;
+        padding: 5px 12px;
+        border-radius: 20px;
+        font-size: 11px;
+        font-weight: 700;
+        text-transform: uppercase;
+    }
+    
+    .milestone {
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        text-align: center;
+        z-index: 2;
+    }
+    
+    .milestone-dot {
+        width: 30px;
+        height: 30px;
+        background: #fff;
+        border: 3px solid #eee;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 14px;
+        color: #ccc;
+        transition: all 0.5s ease;
+    }
+    
+    .milestone-dot.reached {
+        border-color: #fa9e1c;
+        color: #fa9e1c;
+        transform: scale(1.2);
+        box-shadow: 0 0 10px rgba(250, 158, 27, 0.3);
+    }
+    
+    .milestone-label {
+        position: absolute;
+        top: 35px;
+        left: 50%;
+        transform: translateX(-50%);
+        font-size: 12px;
+        font-weight: bold;
+        color: #888;
+        white-space: nowrap;
+    }
+    
+    .filter-sort-bar {
+        background: white;
+        border-radius: 15px;
+        padding: 20px;
+        margin-bottom: 30px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        text-align: center;
+    }
+    
+    .wingo-home {
+        min-height: 400px;
+        height: 50vh;
+        position: relative;
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .wingo-home .home-gradient-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(135deg, rgba(141, 79, 255, 0.7), rgba(250, 158, 28, 0.7));
+        z-index: 1;
+    }
+    
+    .wingo-home .home_slider_content {
+        position: relative;
+        z-index: 2;
+        text-align: center;
+        width: 100%;
+    }
+    
+    .wingo-home .home_slider_content_inner h1 {
+        font-size: 5rem;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 4px;
+        color: white;
+        text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        margin: 0;
+        line-height: 1.2;
+    }
+    
+    .reservation-card-img {
+        height: 200px;
+        object-fit: cover;
+        width: 100%;
+    }
+    
+    .price-badge {
+        background: linear-gradient(135deg, #fa9e1c, #8d4fff);
+        border-radius: 25px;
+        padding: 6px 14px;
+        font-weight: 700;
+        color: white;
+        font-size: 0.9rem;
+        display: inline-block;
+    }
+    
+    .old-price {
+        text-decoration: line-through;
+        color: #dc3545;
+        font-size: 0.85rem;
+    }
+    
+    .inline-clickable-star {
+        cursor: pointer;
+        transition: all 0.2s ease;
+        font-size: 22px;
+        margin: 0 2px;
+    }
+    
+    .inline-clickable-star:hover {
+        transform: scale(1.2);
+    }
+    
+    .weather-widget {
+        background: #f8f9fa;
+        border-radius: 12px;
+        padding: 8px 12px;
+        margin-top: 10px;
+    }
+    
+    #history-sidebar {
+        position: fixed;
+        top: 0;
+        right: -400px;
+        width: 400px;
+        height: 100vh;
+        background: #f8f9fa;
+        z-index: 1050;
+        transition: 0.3s ease-in-out;
+        overflow-y: auto;
+        max-width: 100vw;
+        box-shadow: -5px 0 25px rgba(0,0,0,0.1);
+    }
+    
+    #history-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        background: rgba(0,0,0,0.5);
+        z-index: 1045;
+        opacity: 0;
+        visibility: hidden;
+        transition: 0.3s ease-in-out;
+    }
+    
+    #btn-open-history {
+        position: fixed;
+        top: 50%;
+        right: -5px;
+        transform: translateY(-50%);
+        z-index: 1040;
+        border-radius: 20px 0 0 20px;
+        padding: 15px 20px;
+        font-weight: bold;
+        background: linear-gradient(135deg, #fa9e1c, #8d4fff);
+        border: none;
+        color: white;
+        cursor: pointer;
+    }
+    
+    /* FullCalendar Custom Styling */
+    #travel-calendar {
+        min-height: 500px;
+        background: white;
+        border-radius: 16px;
+        padding: 20px;
+    }
+    
+    .fc {
+        background: white;
+        border-radius: 16px;
+        font-family: inherit;
+    }
+    
+    .fc .fc-toolbar-title {
+        font-size: 1.4rem;
+        font-weight: 800;
+        color: #2d2c2c;
+    }
+    
+    .fc .fc-button-primary {
+        background: linear-gradient(135deg, #8d4fff, #fa9e1c) !important;
+        border: none !important;
+        border-radius: 25px !important;
+        padding: 6px 16px !important;
+        font-weight: 600 !important;
+        text-transform: uppercase;
+        font-size: 12px;
+    }
+    
+    .fc .fc-button-primary:hover {
+        transform: scale(1.02);
+        box-shadow: 0 4px 12px rgba(141, 79, 255, 0.3);
+    }
+    
+    .fc-event {
+        border-radius: 20px !important;
+        border: none !important;
+        padding: 4px 10px !important;
+        font-weight: 600 !important;
+        background: linear-gradient(135deg, #8d4fff, #fa9e1c) !important;
+        cursor: pointer;
+        font-size: 12px;
+    }
+    
+    /* Section Title Styling */
+    .section-title {
+        text-align: center;
+        margin-bottom: 40px;
+    }
+    
+    .section-title h2 {
+        font-size: 2.5rem;
+        font-weight: 800;
+        color: #2d2c2c;
+        margin-bottom: 15px;
+    }
+    
+    .section-title .title-underline {
+        width: 80px;
+        height: 4px;
+        background: linear-gradient(90deg, #fa9e1c, #8d4fff);
+        margin: 0 auto;
+        border-radius: 2px;
+    }
+    
+    /* Responsive */
+    @media (max-width: 768px) {
+        .wingo-home .home_slider_content_inner h1 {
+            font-size: 2.5rem !important;
+            letter-spacing: 2px;
+        }
+        .section-title h2 {
+            font-size: 1.8rem !important;
+        }
+        .filter-sort-bar {
+            flex-direction: column;
+            gap: 15px;
+        }
+        .filter-sort-bar form {
+            width: 100%;
+        }
+        .filter-sort-bar form input {
+            width: 100% !important;
+        }
+        .milestone-label {
+            font-size: 9px;
+            top: 30px;
+        }
+        .milestone-dot {
+            width: 24px;
+            height: 24px;
+            font-size: 10px;
+        }
+        #history-sidebar {
+            width: 100%;
+            right: -100%;
+        }
+        .fc .fc-toolbar {
+            flex-direction: column;
+            gap: 10px;
+        }
+    }
+    
+    @media (max-width: 480px) {
+        .milestone-label {
+            display: none;
+        }
+        .inline-clickable-star {
+            font-size: 18px;
+        }
+    }
+</style>
 {% endblock %}
 
 {% block content %}
 
-    <div class="home" style="width: 100%; height: 60vh; position: relative;">
-        <div class="home_background" style="background-image: url('{{ asset('images/about_background.jpg') }}'); background-size: cover; background-position: center; width: 100%; height: 100%; position: absolute; top: 0; left: 0; z-index: 1;"></div>
-        <div class="home_content" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 2; width: 100%; text-align: center;">
-            <div class="home_title" style="color: #FFFFFF; font-size: 72px; font-weight: 800; text-transform: uppercase;">our offers</div>
+<!-- Hero Banner - Centered -->
+<div class="wingo-home" style="background-image: url('{{ asset('/images/Photography by Ridha Gharbi.jpg') }}'); background-size: cover; background-position: center; background-repeat: no-repeat; height: 100vh; position: relative;">    <div class="home-gradient-overlay"></div>
+    <div class="home_slider_content text-center"style="position: relative; top: 70px;">
+        <div class="home_slider_content_inner">
+            <h1>MY</h1>
+            <h1>RESERVATIONS</h1>
         </div>
     </div>
+</div>
 
-    <div class="offers">
-
-        <div class="container text-center mb-5" style="margin-top: -60px; position: relative; z-index: 100;">
-    <div class="d-flex flex-column align-items-center">
-        <button class="btn btn-warning shadow-lg px-5 py-3 mb-3" 
-                type="button" 
-                data-toggle="collapse" 
-                data-target="#mon_formulaire" {# FIXED: Matched ID below #}
-                aria-expanded="{{ editMode ? 'true' : 'false' }}" 
-                style="border-radius: 50px; font-weight: 700; color: white; letter-spacing: 1px; border: none; background: #fa9e1b;">
-            <i class="fa fa-plus-circle mr-2"></i> {{ editMode ? 'MODIFIER LA RÉSERVATION' : 'AJOUTER UNE RÉSERVATION' }}
-        </button>
-
-        <a href="{{ path('app_front_offers') }}" class="jump-link text-muted small font-weight-bold" style="text-decoration: none; transition: 0.3s; letter-spacing: 0.5px;">
-            <i class="fa fa-bus mr-1"></i> VOIR LES OFFRES DE TRANSPORT <i class="fa fa-chevron-right ml-1" style="font-size: 10px;"></i>
-        </a>
-    </div>
-    {# --- SECTION FIDÉLITÉ GLOBALE (HORS DES CARTES) --- #}
-{% if app.user %}
-<div class="container mt-4 mb-5">
-    <div class="wingo-global-journey p-4 shadow-sm" style="background: white; border-radius: 20px; border-left: 5px solid #fa9e1b;">
-        <div class="d-flex align-items-center mb-3">
-            <div class="user-avatar-glow mr-3">
-                <i class="fa fa-user-circle fa-3x text-warning"></i>
-            </div>
+<div class="offers" style="padding: 60px 0 80px;">
+    <div class="container">
+        
+        <!-- Add Reservation Button -->
+        <div class="text-center mb-5">
+            <button class="wingo-btn-primary px-5 py-3 mb-3" 
+                    type="button" 
+                    data-toggle="collapse" 
+                    data-target="#mon_formulaire"
+                    aria-expanded="{{ editMode ? 'true' : 'false' }}">
+                <i class="fas fa-plus-circle mr-2"></i> {{ editMode ? 'MODIFIER LA RÉSERVATION' : 'AJOUTER UNE RÉSERVATION' }}
+            </button>
             <div>
-                <h4 class="mb-0">Bonjour, {{ app.user.nom }} !</h4>
-                <p class="text-muted mb-0">Suivez votre progression vers le statut <strong>GOLD</strong></p>
-            </div>
-            <div class="ml-auto text-right">
-                <span class="badge badge-pill p-2 px-3" style="background: #fff3e0; color: #e65100;">
-                    <i class="fa fa-ticket-alt"></i> {{ userCount }} Réservations cette année
-                </span>
+                <a href="{{ path('app_front_offers') }}" class="wingo-btn-outline">
+                    <i class="fas fa-bus mr-2"></i> VOIR LES OFFRES DE TRANSPORT
+                </a>
             </div>
         </div>
 
-        {# LA LIFELINE ANIMÉE #}
-        <div class="position-relative py-4">
-            <div class="progress" style="height: 12px; border-radius: 10px; background-color: #eee;">
-                <div id="global-lifeline" 
-                     class="progress-bar progress-bar-striped progress-bar-animated" 
-                     role="progressbar" 
-                     style="width: 0%; background: linear-gradient(90deg, #cd7f32, #c0c0c0, #ffd700); border-radius: 10px;" 
-                     data-progress="{{ (userCount / 10 * 100) > 100 ? 100 : (userCount / 10 * 100) }}">
+        <!-- Loyalty Journey Section -->
+        {% if app.user %}
+        <div class="wingo-card p-4 mb-5" style="border-left: 5px solid #fa9e1c;">
+            <div class="d-flex align-items-center mb-3 flex-wrap">
+                <div class="mr-3">
+                    <i class="fas fa-user-circle fa-3x" style="color: #fa9e1c;"></i>
+                </div>
+                <div class="flex-grow-1">
+                    <h4 class="mb-0">Bonjour, <strong>{{ app.user.nom }}</strong> !</h4>
+                    <p class="text-muted mb-0">Suivez votre progression vers le statut <strong>GOLD</strong></p>
+                </div>
+                <div class="ml-auto text-right mt-2 mt-sm-0">
+                    <span class="status-badge">
+                        <i class="fas fa-ticket-alt mr-1"></i> {{ userCount }} Réservations cette année
+                    </span>
                 </div>
             </div>
 
-            {# MARQUEURS DE JALONS #}
-            <div class="milestone" style="left: 0%;">
-                <div class="milestone-dot reached"><i class="fa fa-star"></i></div>
-                <span class="milestone-label">Bronze</span>
-            </div>
-            <div class="milestone" style="left: 50%;">
-                <div class="milestone-dot {{ userCount >= 5 ? 'reached' : '' }}"><i class="fa fa-medal"></i></div>
-                <span class="milestone-label">Silver</span>
-            </div>
-            <div class="milestone" style="right: 0%;">
-                <div class="milestone-dot {{ userCount >= 10 ? 'reached' : '' }}"><i class="fa fa-trophy"></i></div>
-                <span class="milestone-label">Gold</span>
-            </div>
-        </div>
-
-        <div class="mt-4 text-center">
-            {% if userCount < 5 %}
-                <p class="mb-0">Encore <span class="badge badge-warning">{{ 5 - userCount }}</span> réservations pour débloquer les <strong>-15% Silver</strong> !</p>
-            {% elseif userCount < 10 %}
-                <p class="mb-0 text-secondary">✨ Vous êtes Silver ! Plus que <span class="badge badge-secondary">{{ 10 - userCount }}</span> voyages pour le <strong>CADEAU GOLD</strong> !</p>
-            {% else %}
-                <p class="mb-0 text-success">🏆 <strong>FÉLICITATIONS !</strong> Vous êtes membre GOLD. Profitez de vos trajets gratuits !</p>
-            {% endif %}
-        </div>
-    </div>
-</div>
-{% endif %}
-
-
-    <div class="collapse {{ editMode ? 'show' : '' }} mt-4" id="mon_formulaire">
-        <div class="card card-body border-0 shadow-lg p-4 p-md-5" style="border-radius: 30px; background: #ffffff;">
-            <h4 class="mb-4 text-dark font-weight-bold" style="letter-spacing: -0.5px;">Détails de la Réservation</h4>
-            
-            {{ form_start(f, {
-    'attr': {'class': 'row align-items-end'},
-    'action': editMode ? path('updateReservation', {'id': app.request.get('id')}) : path('app_front_reservations')
-}) }}
-                <div class="col-md-3 mb-3 text-left">
-                    <label class="small font-weight-bold text-uppercase text-muted ml-2">Client</label>
-                    {{ form_widget(f.user, {'attr': {'class': 'form-control modern-input'}}) }}
-                </div>
-                <div class="col-md-3 mb-3 text-left">
-                    <label class="small font-weight-bold text-uppercase text-muted ml-2">Statut</label>
-                    {{ form_widget(f.statut, {'attr': {'class': 'form-control modern-input'}}) }}
-                </div>
-                <div class="col-md-3 mb-3 text-left">
-                    <label class="small font-weight-bold text-uppercase text-muted ml-2">Expérience</label>
-                    {{ form_widget(f.exp, {'attr': {'class': 'form-control modern-input'}}) }}
-                </div>
-                <div class="col-md-3 mb-3 text-left">
-                    <label class="small font-weight-bold text-uppercase text-muted ml-2">Date</label>
-                    <div class="modern-input-date-wrapper">
-                         {{ form_widget(f.date) }}
+            <!-- Journey Progress Bar -->
+            <div class="position-relative py-4">
+                <div class="progress" style="height: 12px; border-radius: 10px; background-color: #eee;">
+                    <div id="global-lifeline" 
+                         class="progress-bar progress-bar-striped progress-bar-animated" 
+                         role="progressbar" 
+                         style="width: 0%; background: linear-gradient(90deg, #cd7f32, #c0c0c0, #ffd700); border-radius: 10px;" 
+                         data-progress="{{ (userCount / 10 * 100) > 100 ? 100 : (userCount / 10 * 100) }}">
                     </div>
                 </div>
-                <div class="form-group mb-3">
-    <label>Code Promo (Optionnel)</label>
-    <input type="text" name="promo_code_input" class="form-control" placeholder="Entrez votre code GOLD ici">
-</div>
-                <div class="col-12 mt-4">
-                    <button type="submit" class="btn btn-dark px-5 py-3" style="border-radius: 50px; font-weight: 600; background: #2d2c2c;">
-                        {{ editMode ? 'METTRE À JOUR' : 'CONFIRMER L\'AJOUT' }}
+
+                <div class="milestone" style="left: 0%;">
+                    <div class="milestone-dot reached"><i class="fas fa-star"></i></div>
+                    <span class="milestone-label">Bronze</span>
+                </div>
+                <div class="milestone" style="left: 50%;">
+                    <div class="milestone-dot {{ userCount >= 5 ? 'reached' : '' }}"><i class="fas fa-medal"></i></div>
+                    <span class="milestone-label">Silver</span>
+                </div>
+                <div class="milestone" style="right: 0%;">
+                    <div class="milestone-dot {{ userCount >= 10 ? 'reached' : '' }}"><i class="fas fa-trophy"></i></div>
+                    <span class="milestone-label">Gold</span>
+                </div>
+            </div>
+
+            <div class="mt-3 text-center">
+                {% if userCount < 5 %}
+                    <p class="mb-0">Encore <span class="badge badge-warning">{{ 5 - userCount }}</span> réservations pour débloquer les <strong>-15% Silver</strong> !</p>
+                {% elseif userCount < 10 %}
+                    <p class="mb-0 text-secondary">✨ Vous êtes Silver ! Plus que <span class="badge badge-secondary">{{ 10 - userCount }}</span> voyages pour le <strong>CADEAU GOLD</strong> !</p>
+                {% else %}
+                    <p class="mb-0 text-success">🏆 <strong>FÉLICITATIONS !</strong> Vous êtes membre GOLD. Profitez de vos trajets gratuits !</p>
+                {% endif %}
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Reservation Form Collapsible -->
+        <div class="collapse {{ editMode ? 'show' : '' }} mt-4" id="mon_formulaire">
+            <div class="wingo-card p-4 p-md-5">
+                <h4 class="mb-4 font-weight-bold text-center">DÉTAILS DE LA RÉSERVATION</h4>
+                
+                {{ form_start(f, {
+                    'attr': {'class': 'row'},
+                    'action': editMode ? path('updateReservation', {'id': app.request.get('id')}) : path('app_front_reservations')
+                }) }}
+                    <div class="col-md-3 mb-3">
+                        <label class="modern-label">Votre Nom</label>
+                        {{ form_widget(f.user, {'attr': {'class': 'modern-input'}}) }}
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <label class="modern-label">Départ</label>
+                        {{ form_widget(f.statut, {'attr': {'class': 'modern-input'}}) }}
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <label class="modern-label">Destination</label>
+                        {{ form_widget(f.exp, {'attr': {'class': 'modern-input'}}) }}
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <label class="modern-label">Date</label>
+                        {{ form_widget(f.date, {'attr': {'class': 'modern-input'}}) }}
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="modern-label">Code Promo (Optionnel)</label>
+                        <input type="text" name="promo_code_input" class="modern-input" placeholder="Entrez votre code GOLD">
+                    </div>
+                    <div class="col-12 mt-3 text-center">
+                        <button type="submit" class="wingo-btn-primary">
+                            {{ editMode ? 'METTRE À JOUR' : 'CONFIRMER L\'AJOUT' }}
+                        </button>
+                        {% if editMode %}
+                            <a href="{{ path('app_front_reservations') }}" class="wingo-btn-outline ml-2">Annuler</a>
+                        {% endif %}
+                    </div>
+                    <div style="display:none;">{{ form_rest(f) }}</div>
+                {{ form_end(f) }}
+            </div>
+        </div>
+
+        <!-- Main Title - Centered -->
+        <div class="section-title mt-5 pt-4">
+            <h2><i class="fas fa-clock" style="color: #fa9e1c;"></i> MES RÉSERVATIONS</h2>
+            <div class="title-underline"></div>
+        </div>
+
+        <!-- Filter & Sort Bar - Centered -->
+        <div class="filter-sort-bar d-flex flex-wrap justify-content-between align-items-center">
+            <div class="mx-auto mx-md-0">
+                <form action="{{ path('app_front_reservations') }}" method="get" class="d-flex">
+                    <input type="text" name="search" value="{{ searchTerm|default('') }}" 
+                           placeholder="Rechercher par client/destination..." 
+                           class="modern-input" style="width: 280px;">
+                    <button type="submit" class="wingo-btn-primary ml-2" style="padding: 12px 24px;">
+                        <i class="fas fa-search"></i>
                     </button>
-                    {% if editMode %}
-                        <a href="{{ path('app_front_reservations') }}" class="btn btn-link text-muted ml-2">Annuler</a>
-                    {% endif %}
-                </div>
-                <div style="display:none;">{{ form_rest(f) }}</div>
-            {{ form_end(f) }}
-        </div>
-    </div>
-</div>
-
-        <div class="container">
-            <div class="row">
-                <div class="col-lg-12">
-                    <div class="offers_sorting_container d-flex flex-row align-items-end justify-content-start">
-                        <div class="sorting_item" style="margin-right: 30px; margin-bottom: 5px;">
-                            <form action="{{ path('app_front_reservations') }}" method="get">
-                                <input type="text" name="search" value="{{ searchTerm|default('') }}" placeholder="Rechercher par client/statut..." 
-                                       style="height: 40px; border: 1px solid #ededed; padding-left: 15px; border-radius: 5px; width: 250px;">
-                            </form>
-                        </div>
-
-                        <ul class="offers_sorting">
-                            <li>
-                                <span class="sorting_text">date</span>
-                                <i class="fa fa-chevron-down"></i>
-                                <ul>
-                                    <li><a href="{{ path('app_front_reservations', {sort: 'date_desc', search: searchTerm|default('')}) }}">Newest First</a></li>
-                                    <li><a href="{{ path('app_front_reservations', {sort: 'date_asc', search: searchTerm|default('')}) }}">Oldest First</a></li>
-                                </ul>
-                            </li>
-                        </ul>
+                </form>
+            </div>
+            <div class="mx-auto mx-md-0 mt-3 mt-md-0">
+                <div class="dropdown">
+                    <button class="wingo-btn-outline dropdown-toggle" type="button" id="sortDropdown" data-toggle="dropdown">
+                        <i class="fas fa-sort-amount-down"></i> Trier par date
+                    </button>
+                    <div class="dropdown-menu">
+                        <a class="dropdown-item" href="{{ path('app_front_reservations', {sort: 'date_desc', search: searchTerm|default('')}) }}">
+                            <i class="fas fa-calendar"></i> Plus récentes
+                        </a>
+                        <a class="dropdown-item" href="{{ path('app_front_reservations', {sort: 'date_asc', search: searchTerm|default('')}) }}">
+                            <i class="fas fa-calendar-alt"></i> Plus anciennes
+                        </a>
                     </div>
-
-                    {# --- 1. RÉSERVATIONS EN COURS --- #}
-                    <h3 class="mb-4 mt-4" style="font-weight: 800; color: #2d2c2c; text-transform: uppercase;">
-                        <i class="fa fa-clock-o text-warning mr-2"></i> Réservations en cours
-                    </h3>
-                    
-                    <div class="offers_grid mb-5">
-                        <div class="row">
-                            {% for reservation in list %}
-                                {% set img_index = (loop.index0 % 4) + 1 %}
+                </div>
+            </div>
+        </div>
+        
+        <!-- Reservations Grid -->
+        <div class="row">
+            {% for reservation in list %}
+                {% set img_index = (loop.index0 % 4) + 1 %}
+                
+                <div class="col-lg-4 col-md-6 mb-4">
+                    <div class="wingo-card h-100">
+                        <div class="position-relative">
+                            <img src="{{ asset('images/offer_' ~ img_index ~ '.jpg') }}" 
+                                 class="reservation-card-img" 
+                                 alt="{{ reservation.exp }}">
+                            <div class="status-badge position-absolute" style="top: 15px; left: 15px;">
+                                {{ reservation.statut }}
+                            </div>
+                            <div style="position: absolute; top: -10px; right: -10px; width: 60px; height: 60px; 
+                                        background: #FFD100; clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%); 
+                                        display: flex; flex-direction: column; align-items: center; justify-content: center; box-shadow: 0 4px 8px rgba(0,0,0,0.2);">
+                                <div style="font-weight: 900; color: #000; font-size: 0.85rem; line-height: 1;">
+                                    {{ reservation.dynamicRating|default(5.0)|number_format(1) }}
+                                </div>
+                                <div style="font-size: 0.4rem; font-weight: 700; color: #000;">/5</div>
+                            </div>
+                        </div>
+                        
+                        <div class="p-4">
+                            <div class="d-flex justify-content-between align-items-start mb-3 flex-wrap">
+                                <h5 class="font-weight-bold mb-2">
+                                    <i class="fas fa-map-marker-alt" style="color: #fa9e1c;"></i> {{ reservation.exp }}
+                                </h5>
+                                <div>
+                                    {% if reservation.price < reservation.basePriceDisplay %}
+                                        <div class="old-price text-center">{{ reservation.basePriceDisplay }} DT</div>
+                                        <span class="price-badge">
+                                            <i class="fas fa-gift mr-1"></i> {{ reservation.price }} DT
+                                        </span>
+                                    {% else %}
+                                        <span class="price-badge">{{ reservation.price }} DT</span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            
+                            <div class="mb-2">
+                                <i class="fas fa-user" style="color: #8d4fff;"></i> 
+                                <strong>{{ reservation.user_id.nom|default('Anonyme') }}</strong>
+                                {% if reservation.clientStatus == 'Gold' %}
+                                    <i class="fas fa-trophy" style="color: #ffd700;" title="Membre Gold"></i>
+                                {% elseif reservation.clientStatus == 'Silver' %}
+                                    <i class="fas fa-medal" style="color: #c0c0c0;" title="Membre Silver"></i>
+                                {% else %}
+                                    <i class="fas fa-star" style="color: #cd7f32;" title="Membre Bronze"></i>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="small text-muted mb-2">
+                                {% if reservation.clientStatus == 'Gold' %}
+                                    <span class="text-warning">🏆 Expert Wingo ({{ reservation.userReservationCount }} résas)</span>
+                                {% elseif reservation.clientStatus == 'Silver' %}
+                                    <span>🥈 Silver: {{ reservation.userReservationCount }}/10 pour Gold</span>
+                                {% else %}
+                                    <span>🥉 Bronze: {{ reservation.userReservationCount }}/5 pour Silver</span>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="mb-2">
+                                <i class="fas fa-calendar-alt" style="color: #fa9e1c;"></i> 
+                                <strong>Date:</strong> {{ reservation.date ? reservation.date|date('d M Y') : 'N/A' }}
+                            </div>
+                            
+                            <div class="weather-widget" data-city="{{ reservation.exp|e('html_attr') }}">
+                                <div class="spinner-border spinner-border-sm text-warning loading-icon" role="status"></div>
+                                <div class="weather-info d-none align-items-center">
+                                    <img src="" class="w-icon" style="width: 30px; margin-right: 5px;">
+                                    <span class="w-temp font-weight-bold mr-2">--°C</span>
+                                    <small class="w-desc text-muted text-capitalize"></small>
+                                </div>
+                            </div>
+                            
+                            <div class="mt-3 pt-3 border-top d-flex justify-content-between align-items-center">
+                                {% set isOwner = app.user and reservation.user_id and reservation.user_id.id == app.user.id %}
+                                {% set isAdmin = is_granted('ROLE_ADMIN') %}
                                 
-                                <div class="col-lg-4 col-md-6 mb-5">
-                                    <div class="card h-100 border-0 shadow-sm custom-reservation-card" style="overflow: visible; position: relative; border-radius: 20px;">
-                                        
-                                        <div class="star-rating-badge" style="position: absolute; top: -10px; right: -10px; z-index: 100; width: 65px; height: 65px; background: #FFD100; clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%); display: flex; flex-direction: column; align-items: center; justify-content: center; box-shadow: 0 4px 8px rgba(0,0,0,0.2);">
-    <div style="font-weight: 900; color: #000; font-size: 1rem; line-height: 1; margin-top: 2px;">
-        {{ reservation.dynamicRating|default(5.0)|number_format(1) }}
-    </div>
-    <div style="font-size: 0.5rem; font-weight: 700; color: #000; text-transform: uppercase;">/ 5</div>
-</div>
-
-                                        <div class="position-relative overflow-hidden" style="height: 200px; border-radius: 20px 20px 0 0;">
-                                            <img src="{{ asset('images/offer_' ~ img_index ~ '.jpg') }}" class="card-img-top h-100 w-100" style="object-fit: cover;" alt="offer">
-                                            <div class="badge position-absolute" style="top: 15px; left: 15px; background: #fa9e1b; color: white; padding: 8px 15px; font-weight: 700; text-transform: uppercase; border-radius: 20px; font-size: 11px;">
-                                                {{ reservation.statut }}
-                                            </div>
-                                        </div>
-
-                                        <div class="card-body d-flex flex-column" style="background: white; border-radius: 0 0 20px 20px;">
-                                            <div class="d-flex justify-content-between align-items-center mb-3">
-                                                <h5 class="card-title font-weight-bold mb-0 text-dark" style="text-transform: capitalize;">
-                                                    <i class="fa fa-map-marker mr-2" style="color: #fa9e1b;"></i> {{ reservation.exp }}
-                                                </h5>
-                                                
-                                                {# --- AFFICHAGE DU PRIX --- #}
-                                                <div class="d-flex align-items-center">
-    {% if reservation.price < reservation.basePriceDisplay %}
-        {# Le client a eu une réduction : on affiche l'ancien prix barré en rouge #}
-        <span class="text-danger mr-2" style="text-decoration: line-through; font-size: 0.9rem; font-weight: bold;">
-            {{ reservation.basePriceDisplay }} DT
-        </span>
-        {# Et le nouveau prix en orange avec une icône cadeau #}
-        <span class="badge badge-pill text-white" style="background-color: #ff9800; font-size: 1.1rem; padding: 8px 12px;">
-            <i class="fa fa-gift mr-1"></i> {{ reservation.price }} DT
-        </span>
-    {% else %}
-        {# Pas de réduction : affichage normal #}
-        <span class="badge badge-pill text-white" style="background-color: #ff9800; font-size: 1.1rem; padding: 8px 12px;">
-            {{ reservation.price }} DT
-        </span>
-    {% endif %}
-</div>
-                                            </div>
-
-                                            <div class="reservation-info text-muted mb-4" style="font-size: 14px; line-height: 1.8;">
-                                                <p class="mb-1" style="font-weight: 600; color: #fa9e1b;">
-                                                    Basé sur {{ reservation.totalReviews|default(0) }} avis
-                                                </p>
-                                                <h5 class="card-title">
-    <i class="fa fa-user" style="color: #fa9e1b;"></i> 
-    {{ reservation.user_id.nom|default('Anonyme') }}
-    
-    {# --- L'icône de badge sur le côté --- #}
-    {% if reservation.clientStatus == 'Gold' %}
-        <i class="fa fa-trophy" style="color: #ffd700;" title="Membre Gold"></i>
-    {% elseif reservation.clientStatus == 'Silver' %}
-        <i class="fa fa-medal" style="color: #c0c0c0;" title="Membre Silver"></i>
-    {% else %}
-        <i class="fa fa-star" style="color: #cd7f32;" title="Membre Bronze"></i>
-    {% endif %}
-</h5>
-
-{# --- La barre de progression (Journey) --- #}
-<div class="small text-muted mb-2">
-    {% if reservation.clientStatus == 'Gold' %}
-        <span class="text-warning">🏆 Expert Wingo ({{ reservation.userReservationCount }} résas)</span>
-    {% elseif reservation.clientStatus == 'Silver' %}
-        <span>🥈 Silver Journey: {{ reservation.userReservationCount }}/10 pour Gold</span>
-    {% else %}
-        <span>🥉 Bronze Journey: {{ reservation.userReservationCount }}/5 pour Silver</span>
-    {% endif %}
-</div>
-                                                <div class="d-flex align-items-center">
-                                                    <i class="fa fa-calendar mr-2 text-warning"></i> <strong>Date:</strong> <span class="ml-1">{{ reservation.date ? reservation.date|date('d M Y') : 'N/A' }}</span>
-                                                </div>
-                                                
-                                                <div class="weather-widget mt-3 pt-2 border-top" data-city="{{ reservation.exp }}">
-                                                    <div class="spinner-border spinner-border-sm text-warning loading-icon" role="status"></div>
-                                                    <div class="weather-info d-none d-flex align-items-center">
-                                                        <img src="" class="w-icon" style="width: 35px; margin-right: 5px;">
-                                                        <span class="w-temp font-weight-bold text-dark mr-2">--°C</span>
-                                                        <small class="w-desc text-muted text-capitalize"></small>
-                                                    </div>
-                                                </div>
-                                            </div>
-
-                                            <div class="mt-auto pt-3 border-top d-flex justify-content-between align-items-center">
-                                                {% set isOwner = app.user and reservation.user_id and reservation.user_id.id == app.user.id %}
-                                                {% set isAdmin = is_granted('ROLE_ADMIN') %}
-
-                                                {% if isOwner or isAdmin %}
-                                                    <a href="{{ path('updateReservation', {'id': reservation.id}) }}#mon_formulaire" class="btn btn-outline-warning btn-sm px-3 font-weight-bold" style="border-radius: 15px;">
-                                                        MODIFIER
-                                                    </a>
-                                                    <a href="{{ path('deleteReservation', {'id': reservation.id}) }}" onclick="return confirm('Supprimer ?');" class="text-danger small">
-                                                        <i class="fa fa-trash"></i>
-                                                    </a>
-                                                {% else %}
-                                                    <span class="text-muted small font-italic">Lecture seule</span>
-                                                {% endif %}
-                                            </div>
-                                            
-                                            <div class="mt-3 pt-3 border-top text-center">
-                                                <span class="small font-weight-bold text-muted d-block mb-2 text-uppercase">
-                                                    {{ reservation.stars is not null ? 'Votre note' : 'Notez ce voyage' }}
-                                                </span>
-                                                
-                                                <div class="rating-stars mb-2" id="stars-container-{{ reservation.id }}">
-                                                    {% for i in 1..5 %}
-                                                        <i class="fa fa-star inline-clickable-star" 
-                                                        data-value="{{ i }}" 
-                                                        data-id="{{ reservation.id }}"
-                                                        style="font-size: 28px; cursor: pointer; color: {{ reservation.stars >= i ? '#fa9e1b' : '#eee' }}; margin: 0 3px; transition: 0.2s;"></i>
-                                                    {% endfor %}
-                                                </div>
-
-                                                <form action="{{ path('app_reservation_rate', {'id': reservation.id}) }}" method="POST" id="form-{{ reservation.id }}" style="display: {{ reservation.stars is not null ? 'block' : 'none' }};">
-                                                    <input type="hidden" name="stars" id="input-star-{{ reservation.id }}" value="{{ reservation.stars|default(0) }}">
-                                                    <textarea name="comment" class="form-control mb-2 mt-2 shadow-sm" rows="2" placeholder="Un petit commentaire ? (Optionnel)" style="border-radius: 12px; font-size: 13px; border: 1px solid #eee; resize: none;">{{ reservation.comment }}</textarea>
-                                                    <button type="submit" class="btn btn-warning btn-sm btn-block shadow-sm" style="border-radius: 20px; font-weight: 700; color: white;">
-                                                        ENREGISTRER
-                                                    </button>
-                                                </form>
-                                            </div>
-
-                                        </div>
-                                    </div>
+                                {% if isOwner or isAdmin %}
+                                    <a href="{{ path('updateReservation', {'id': reservation.id}) }}#mon_formulaire" class="wingo-btn-outline" style="padding: 6px 16px; font-size: 12px;">
+                                        <i class="fas fa-edit"></i> MODIFIER
+                                    </a>
+                                    <a href="{{ path('deleteReservation', {'id': reservation.id}) }}" onclick="return confirm('Supprimer ?');" class="wingo-btn-danger" style="padding: 6px 16px; font-size: 12px;">
+                                        <i class="fas fa-trash-alt"></i>
+                                    </a>
+                                {% else %}
+                                    <span class="text-muted small font-italic">Lecture seule</span>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="mt-3 pt-3 border-top text-center">
+                                <span class="small font-weight-bold text-muted d-block mb-2 text-uppercase">
+                                    {{ reservation.stars is not null ? 'Votre note' : 'Notez ce voyage' }}
+                                </span>
+                                
+                                <div class="rating-stars mb-2" id="stars-container-{{ reservation.id }}">
+                                    {% for i in 1..5 %}
+                                        <i class="fas fa-star inline-clickable-star" 
+                                           data-value="{{ i }}" 
+                                           data-id="{{ reservation.id }}"
+                                           style="color: {{ reservation.stars >= i ? '#fa9e1c' : '#eee' }};"></i>
+                                    {% endfor %}
                                 </div>
-                            {% else %}
-                                <div class="col-12 text-center my-4">
-                                    <p class="text-muted font-italic">Aucune réservation en cours à afficher.</p>
-                                </div>
-                            {% endfor %}
+
+                                <form action="{{ path('app_reservation_rate', {'id': reservation.id}) }}" method="POST" id="form-{{ reservation.id }}" style="display: {{ reservation.stars is not null ? 'block' : 'none' }};">
+                                    <input type="hidden" name="stars" id="input-star-{{ reservation.id }}" value="{{ reservation.stars|default(0) }}">
+                                    <textarea name="comment" class="form-control mb-2 mt-2" rows="2" placeholder="Un petit commentaire ? (Optionnel)" style="border-radius: 12px; font-size: 12px; border: 1px solid #e0e0e0; resize: none;">{{ reservation.comment }}</textarea>
+                                    <button type="submit" class="wingo-btn-primary w-100" style="padding: 8px; font-size: 12px;">
+                                        ENREGISTRER
+                                    </button>
+                                </form>
+                            </div>
                         </div>
                     </div>
+                </div>
+            {% else %}
+                <div class="col-12 text-center py-5">
+                    <div class="wingo-card p-5">
+                        <i class="fas fa-calendar-times fa-4x mb-3" style="color: #ddd;"></i>
+                        <p class="text-muted mb-0">Aucune réservation en cours à afficher.</p>
+                        <button class="wingo-btn-primary mt-3" data-toggle="collapse" data-target="#mon_formulaire">
+                            <i class="fas fa-plus-circle mr-2"></i> Créer ma première réservation
+                        </button>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
 
-                    
-                </div> {# Fin col-lg-12 #}
-            </div> {# Fin row #}
-        </div> {# Fin container #}
+        <!-- Calendar Section -->
+        <div class="mt-5 pt-4">
+            <div class="text-center mb-4">
+                <button id="toggleCalendarBtn" class="wingo-btn-primary px-5 py-3">
+                    <i class="fas fa-calendar-alt mr-2"></i> AFFICHER MON PLANNING
+                </button>
+            </div>
+
+            <div id="calendarContainer" style="display: none;">
+                <div class="wingo-card overflow-hidden">
+                    <div class="wingo-gradient-bg text-white p-4 text-center">
+                        <h3 class="mb-0 font-weight-bold">
+                            <i class="fas fa-calendar-alt mr-2"></i> MON ITINÉRAIRE DE VOYAGE
+                        </h3>
+                    </div>
+                    <div class="p-4 bg-light">
+                        <div id="travel-calendar" style="min-height: 500px;"></div>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
-    <div class="container mt-5 mb-5 text-center">
-        
-        <button id="toggleCalendarBtn" class="btn btn-warning mb-4 px-4 py-2 shadow-sm" style="background-color: #fa9e1b; color: white; border: none; border-radius: 20px; font-weight: bold; font-size: 1.2rem;">
-            <i class="fa fa-calendar-alt mr-2"></i> Afficher Mon Planning
-        </button>
 
-        <div id="calendarContainer" style="display: none; text-align: left;">
-            <div class="card border-0 shadow-lg" style="border-radius: 30px; overflow: hidden;">
-                <div class="card-header bg-dark text-white p-4 border-0 text-center">
-                    <h3 class="mb-0 font-weight-bold" style="letter-spacing: 1px;">
-                        <i class="fa fa-calendar-alt mr-2 text-warning"></i> Mon Itinéraire de Voyage
-                    </h3>
-                </div>
-                <div class="card-body p-4 bg-light">
-                    <div id="travel-calendar" style="min-height: 600px;"></div>
-                </div>
-            </div>
-        </div>
-        
     </div>
+</div>
 
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.css">
-<link rel="stylesheet" href="https://unpkg.com/tippy.js@6/animations/scale.css" />
-{# --- BOUTON FLOTTANT SUR LE CÔTÉ DROIT --- #}
-<button id="btn-open-history" class="btn btn-warning shadow-lg" 
-        style="position: fixed; top: 50%; right: -5px; transform: translateY(-50%); z-index: 1040; border-radius: 20px 0 0 20px; padding: 15px 20px; font-weight: bold; color: white; background: #fa9e1b; border: none;">
-    <i class="fa fa-history mr-2"></i> HISTORIQUE
+<!-- History Sidebar Button -->
+<button id="btn-open-history" class="wingo-btn-primary">
+    <i class="fas fa-history mr-2"></i> HISTORIQUE
 </button>
 
-{# --- OVERLAY (FOND SOMBRE) --- #}
-<div id="history-overlay" style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.5); z-index: 1045; opacity: 0; visibility: hidden; transition: 0.3s ease-in-out;"></div>
+<!-- History Overlay -->
+<div id="history-overlay"></div>
 
-{# --- PANNEAU LATÉRAL COULISSANT --- #}
-<div id="history-sidebar" class="shadow-lg" 
-     style="position: fixed; top: 0; right: -400px; width: 400px; height: 100vh; background: #f8f9fa; z-index: 1050; transition: 0.3s ease-in-out; overflow-y: auto; max-width: 100vw;">
-    
-    <div class="d-flex justify-content-between align-items-center p-4 bg-white border-bottom shadow-sm" style="position: sticky; top: 0; z-index: 1051;">
-        <h4 class="m-0" style="font-weight: 800; color: #2d2c2c;">
-            <i class="fa fa-history text-secondary mr-2"></i> Historique
+<!-- History Sidebar -->
+<div id="history-sidebar">
+    <div class="d-flex justify-content-between align-items-center p-4 bg-white border-bottom shadow-sm sticky-top">
+        <h4 class="m-0 font-weight-bold">
+            <i class="fas fa-history text-secondary mr-2"></i> HISTORIQUE
         </h4>
-        <button id="btn-close-history" class="btn btn-light rounded-circle shadow-sm" style="width: 40px; height: 40px;">
-            <i class="fa fa-times text-danger"></i>
+        <button id="btn-close-history" class="btn btn-light rounded-circle shadow-sm" style="width: 36px; height: 36px;">
+            <i class="fas fa-times text-danger"></i>
         </button>
     </div>
 
     <div class="p-4">
         {% for reservation in history %}
-            <div class="card mb-3 border-0 shadow-sm custom-reservation-card" style="border-radius: 15px;">
-                <div class="card-body p-3">
+            <div class="wingo-card mb-3">
+                <div class="p-3">
                     <div class="d-flex justify-content-between align-items-start mb-2">
-                        <h6 class="font-weight-bold mb-0 text-dark" style="font-size: 1.1rem; text-transform: capitalize;">
-                            {{ reservation.exp }}
-                        </h6>
-                        
+                        <h6 class="font-weight-bold mb-0">{{ reservation.exp }}</h6>
                         <div class="text-right">
-                            <span class="badge badge-secondary mb-1 d-block" style="font-size: 10px; border-radius: 10px;">TERMINÉ</span>
-                            
-                            {# --- AFFICHAGE DU PRIX --- #}
+                            <span class="badge badge-secondary mb-1 d-block">TERMINÉ</span>
                             {% if reservation.price %}
-                                <span class="font-weight-bold" style="font-size: 0.85rem; color: #fa9e1b;">
-                                    {{ reservation.price }} DT
-                                </span>
+                                <span class="font-weight-bold" style="color: #fa9e1c; font-size: 13px;">{{ reservation.price }} DT</span>
                             {% endif %}
                         </div>
                     </div>
-                    
                     <p class="mb-2 small text-muted">
-                        <i class="fa fa-calendar mr-1"></i> {{ reservation.date ? reservation.date|date('d M Y') : 'N/A' }}
+                        <i class="fas fa-calendar mr-1"></i> {{ reservation.date ? reservation.date|date('d M Y') : 'N/A' }}
                     </p>
-                    
                     {% if reservation.stars is not null %}
-                        <div class="d-flex align-items-center bg-light p-2 rounded" style="font-size: 13px;">
-                            <span class="text-muted font-weight-bold mr-2">Note:</span>
-                            <div style="color: #fa9e1b;">
+                        <div class="d-flex align-items-center bg-light p-2 rounded">
+                            <span class="text-muted font-weight-bold mr-2 small">Note:</span>
+                            <div class="star-rating">
                                 {% for i in 1..5 %}
-                                    <i class="fa {{ reservation.stars >= i ? 'fa-star' : 'fa-star-o' }}"></i>
+                                    <i class="fas fa-star" style="font-size: 12px; opacity: {{ reservation.stars >= i ? 1 : 0.3 }};"></i>
                                 {% endfor %}
                             </div>
                         </div>
@@ -398,7 +784,7 @@
             </div>
         {% else %}
             <div class="text-center text-muted my-5">
-                <i class="fa fa-history fa-3x mb-3" style="opacity: 0.2;"></i>
+                <i class="fas fa-history fa-3x mb-3" style="opacity: 0.2;"></i>
                 <p class="font-italic">Aucun historique disponible pour le moment.</p>
             </div>
         {% endfor %}
@@ -412,269 +798,142 @@
 <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/locales/fr.js"></script>
 <script src="https://unpkg.com/@popperjs/core@2"></script>
 <script src="https://unpkg.com/tippy.js@6"></script>
-{{ parent() }} 
-    
-    <script>
-        function toggleChat() {
-            const chatPopup = document.getElementById('chat-popup');
-            const badge = document.getElementById('chat-badge'); 
-            
-            if (chatPopup.classList.contains('d-none')) {
-                chatPopup.classList.remove('d-none');
-                chatPopup.style.display = 'flex'; 
-                
-                if(badge) badge.style.display = 'none'; 
-                console.log("Chat Opened"); 
-            } else {
-                chatPopup.classList.add('d-none');
-                chatPopup.style.display = 'none';
-                console.log("Chat Closed");
-            }
-        }
+{{ parent() }}
 
-        // On cible les VRAIS éléments de ton chat
-        const sendBtn = document.getElementById('send-btn');
-        const userInput = document.getElementById('user-input');
+<script>
+const weatherApiUrl = "{{ path('api_weather', {'city': 'CITY_PLACEHOLDER'}) }}";
 
-        // On vérifie qu'ils existent TOUS LES DEUX sur cette page avant d'ajouter les événements
-        if (sendBtn && userInput) {
-            
-            sendBtn.addEventListener('click', async () => {
-                const content = document.getElementById('chat-content');
-                const message = userInput.value.trim();
-
-                if (!message) return;
-
-                content.innerHTML += `<div class="user-msg">${message}</div>`;
-                
-                userInput.value = '';
-                content.scrollTop = content.scrollHeight;
-
-                const typingId = 'typing-' + Date.now();
-                content.innerHTML += `<div class="ai-msg" id="${typingId}">...</div>`;
-                content.scrollTop = content.scrollHeight;
-
-                try {
-                    const response = await fetch("{{ path('app_chat_ask') }}", {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                        body: `message=${encodeURIComponent(message)}`
-                    });
-
-                    const data = await response.json();
-                    
-                    const typingElement = document.getElementById(typingId);
-                    if(typingElement) typingElement.remove();
-                    
-                    content.innerHTML += `<div class="ai-msg">${data.response}</div>`;
-                    content.scrollTop = content.scrollHeight;
-
-                } catch (e) {
-                    const typingElement = document.getElementById(typingId);
-                    if(typingElement) {
-                        typingElement.innerText = "Désolé, j'ai rencontré un problème de connexion.";
-                    }
-                }
-            });
-
-            // On protège AUSSI l'événement de la touche "Entrée" !
-            userInput.addEventListener('keypress', function (e) {
-                if (e.key === 'Enter') {
-                    sendBtn.click();
-                }
-            });
-            
-        }
-    </script>
-    <style>
-    .weather-widget {
-        min-height: 40px;
-        display: flex;
-        align-items: center;
-    }
-    .w-desc {
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        max-width: 120px;
-    }
-    .custom-reservation-card:hover {
-        transform: translateY(-5px);
-        transition: all 0.3s ease;
-        box-shadow: 0 10px 20px rgba(0,0,0,0.1) !important;
-    }
-.star-btn:hover {
-    transform: scale(1.3);
-    color: #ffc107 !important;
-}
-
-.star-spin {
-    animation: starCircle 0.8s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-@keyframes starCircle {
-    0% { transform: scale(1) rotate(0deg); }
-    40% { transform: scale(1.5) rotate(180deg); }
-    100% { transform: scale(1) rotate(360deg); }
-}
-.wingo-global-journey {
-    position: relative;
-    overflow: visible;
-}
-
-.user-avatar-glow {
-    filter: drop-shadow(0 0 5px rgba(250, 158, 27, 0.4));
-}
-
-.milestone {
-    position: absolute;
-    top: 50%;
-    transform: translateY(-50%);
-    text-align: center;
-    z-index: 2;
-}
-
-.milestone-dot {
-    width: 30px;
-    height: 30px;
-    background: #fff;
-    border: 3px solid #eee;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 14px;
-    color: #ccc;
-    transition: all 0.5s ease;
-}
-
-.milestone-dot.reached {
-    border-color: #fa9e1b;
-    color: #fa9e1b;
-    transform: scale(1.2);
-    box-shadow: 0 0 10px rgba(250, 158, 27, 0.3);
-}
-
-.milestone-label {
-    position: absolute;
-    top: 35px;
-    left: 50%;
-    transform: translateX(-50%);
-    font-size: 12px;
-    font-weight: bold;
-    color: #888;
-}
-/* Force la barre latérale au premier plan */
-#history-sidebar {
-    z-index: 9999 !important; /* Très haut pour passer devant tout */
-    transition: right 0.4s cubic-bezier(0.4, 0, 0.2, 1) !important;
-}
-
-/* Force l'overlay (fond sombre) au premier plan */
-#history-overlay {
-    z-index: 9998 !important;
-}
-
-/* Optionnel : change l'apparence du bouton pour être sûr qu'il est cliquable */
-#btn-open-history {
-    z-index: 9997 !important;
-    cursor: pointer;
-}
-</style>
-    <script>
 document.addEventListener('DOMContentLoaded', function() {
-    const widgets = document.querySelectorAll('.weather-widget');
+    // Toggle Calendar
+    let calendarEl = document.getElementById('travel-calendar'); 
+    let calendarContainer = document.getElementById('calendarContainer');
+    let toggleBtn = document.getElementById('toggleCalendarBtn');
+    let calendar = null;
 
+    if (toggleBtn) {
+        toggleBtn.addEventListener('click', function() {
+            if (calendarContainer.style.display === 'none' || calendarContainer.style.display === '') {
+                calendarContainer.style.display = 'block';
+                toggleBtn.innerHTML = '<i class="fas fa-times mr-2"></i> MASQUER MON PLANNING';
+                
+                if (!calendar && calendarEl) {
+                    calendar = new FullCalendar.Calendar(calendarEl, {
+                        initialView: 'dayGridMonth',
+                        locale: 'fr',
+                        headerToolbar: {
+                            left: 'prev,next today',
+                            center: 'title',
+                            right: 'dayGridMonth,dayGridWeek'
+                        },
+                        buttonText: {
+                            today: 'Aujourd\'hui',
+                            month: 'Mois',
+                            week: 'Semaine'
+                        },
+                        events: '/fc-load-events',
+                        height: 'auto',
+                        contentHeight: 'auto'
+                    });
+                    calendar.render();
+                } else if (calendar) {
+                    calendar.updateSize();
+                }
+                calendarContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            } else {
+                calendarContainer.style.display = 'none';
+                toggleBtn.innerHTML = '<i class="fas fa-calendar-alt mr-2"></i> AFFICHER MON PLANNING';
+            }
+        });
+    }
+
+    // History Sidebar
+    const btnOpen = document.getElementById('btn-open-history');
+    const btnClose = document.getElementById('btn-close-history');
+    const sidebar = document.getElementById('history-sidebar');
+    const overlay = document.getElementById('history-overlay');
+
+    if (btnOpen && btnClose && sidebar && overlay) {
+        function openSidebar() {
+            sidebar.style.right = '0';
+            overlay.style.visibility = 'visible';
+            overlay.style.opacity = '1';
+            document.body.style.overflow = 'hidden';
+        }
+        function closeSidebar() {
+            sidebar.style.right = '-400px';
+            overlay.style.visibility = 'hidden';
+            overlay.style.opacity = '0';
+            document.body.style.overflow = '';
+        }
+        btnOpen.addEventListener('click', openSidebar);
+        btnClose.addEventListener('click', closeSidebar);
+        overlay.addEventListener('click', closeSidebar);
+    }
+
+    // Progress Bar
+    const globalBar = document.getElementById('global-lifeline');
+    if (globalBar) {
+        const progress = globalBar.getAttribute('data-progress');
+        setTimeout(() => { globalBar.style.width = progress + '%'; }, 500);
+    }
+
+    // Weather Widget
+    const widgets = document.querySelectorAll('.weather-widget');
     widgets.forEach(async (widget) => {
         let city = widget.getAttribute('data-city');
         const infoDiv = widget.querySelector('.weather-info');
         const loadingSpinner = widget.querySelector('.loading-icon');
-
-        if (!city || city.length < 3) {
-            city = "Tunis";
-        }
-
+        if (!city || city.length < 3) city = "Tunis";
         try {
-            const baseUrl = "{{ path('api_weather', {'city': 'PLACEHOLDER'}) }}";
-            const finalUrl = baseUrl.replace('PLACEHOLDER', encodeURIComponent(city));
-
+            const finalUrl = weatherApiUrl.replace('CITY_PLACEHOLDER', encodeURIComponent(city));
             const response = await fetch(finalUrl);
-            
-            if (!response.ok) throw new Error("Server returned " + response.status);
-
+            if (!response.ok) throw new Error();
             const data = await response.json();
-            if (data.error) throw new Error(data.error);
-
-            widget.querySelector('.w-icon').src = `https://openweathermap.org/img/wn/${data.icon}.png`;
-            widget.querySelector('.w-temp').innerText = `${Math.round(data.temp)}°C`;
-            widget.querySelector('.w-desc').innerText = data.desc;
-
-            loadingSpinner.classList.add('d-none');
-            infoDiv.classList.remove('d-none');
-            infoDiv.classList.add('d-flex'); 
-
+            if (data.error) throw new Error();
+            const iconElement = widget.querySelector('.w-icon');
+            if (iconElement) iconElement.src = `https://openweathermap.org/img/wn/${data.icon}.png`;
+            const tempElement = widget.querySelector('.w-temp');
+            if (tempElement) tempElement.innerText = `${Math.round(data.temp)}°C`;
+            const descElement = widget.querySelector('.w-desc');
+            if (descElement) descElement.innerText = data.desc;
+            if (loadingSpinner) loadingSpinner.classList.add('d-none');
+            if (infoDiv) {
+                infoDiv.classList.remove('d-none');
+                infoDiv.classList.add('d-flex');
+            }
         } catch (e) {
-            console.error("Weather Widget Error for " + city + ":", e);
-            loadingSpinner.classList.add('d-none');
-            widget.innerHTML = '<small class="text-muted"><i class="fa fa-map-marker"></i> Météo N/A</small>';
+            if (loadingSpinner) loadingSpinner.classList.add('d-none');
+            if (widget) widget.innerHTML = '<small class="text-muted"><i class="fas fa-map-marker-alt"></i> Météo N/A</small>';
         }
     });
-});
-</script>
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    // Gestion des clics sur les étoiles
+
+    // Star Rating
     document.querySelectorAll('.inline-clickable-star').forEach(star => {
         star.addEventListener('click', function(e) {
             e.stopPropagation();
-
             const val = this.getAttribute('data-value');
             const resId = this.getAttribute('data-id');
             const container = document.getElementById('stars-container-' + resId);
             const form = document.getElementById('form-' + resId);
             const inputStar = document.getElementById('input-star-' + resId);
-
             if (!container) return;
-
-            // Mise à jour visuelle
             container.querySelectorAll('.fa-star').forEach(s => {
-                s.style.color = (parseInt(s.getAttribute('data-value')) <= val) ? '#fa9e1b' : '#eee';
+                s.style.color = (parseInt(s.getAttribute('data-value')) <= val) ? '#fa9e1c' : '#eee';
             });
-
             if (inputStar) inputStar.value = val;
-
-            // 🔔 JOUER LE SON (fichier local)
             const audio = new Audio('/sounds/star.mp3');
             audio.volume = 0.5;
-            audio.play().catch(err => {
-                console.warn('Son bloqué :', err.message);
-                // Notification discrète
-                const toast = document.createElement('div');
-                toast.textContent = '🔇 Son indisponible';
-                toast.style.cssText = 'position:fixed;bottom:20px;right:20px;background:#333;color:#fff;padding:8px 16px;border-radius:20px;z-index:9999;';
-                document.body.appendChild(toast);
-                setTimeout(() => toast.remove(), 2000);
-            });
-
-            // Afficher le formulaire
+            audio.play().catch(() => {});
             if (form) form.style.display = 'block';
-
-            // Sauvegarde AJAX
             fetch(`/reservation/rate/${resId}`, {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded',
-                    'X-Requested-With': 'XMLHttpRequest'
-                },
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded', 'X-Requested-With': 'XMLHttpRequest' },
                 body: `stars=${val}`
-            })
-            .then(response => response.json())
-            .then(data => console.log('Stars saved:', data))
-            .catch(err => console.error('Error saving stars:', err));
+            }).catch(err => console.error(err));
         });
     });
 
-    // Soumission du formulaire de commentaire en AJAX (inchangé)
+    // Comment Form
     document.querySelectorAll('form[id^="form-"]').forEach(form => {
         form.addEventListener('submit', function(e) {
             e.preventDefault();
@@ -683,126 +942,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 method: 'POST',
                 body: formData,
                 headers: { 'X-Requested-With': 'XMLHttpRequest' }
-            })
-            .then(response => response.json())
-            .then(data => {
-                alert('Merci ! Votre avis a été enregistré.');
-                this.style.opacity = '0.7';
-            })
-            //.catch(err => alert('Erreur lors de l\'enregistrement.'));
+            }).then(() => alert('Merci ! Votre avis a été enregistré.'));
         });
     });
 });
-</script>
-
-<style>
-/* Add a quick fade-in animation for the comment box */
-@keyframes fadeIn {
-    from { opacity: 0; transform: translateY(-10px); }
-    to { opacity: 1; transform: translateY(0); }
-}
-</style>
-<script src="{{ asset('plugins/parallax-js-master/parallax.min.js') }}"></script>
-<script src="{{ asset('plugins/isotope/isotope.pkgd.min.js') }}"></script>
-<style>
-    /* Rendre le calendrier super "Smooth" */
-    .fc-event {
-        border-radius: 8px !important;
-        border: none !important;
-        padding: 4px 8px !important;
-        font-weight: 600 !important;
-        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-        transition: transform 0.2s ease;
-        cursor: pointer;
-    }
-    .fc-event:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 6px 12px rgba(0,0,0,0.15);
-    }
-    .fc-toolbar-title { font-weight: 800 !important; color: #31124b; text-transform: uppercase; }
-    .fc-button-primary { background-color: #fa9e1b !important; border: none !important; border-radius: 20px !important; padding: 8px 20px !important; font-weight: bold !important; }
-    .fc-button-primary:hover { background-color: #e08e19 !important; }
-</style>
-
-
-
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        // We use 'travel-calendar' here to match your HTML
-        let calendarEl = document.getElementById('travel-calendar'); 
-        let calendarContainer = document.getElementById('calendarContainer');
-        let toggleBtn = document.getElementById('toggleCalendarBtn');
-        
-        let calendar = null;
-
-        toggleBtn.addEventListener('click', function() {
-            if (calendarContainer.style.display === 'none') {
-                // Show the container
-                calendarContainer.style.display = 'block';
-                // Change button text so they know they can click it again to close
-                toggleBtn.innerHTML = '<i class="fa fa-times mr-2"></i> Masquer Mon Planning';
-                
-                if (!calendar) {
-                    // Build the calendar the first time it opens
-                    calendar = new FullCalendar.Calendar(calendarEl, {
-                        initialView: 'dayGridMonth',
-                        // Make sure your localization and other settings stay here!
-                        locale: 'fr',
-                        events: '/fc-load-events',
-                    });
-                    calendar.render();
-                } else {
-                    // Fix the size if it's opened a second time
-                    calendar.updateSize();
-                }
-            } else {
-                // Hide the container
-                calendarContainer.style.display = 'none';
-                // Reset button text
-                toggleBtn.innerHTML = '<i class="fa fa-calendar-alt mr-2"></i> Afficher Mon Planning';
-            }
-        });
-    });
-</script>
-<script>
-    document.addEventListener("DOMContentLoaded", function() {
-        const btnOpen = document.getElementById('btn-open-history');
-        const btnClose = document.getElementById('btn-close-history');
-        const sidebar = document.getElementById('history-sidebar');
-        const overlay = document.getElementById('history-overlay');
-
-        // Fonction pour ouvrir le panneau
-        function openSidebar() {
-            sidebar.style.right = '0';
-            overlay.style.visibility = 'visible';
-            overlay.style.opacity = '1';
-            document.body.style.overflow = 'hidden'; // Empêche le défilement de la page derrière
-        }
-
-        // Fonction pour fermer le panneau
-        function closeSidebar() {
-            sidebar.style.right = '-400px';
-            overlay.style.visibility = 'hidden';
-            overlay.style.opacity = '0';
-            document.body.style.overflow = ''; // Restaure le défilement
-        }
-
-        // Écouteurs d'événements
-        btnOpen.addEventListener('click', openSidebar);
-        btnClose.addEventListener('click', closeSidebar);
-        overlay.addEventListener('click', closeSidebar); // Ferme si on clique sur le fond sombre
-    });
-</script>
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const globalBar = document.getElementById('global-lifeline');
-        if (globalBar) {
-            const progress = globalBar.getAttribute('data-progress');
-            // Petit délai pour laisser la page charger, puis on lance l'animation
-            setTimeout(() => {
-                globalBar.style.width = progress + '%';
-            }, 500);
-        }
-    });
 </script>
 {% endblock %}
